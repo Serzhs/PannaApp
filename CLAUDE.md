@@ -26,11 +26,14 @@ as JSON produced by the user's own AI assistant from a video or a web page.
 | Routing | Expo Router (file based) |
 | Data fetching | TanStack Query v5 |
 | Styling | react-native-unistyles |
+| Animation | react-native-reanimated + react-native-gesture-handler |
+| Haptics | expo-haptics |
+| Rate limiting | `@nestjs/throttler` |
 | Language | TypeScript everywhere, strict (see below), no `any` |
 | Lint | ESLint 9 flat config, `typescript-eslint` strict-type-checked |
 | Format | Prettier, with `eslint-config-prettier` disabling all conflicting rules |
 
-Explicitly **not** used: CSS Modules (does not work in React Native), NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL.
+Explicitly **not** used: CSS Modules (does not work in React Native), NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL, Moti (Reanimated directly is enough for what this app does), `react-native-skia` (revisit only if the cooking view in 0007 genuinely outgrows Reanimated).
 
 ## TypeScript strictness
 
@@ -152,6 +155,24 @@ CSS syntax, and with type checking that CSS variables do not have.
 Shared components live in `apps/mobile/src/components/`. A component earns a place there once a
 second feature needs it, not in anticipation of one.
 
+## Motion
+
+Animation runs on Reanimated's UI thread, never on the JS thread. An animation that stutters while
+data loads is worse than no animation, and stuttering under load is exactly what React Native's own
+`Animated` does.
+
+- Every duration and easing comes from a motion token. No numeric literals in animation calls.
+- Motion has to mean something: it shows where a thing came from, what it turned into, or that a
+  boundary was reached. Decoration carrying no information gets cut.
+- Anything the user drags or presses uses a spring, because a fixed duration on a gesture feels
+  detached from the finger. Anything that merely appears or leaves uses a duration and an easing.
+- The OS reduce-motion setting is honoured everywhere. Transitions resolve instantly to their end
+  state, rather than being skipped in a way that strands content off screen.
+- Haptics accompany a state change the user caused and would otherwise have to look at to confirm:
+  a step completed, a timer finished, a destructive action confirmed. Never on scroll, never on
+  ordinary navigation, never as decoration.
+
+## Mobile conventions
 
 - One TanStack Query hook file per feature, e.g. `src/features/recipes/queries.ts`. Query keys are exported constants, never inline string arrays.
 - Mutations invalidate query keys explicitly. No blanket `invalidateQueries()`.

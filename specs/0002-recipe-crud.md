@@ -77,7 +77,7 @@ Three new routes in the `(app)` group, plus a change to the existing home screen
 
 **`(app)/index`** stops being the 0001 placeholder and becomes the recipe list. It keeps the logged-in display name and the logout button, now in the screen header rather than the body.
 
-- Loading: a skeleton or spinner, not a flash of the empty state.
+- Loading: skeleton rows in the shape of real recipe rows, never a spinner and never a flash of the empty state.
 - Empty: a short line explaining there are no recipes yet, and a primary action that opens the create screen.
 - Error: a message and a retry control that refetches.
 - Populated: one row per recipe showing title, servings and total time when it is set. Tapping a row opens the detail screen. A control in the header opens the create screen.

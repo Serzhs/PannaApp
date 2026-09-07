@@ -14,7 +14,6 @@ A developer can build any screen in this app out of semantic tokens and shared c
 ## Out of scope
 
 - Dark mode. The token structure must make a second theme a matter of swapping primitive values, and this spec ships one light theme only.
-- Motion and animation tokens. Nothing in the app animates yet.
 - An icon set. Components that could take an icon take a `React.ReactNode` slot instead, and choosing an icon library waits until a spec actually needs icons.
 - A full accessibility audit. This spec covers touch target size and OS font scaling, nothing further.
 - Storybook, Chromatic, or any visual regression tooling. The gallery below is a plain route in the app.
@@ -40,6 +39,8 @@ Two files under `apps/mobile/src/styles/`.
 - Radii: `radiusNone` 0, `radiusSm` 4, `radiusMd` 8, `radiusLg` 16, `radiusFull` 9999.
 - A neutral ramp and one accent ramp, each with at least the stops the semantic layer below needs, plus a red, a green and an amber ramp for status.
 - Type sizes paired with their line heights, so the two can never drift apart.
+- Durations: `durationInstant` 0, `durationFast` 120, `durationBase` 200, `durationSlow` 320, `durationDeliberate` 480, in milliseconds.
+- Easings: `easeStandard` for movement that starts and ends on screen, `easeDecelerate` for something entering, `easeAccelerate` for something leaving, and one spring configuration for anything the user drags or presses.
 
 *Semantics* — a mapping from primitives to roles, named for what they are for. Every entry's value is a primitive reference, never a literal:
 
@@ -47,6 +48,11 @@ Two files under `apps/mobile/src/styles/`.
 - Text: `textPrimary`, `textSecondary`, `textDisabled`, `textInverse`.
 - Lines: `border`, `borderSubtle`, `borderFocus`.
 - Roles: `accent`, `onAccent`, `danger`, `onDanger`, `success`, `warning`.
+- Skeleton: `skeletonBase` and `skeletonHighlight`, the two ends of the shimmer.
+
+Motion is tokenised for the same reason colour is. A duration typed inline is a duration nobody can
+change globally, and an app whose transitions each picked their own number reads as sloppy long
+before anyone can say which one is wrong.
 
 **`theme.ts`** assembles the unistyles theme from the semantic layer and exports its type. Named text styles live here too, each one a size, line height and weight together: `display`, `title`, `heading`, `body`, `bodyStrong`, `caption`, `label`.
 
@@ -65,7 +71,8 @@ The list is deliberately confined to what 0001 and 0002 already need:
 - **`TextField`** — label, value, optional error, optional helper text, secure entry. The error state changes the border, shows the message, and is announced to screen readers rather than being colour alone.
 - **`Card`** — a padded surface with radius and border, used for recipe rows.
 - **`Divider`** — a one-pixel line in `borderSubtle`.
-- **`Spinner`** — a single size and a semantic colour.
+- **`Spinner`** — a single size and a semantic colour. For a load that replaces known content, prefer `Skeleton`; a spinner is for an action in flight, not for a screen filling in.
+- **`Skeleton`** — a shimmering placeholder in the shape of the content it stands in for, with `Skeleton.Text` for lines of text and `Skeleton.Block` for rectangles. Every screen's loading state is built from these, so the layout does not jump when real content arrives: a skeleton whose shape differs from the content it replaces is worse than a spinner, because it promises a layout and then breaks it.
 - **`EmptyState`** — title, optional body, optional action slot.
 - **`ErrorState`** — message and a retry action.
 - **`ConfirmDialog`** — title, body, confirm and cancel labels, and a `destructive` flag that renders confirm as the `danger` button variant.
@@ -88,6 +95,9 @@ The list is deliberately confined to what 0001 and 0002 already need:
 - [ ] Text scales with the OS font size setting, and at the largest setting no label in the gallery is clipped or truncated mid-word.
 - [ ] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
 - [ ] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.
+- [ ] Every duration and easing used anywhere in the app resolves to a motion token; a search for numeric duration literals in animation calls outside `tokens.ts` returns no matches.
+- [ ] With the OS "reduce motion" setting on, animations either do not run or resolve instantly to their end state, and no content becomes unreachable as a result.
+- [ ] A skeleton and the content that replaces it occupy the same height, verified for the recipe list row: swapping one for the other shifts nothing on screen.
 - [ ] Changing one primitive colour in `tokens.ts` changes every screen that uses it, with no other file edited.
 
 ## Open questions

@@ -15,7 +15,10 @@ A developer can clone the repo, run three commands, register an account in the E
 
 - Recipes, ingredients, steps, sharing. Tables are created, but no endpoints or screens for them.
 - Image upload of any kind.
-- Password reset, email verification, Sign in with Apple, Google sign-in.
+- Password reset, Sign in with Apple, Google sign-in.
+- Email verification. It is the mitigation that would close the enumeration tradeoff below, and it
+  needs a mail transport, which rule 4 in `CLAUDE.md` does not allow. Revisit only if that rule changes.
+- Separate login and register screens. There is one combined screen, described under UI.
 - Deployment, CI, EAS Build, OTA updates.
 - Profile editing, avatars, account deletion.
 - The design system. 0003 owns tokens, scales and shared components. 0001 ships only the handful of
@@ -49,19 +52,52 @@ and `Lint and format` sections of `CLAUDE.md`.
 The three config files are committed before any application code, so no file in the repo has ever
 existed in an unlinted state.
 
+## Security posture
+
+This app tells anyone who asks whether an email has an account here. That is a deliberate decision,
+not an oversight, and it is written down so nobody later mistakes it for one.
+
+The combined auth screen has to know whether it is signing you in or signing you up before it can
+ask for the right fields, so `POST /api/auth/check-email` answers that question. The tradeoff is
+accepted because the alternative that actually closes it - confirm nothing, send a verification
+email - needs a mail transport this project does not have, and because an account list on a recipe
+app is low-value to an attacker.
+
+What follows from accepting it:
+
+- Enumeration is confined to endpoints that are rate limited. `check-email` and `register` are both
+  throttled per IP, and `login` keeps byte-identical responses for a wrong password and an unknown
+  email. That last rule survives from the original spec, but for a different reason than before: not
+  because existence is secret, but because `login` must not become an unthrottled way around the
+  one endpoint that is throttled.
+- `check-email` is a hint for the UI and never a security boundary. The server re-checks on every
+  write, and the client is not trusted to have asked first.
+
 ## API contract
 
 All bodies validated by Zod schemas from `packages/shared`.
 
+**POST /api/auth/check-email**
+Body: `{ email }`
+200: `{ exists: boolean }`. Matching is case insensitive, per the `citext` column.
+400 if the value is not a well formed email address.
+429 when the caller exceeds 10 requests per minute or 100 per hour from one IP.
+This endpoint is unauthenticated, returns nothing but the boolean, and never reveals a display name,
+a creation date, or anything else about a matching account.
+
 **POST /api/auth/register**
 Body: `{ email, password, displayName }`. Password minimum 10 characters.
 201: `{ user: { id, email, displayName }, accessToken, refreshToken }`
-409 if the email is taken. 400 on validation failure.
+409 if the email is taken. 400 on validation failure. 429 under the same throttle as `check-email`.
+
+A 409 here is expected in normal use, not only under attack: `check-email` can answer `false` and
+somebody else can register that address before the form is submitted. The client handles 409 by
+switching to the password prompt for an existing account, not by showing a crash or a dead end.
 
 **POST /api/auth/login**
 Body: `{ email, password }`
 200: same shape as register.
-401 on wrong email or wrong password. The message must be identical in both cases so the endpoint does not reveal which emails exist.
+401 on wrong email or wrong password. The message and status must be identical in both cases, so that `login` cannot be used as an unthrottled substitute for the rate limited `check-email`. The timing of the two paths should not differ meaningfully either: a missing user still costs one password verification against a dummy hash, so the response time does not give the answer away.
 
 **POST /api/auth/refresh**
 Body: `{ refreshToken }`
@@ -80,9 +116,30 @@ Refresh tokens are stored hashed. A raw refresh token is never written to the da
 
 Expo Router with two route groups: `(auth)` and `(app)`.
 
-- `(auth)/login`: email, password, submit, link to register. Shows inline field errors and a single form-level error for 401.
-- `(auth)/register`: email, password, display name, submit, link to login.
-- `(app)/index`: placeholder home screen showing the logged-in display name and a logout button. Recipes come later.
+**`(auth)/index`** is one screen with one primary button, which changes label as the screen learns
+what it is doing. There is no login screen and no register screen, and no link between them.
+
+*Identify.* Email field, button labelled `Continue`. Submitting calls `check-email`.
+
+*Returning user* (`exists: true`). A password field animates in below the email. The button becomes
+`Log in`. The email stays visible and editable; editing it collapses the screen back to Identify,
+because the answer it was built on is no longer the answer to the question being asked.
+
+*New user* (`exists: false`). A password field and a display name field animate in. The button
+becomes `Create account`. A short line explains that this email is new here, so nobody types their
+password into what they assumed was a login form and gets an account instead.
+
+The transition between stages animates the fields in and the button label across, per the Motion
+section of `CLAUDE.md`. It does not remount the email field, so the keyboard never dismisses and
+reopens mid-flow.
+
+Errors: field-level errors render against the field. A 401 renders once at form level. A 409 on
+create switches the screen to the returning-user stage with an explanation, rather than surfacing
+the raw conflict. A 429 shows a plain "too many attempts, try again shortly" and disables the button
+until the window passes.
+
+**`(app)/index`**: placeholder home screen showing the logged-in display name and a logout button.
+Recipes come later.
 
 The root layout decides which group to show based on whether a session exists. While that check is running, show a splash state rather than flashing the login screen.
 
@@ -97,7 +154,13 @@ Tokens are stored in `expo-secure-store`. The fetch client attaches the access t
 - [ ] Adding an unused local variable, an implicit `any`, or an unchecked index access each fail `pnpm typecheck` or `pnpm lint`.
 - [ ] The initial migration creates all seven tables, and `step_dependencies` rejects a row where `stepId` equals `dependsOnStepId`.
 - [ ] Registering with an email that already exists returns 409 and creates no user row.
-- [ ] Login with a wrong password and login with an unknown email return byte-identical response bodies.
+- [ ] Login with a wrong password and login with an unknown email return byte-identical response bodies, and their response times do not differ enough to distinguish the two cases over 100 samples.
+- [ ] `check-email` returns `{ exists: true }` for a registered address in any capitalisation, and `{ exists: false }` for an unregistered one.
+- [ ] `check-email` returns 429 on the eleventh request within a minute from one IP, and `register` is throttled by the same rule.
+- [ ] `check-email` for an existing account returns a body containing exactly one key, `exists`.
+- [ ] Entering a new email, then editing that email, returns the screen to the Identify stage rather than leaving a stale password field on screen.
+- [ ] Submitting the create form for an email registered in the meantime shows the returning-user stage, not an unhandled error.
+- [ ] With reduce motion enabled, the stage transition resolves instantly and every field remains reachable.
 - [ ] Using a refresh token twice fails the second time with 401.
 - [ ] `GET /api/me` returns 401 without a token and 401 with an expired access token.
 - [ ] The app restores the session after a full app restart without showing the login screen.
@@ -106,4 +169,4 @@ Tokens are stored in `expo-secure-store`. The fetch client attaches the access t
 
 ## Open questions
 
-None.
+None. The enumeration tradeoff was a question and is now a recorded decision, under Security posture.
