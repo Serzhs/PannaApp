@@ -111,6 +111,7 @@ All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/featur
 - [ ] In the app, creating a recipe and navigating back to the list shows it without a manual refresh, and deleting one removes it from the list the same way.
 - [ ] A fresh account opening the app sees the empty state, and never sees the empty state flash before the loading state resolves.
 - [ ] Opening a detail route for a recipe id that does not exist shows the not-found state with a way back to the list.
+- [ ] A VoiceOver or TalkBack walkthrough of the list, create, detail and edit screens reaches every control in a sensible order. Each recipe row is one element announcing title, servings and time together, not four separate stops, and the delete confirmation announces itself and returns focus to the list afterwards.
 
 ## Open questions
 

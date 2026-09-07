@@ -105,6 +105,7 @@ The list is deliberately confined to what 0001 and 0002 already need:
 - [ ] Every interactive component exposes an `accessibilityRole` and an accessible name, and `Button` in its disabled and loading states reports `disabled` and `busy` through `accessibilityState`.
 - [ ] No component conveys a state by colour alone: `TextField` in error shows a message, and the gallery renders every state legibly in greyscale.
 - [ ] No component sets `allowFontScaling={false}`, verified by a search returning no matches.
+- [ ] A VoiceOver or TalkBack walkthrough of the gallery reaches every component in a sensible order, and each announces what it is and what it does. `Skeleton` is not announced as content, and `Spinner` announces that something is loading.
 - [ ] Text scales with the OS font size setting, and at the largest setting no label in the gallery is clipped or truncated mid-word.
 - [ ] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
 - [ ] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.

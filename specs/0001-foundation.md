@@ -180,6 +180,7 @@ Tokens are stored in `expo-secure-store`. The fetch client attaches the access t
 - [ ] Entering a new email, then editing that email, returns the screen to the Identify stage rather than leaving a stale password field on screen.
 - [ ] Submitting the create form for an email registered in the meantime shows the returning-user stage, not an unhandled error.
 - [ ] With reduce motion enabled, the stage transition resolves instantly and every field remains reachable.
+- [ ] A VoiceOver or TalkBack walkthrough of the auth screen reaches the email field, the password field once revealed, and the button in that order; the button announces its current label; and the stage change from Identify to a revealed password field is announced rather than happening silently.
 - [ ] Using a refresh token twice fails the second time with 401.
 - [ ] `GET /api/me` returns 401 without a token and 401 with an expired access token.
 - [ ] The app restores the session after a full app restart without showing the login screen.

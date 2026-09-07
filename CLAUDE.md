@@ -221,6 +221,17 @@ is built, and not an audit somebody schedules later.
   This is the rule that makes the others hold: a component that is awkward to query in a test is a
   component that is awkward to use with a screen reader, and the test fails first.
 
+**Every spec that adds a screen carries a screen reader walkthrough as an acceptance criterion.**
+The automated checks above catch missing labels and failing contrast; they cannot tell that a
+reading order is nonsense, that focus is trapped, or that a control is labelled "button". Those need
+a person with VoiceOver or TalkBack on, moving through the screen without looking at it. It costs
+about ten minutes per screen, and it is the only part of accessibility that cannot be delegated to
+a test.
+
+The walkthrough covers: reaching every interactive element in an order that makes sense, every
+element announcing what it is and what it does, no element announced twice or not at all, and every
+state change spoken.
+
 ## Motion
 
 Animation runs on Reanimated's UI thread, never on the JS thread. An animation that stutters while
