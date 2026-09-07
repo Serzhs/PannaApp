@@ -29,6 +29,7 @@ as JSON produced by the user's own AI assistant from a video or a web page.
 | Animation | react-native-reanimated + react-native-gesture-handler |
 | Haptics | expo-haptics |
 | i18n | `i18next` + `react-i18next`, locale detection via `expo-localization` |
+| Offline | TanStack Query cache persisted to `expo-sqlite/kv-store` |
 | Rate limiting | `@nestjs/throttler` |
 | Language | TypeScript everywhere, strict (see below), no `any` |
 | Lint | ESLint 9 flat config, `typescript-eslint` strict-type-checked |
@@ -112,6 +113,11 @@ The per-component `index.ts` re-exports that one component, so imports read
 `from '@/components/Button'`. There is no `components/index.ts` re-exporting everything: a barrel
 over the whole directory is what turns one import into a graph of them, and it is the usual source
 of circular imports in a codebase shaped like this one.
+
+`packages/shared` also owns the error code list as a const object, not as loose strings. The API
+throws with a code from it and the mobile client derives its translation keys from the same object,
+so a typo on either side is a type error rather than an error message that silently renders in the
+wrong language.
 
 `packages/shared` is the single place where request/response shapes are defined. The API derives its DTOs from those Zod schemas, and the mobile client derives its types from the same schemas. Never duplicate a shape by hand on either side.
 
@@ -232,6 +238,22 @@ The walkthrough covers: reaching every interactive element in an order that make
 element announcing what it is and what it does, no element announced twice or not at all, and every
 state change spoken.
 
+## Offline
+
+This app is used standing in a kitchen, on bad wifi, with dirty hands. A dropped connection is the
+normal case, not the exception, and losing your place fifteen minutes into a recipe is the worst
+thing the app can do to someone.
+
+- The TanStack Query cache is persisted, so any recipe already opened stays readable with no network.
+- **Entering cooking mode pins the whole recipe first** - every step, ingredient and dependency
+  edge - and refuses to start until it has. After that, a connection drop cannot interrupt cooking,
+  because nothing in cooking mode needs the network. This is a guarantee by construction, not a
+  cache that usually happens to be warm.
+- Writes require a connection. There is no mutation queue and no offline editing. A write attempted
+  offline fails immediately with a clear message and keeps the user's input, so nothing is lost and
+  nothing is silently pending.
+- Offline is a visible state, never a spinner that never resolves.
+
 ## Motion
 
 Animation runs on Reanimated's UI thread, never on the JS thread. An animation that stutters while
@@ -295,6 +317,8 @@ pnpm test
 ## Testing
 
 - API: Vitest. Service-level tests for business rules (ownership, ordering, share token lifecycle). One e2e test per endpoint group against a real Postgres in docker.
+- **Tests isolate by truncating every table between tests**, not by wrapping each test in a transaction that is rolled back. Rolling back is faster, but service code already runs inside transactions, so those would become savepoints nested under the test's transaction and no test would ever exercise a real commit. Since `CLAUDE.md` calls a partial write a bug, the tests have to be able to catch one.
+- A seed script populates a known set of users and recipes for manual testing, and is never used by automated tests, which build the exact state they need.
 - Mobile: Vitest + React Native Testing Library for hooks and non-trivial components. No snapshot tests.
 - Do not write tests that only assert a mock was called.
 

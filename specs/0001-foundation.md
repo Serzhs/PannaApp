@@ -58,6 +58,18 @@ and `Lint and format` sections of `CLAUDE.md`.
 The three config files are committed before any application code, so no file in the repo has ever
 existed in an unlinted state.
 
+**Test harness.** Vitest is configured against the Docker Postgres, with a helper that truncates
+every table between tests, per the Testing section of `CLAUDE.md`. The helper is written once here
+and used by every later spec, so no spec has to reinvent isolation.
+
+**Seed script.** `pnpm db:seed` creates a known set of users, and from 0005 onward, recipes. It is
+for working on the app by hand; automated tests never call it and build the state they need. It is
+idempotent, so running it twice does not produce duplicates.
+
+**Shared error codes.** `packages/shared` exports the error code list as a const object. The API
+throws with codes from it, the mobile client derives translation keys from it, and neither side can
+write a code the other does not know about without failing typecheck.
+
 ## Security posture
 
 This app tells anyone who asks whether an email has an account here. That is a deliberate decision,
@@ -168,6 +180,10 @@ Tokens are stored in `expo-secure-store`. The fetch client attaches the access t
 - [ ] `pnpm lint` passes with zero warnings, and fails if a warning is introduced.
 - [ ] Prettier in check mode reports no changes for any committed file.
 - [ ] Adding an unused local variable, an implicit `any`, or an unchecked index access each fail `pnpm typecheck` or `pnpm lint`.
+- [ ] `pnpm db:seed` runs against a migrated database, and running it a second time leaves the same rows rather than duplicating them.
+- [ ] Two API tests that each create a user with the same email both pass when run in the same file, proving truncation happens between them.
+- [ ] A test asserting a rolled-back transaction leaves no partial rows passes, proving the harness does not hide commit behaviour inside an outer transaction.
+- [ ] Throwing with a code that is not in the shared const object fails `pnpm typecheck`.
 - [ ] The initial migration creates all seven tables, and `step_dependencies` rejects a row where `stepId` equals `dependsOnStepId`.
 - [ ] Registering with an email that already exists returns 409 and creates no user row.
 - [ ] Every error response from every endpoint carries a `code` from the list above, and no endpoint returns an error without one.

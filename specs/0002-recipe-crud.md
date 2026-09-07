@@ -18,6 +18,7 @@ A logged-in user can create, view, edit and delete their own recipes, as metadat
 - Images. `coverImageKey` stays null and is never written or returned.
 - Search, filtering, sorting controls, tags, categories, favourites.
 - Pagination. A user's own list is returned in full.
+- Offline editing and any mutation queue. Reads are cached per the Offline section of `CLAUDE.md`; writes require a connection.
 - Duplicating a recipe, importing a recipe, exporting a recipe.
 - Soft delete, trash, undo. Deletion is permanent.
 - Any read access to a recipe by anyone other than its author.
@@ -80,7 +81,7 @@ Three new routes in the `(app)` group, plus a change to the existing home screen
 
 - Loading: skeleton rows in the shape of real recipe rows, never a spinner and never a flash of the empty state.
 - Empty: a short line explaining there are no recipes yet, and a primary action that opens the create screen.
-- Error: a message and a retry control that refetches.
+- Error: a message and a retry control that refetches. Being offline is its own state with its own wording, not a generic failure, because the user can act on one and not the other.
 - Populated: one row per recipe showing title, servings and total time when it is set. Tapping a row opens the detail screen. A control in the header opens the create screen.
 
 **`(app)/recipes/new`**: a form for the four fields. Submit is disabled while the request is in flight. On success the app navigates to the new recipe's detail screen, and the list reflects it on return without a manual refresh. Field-level errors render against the field; a failure that is not field-specific renders once at form level.
@@ -111,6 +112,8 @@ All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/featur
 - [ ] In the app, creating a recipe and navigating back to the list shows it without a manual refresh, and deleting one removes it from the list the same way.
 - [ ] A fresh account opening the app sees the empty state, and never sees the empty state flash before the loading state resolves.
 - [ ] Opening a detail route for a recipe id that does not exist shows the not-found state with a way back to the list.
+- [ ] The query cache is persisted: opening a recipe, force-quitting the app, going offline and reopening it shows the recipe rather than an error.
+- [ ] Creating a recipe with no connection fails with an offline message, keeps everything the user typed, and creates nothing when the connection returns.
 - [ ] A VoiceOver or TalkBack walkthrough of the list, create, detail and edit screens reaches every control in a sensible order. Each recipe row is one element announcing title, servings and time together, not four separate stops, and the delete confirmation announces itself and returns focus to the list afterwards.
 
 ## Open questions
