@@ -1,15 +1,15 @@
-# 0003: Design system and tokens
+# 0002: Design system - tokens and primitives
 
 **Status:** Draft
 **Depends on:** 0001
 
 ## Context
 
-0001 ships two auth screens with whatever handful of values they needed, which is the right amount of design system for two screens and the wrong amount for the rest of the app. From 0002 onward every spec adds screens, and without a shared vocabulary each one invents its own spacing, its own grey and its own button. That divergence is cheap to prevent now and expensive to unpick later.
+0001 leaves a booting app with one placeholder screen and no shared vocabulary for building anything else. Every spec from here adds screens, and without tokens each one invents its own spacing, its own grey and its own button. Doing this before the first real screen rather than after is the difference between building on it and retrofitting it.
 
 ## Goal
 
-A developer can build any screen in this app out of semantic tokens and shared components without writing a single raw value.
+A developer can build a form screen out of semantic tokens and shared components without writing a single raw value, and can see every component in isolation on a simulator.
 
 ## Out of scope
 
@@ -18,6 +18,7 @@ A developer can build any screen in this app out of semantic tokens and shared c
 - A full accessibility audit. This spec covers touch target size and OS font scaling, nothing further.
 - Visual regression tooling: Chromatic, screenshot diffing, or any hosted service. Storybook runs locally on a simulator and nothing publishes from it.
 - A web build of Storybook. It renders through `react-native-web`, which is not this app's renderer, so it could show a component the device will not reproduce.
+- The rest of the component set. `Card`, `Divider`, `Spinner`, `Skeleton`, `EmptyState`, `ErrorState` and `ConfirmDialog` are 0004. This spec ships the five a form needs, which is what 0003 requires next.
 - Any component that no existing spec needs. New components arrive with the feature that requires them, per `CLAUDE.md`.
 
 ## Data model
@@ -69,20 +70,13 @@ folder rather than in a parallel test tree.
 This spec establishes that shape. Every component added by a later spec follows it without the later
 spec having to restate it.
 
-The list is deliberately confined to what 0001 and 0002 already need:
+The list is confined to what a form screen needs, which is what 0003 builds next:
 
 - **`Screen`** — safe area, background, standard horizontal padding, optional scrolling.
 - **`Text`** — takes a named text style and a semantic colour. The only component in the app allowed to render a raw React Native `Text`.
 - **`Stack`** — vertical or horizontal, with `gap` taken from the spacing scale. Replaces ad hoc margins, so spacing lives with the container rather than being sprinkled on children.
 - **`Button`** — variants `primary`, `secondary`, `ghost`, `danger`. States: default, pressed, disabled, loading. Loading shows a spinner in place of the label and blocks further presses without changing the button's size.
 - **`TextField`** — label, value, optional error, optional helper text, secure entry. The error state changes the border, shows the message, and is announced to screen readers rather than being colour alone.
-- **`Card`** — a padded surface with radius and border, used for recipe rows.
-- **`Divider`** — a one-pixel line in `borderSubtle`.
-- **`Spinner`** — a single size and a semantic colour. For a load that replaces known content, prefer `Skeleton`; a spinner is for an action in flight, not for a screen filling in.
-- **`Skeleton`** — a shimmering placeholder in the shape of the content it stands in for, with `Skeleton.Text` for lines of text and `Skeleton.Block` for rectangles. Every screen's loading state is built from these, so the layout does not jump when real content arrives: a skeleton whose shape differs from the content it replaces is worse than a spinner, because it promises a layout and then breaks it.
-- **`EmptyState`** — title, optional body, optional action slot.
-- **`ErrorState`** — message and a retry action.
-- **`ConfirmDialog`** — title, body, confirm and cancel labels, and a `destructive` flag that renders confirm as the `danger` button variant.
 
 ## UI
 
@@ -92,7 +86,7 @@ Every component has a `.stories.tsx` file in its own folder, with one story per 
 
 Storybook is reached through a separate entry point selected by an environment variable, not by a route inside the app. **No story file and no Storybook dependency may reach a production bundle**, which a route-based gallery could not guarantee. That exclusion is an acceptance criterion below, because it is the kind of thing that is easy to get wrong and impossible to notice.
 
-**Refactor.** The combined `(auth)/index` screen from 0001 is rebuilt on these components, in all three of its stages. This is the proof that the set is sufficient: if it still needs a local `StyleSheet` with a colour or a spacing number in it, the design system is missing something and this spec is not done. The stage transition is a useful stress test of `Stack` and `Button` specifically, since the button's label changes while its size must not.
+There is no screen to refactor here, because no real screen exists yet. The proof that this set is sufficient comes in 0003, which builds the auth screen from it and carries the criterion that the screen contains no raw values. If it cannot, this spec was wrong and comes back.
 
 ## Acceptance criteria
 
@@ -103,7 +97,6 @@ Storybook is reached through a separate entry point selected by an environment v
 - [ ] Storybook launches on a simulator and lists every component above, each with a story per variant and per state named, and no runtime warnings in the console.
 - [ ] Every component folder contains a `.stories.tsx` file. A component without one fails a test that walks the components directory.
 - [ ] A production build contains no Storybook dependency and no story file, verified by inspecting the bundle rather than by inspecting the config.
-- [ ] `(auth)/index` contains no colour value, no spacing number and no font size, in any of its three stages.
 - [ ] Every component lives in its own folder with its component, styles, test and index files, and no component's styles or tests live outside its folder.
 - [ ] There is no `components/index.ts` re-exporting the directory.
 - [ ] Every interactive element has a touch target of at least 44 by 44 points, including `Button` at its smallest and the `TextField` clear affordance, measured including `hitSlop`.
@@ -112,22 +105,15 @@ Storybook is reached through a separate entry point selected by an environment v
 - [ ] Every interactive component exposes an `accessibilityRole` and an accessible name, and `Button` in its disabled and loading states reports `disabled` and `busy` through `accessibilityState`.
 - [ ] No component conveys a state by colour alone: `TextField` in error shows a message, and every state renders legibly in greyscale in Storybook.
 - [ ] No component sets `allowFontScaling={false}`, verified by a search returning no matches.
-- [ ] A VoiceOver or TalkBack walkthrough of Storybook reaches every component in a sensible order, and each announces what it is and what it does. `Skeleton` is not announced as content, and `Spinner` announces that something is loading.
+- [ ] A VoiceOver or TalkBack walkthrough of Storybook reaches every component in a sensible order, and each announces what it is and what it does. `TextField` announces its label, its value and its error together rather than as separate stops.
 - [ ] Text scales with the OS font size setting, and at the largest setting no label in Storybook is clipped or truncated mid-word.
 - [ ] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
 - [ ] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.
 - [ ] Every duration and easing used anywhere in the app resolves to a motion token; a search for numeric duration literals in animation calls outside `tokens.ts` returns no matches.
 - [ ] With the OS "reduce motion" setting on, animations either do not run or resolve instantly to their end state, and no content becomes unreachable as a result.
-- [ ] A skeleton and the content that replaces it occupy the same height, verified for the recipe list row: swapping one for the other shifts nothing on screen.
 - [ ] Changing one primitive colour in `tokens.ts` changes every screen that uses it, with no other file edited.
 
 ## Open questions
 
 1. **Accent colour.** No brand colour has been chosen. Whatever it is, it has to clear 4.5:1 against `surface` for text and 3:1 for control boundaries, which rules out most of the bright mid-tone colours brands tend to pick, and usually means a darker shade for text than the one used for fills. The spec can ship a neutral placeholder that passes and have it replaced in one line, or wait for a decision. Which?
-2. **Spec size.** With Storybook replacing the gallery, this spec now covers tokens, twelve
-   components, a Storybook setup with a separate entry point, stories for everything, and the refactor
-   of two screens. That is more than the roughly one day `specs/README.md` allows before a spec should
-   be split. The natural cut is tokens plus Storybook plus the four primitives `Screen`, `Text`,
-   `Stack` and `Button` here, with `TextField`, `Card`, `Divider`, `Spinner`, `Skeleton`,
-   `EmptyState`, `ErrorState` and `ConfirmDialog` in a follow-up. Split it, or accept a two-day spec?
-3. **Font.** Nothing here picks a typeface, so this ships on the system font. Loading a custom font through `expo-font` changes the splash and loading behaviour in 0001, so if a specific font is wanted it is better decided now than retrofitted.
+2. **Font.** Nothing here picks a typeface, so this ships on the system font. Loading a custom font through `expo-font` changes the splash and loading behaviour set up in 0001, so if a specific font is wanted it is better decided now than retrofitted.

@@ -56,7 +56,7 @@ just say it simply.
 | Lint | ESLint 9 flat config, `typescript-eslint` strict-type-checked |
 | Format | Prettier, with `eslint-config-prettier` disabling all conflicting rules |
 
-Explicitly **not** used: CSS Modules (does not work in React Native), NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL, Moti (Reanimated directly is enough for what this app does), `react-native-skia` (revisit only if the cooking view in 0007 genuinely outgrows Reanimated).
+Explicitly **not** used: CSS Modules (does not work in React Native), NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL, Moti (Reanimated directly is enough for what this app does), `react-native-skia` (revisit only if the cooking view in 0010 genuinely outgrows Reanimated).
 
 ## TypeScript strictness
 

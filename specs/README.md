@@ -6,26 +6,26 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 
 | # | Title | Status | Goal |
 | --- | --- | --- | --- |
-| [0001](0001-foundation.md) | Foundation, database and auth | Draft | Clone, run three commands, register, stay logged in across restarts. |
-| [0002](0002-recipe-crud.md) | Recipe CRUD | Draft | Create, view, edit and delete your own recipes, as metadata only. |
-| [0003](0003-design-system.md) | Design system and tokens | Draft | Build any screen from semantic tokens and shared components, with no raw values. |
-| [0004](0004-i18n.md) | Internationalisation | Draft | Run the app in another language, with correct plurals, formats and units. |
-| 0005 | Ingredients | Not written | Add, edit, remove and reorder the ingredients of a recipe. |
-| 0006 | Steps and the dependency graph | Not written | Write steps and declare which must finish before which. |
-| 0007 | Step to ingredient links | Not written | Attach ingredients to the step that uses them. |
-| 0008 | Cooking mode | Not written | Cook a recipe, seeing everything available to do right now. |
-| 0009 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
-| 0010 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
-| 0011 | Images | Not written | Cover and per-step images. |
+| [0001](0001-project-setup.md) | Project setup and database | Draft | Clone, run three commands, get a linted API on a migrated database. |
+| [0002](0002-design-system.md) | Design system: tokens and primitives | Draft | Build a form screen from tokens and components, with no raw values. |
+| [0003](0003-auth.md) | Authentication | Draft | Create an account or sign in from one screen, and stay signed in. |
+| [0004](0004-design-system-components.md) | Design system: display and feedback | Draft | Build a list screen's loading, empty and error states. |
+| [0005](0005-recipe-crud.md) | Recipe CRUD | Draft | Create, view, edit and delete your own recipes, as metadata only. |
+| [0006](0006-i18n.md) | Internationalisation | Draft | Run the app in another language, with correct plurals, formats and units. |
+| 0007 | Ingredients | Not written | Add, edit, remove and reorder the ingredients of a recipe. |
+| 0008 | Steps and the dependency graph | Not written | Write steps and declare which must finish before which. |
+| 0009 | Step to ingredient links | Not written | Attach ingredients to the step that uses them. |
+| 0010 | Cooking mode | Not written | Cook a recipe, seeing everything available to do right now. |
+| 0011 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
+| 0012 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
+| 0013 | Images | Not written | Cover and per-step images. |
 
-Numbers are identifiers, not a build order. 0003 is implemented before 0002's screens, which is why
-0002 depends on it despite the lower number.
+Numbers run in build order, and each spec depends only on lower-numbered ones. That is a convenience
+rather than a rule, and it will stop being true the first time something is inserted.
 
-Internationalisation took 0004 and pushed everything below it down one. That was free because none
-of those specs had been written yet, and it will not be free again: once a number is on a written
-spec it is fixed, per the rule above.
-
-Keep this table in step with the specs. A spec whose status changes updates its row in the same PR.
+A number is fixed once its spec is **Approved**. Draft specs can still be renumbered, because nothing
+has been built against them yet and a tidy order is worth more than an untouched number. Once a spec
+is approved its number never changes and is never reused.
 
 ## Workflow
 

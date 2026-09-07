@@ -1,11 +1,11 @@
-# 0002: Recipe CRUD
+# 0005: Recipe CRUD
 
 **Status:** Draft
-**Depends on:** 0001, 0003
+**Depends on:** 0003, 0004
 
 ## Context
 
-After 0001 a user can register and log in, but the app has nothing in it. The `recipes` table exists and is empty, with no endpoints and no screens. A recipe has to exist as an owned object before ingredients, steps or sharing have anything to attach to.
+After 0003 a user can register and log in, but the app has nothing in it. The `recipes` table exists and is empty, with no endpoints and no screens. A recipe has to exist as an owned object before ingredients, steps or sharing have anything to attach to.
 
 ## Goal
 
@@ -25,7 +25,7 @@ A logged-in user can create, view, edit and delete their own recipes, as metadat
 
 ## Data model
 
-No new tables and no new columns. The `recipes` table from 0001 is used as-is, so this spec adds no migration.
+No new tables and no new columns. The `recipes` table created in 0001 is used as-is, so this spec adds no migration.
 
 Fields written by this spec: `title`, `description`, `servings`, `totalTimeMinutes`, `authorId`.
 Fields not written by this spec: `coverImageKey`, `visibility` (stays at its `private` default), `shareToken`.
@@ -38,7 +38,7 @@ All bodies validated by Zod schemas in `packages/shared`. All routes require a v
 
 `{ id, title, description, language, servings, totalTimeMinutes, createdAt, updatedAt }`
 
-`authorId`, `coverImageKey`, `visibility` and `shareToken` are never returned by this spec's endpoints. Sharing state becomes visible to the client in 0007, not here.
+`authorId`, `coverImageKey`, `visibility` and `shareToken` are never returned by this spec's endpoints. Sharing state becomes visible to the client in 0012, not here.
 
 **Field rules**, shared by create and update:
 
@@ -69,7 +69,7 @@ Body: any subset of `{ title, description, servings, totalTimeMinutes }`. An emp
 **DELETE /api/recipes/:recipeId**
 204 with an empty body.
 404 under the same rule as `GET`, including for a recipe that was already deleted.
-Rows in `ingredients`, `steps` and `step_ingredients` are removed by the existing cascades. In this spec those tables are always empty, so the cascade is untested here and is covered by 0003 and 0004.
+Rows in `ingredients`, `steps` and `step_ingredients` are removed by the existing cascades. In this spec those tables are always empty, so the cascade is untested here and is covered by 0007 and 0008.
 
 Ownership is enforced by a guard, as `CLAUDE.md` requires, not by checks scattered through the service.
 
@@ -77,7 +77,7 @@ Ownership is enforced by a guard, as `CLAUDE.md` requires, not by checks scatter
 
 Three new routes in the `(app)` group, plus a change to the existing home screen.
 
-**`(app)/index`** stops being the 0001 placeholder and becomes the recipe list. It keeps the logged-in display name and the logout button, now in the screen header rather than the body.
+**`(app)/index`** stops being the 0003 placeholder and becomes the recipe list. It keeps the logged-in display name and the logout button, now in the screen header rather than the body.
 
 - Loading: skeleton rows in the shape of real recipe rows, never a spinner and never a flash of the empty state.
 - Empty: a short line explaining there are no recipes yet, and a primary action that opens the create screen.
@@ -119,4 +119,4 @@ All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/featur
 ## Open questions
 
 1. **List ordering.** This spec orders by `updatedAt` descending, so the recipe most recently worked on is first. The alternative is alphabetical by title, which is more predictable for a large collection but pushes an in-progress recipe out of sight. Which one is intended?
-2. **`totalTimeMinutes` ownership.** *(Reopened by the dependency graph decision.)* Here it is a free-text number the author types. Steps carry `durationSeconds` from 0001, so from 0004 onward a total could instead be derived by summing them. Now that steps form a dependency graph, the meaningful total is the critical path through it - the longest chain of dependent durations - which is genuinely computable and is a better number than a sum, because parallel work should not be counted twice. If the field is to become derived that way, it should probably not be editable in this slice's forms at all. Is it author-entered permanently, or a placeholder until steps exist?
+2. **`totalTimeMinutes` ownership.** *(Reopened by the dependency graph decision.)* Here it is a free-text number the author types. Steps carry `durationSeconds` from 0001, so from 0008 onward a total could instead be derived by summing them. Now that steps form a dependency graph, the meaningful total is the critical path through it - the longest chain of dependent durations - which is genuinely computable and is a better number than a sum, because parallel work should not be counted twice. If the field is to become derived that way, it should probably not be editable in this slice's forms at all. Is it author-entered permanently, or a placeholder until steps exist?
