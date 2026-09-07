@@ -1,0 +1,96 @@
+# 0003: Design system and tokens
+
+**Status:** Draft
+**Depends on:** 0001
+
+## Context
+
+0001 ships two auth screens with whatever handful of values they needed, which is the right amount of design system for two screens and the wrong amount for the rest of the app. From 0002 onward every spec adds screens, and without a shared vocabulary each one invents its own spacing, its own grey and its own button. That divergence is cheap to prevent now and expensive to unpick later.
+
+## Goal
+
+A developer can build any screen in this app out of semantic tokens and shared components without writing a single raw value.
+
+## Out of scope
+
+- Dark mode. The token structure must make a second theme a matter of swapping primitive values, and this spec ships one light theme only.
+- Motion and animation tokens. Nothing in the app animates yet.
+- An icon set. Components that could take an icon take a `React.ReactNode` slot instead, and choosing an icon library waits until a spec actually needs icons.
+- A full accessibility audit. This spec covers touch target size and OS font scaling, nothing further.
+- Storybook, Chromatic, or any visual regression tooling. The gallery below is a plain route in the app.
+- Any component that no existing spec needs. New components arrive with the feature that requires them, per `CLAUDE.md`.
+
+## Data model
+
+None. This spec adds no tables, no columns and no migration.
+
+## API contract
+
+None. This spec adds no endpoints and makes no network calls.
+
+## Token structure
+
+Two files under `apps/mobile/src/styles/`.
+
+**`tokens.ts`** is the only file in `apps/mobile/src` permitted to contain a hex colour, a spacing number, a radius or a font size literal. It exports two layers.
+
+*Primitives* — the raw scales, named for what they are:
+
+- Spacing on a 4pt base: `space0` 0, `space1` 4, `space2` 8, `space3` 12, `space4` 16, `space5` 20, `space6` 24, `space8` 32, `space10` 40, `space12` 48, `space16` 64.
+- Radii: `radiusNone` 0, `radiusSm` 4, `radiusMd` 8, `radiusLg` 16, `radiusFull` 9999.
+- A neutral ramp and one accent ramp, each with at least the stops the semantic layer below needs, plus a red, a green and an amber ramp for status.
+- Type sizes paired with their line heights, so the two can never drift apart.
+
+*Semantics* — a mapping from primitives to roles, named for what they are for. Every entry's value is a primitive reference, never a literal:
+
+- Surfaces: `background`, `surface`, `surfaceRaised`, `overlay`.
+- Text: `textPrimary`, `textSecondary`, `textDisabled`, `textInverse`.
+- Lines: `border`, `borderSubtle`, `borderFocus`.
+- Roles: `accent`, `onAccent`, `danger`, `onDanger`, `success`, `warning`.
+
+**`theme.ts`** assembles the unistyles theme from the semantic layer and exports its type. Named text styles live here too, each one a size, line height and weight together: `display`, `title`, `heading`, `body`, `bodyStrong`, `caption`, `label`.
+
+Components consume semantic tokens and named text styles only. A component reaching past them to a primitive is the failure this two-layer split exists to prevent, because it is the thing that silently survives a palette change and then looks wrong.
+
+## Components
+
+`apps/mobile/src/components/`, one file per component, each with its props typed and no `any`.
+
+The list is deliberately confined to what 0001 and 0002 already need:
+
+- **`Screen`** — safe area, background, standard horizontal padding, optional scrolling.
+- **`Text`** — takes a named text style and a semantic colour. The only component in the app allowed to render a raw React Native `Text`.
+- **`Stack`** — vertical or horizontal, with `gap` taken from the spacing scale. Replaces ad hoc margins, so spacing lives with the container rather than being sprinkled on children.
+- **`Button`** — variants `primary`, `secondary`, `ghost`, `danger`. States: default, pressed, disabled, loading. Loading shows a spinner in place of the label and blocks further presses without changing the button's size.
+- **`TextField`** — label, value, optional error, optional helper text, secure entry. The error state changes the border, shows the message, and is announced to screen readers rather than being colour alone.
+- **`Card`** — a padded surface with radius and border, used for recipe rows.
+- **`Divider`** — a one-pixel line in `borderSubtle`.
+- **`Spinner`** — a single size and a semantic colour.
+- **`EmptyState`** — title, optional body, optional action slot.
+- **`ErrorState`** — message and a retry action.
+- **`ConfirmDialog`** — title, body, confirm and cancel labels, and a `destructive` flag that renders confirm as the `danger` button variant.
+
+## UI
+
+**Gallery.** A route at `(app)/_dev/gallery`, reachable only in development builds, rendering every component in every variant and every state on one scrolling screen, alongside the spacing scale, the type ramp and the colour semantics. It exists so the acceptance criteria below can be checked by looking at one screen rather than hunting through features, and so a palette change can be eyeballed in one place.
+
+**Refactor.** The `(auth)/login` and `(auth)/register` screens from 0001 are rebuilt on these components. This is the proof that the set is sufficient: if either screen still needs a local `StyleSheet` with a colour or a spacing number in it, the design system is missing something and this spec is not done.
+
+## Acceptance criteria
+
+- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
+- [ ] A search for hex colour literals in `apps/mobile/src` outside `styles/tokens.ts` returns no matches.
+- [ ] A test asserts that every semantic token's value is a primitive from the same module, and fails if any semantic entry is a raw literal.
+- [ ] Referring to a token or a text style that does not exist fails `pnpm typecheck` rather than resolving to `undefined` at runtime.
+- [ ] The gallery route renders every component listed above, in every variant and state named, with no runtime warnings in the console.
+- [ ] `(auth)/login` and `(auth)/register` contain no colour value, no spacing number and no font size.
+- [ ] Every interactive element has a touch target of at least 44 by 44 points, including `Button` at its smallest and the `TextField` clear affordance.
+- [ ] Text scales with the OS font size setting, and at the largest setting no label in the gallery is clipped or truncated mid-word.
+- [ ] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
+- [ ] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.
+- [ ] Changing one primitive colour in `tokens.ts` changes every screen that uses it, with no other file edited.
+
+## Open questions
+
+1. **Accent colour.** No brand colour has been chosen. The spec can ship with a neutral placeholder accent and have it replaced later in one line, or wait for a decision. Which?
+2. **Font.** Nothing here picks a typeface, so this ships on the system font. Loading a custom font through `expo-font` changes the splash and loading behaviour in 0001, so if a specific font is wanted it is better decided now than retrofitted.

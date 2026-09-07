@@ -1,7 +1,7 @@
 # 0002: Recipe CRUD
 
 **Status:** Draft
-**Depends on:** 0001
+**Depends on:** 0001, 0003
 
 ## Context
 
@@ -114,4 +114,4 @@ All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/featur
 ## Open questions
 
 1. **List ordering.** This spec orders by `updatedAt` descending, so the recipe most recently worked on is first. The alternative is alphabetical by title, which is more predictable for a large collection but pushes an in-progress recipe out of sight. Which one is intended?
-2. **`totalTimeMinutes` ownership.** Here it is a free-text number the author types. Steps carry `durationSeconds` from 0001, so from 0004 onward a total could instead be derived by summing them. If the field is meant to become derived, that changes whether it is editable in this slice's forms at all. Is it author-entered permanently, or a placeholder until steps exist?
+2. **`totalTimeMinutes` ownership.** *(Reopened by the dependency graph decision.)* Here it is a free-text number the author types. Steps carry `durationSeconds` from 0001, so from 0004 onward a total could instead be derived by summing them. Now that steps form a dependency graph, the meaningful total is the critical path through it - the longest chain of dependent durations - which is genuinely computable and is a better number than a sum, because parallel work should not be counted twice. If the field is to become derived that way, it should probably not be editable in this slice's forms at all. Is it author-entered permanently, or a placeholder until steps exist?

@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-Cooking assistant app. Users write step-by-step recipes and share them via private link.
+Cooking assistant app. Users write recipes as a graph of steps, so independent work can happen
+in parallel while something cooks, and share them via private link. Recipes can also be imported
+as JSON produced by the user's own AI assistant from a video or a web page.
 
 ## Non-negotiable rules
 
@@ -24,9 +26,41 @@ Cooking assistant app. Users write step-by-step recipes and share them via priva
 | Routing | Expo Router (file based) |
 | Data fetching | TanStack Query v5 |
 | Styling | react-native-unistyles |
-| Language | TypeScript everywhere, `strict: true`, no `any` |
+| Language | TypeScript everywhere, strict (see below), no `any` |
+| Lint | ESLint 9 flat config, `typescript-eslint` strict-type-checked |
+| Format | Prettier, with `eslint-config-prettier` disabling all conflicting rules |
 
 Explicitly **not** used: CSS Modules (does not work in React Native), NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL.
+
+## TypeScript strictness
+
+One `tsconfig.base.json` at the root, extended by every workspace. Beyond `strict: true`:
+
+`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`,
+`noFallthroughCasesInSwitch`, `noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax`.
+
+`any` is banned, including implicit. When a type genuinely cannot be known, use `unknown` and narrow
+it. A cast is a last resort and carries a comment saying why the compiler cannot see what you can.
+
+`@ts-expect-error` is allowed with a reason on the same line. `@ts-ignore` is not: it stays silent
+when the underlying error goes away.
+
+## Lint and format
+
+ESLint 9 flat config in `eslint.config.js` at the root, one shared base with per-workspace overrides.
+
+- `typescript-eslint` `strictTypeChecked` and `stylisticTypeChecked`, type-aware, on every workspace.
+- Mobile also gets `eslint-plugin-react-hooks` and `eslint-config-expo`.
+- `eslint-plugin-import` for `import/order`, so import blocks are grouped and sorted the same way
+  everywhere and diffs stop churning on import lines.
+- `eslint-config-prettier` last, so formatting is Prettier's job alone and never a lint error.
+
+Prettier config is committed at the root and is not overridden per workspace:
+`singleQuote: true`, `semi: true`, `trailingComma: "all"`, `printWidth: 100`.
+
+Lint and format are checked in `pnpm lint`, which fails on warnings. There is no rule-by-rule
+negotiation during implementation: if a rule is wrong for this codebase, it is turned off in the
+config in its own commit, with a reason, not suppressed inline at each call site.
 
 ## Repo layout
 
@@ -68,9 +102,21 @@ Tables live in `apps/api/src/db/schema/`. All ids are `uuid` with `defaultRandom
 
 **steps**: id, recipeId (fk recipes, cascade), position (int), body (text), durationSeconds (int, nullable), imageKey (nullable)
 
+**step_dependencies**: stepId (fk steps, cascade), dependsOnStepId (fk steps, cascade), composite primary key. A step is ready to cook once every step it depends on is done. Two steps with no path between them can therefore be cooked at the same time, which is what makes "cut the carrots while the water boils" expressible.
+
 **step_ingredients**: stepId (fk steps, cascade), ingredientId (fk ingredients, cascade), composite primary key. Links an ingredient to the step where it is used, so the step-by-step cooking view can show only what is needed right now.
 
 Ordering rules: `position` is a zero-based integer, unique per recipe. Reordering rewrites all positions in one transaction. Never rely on insertion order or `createdAt` for display order.
+
+**Display order and execution order are different things, and confusing them is a bug.** `position` is display order: how steps are listed when reading or editing the recipe. `step_dependencies` is execution order: what has to be finished before a step can start. The cooking view derives what is available right now from the dependency graph and never from `position`.
+
+Dependency graph rules, enforced on every write inside the same transaction:
+
+- A step may not depend on itself.
+- Both steps in a dependency row must belong to the same recipe.
+- The graph must stay acyclic. A write that would close a cycle is rejected, and nothing is written.
+- Deleting a step removes the dependency rows on both sides via cascade. Steps that depended on it do not inherit its dependencies; they simply lose that edge.
+- A recipe with no dependency rows at all is a plain linear recipe, read in `position` order. That is the default a recipe starts in.
 
 `shareToken` is null until the user shares the recipe for the first time. Generating it sets `visibility` to `unlisted`. Revoking sharing sets `shareToken` back to null and `visibility` to `private`.
 
@@ -83,12 +129,34 @@ Ordering rules: `position` is a zero-based integer, unique per recipe. Reorderin
 - Never return `passwordHash`, `tokenHash` or another user's email.
 - Authorization is checked in a guard, not inside service methods scattered around.
 
-## Mobile conventions
+## Design system
+
+Every raw value lives in `apps/mobile/src/styles/tokens.ts`. That file is the only place in the repo
+where a hex colour, a spacing number, a radius or a font size literal may appear. Everything else
+refers to it by name.
+
+Tokens come in two layers, and the distinction is not decoration:
+
+- **Primitives** are the raw scales: `slate900`, `space4`, `text16`. They describe what a value *is*.
+- **Semantics** map primitives to roles: `surface`, `textPrimary`, `borderSubtle`, `danger`. They
+  describe what a value is *for*.
+
+Components use semantic tokens only. A component that reaches for a primitive is a component that
+will break the first time the palette changes, which is the whole reason the layer exists.
+
+There are no CSS variables. React Native has no cascade and no custom properties, which is the same
+reason `CLAUDE.md` rules out CSS Modules. The token module plus the unistyles theme gives the same
+guarantee - one place to change a value, no literals in components - through TypeScript instead of
+CSS syntax, and with type checking that CSS variables do not have.
+
+Shared components live in `apps/mobile/src/components/`. A component earns a place there once a
+second feature needs it, not in anticipation of one.
+
 
 - One TanStack Query hook file per feature, e.g. `src/features/recipes/queries.ts`. Query keys are exported constants, never inline string arrays.
 - Mutations invalidate query keys explicitly. No blanket `invalidateQueries()`.
 - Screens live in `app/`, and contain routing and layout only. Real logic lives in `src/features/*`.
-- Unistyles: all colours, spacing and typography come from the theme. No hardcoded hex values or magic numbers in components.
+- Unistyles: all colours, spacing and typography come from semantic theme tokens. No hardcoded hex values or magic numbers in components, and no primitive tokens either.
 - No inline `style={{ ... }}` objects except for values computed at runtime.
 
 ## Commands
