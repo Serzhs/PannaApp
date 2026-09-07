@@ -28,6 +28,7 @@ as JSON produced by the user's own AI assistant from a video or a web page.
 | Styling | react-native-unistyles |
 | Animation | react-native-reanimated + react-native-gesture-handler |
 | Haptics | expo-haptics |
+| i18n | `i18next` + `react-i18next`, locale detection via `expo-localization` |
 | Rate limiting | `@nestjs/throttler` |
 | Language | TypeScript everywhere, strict (see below), no `any` |
 | Lint | ESLint 9 flat config, `typescript-eslint` strict-type-checked |
@@ -95,15 +96,25 @@ docker-compose.yml    postgres only
 
 Tables live in `apps/api/src/db/schema/`. All ids are `uuid` with `defaultRandom()`. All tables have `createdAt` and `updatedAt` as `timestamptz`.
 
-**users**: id, email (unique, citext), passwordHash, displayName, createdAt, updatedAt
+**users**: id, email (unique, citext), passwordHash, displayName, locale (varchar 5, nullable), unitSystem (enum: `metric` | `imperial`, nullable), createdAt, updatedAt
+
+`locale` and `unitSystem` are null until the user chooses. Null means "follow the device", which is a different state from having picked the value the device happens to report, and the two must not be collapsed: a user who explicitly chose metric keeps metric on a device set to imperial.
 
 **refresh_tokens**: id, userId (fk users, cascade), tokenHash, expiresAt, revokedAt (nullable)
 
-**recipes**: id, authorId (fk users, cascade), title, description (nullable), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), visibility (enum: `private` | `unlisted`, default `private`), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
+**recipes**: id, authorId (fk users, cascade), title, description (nullable), language (varchar 5), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), visibility (enum: `private` | `unlisted`, default `private`), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
 
-**ingredients**: id, recipeId (fk recipes, cascade), position (int), name, amount (numeric 10,2, nullable), unit (varchar, nullable)
+**ingredients**: id, recipeId (fk recipes, cascade), position (int), name, amount (numeric 10,2, nullable), unit (enum, nullable)
 
-**steps**: id, recipeId (fk recipes, cascade), position (int), body (text), durationSeconds (int, nullable), imageKey (nullable)
+The `unit` enum, grouped by dimension, because conversion only ever happens within a dimension:
+
+- Mass: `g`, `kg`, `oz`, `lb`
+- Volume: `ml`, `l`, `tsp`, `tbsp`, `cup`, `floz`
+- Count: `piece`, `pinch`, `clove`, `slice`
+
+Null `unit` with a non-null `amount` means a bare count. Null `amount` means an unmeasured quantity, as in "salt, to taste".
+
+**steps**: id, recipeId (fk recipes, cascade), position (int), body (text), durationSeconds (int, nullable), temperatureCelsius (int, nullable), imageKey (nullable)
 
 **step_dependencies**: stepId (fk steps, cascade), dependsOnStepId (fk steps, cascade), composite primary key. A step is ready to cook once every step it depends on is done. Two steps with no path between them can therefore be cooked at the same time, which is what makes "cut the carrots while the water boils" expressible.
 
@@ -127,7 +138,10 @@ Dependency graph rules, enforced on every write inside the same transaction:
 
 - Base path `/api`. Resource routes are plural and nested: `/api/recipes/:recipeId/steps`.
 - Public share route is unauthenticated and separate: `GET /api/shared/:shareToken`.
-- Errors use NestJS built-in HTTP exceptions. Response body: `{ statusCode, message, error }`. No custom error envelope.
+- Errors use NestJS built-in HTTP exceptions, with one addition: every error body carries a stable `code`. Response body: `{ statusCode, error, message, code }`.
+- `code` is `SCREAMING_SNAKE_CASE`, namespaced by domain, for example `AUTH_EMAIL_TAKEN` or `RECIPE_NOT_FOUND`. It is part of the API contract, so every spec lists the codes its endpoints can return, and a code is never renamed once shipped.
+- `message` is English, for logs and for developers. **It is never shown to a user and nothing matches on its text.** The client translates `code`, which is why rewording a message can never break a client.
+- Validation failures return `VALIDATION_FAILED` plus a `fields` object keyed by field name, each value a code such as `TOO_SHORT`. A form needs to know which field is wrong in the user's language, which a single top-level message cannot express.
 - A recipe and all its ingredients and steps are written in a single transaction. Partial writes are a bug.
 - Never return `passwordHash`, `tokenHash` or another user's email.
 - Authorization is checked in a guard, not inside service methods scattered around.
@@ -171,6 +185,28 @@ data loads is worse than no animation, and stuttering under load is exactly what
 - Haptics accompany a state change the user caused and would otherwise have to look at to confirm:
   a step completed, a timer finished, a destructive action confirmed. Never on scroll, never on
   ordinary navigation, never as decoration.
+
+## Internationalisation
+
+Two languages ship, English and Latvian, and the app is built so a third costs a translation file
+and nothing else.
+
+- No user-visible string literal appears in a component. Everything goes through `t()`, with keys
+  namespaced by feature: `recipes.list.empty.title`.
+- Plurals use i18next's plural categories, never a hand-written `n === 1` check. Latvian has three
+  forms including a distinct zero form, so the naive check is wrong in the app's second language,
+  not in some hypothetical future one.
+- Dates, times and numbers are formatted with `Intl`, never by string concatenation.
+- **Layout uses `start` and `end`, never `left` and `right`.** `marginStart`, `paddingEnd`,
+  `textAlign: 'start'`. This costs nothing today and is what makes a right-to-left language a
+  translation file rather than a sweep through every component in the app. No RTL language ships yet;
+  the discipline is what is being kept, not the feature.
+- Recipe content - titles, ingredient names, step bodies - is authored by a user in their own
+  language and is **never** translated, machine or otherwise. `recipes.language` records what that
+  language is so a reader can be told, not so the app can rewrite it.
+- Units convert within a dimension only: mass to mass, volume to volume, Celsius to Fahrenheit.
+  Volume to mass is never attempted, because it needs the density of the specific ingredient and
+  guessing it produces confidently wrong recipes.
 
 ## Mobile conventions
 

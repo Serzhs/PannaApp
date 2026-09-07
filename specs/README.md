@@ -9,16 +9,21 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0001](0001-foundation.md) | Foundation, database and auth | Draft | Clone, run three commands, register, stay logged in across restarts. |
 | [0002](0002-recipe-crud.md) | Recipe CRUD | Draft | Create, view, edit and delete your own recipes, as metadata only. |
 | [0003](0003-design-system.md) | Design system and tokens | Draft | Build any screen from semantic tokens and shared components, with no raw values. |
-| 0004 | Ingredients | Not written | Add, edit, remove and reorder the ingredients of a recipe. |
-| 0005 | Steps and the dependency graph | Not written | Write steps and declare which must finish before which. |
-| 0006 | Step to ingredient links | Not written | Attach ingredients to the step that uses them. |
-| 0007 | Cooking mode | Not written | Cook a recipe, seeing everything available to do right now. |
-| 0008 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
-| 0009 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
-| 0010 | Images | Not written | Cover and per-step images. |
+| [0004](0004-i18n.md) | Internationalisation | Draft | Run the app in another language, with correct plurals, formats and units. |
+| 0005 | Ingredients | Not written | Add, edit, remove and reorder the ingredients of a recipe. |
+| 0006 | Steps and the dependency graph | Not written | Write steps and declare which must finish before which. |
+| 0007 | Step to ingredient links | Not written | Attach ingredients to the step that uses them. |
+| 0008 | Cooking mode | Not written | Cook a recipe, seeing everything available to do right now. |
+| 0009 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
+| 0010 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
+| 0011 | Images | Not written | Cover and per-step images. |
 
 Numbers are identifiers, not a build order. 0003 is implemented before 0002's screens, which is why
 0002 depends on it despite the lower number.
+
+Internationalisation took 0004 and pushed everything below it down one. That was free because none
+of those specs had been written yet, and it will not be free again: once a number is on a written
+spec it is fixed, per the rule above.
 
 Keep this table in step with the specs. A spec whose status changes updates its row in the same PR.
 

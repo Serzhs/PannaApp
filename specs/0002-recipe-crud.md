@@ -35,19 +35,20 @@ All bodies validated by Zod schemas in `packages/shared`. All routes require a v
 
 **Recipe response shape**, used by every endpoint below:
 
-`{ id, title, description, servings, totalTimeMinutes, createdAt, updatedAt }`
+`{ id, title, description, language, servings, totalTimeMinutes, createdAt, updatedAt }`
 
 `authorId`, `coverImageKey`, `visibility` and `shareToken` are never returned by this spec's endpoints. Sharing state becomes visible to the client in 0007, not here.
 
 **Field rules**, shared by create and update:
 
 - `title`: string, trimmed, 1 to 120 characters. A title that is empty after trimming is a 400.
+- `language`: a BCP-47 tag from the set the app ships. Defaults to the author's locale when omitted, because a recipe is almost always written in the language its author is using.
 - `description`: string or null, trimmed, up to 2000 characters.
 - `servings`: integer, 1 to 100.
 - `totalTimeMinutes`: integer or null, 1 to 1440.
 
 **POST /api/recipes**
-Body: `{ title, description?, servings, totalTimeMinutes? }`. Omitted optional fields are stored as null.
+Body: `{ title, description?, language?, servings, totalTimeMinutes? }`. Omitted optional fields are stored as null, except `language`, which falls back to the author's locale.
 201: recipe response shape.
 400 on validation failure.
 
@@ -96,7 +97,7 @@ All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/featur
 
 - [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
 - [ ] Every one of the five endpoints returns 401 when called with no access token, and with an expired one.
-- [ ] Creating a recipe returns 201 and a body whose keys are exactly the seven in the recipe response shape, with no `authorId`, `coverImageKey`, `visibility` or `shareToken`.
+- [ ] Creating a recipe returns 201 and a body whose keys are exactly the eight in the recipe response shape, with no `authorId`, `coverImageKey`, `visibility` or `shareToken`.
 - [ ] `GET /api/recipes` for a user returns only that user's recipes: with two users each owning recipes, neither sees any of the other's.
 - [ ] `GET /api/recipes` returns `[]` with status 200 for a freshly registered user.
 - [ ] `GET`, `PATCH` and `DELETE` on a recipe owned by another user each return 404 with the same body as a `GET` for a random non-existent uuid.

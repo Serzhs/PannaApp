@@ -16,6 +16,8 @@ A developer can clone the repo, run three commands, register an account in the E
 - Recipes, ingredients, steps, sharing. Tables are created, but no endpoints or screens for them.
 - Image upload of any kind.
 - Password reset, Sign in with Apple, Google sign-in.
+- Choosing a language or a unit system in the app. 0004 owns that. This spec follows the device
+  locale, and creates the columns that will hold an explicit choice later.
 - Email verification. It is the mitigation that would close the enumeration tradeoff below, and it
   needs a mail transport, which rule 4 in `CLAUDE.md` does not allow. Revisit only if that rule changes.
 - Separate login and register screens. There is one combined screen, described under UI.
@@ -30,6 +32,10 @@ A developer can clone the repo, run three commands, register an account in the E
 Create all tables listed in `CLAUDE.md`, including `recipes`, `ingredients`, `steps`, `step_dependencies` and `step_ingredients`, in the initial migration. Later specs only add endpoints on top of them.
 
 Used in this spec: `users`, `refresh_tokens`. The recipe tables are created empty and no code reads or writes them yet, but they are created now so that no later spec has to alter a table that already holds data.
+
+The initial migration also creates the `unit` and `unit_system` Postgres enums, and the `users`
+columns `locale` and `unitSystem`, both nullable and both unwritten by this spec. 0004 owns the
+endpoints that set them.
 
 `step_dependencies` carries the constraints that can be expressed in the schema - composite primary key, both columns cascading on step deletion, and a check that `stepId <> dependsOnStepId`. Same-recipe membership and acyclicity cannot be expressed as constraints and are enforced in application code from 0005 onward, so this spec creates the table and nothing else.
 
@@ -77,6 +83,16 @@ What follows from accepting it:
 
 All bodies validated by Zod schemas from `packages/shared`.
 
+Every error response carries a `code`, per the API conventions in `CLAUDE.md`. The codes this spec
+introduces, and the complete set its endpoints may return:
+
+`VALIDATION_FAILED`, `AUTH_EMAIL_TAKEN`, `AUTH_INVALID_CREDENTIALS`, `AUTH_TOKEN_INVALID`,
+`AUTH_TOKEN_EXPIRED`, `AUTH_TOKEN_REVOKED`, `RATE_LIMITED`.
+
+`AUTH_INVALID_CREDENTIALS` covers both a wrong password and an unknown email, which is what makes
+the two indistinguishable. Splitting it into two codes would reintroduce through the code field
+exactly the leak the identical message was there to prevent.
+
 **POST /api/auth/check-email**
 Body: `{ email }`
 200: `{ exists: boolean }`. Matching is case insensitive, per the `citext` column.
@@ -97,7 +113,7 @@ switching to the password prompt for an existing account, not by showing a crash
 **POST /api/auth/login**
 Body: `{ email, password }`
 200: same shape as register.
-401 on wrong email or wrong password. The message and status must be identical in both cases, so that `login` cannot be used as an unthrottled substitute for the rate limited `check-email`. The timing of the two paths should not differ meaningfully either: a missing user still costs one password verification against a dummy hash, so the response time does not give the answer away.
+401 with `AUTH_INVALID_CREDENTIALS` on wrong email or wrong password. The message, status and code must be identical in both cases, so that `login` cannot be used as an unthrottled substitute for the rate limited `check-email`. The timing of the two paths should not differ meaningfully either: a missing user still costs one password verification against a dummy hash, so the response time does not give the answer away.
 
 **POST /api/auth/refresh**
 Body: `{ refreshToken }`
@@ -154,7 +170,10 @@ Tokens are stored in `expo-secure-store`. The fetch client attaches the access t
 - [ ] Adding an unused local variable, an implicit `any`, or an unchecked index access each fail `pnpm typecheck` or `pnpm lint`.
 - [ ] The initial migration creates all seven tables, and `step_dependencies` rejects a row where `stepId` equals `dependsOnStepId`.
 - [ ] Registering with an email that already exists returns 409 and creates no user row.
-- [ ] Login with a wrong password and login with an unknown email return byte-identical response bodies, and their response times do not differ enough to distinguish the two cases over 100 samples.
+- [ ] Every error response from every endpoint carries a `code` from the list above, and no endpoint returns an error without one.
+- [ ] A validation failure returns `VALIDATION_FAILED` with a `fields` object naming each invalid field, so a form can mark the right field without parsing English.
+- [ ] No user-visible string in the two auth screens is a literal; every one resolves through `t()`, and switching the device to Latvian changes all of them.
+- [ ] Login with a wrong password and login with an unknown email return byte-identical response bodies, including an identical `code`, and their response times do not differ enough to distinguish the two cases over 100 samples.
 - [ ] `check-email` returns `{ exists: true }` for a registered address in any capitalisation, and `{ exists: false }` for an unregistered one.
 - [ ] `check-email` returns 429 on the eleventh request within a minute from one IP, and `register` is throttled by the same rule.
 - [ ] `check-email` for an existing account returns a body containing exactly one key, `exists`.
