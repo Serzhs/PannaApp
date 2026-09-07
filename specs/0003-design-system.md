@@ -16,7 +16,8 @@ A developer can build any screen in this app out of semantic tokens and shared c
 - Dark mode. The token structure must make a second theme a matter of swapping primitive values, and this spec ships one light theme only.
 - An icon set. Components that could take an icon take a `React.ReactNode` slot instead, and choosing an icon library waits until a spec actually needs icons.
 - A full accessibility audit. This spec covers touch target size and OS font scaling, nothing further.
-- Storybook, Chromatic, or any visual regression tooling. The gallery below is a plain route in the app.
+- Visual regression tooling: Chromatic, screenshot diffing, or any hosted service. Storybook runs locally on a simulator and nothing publishes from it.
+- A web build of Storybook. It renders through `react-native-web`, which is not this app's renderer, so it could show a component the device will not reproduce.
 - Any component that no existing spec needs. New components arrive with the feature that requires them, per `CLAUDE.md`.
 
 ## Data model
@@ -61,8 +62,8 @@ Components consume semantic tokens and named text styles only. A component reach
 ## Components
 
 `apps/mobile/src/components/`, one folder per component, laid out per the Repo layout section of
-`CLAUDE.md`: `Button/Button.tsx`, `Button/Button.styles.ts`, `Button/Button.test.tsx`,
-`Button/index.ts`. Props are typed, with no `any`, and every component ships its own tests in its own
+`CLAUDE.md`: `Button/Button.tsx`, `Button/Button.styles.ts`, `Button/Button.stories.tsx`,
+`Button/Button.test.tsx`, `Button/index.ts`. Props are typed, with no `any`, and every component ships its own tests in its own
 folder rather than in a parallel test tree.
 
 This spec establishes that shape. Every component added by a later spec follows it without the later
@@ -85,7 +86,11 @@ The list is deliberately confined to what 0001 and 0002 already need:
 
 ## UI
 
-**Gallery.** A route at `(app)/_dev/gallery`, reachable only in development builds, rendering every component in every variant and every state on one scrolling screen, alongside the spacing scale, the type ramp and the colour semantics. It exists so the acceptance criteria below can be checked by looking at one screen rather than hunting through features, and so a palette change can be eyeballed in one place.
+**Storybook.** `@storybook/react-native`, run on a simulator with `pnpm --filter mobile storybook`. It uses the same renderer as the app, so what it shows is what ships - which is the entire reason it is on device rather than in a browser.
+
+Every component has a `.stories.tsx` file in its own folder, with one story per variant and per state, and controls for the props worth varying. Three further stories cover what individual components cannot show on their own: the spacing scale, the type ramp, and the semantic colours side by side with their contrast ratios.
+
+Storybook is reached through a separate entry point selected by an environment variable, not by a route inside the app. **No story file and no Storybook dependency may reach a production bundle**, which a route-based gallery could not guarantee. That exclusion is an acceptance criterion below, because it is the kind of thing that is easy to get wrong and impossible to notice.
 
 **Refactor.** The `(auth)/login` and `(auth)/register` screens from 0001 are rebuilt on these components. This is the proof that the set is sufficient: if either screen still needs a local `StyleSheet` with a colour or a spacing number in it, the design system is missing something and this spec is not done.
 
@@ -95,7 +100,9 @@ The list is deliberately confined to what 0001 and 0002 already need:
 - [ ] A search for hex colour literals in `apps/mobile/src` outside `styles/tokens.ts` returns no matches.
 - [ ] A test asserts that every semantic token's value is a primitive from the same module, and fails if any semantic entry is a raw literal.
 - [ ] Referring to a token or a text style that does not exist fails `pnpm typecheck` rather than resolving to `undefined` at runtime.
-- [ ] The gallery route renders every component listed above, in every variant and state named, with no runtime warnings in the console.
+- [ ] Storybook launches on a simulator and lists every component above, each with a story per variant and per state named, and no runtime warnings in the console.
+- [ ] Every component folder contains a `.stories.tsx` file. A component without one fails a test that walks the components directory.
+- [ ] A production build contains no Storybook dependency and no story file, verified by inspecting the bundle rather than by inspecting the config.
 - [ ] `(auth)/login` and `(auth)/register` contain no colour value, no spacing number and no font size.
 - [ ] Every component lives in its own folder with its component, styles, test and index files, and no component's styles or tests live outside its folder.
 - [ ] There is no `components/index.ts` re-exporting the directory.
@@ -103,10 +110,10 @@ The list is deliberately confined to what 0001 and 0002 already need:
 - [ ] A test walks every semantic token pair used as foreground on background and asserts 4.5:1 for body text and 3:1 for large text, icons and control boundaries. It fails if a primitive is changed to a value that breaks a pair.
 - [ ] Every component's own tests query it by accessible role and name rather than by `testID`, so a component that cannot be found by a screen reader cannot pass its own tests.
 - [ ] Every interactive component exposes an `accessibilityRole` and an accessible name, and `Button` in its disabled and loading states reports `disabled` and `busy` through `accessibilityState`.
-- [ ] No component conveys a state by colour alone: `TextField` in error shows a message, and the gallery renders every state legibly in greyscale.
+- [ ] No component conveys a state by colour alone: `TextField` in error shows a message, and every state renders legibly in greyscale in Storybook.
 - [ ] No component sets `allowFontScaling={false}`, verified by a search returning no matches.
-- [ ] A VoiceOver or TalkBack walkthrough of the gallery reaches every component in a sensible order, and each announces what it is and what it does. `Skeleton` is not announced as content, and `Spinner` announces that something is loading.
-- [ ] Text scales with the OS font size setting, and at the largest setting no label in the gallery is clipped or truncated mid-word.
+- [ ] A VoiceOver or TalkBack walkthrough of Storybook reaches every component in a sensible order, and each announces what it is and what it does. `Skeleton` is not announced as content, and `Spinner` announces that something is loading.
+- [ ] Text scales with the OS font size setting, and at the largest setting no label in Storybook is clipped or truncated mid-word.
 - [ ] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
 - [ ] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.
 - [ ] Every duration and easing used anywhere in the app resolves to a motion token; a search for numeric duration literals in animation calls outside `tokens.ts` returns no matches.
@@ -117,4 +124,10 @@ The list is deliberately confined to what 0001 and 0002 already need:
 ## Open questions
 
 1. **Accent colour.** No brand colour has been chosen. Whatever it is, it has to clear 4.5:1 against `surface` for text and 3:1 for control boundaries, which rules out most of the bright mid-tone colours brands tend to pick, and usually means a darker shade for text than the one used for fills. The spec can ship a neutral placeholder that passes and have it replaced in one line, or wait for a decision. Which?
-2. **Font.** Nothing here picks a typeface, so this ships on the system font. Loading a custom font through `expo-font` changes the splash and loading behaviour in 0001, so if a specific font is wanted it is better decided now than retrofitted.
+2. **Spec size.** With Storybook replacing the gallery, this spec now covers tokens, twelve
+   components, a Storybook setup with a separate entry point, stories for everything, and the refactor
+   of two screens. That is more than the roughly one day `specs/README.md` allows before a spec should
+   be split. The natural cut is tokens plus Storybook plus the four primitives `Screen`, `Text`,
+   `Stack` and `Button` here, with `TextField`, `Card`, `Divider`, `Spinner`, `Skeleton`,
+   `EmptyState`, `ErrorState` and `ConfirmDialog` in a follow-up. Split it, or accept a two-day spec?
+3. **Font.** Nothing here picks a typeface, so this ships on the system font. Loading a custom font through `expo-font` changes the splash and loading behaviour in 0001, so if a specific font is wanted it is better decided now than retrofitted.

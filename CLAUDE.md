@@ -30,6 +30,7 @@ as JSON produced by the user's own AI assistant from a video or a web page.
 | Haptics | expo-haptics |
 | i18n | `i18next` + `react-i18next`, locale detection via `expo-localization` |
 | Offline | TanStack Query cache persisted to `expo-sqlite/kv-store` |
+| Component browser | `@storybook/react-native`, on device only |
 | Rate limiting | `@nestjs/throttler` |
 | Language | TypeScript everywhere, strict (see below), no `any` |
 | Lint | ESLint 9 flat config, `typescript-eslint` strict-type-checked |
@@ -89,10 +90,11 @@ apps/
           queries.ts
       components/     shared UI primitives, one folder each
         Button/
-          Button.tsx          the component
-          Button.styles.ts    its unistyles stylesheet
-          Button.test.tsx     its tests
-          index.ts            re-exports Button
+          Button.tsx            the component
+          Button.styles.ts      its unistyles stylesheet
+          Button.stories.tsx    its Storybook stories
+          Button.test.tsx       its tests
+          index.ts              re-exports Button
       api/            typed fetch client + TanStack Query hooks
       styles/         tokens, unistyles theme, breakpoints
       i18n/           translation files, one namespace per feature
@@ -105,6 +107,9 @@ docker-compose.yml    postgres only
 **Everything a component owns lives in the component's own folder.** Its styles, its tests, its
 sub-components, any hook or helper only it uses. Nothing belonging to `Button` is anywhere but
 `Button/`, so deleting the folder deletes the component completely and leaves nothing orphaned.
+
+Stories are part of that ownership. A component without a `.stories.tsx` file is a component nobody
+can look at in isolation, so it is not finished.
 
 A file moves out of the folder the moment a second component needs it, and not before. Anticipating
 that second use is how a shared directory fills up with things used once.
@@ -307,6 +312,7 @@ and nothing else.
 pnpm db:up            # docker compose up -d postgres
 pnpm --filter api dev
 pnpm --filter mobile start
+pnpm --filter mobile storybook   # component browser, on a simulator
 pnpm --filter api db:generate   # drizzle-kit generate
 pnpm --filter api db:migrate    # drizzle-kit migrate
 pnpm typecheck        # every workspace
