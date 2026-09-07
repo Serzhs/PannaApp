@@ -66,6 +66,31 @@ and used by every later spec, so no spec has to reinvent isolation.
 for working on the app by hand; automated tests never call it and build the state they need. It is
 idempotent, so running it twice does not produce duplicates.
 
+**API contract.** `packages/shared` holds the `ts-rest` contract. Every endpoint in this spec is
+defined there once, the NestJS controllers implement it, and the mobile client is built from it. A
+controller that returns a shape the contract does not describe fails typecheck.
+
+The mobile client parses each response against its schema before handing it to the caller, so a
+mismatch surfaces at the boundary rather than as a strange bug three screens later.
+
+**Environment.** `@nestjs/config` validates the environment against a Zod schema at boot. A missing
+or malformed `DATABASE_URL` or JWT secret stops the API with a message naming the variable, rather
+than letting it start and fail later somewhere unrelated. `.env.example` lists every variable.
+
+**Logging.** `nestjs-pino`, structured, with a request id on every line so one request can be
+followed through the logs. Passwords, tokens and hashes are redacted by configuration, not by
+remembering not to log them.
+
+**Versions.** Node and pnpm are pinned in `.nvmrc` and `packageManager`.
+
+**Git hooks.** husky runs lint-staged before a commit and commitlint on the message.
+
+**Error boundary.** The mobile app is wrapped in an error boundary, and so is each route group. A
+render error shows a screen with a way to recover.
+
+**Query wiring.** The TanStack Query client is connected to React Native's `AppState` and to the
+network state, so it knows when the app is backgrounded and when the phone loses its connection.
+
 **Shared error codes.** `packages/shared` exports the error code list as a const object. The API
 throws with codes from it, the mobile client derives translation keys from it, and neither side can
 write a code the other does not know about without failing typecheck.
@@ -171,7 +196,7 @@ Recipes come later.
 
 The root layout decides which group to show based on whether a session exists. While that check is running, show a splash state rather than flashing the login screen.
 
-Tokens are stored in `expo-secure-store`. The fetch client attaches the access token, and on a 401 it attempts one refresh, retries the original request once, and on failure clears the session and sends the user to login. Concurrent 401s must trigger only one refresh call, not one per request.
+Tokens are stored in `expo-secure-store`. The `ts-rest` client attaches the access token, and on a 401 it attempts one refresh, retries the original request once, and on failure clears the session and sends the user to login. Concurrent 401s must trigger only one refresh call, not one per request.
 
 ## Acceptance criteria
 
@@ -184,6 +209,15 @@ Tokens are stored in `expo-secure-store`. The fetch client attaches the access t
 - [ ] Two API tests that each create a user with the same email both pass when run in the same file, proving truncation happens between them.
 - [ ] A test asserting a rolled-back transaction leaves no partial rows passes, proving the harness does not hide commit behaviour inside an outer transaction.
 - [ ] Throwing with a code that is not in the shared const object fails `pnpm typecheck`.
+- [ ] A controller returning a shape the `ts-rest` contract does not describe fails `pnpm typecheck`, and so does a mobile call passing the wrong request body.
+- [ ] A response that does not match its schema is rejected by the client with a clear error, verified by pointing the client at a stub that returns the wrong shape.
+- [ ] Starting the API with `DATABASE_URL` removed exits with a message naming the missing variable, and does not start.
+- [ ] Starting the API with an empty JWT secret fails the same way.
+- [ ] Logs carry a request id, and a login request logs neither the password nor the token.
+- [ ] `.nvmrc` and `packageManager` are present and agree with the versions the project is developed on.
+- [ ] A commit with a message that is not a conventional commit is rejected by the hook, and a commit with a lint error in a staged file is rejected too.
+- [ ] Forcing a render error in a screen shows the error boundary's recovery screen rather than a blank app.
+- [ ] Turning airplane mode on is reflected in the app's online state within a few seconds, and returning from the background triggers a refetch.
 - [ ] The initial migration creates all seven tables, and `step_dependencies` rejects a row where `stepId` equals `dependsOnStepId`.
 - [ ] Registering with an email that already exists returns 409 and creates no user row.
 - [ ] Every error response from every endpoint carries a `code` from the list above, and no endpoint returns an error without one.

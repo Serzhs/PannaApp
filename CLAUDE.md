@@ -37,6 +37,10 @@ just say it simply.
 | ORM | Drizzle ORM + drizzle-kit migrations |
 | DB | PostgreSQL 16 via docker compose |
 | Validation | Zod, shared between API and mobile |
+| API contract | `ts-rest` - one Zod contract in `packages/shared`, both sides typed from it |
+| Config | `@nestjs/config` with a Zod schema. The API refuses to start on a bad env |
+| Logging | `nestjs-pino`, structured, one request id per request |
+| Git hooks | husky + lint-staged + commitlint |
 | Auth | JWT access token (15 min) + refresh token (30 days), argon2 password hashing |
 | Mobile | Expo (managed workflow, prebuild only when required) |
 | Routing | Expo Router (file based) |
@@ -81,6 +85,13 @@ ESLint 9 flat config in `eslint.config.js` at the root, one shared base with per
 
 Prettier config is committed at the root and is not overridden per workspace:
 `singleQuote: true`, `semi: true`, `trailingComma: "all"`, `printWidth: 100`.
+
+A pre-commit hook runs lint-staged over the staged files, and commitlint checks the message. The
+conventional commit rule is enforced by a hook rather than by memory, because a rule only a person
+enforces is a rule that lapses on a busy day.
+
+Node and pnpm versions are pinned, in `.nvmrc` and in `packageManager` in the root `package.json`,
+so the project builds the same way on another machine.
 
 Lint and format are checked in `pnpm lint`, which fails on warnings. There is no rule-by-rule
 negotiation during implementation: if a rule is wrong for this codebase, it is turned off in the
@@ -186,6 +197,8 @@ Dependency graph rules, enforced on every write inside the same transaction:
 
 ## API conventions
 
+- **Every endpoint is defined once, in the `ts-rest` contract in `packages/shared`.** The controller will not compile if it does not match the contract, and the mobile client is generated from the same contract. Neither side can drift, because there is only one description of the endpoint.
+- **The mobile client parses every response against its schema before using it.** Types disappear when the code runs, so a type alone only proves what the server *should* send. Parsing proves what it did send, and turns a silent wrong-shape bug into an obvious error at the boundary.
 - Base path `/api`. Resource routes are plural and nested: `/api/recipes/:recipeId/steps`.
 - Public share route is unauthenticated and separate: `GET /api/shared/:shareToken`.
 - Errors use NestJS built-in HTTP exceptions, with one addition: every error body carries a stable `code`. Response body: `{ statusCode, error, message, code }`.
@@ -321,6 +334,8 @@ and nothing else.
 - Screens live in `app/`, and contain routing and layout only. Real logic lives in `src/features/*`.
 - Unistyles: all colours, spacing and typography come from semantic theme tokens. No hardcoded hex values or magic numbers in components, and no primitive tokens either.
 - No inline `style={{ ... }}` objects except for values computed at runtime.
+- An error boundary wraps the app and each route group. A render error shows a recoverable screen, never a white screen the user has to force-quit out of.
+- TanStack Query is wired to React Native's `AppState` and to the network state, so it knows when the phone goes offline and when the app returns from the background. Without this it keeps believing it is online and the offline behaviour above does not work.
 
 ## Commands
 
