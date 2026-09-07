@@ -307,6 +307,35 @@ thing the app can do to someone.
   nothing is silently pending.
 - Offline is a visible state, never a spinner that never resolves.
 
+## Platform behaviour
+
+One design on both platforms, and native behaviour on each.
+
+The look is ours: the same colours, spacing, type and components on iOS and Android. Nobody compares
+this app to Apple's apps side by side, so a second design system would double the work for a
+difference users do not look for.
+
+Behaviour is theirs. People do not notice that a button's corners differ from the platform's own.
+They notice immediately when swiping back does nothing.
+
+Always native, never rebuilt:
+
+- Back navigation. The iOS swipe-back gesture and the Android back gesture and button both work
+  everywhere, including out of a modal.
+- Date, time and duration pickers. A custom picker is worse than the phone's on both platforms, and
+  it loses the accessibility the system one has for free.
+- The share sheet, the keyboard and its avoidance, scroll physics, text selection and context menus.
+- Alerts and confirmations use the platform's own dialog.
+- The system font, which resolves to San Francisco on iOS and Roboto on Android with no work.
+- Safe areas, the notch and the home indicator, handled once in `Screen`.
+
+React Native gives most of this by default. It is lost only by building a replacement for something
+the platform already provides, so the rule in practice is: check whether the OS already does it
+before building it.
+
+Where a platform genuinely differs and both options are native, follow the platform rather than
+picking one for both.
+
 ## Motion
 
 Animation runs on Reanimated's UI thread, never on the JS thread. An animation that stutters while

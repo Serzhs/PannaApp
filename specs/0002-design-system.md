@@ -56,6 +56,11 @@ Motion is tokenised for the same reason colour is. A duration typed inline is a 
 change globally, and an app whose transitions each picked their own number reads as sloppy long
 before anyone can say which one is wrong.
 
+**Typeface.** The system font, which resolves to San Francisco on iOS and Roboto on Android with no
+work and no loading step. That is the Platform behaviour rule in `CLAUDE.md` applied to type: the app
+reads as native on both phones for free. A custom typeface can replace it later in one place, at the
+cost of loading a font before first paint.
+
 **`theme.ts`** assembles the unistyles theme from the semantic layer and exports its type. Named text styles live here too, each one a size, line height and weight together: `display`, `title`, `heading`, `body`, `bodyStrong`, `caption`, `label`.
 
 Components consume semantic tokens and named text styles only. A component reaching past them to a primitive is the failure this two-layer split exists to prevent, because it is the thing that silently survives a palette change and then looks wrong.
@@ -116,4 +121,3 @@ There is no screen to refactor here, because no real screen exists yet. The proo
 ## Open questions
 
 1. **Accent colour.** No brand colour has been chosen. Whatever it is, it has to clear 4.5:1 against `surface` for text and 3:1 for control boundaries, which rules out most of the bright mid-tone colours brands tend to pick, and usually means a darker shade for text than the one used for fills. The spec can ship a neutral placeholder that passes and have it replaced in one line, or wait for a decision. Which?
-2. **Font.** Nothing here picks a typeface, so this ships on the system font. Loading a custom font through `expo-font` changes the splash and loading behaviour set up in 0001, so if a specific font is wanted it is better decided now than retrofitted.

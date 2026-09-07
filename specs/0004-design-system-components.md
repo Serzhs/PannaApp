@@ -37,7 +37,7 @@ Same folder rule as 0002, per the Repo layout section of `CLAUDE.md`: component,
 - **`Skeleton`** — a shimmering placeholder in the shape of the content it stands in for, with `Skeleton.Text` for lines of text and `Skeleton.Block` for rectangles. Every screen's loading state is built from these, so the layout does not jump when real content arrives. A skeleton whose shape differs from the content it replaces is worse than a spinner, because it promises a layout and then breaks it.
 - **`EmptyState`** — title, optional body, optional action slot.
 - **`ErrorState`** — message and a retry action. It takes a variant for being offline, because that is a different situation from a failed request and the user can act on only one of them.
-- **`ConfirmDialog`** — title, body, confirm and cancel labels, and a `destructive` flag that renders confirm as the `danger` button variant.
+- **`ConfirmDialog`** — title, body, confirm and cancel labels, and a `destructive` flag. It wraps the platform's own alert rather than drawing a custom modal, per the Platform behaviour section of `CLAUDE.md`. That gets the right look on both phones, correct focus handling and full screen reader support without building any of it, and it is why this component has no styles file.
 
 ## UI
 
@@ -52,12 +52,13 @@ Storybook only. Each component gets stories covering every variant and state, in
 - [ ] Storybook lists every component with a story per variant and state, with no runtime warnings.
 - [ ] A skeleton and the content it stands in for occupy the same height in the side-by-side story: swapping one for the other shifts nothing.
 - [ ] Contrast for every new semantic pairing passes the same test 0002 introduced, with no new failures.
-- [ ] `ConfirmDialog` traps focus while open, returns focus to whatever opened it on dismiss, and closes on the system back gesture.
-- [ ] `ConfirmDialog` with `destructive` renders confirm as the `danger` variant and announces the action as destructive to a screen reader, rather than relying on the button being red.
+- [ ] `ConfirmDialog` renders the platform's own alert on both iOS and Android, closes on the Android back gesture, and returns focus to whatever opened it.
+- [ ] `ConfirmDialog` with `destructive` uses the platform's destructive button style and announces the action as destructive to a screen reader, rather than relying on the button being red.
 - [ ] `ErrorState` in its offline variant reads differently from its failure variant, and both offer an action.
 - [ ] `Skeleton` is hidden from the accessibility tree, and `Spinner` announces that something is loading.
 - [ ] Every component's tests query by accessible role and name rather than by `testID`.
 - [ ] No component sets `allowFontScaling={false}`, and no component contains a colour, spacing or font size literal.
+- [ ] Swipe-back on iOS and the back gesture on Android both work on every screen these components appear in, including with a dialog open.
 - [ ] With reduce motion on, the skeleton shimmer stops rather than animating, and the content still reads as a placeholder.
 - [ ] A VoiceOver or TalkBack walkthrough of these components in Storybook reaches each in a sensible order, and `Card` used as a list row announces as one element rather than as its separate children.
 
