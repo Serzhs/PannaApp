@@ -97,6 +97,25 @@ Lint and format are checked in `pnpm lint`, which fails on warnings. There is no
 negotiation during implementation: if a rule is wrong for this codebase, it is turned off in the
 config in its own commit, with a reason, not suppressed inline at each call site.
 
+## Comments
+
+Few comments, and every one of them answers **why**.
+
+The code already says what it does. A comment that restates it adds nothing and starts lying the
+moment someone edits the line above it. Most code needs no comment at all.
+
+Write one when the reason is not visible in the code:
+
+- A constraint that is not obvious, for example why a query is ordered a particular way.
+- Something that looks wrong but is deliberate, so nobody "fixes" it.
+- A workaround, with what forced it.
+- A rule from a spec that the code enforces, naming the spec.
+
+Do not write one that names the function, restates the line below, describes a parameter the type
+already describes, or records who changed what and when. That is what git is for.
+
+No commented-out code. Delete it.
+
 ## Repo layout
 
 ```
