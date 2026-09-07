@@ -92,7 +92,7 @@ Every component has a `.stories.tsx` file in its own folder, with one story per 
 
 Storybook is reached through a separate entry point selected by an environment variable, not by a route inside the app. **No story file and no Storybook dependency may reach a production bundle**, which a route-based gallery could not guarantee. That exclusion is an acceptance criterion below, because it is the kind of thing that is easy to get wrong and impossible to notice.
 
-**Refactor.** The `(auth)/login` and `(auth)/register` screens from 0001 are rebuilt on these components. This is the proof that the set is sufficient: if either screen still needs a local `StyleSheet` with a colour or a spacing number in it, the design system is missing something and this spec is not done.
+**Refactor.** The combined `(auth)/index` screen from 0001 is rebuilt on these components, in all three of its stages. This is the proof that the set is sufficient: if it still needs a local `StyleSheet` with a colour or a spacing number in it, the design system is missing something and this spec is not done. The stage transition is a useful stress test of `Stack` and `Button` specifically, since the button's label changes while its size must not.
 
 ## Acceptance criteria
 
@@ -103,7 +103,7 @@ Storybook is reached through a separate entry point selected by an environment v
 - [ ] Storybook launches on a simulator and lists every component above, each with a story per variant and per state named, and no runtime warnings in the console.
 - [ ] Every component folder contains a `.stories.tsx` file. A component without one fails a test that walks the components directory.
 - [ ] A production build contains no Storybook dependency and no story file, verified by inspecting the bundle rather than by inspecting the config.
-- [ ] `(auth)/login` and `(auth)/register` contain no colour value, no spacing number and no font size.
+- [ ] `(auth)/index` contains no colour value, no spacing number and no font size, in any of its three stages.
 - [ ] Every component lives in its own folder with its component, styles, test and index files, and no component's styles or tests live outside its folder.
 - [ ] There is no `components/index.ts` re-exporting the directory.
 - [ ] Every interactive element has a touch target of at least 44 by 44 points, including `Button` at its smallest and the `TextField` clear affordance, measured including `hitSlop`.
