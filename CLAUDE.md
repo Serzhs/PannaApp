@@ -12,6 +12,22 @@ as JSON produced by the user's own AI assistant from a video or a web page.
 4. **Local only.** No cloud services, no deployment config, no CI, no analytics, no crash reporting. Everything runs on the developer machine.
 5. Read `specs/README.md` before starting any task.
 
+## How to talk to me
+
+Plain language. Short sentences. Explain things the way you would to a colleague over coffee, not in
+a design document.
+
+- Say what changed and why it matters. Skip the detail that does not change a decision.
+- Use a technical term only when there is no simpler word for it, and say what it means the first
+  time it comes up.
+- Lead with the answer. Put the reasoning after it, and only as much as is needed.
+- When there is a choice to make, describe the options in everyday terms and say which one you would
+  pick. Do not lay out every consideration and leave the decision hanging.
+- Keep summaries short. A few lines beats a long list.
+
+None of this means hiding problems. If something is broken, wrong, or a bad idea, say so directly -
+just say it simply.
+
 ## Stack
 
 | Layer | Choice |
