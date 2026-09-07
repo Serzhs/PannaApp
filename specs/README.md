@@ -1,4 +1,4 @@
-# Cappums specs
+# Panna specs
 
 The spec is the source of truth. Code follows the spec, never the other way around. If reality diverges, update the spec in the same PR.
 

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-**Cappums** is a cooking assistant app. Users write recipes as a graph of steps, so independent work can happen
+**Panna** is a cooking assistant app. Users write recipes as a graph of steps, so independent work can happen
 in parallel while something cooks, and share them via private link. Recipes can also be imported
 as JSON produced by the user's own AI assistant from a video or a web page.
 

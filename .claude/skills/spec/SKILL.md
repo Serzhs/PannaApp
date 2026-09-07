@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Work with Cappums specs - draft a new one from the template with the next number, or verify an existing spec's acceptance criteria one by one before merging. Use when asked to write, draft, review, verify or close a spec.
+description: Work with Panna specs - draft a new one from the template with the next number, or verify an existing spec's acceptance criteria one by one before merging. Use when asked to write, draft, review, verify or close a spec.
 ---
 
 # Spec workflow
