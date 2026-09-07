@@ -57,6 +57,8 @@ ESLint 9 flat config in `eslint.config.js` at the root, one shared base with per
 - Mobile also gets `eslint-plugin-react-hooks` and `eslint-config-expo`.
 - `eslint-plugin-import` for `import/order`, so import blocks are grouped and sorted the same way
   everywhere and diffs stop churning on import lines.
+- `eslint-plugin-react-native-a11y` on the mobile workspace, so the mechanical accessibility rules -
+  a touchable with no role, an image with no label - fail the build instead of relying on review.
 - `eslint-config-prettier` last, so formatting is Prettier's job alone and never a lint error.
 
 Prettier config is committed at the root and is not overridden per workspace:
@@ -81,14 +83,35 @@ apps/
     app/              Expo Router routes
     src/
       features/       one folder per domain, mirrors api modules
-      components/     shared UI primitives
+        recipes/
+          components/ components used only by this feature, same folder rule
+          queries.ts
+      components/     shared UI primitives, one folder each
+        Button/
+          Button.tsx          the component
+          Button.styles.ts    its unistyles stylesheet
+          Button.test.tsx     its tests
+          index.ts            re-exports Button
       api/            typed fetch client + TanStack Query hooks
-      styles/         unistyles theme + breakpoints
+      styles/         tokens, unistyles theme, breakpoints
+      i18n/           translation files, one namespace per feature
 packages/
   shared/             Zod schemas and inferred types used by both apps
 specs/                source of truth for behaviour
 docker-compose.yml    postgres only
 ```
+
+**Everything a component owns lives in the component's own folder.** Its styles, its tests, its
+sub-components, any hook or helper only it uses. Nothing belonging to `Button` is anywhere but
+`Button/`, so deleting the folder deletes the component completely and leaves nothing orphaned.
+
+A file moves out of the folder the moment a second component needs it, and not before. Anticipating
+that second use is how a shared directory fills up with things used once.
+
+The per-component `index.ts` re-exports that one component, so imports read
+`from '@/components/Button'`. There is no `components/index.ts` re-exporting everything: a barrel
+over the whole directory is what turns one import into a graph of them, and it is the usual source
+of circular imports in a codebase shaped like this one.
 
 `packages/shared` is the single place where request/response shapes are defined. The API derives its DTOs from those Zod schemas, and the mobile client derives its types from the same schemas. Never duplicate a shape by hand on either side.
 
@@ -168,6 +191,35 @@ CSS syntax, and with type checking that CSS variables do not have.
 
 Shared components live in `apps/mobile/src/components/`. A component earns a place there once a
 second feature needs it, not in anticipation of one.
+
+## Accessibility
+
+The target is WCAG 2.2 AA. Accessibility is a property of each component, checked where the component
+is built, and not an audit somebody schedules later.
+
+- Every interactive element has an `accessibilityRole` and an accessible name. An icon-only control
+  carries an `accessibilityLabel`, because its meaning is otherwise carried entirely by a picture.
+- State travels through `accessibilityState` - `disabled`, `selected`, `checked`, `busy`, `expanded` -
+  never through appearance alone.
+- Touch targets are at least 44 by 44 points. Where the visual is deliberately smaller, `hitSlop`
+  makes up the difference; the target grows, the design does not have to.
+- Contrast meets 4.5:1 for body text and 3:1 for large text, icons and control boundaries. This is
+  enforced by a test over the semantic token pairs, not by eye, because the eye is unreliable and the
+  palette changes.
+- **Colour is never the only carrier of meaning.** An error field changes its border *and* shows a
+  message. A completed step gets a mark, not just a green tint.
+- Font scaling is always on. `allowFontScaling={false}` is banned outright. A `maxFontSizeMultiplier`
+  is permitted only where a layout genuinely cannot stretch, with a comment saying why, and it is
+  treated as a design bug with a deadline rather than a solution.
+- Anything that changes without the user acting - a timer finishing, a save completing, an error
+  arriving - is announced to the screen reader. Silent change is invisible change.
+- On navigation, focus moves to the new screen's heading, so a screen reader user is not left where
+  the previous screen was.
+- Decorative images are hidden from the accessibility tree. A composite like a recipe row is one
+  element with one sensible label, not five separate stops.
+- **Tests query by accessible role and name**, not by `testID`, for anything a user can perceive.
+  This is the rule that makes the others hold: a component that is awkward to query in a test is a
+  component that is awkward to use with a screen reader, and the test fails first.
 
 ## Motion
 

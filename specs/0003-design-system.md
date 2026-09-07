@@ -60,7 +60,13 @@ Components consume semantic tokens and named text styles only. A component reach
 
 ## Components
 
-`apps/mobile/src/components/`, one file per component, each with its props typed and no `any`.
+`apps/mobile/src/components/`, one folder per component, laid out per the Repo layout section of
+`CLAUDE.md`: `Button/Button.tsx`, `Button/Button.styles.ts`, `Button/Button.test.tsx`,
+`Button/index.ts`. Props are typed, with no `any`, and every component ships its own tests in its own
+folder rather than in a parallel test tree.
+
+This spec establishes that shape. Every component added by a later spec follows it without the later
+spec having to restate it.
 
 The list is deliberately confined to what 0001 and 0002 already need:
 
@@ -91,7 +97,14 @@ The list is deliberately confined to what 0001 and 0002 already need:
 - [ ] Referring to a token or a text style that does not exist fails `pnpm typecheck` rather than resolving to `undefined` at runtime.
 - [ ] The gallery route renders every component listed above, in every variant and state named, with no runtime warnings in the console.
 - [ ] `(auth)/login` and `(auth)/register` contain no colour value, no spacing number and no font size.
-- [ ] Every interactive element has a touch target of at least 44 by 44 points, including `Button` at its smallest and the `TextField` clear affordance.
+- [ ] Every component lives in its own folder with its component, styles, test and index files, and no component's styles or tests live outside its folder.
+- [ ] There is no `components/index.ts` re-exporting the directory.
+- [ ] Every interactive element has a touch target of at least 44 by 44 points, including `Button` at its smallest and the `TextField` clear affordance, measured including `hitSlop`.
+- [ ] A test walks every semantic token pair used as foreground on background and asserts 4.5:1 for body text and 3:1 for large text, icons and control boundaries. It fails if a primitive is changed to a value that breaks a pair.
+- [ ] Every component's own tests query it by accessible role and name rather than by `testID`, so a component that cannot be found by a screen reader cannot pass its own tests.
+- [ ] Every interactive component exposes an `accessibilityRole` and an accessible name, and `Button` in its disabled and loading states reports `disabled` and `busy` through `accessibilityState`.
+- [ ] No component conveys a state by colour alone: `TextField` in error shows a message, and the gallery renders every state legibly in greyscale.
+- [ ] No component sets `allowFontScaling={false}`, verified by a search returning no matches.
 - [ ] Text scales with the OS font size setting, and at the largest setting no label in the gallery is clipped or truncated mid-word.
 - [ ] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
 - [ ] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.
@@ -102,5 +115,5 @@ The list is deliberately confined to what 0001 and 0002 already need:
 
 ## Open questions
 
-1. **Accent colour.** No brand colour has been chosen. The spec can ship with a neutral placeholder accent and have it replaced later in one line, or wait for a decision. Which?
+1. **Accent colour.** No brand colour has been chosen. Whatever it is, it has to clear 4.5:1 against `surface` for text and 3:1 for control boundaries, which rules out most of the bright mid-tone colours brands tend to pick, and usually means a darker shade for text than the one used for fills. The spec can ship a neutral placeholder that passes and have it replaced in one line, or wait for a decision. Which?
 2. **Font.** Nothing here picks a typeface, so this ships on the system font. Loading a custom font through `expo-font` changes the splash and loading behaviour in 0001, so if a specific font is wanted it is better decided now than retrofitted.
