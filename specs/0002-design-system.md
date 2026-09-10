@@ -91,7 +91,7 @@ Every component has a `.stories.tsx` file in its own folder, with one story per 
 
 Storybook is reached through a separate entry point selected by an environment variable, not by a route inside the app. **No story file and no Storybook dependency may reach a production bundle**, which a route-based gallery could not guarantee. That exclusion is an acceptance criterion below, because it is the kind of thing that is easy to get wrong and impossible to notice.
 
-There is no screen to refactor here, because no real screen exists yet. The proof that this set is sufficient comes in 0003, which builds the auth screen from it and carries the criterion that the screen contains no raw values. If it cannot, this spec was wrong and comes back.
+There is no screen to refactor here, because no real screen exists yet. The proof that this set is sufficient comes in 0003, which builds the sign-in screen from it and carries the criterion that the screen contains no raw values. If it cannot, this spec was wrong and comes back.
 
 ## Acceptance criteria
 

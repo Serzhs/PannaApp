@@ -41,7 +41,7 @@ just say it simply.
 | Config | `@nestjs/config` with a Zod schema. The API refuses to start on a bad env |
 | Logging | `nestjs-pino`, structured, one request id per request |
 | Git hooks | husky + lint-staged + commitlint |
-| Auth | JWT access token (15 min) + refresh token (30 days), argon2 password hashing |
+| Auth | Sign in with Google and Apple only. Our own JWT access token (15 min) + refresh token (30 days) |
 | Mobile | Expo (managed workflow, prebuild only when required) |
 | Routing | Expo Router (file based) |
 | Data fetching | TanStack Query v5 |
@@ -178,7 +178,16 @@ wrong language.
 
 Tables live in `apps/api/src/db/schema/`. All ids are `uuid` with `defaultRandom()`. All tables have `createdAt` and `updatedAt` as `timestamptz`.
 
-**users**: id, email (unique, citext), passwordHash, displayName, locale (varchar 5, nullable), unitSystem (enum: `metric` | `imperial`, nullable), createdAt, updatedAt
+**users**: id, email (unique, citext), displayName, locale (varchar 5, nullable), unitSystem (enum: `metric` | `imperial`, nullable), createdAt, updatedAt
+
+There is no password column. The app has no passwords at all, so it stores nothing that can be
+cracked, reused or reset.
+
+**identities**: id, userId (fk users, cascade), provider (enum: `google` | `apple`), subject (varchar, the provider's stable id for this person), email (citext, nullable), emailVerified (boolean), createdAt, updatedAt. Unique on (provider, subject).
+
+One user can have several identities, which is what makes signing in with Google today and Apple
+tomorrow land in the same account. `subject` is the only reliable key: an email address can change,
+and Apple may give a private relay address instead of a real one.
 
 `locale` and `unitSystem` are null until the user chooses. Null means "follow the device", which is a different state from having picked the value the device happens to report, and the two must not be collapsed: a user who explicitly chose metric keeps metric on a device set to imperial.
 
@@ -227,7 +236,7 @@ Dependency graph rules, enforced on every write inside the same transaction:
 - `message` is English, for logs and for developers. **It is never shown to a user and nothing matches on its text.** The client translates `code`, which is why rewording a message can never break a client.
 - Validation failures return `VALIDATION_FAILED` plus a `fields` object keyed by field name, each value a code such as `TOO_SHORT`. A form needs to know which field is wrong in the user's language, which a single top-level message cannot express.
 - A recipe and all its ingredients and steps are written in a single transaction. Partial writes are a bug.
-- Never return `passwordHash`, `tokenHash` or another user's email.
+- Never return `tokenHash`, a provider `subject`, a provider token, or another user's email.
 - Authorization is checked in a guard, not inside service methods scattered around.
 
 ## Design system
@@ -276,12 +285,28 @@ to this app; they are not a summary of the lists.
   own caps on element counts and text length.
 - Drizzle parameterises queries. Never build SQL by string interpolation, including inside `sql`.
 
-**Passwords and tokens**
+**Identity from a provider**
 
-- argon2id with explicitly chosen memory, iteration and parallelism parameters, written in the spec
-  rather than left to whatever the library defaults to this year.
+The app never sees a password, so the whole question is whether a token from Google or Apple is
+genuine. Everything rests on verifying it properly.
+
+- The provider's ID token is verified against that provider's published signing keys, fetched and
+  cached by their documented lifetime. **Never decode it and trust the contents.**
+- Issuer, audience, expiry and issued-at are all checked. The audience must be our own client id, or
+  a token minted for a different app is accepted as if it were ours.
+- The `nonce` must match the one the client generated for this attempt, so an old token cannot be
+  replayed.
+- An access token is never accepted where an ID token is required. They are not interchangeable and
+  an access token proves nothing about who the user is.
+- `email` is trusted only when the provider says it is verified. Linking an account on an unverified
+  email is account takeover with extra steps.
+- Nothing the client says about identity is trusted, only the token. The one exception is a display
+  name on first sign-in, which is not identity and is treated as a user-supplied string.
+
+**Our own tokens**
+
 - Refresh tokens are 256 bits of cryptographic randomness, stored as a SHA-256 hash. They are already
-  high entropy, so a slow hash buys nothing here; argon2 is for low-entropy secrets people choose.
+  high entropy, so a slow hash buys nothing here.
 - **Refresh token reuse is treated as theft.** Using a token that was already used revokes every token
   in that chain, not just the one presented. Without this, a stolen refresh token keeps working after
   the victim's own rotation fails.
@@ -388,6 +413,8 @@ Always native, never rebuilt:
   it loses the accessibility the system one has for free.
 - The share sheet, the keyboard and its avoidance, scroll physics, text selection and context menus.
 - Alerts and confirmations use the platform's own dialog.
+- Sign-in buttons follow Google's and Apple's own branding rules. They are the one place the app's
+  design does not win, because both providers require their button to look the way they say.
 - The system font, which resolves to San Francisco on iOS and Roboto on Android with no work.
 - Safe areas, the notch and the home indicator, handled once in `Screen`.
 

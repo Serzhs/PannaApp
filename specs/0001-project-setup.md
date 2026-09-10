@@ -13,7 +13,7 @@ A developer can clone the repo, run three commands, and have a linted, typecheck
 
 ## Out of scope
 
-- Authentication. 0003 owns every auth endpoint and the auth screen. This spec creates the `users` and `refresh_tokens` tables and writes nothing to them.
+- Authentication. 0003 owns every auth endpoint and the sign-in screen. This spec creates the `users`, `identities` and `refresh_tokens` tables and writes nothing to them.
 - The design system. 0002 owns tokens and components. The placeholder screen here uses plain React Native styles and is replaced.
 - Recipes, ingredients, steps, sharing, images. Tables are created, and nothing reads or writes them.
 - Any real screen. One placeholder proves the app boots.
@@ -22,9 +22,9 @@ A developer can clone the repo, run three commands, and have a linted, typecheck
 
 ## Data model
 
-Create every table listed in `CLAUDE.md` in the initial migration: `users`, `refresh_tokens`, `recipes`, `ingredients`, `steps`, `step_dependencies`, `step_ingredients`. Later specs add endpoints on top of them and never alter a table that already holds data.
+Create every table listed in `CLAUDE.md` in the initial migration: `users`, `identities`, `refresh_tokens`, `recipes`, `ingredients`, `steps`, `step_dependencies`, `step_ingredients`. Later specs add endpoints on top of them and never alter a table that already holds data.
 
-Also created here: the `unit` and `unit_system` Postgres enums, and the `citext` extension so email uniqueness is case insensitive.
+Also created here: the `unit`, `unit_system` and `auth_provider` Postgres enums, and the `citext` extension so email uniqueness is case insensitive.
 
 `step_dependencies` carries only the constraints the schema can express - composite primary key, both columns cascading on step deletion, and a check that `stepId <> dependsOnStepId`. Same-recipe membership and acyclicity cannot be expressed as constraints and are enforced in application code from 0008 onward.
 
@@ -56,8 +56,9 @@ what the app actually needs, and a request body size limit. The Zod validation p
 fields rather than stripping them, so an unexpected field in a body is a 400 everywhere by default
 and no endpoint has to remember to ask.
 
-The environment schema validates that the JWT secret meets a minimum length, so a short or placeholder
-secret stops the API at boot instead of shipping.
+The environment schema validates that the JWT secret meets a minimum length, and that the Google and
+Apple client ids 0003 needs are present, so a short or placeholder secret stops the API at boot
+instead of shipping.
 
 `pnpm audit` runs as part of `pnpm test` and fails on a high severity advisory.
 
@@ -90,7 +91,7 @@ The Expo app boots to a single placeholder screen. It uses plain React Native st
 - [ ] `pnpm lint` passes with zero warnings, and fails if a warning is introduced.
 - [ ] Prettier in check mode reports no changes for any committed file.
 - [ ] Adding an unused local variable, an implicit `any`, or an unchecked index access each fail `pnpm typecheck` or `pnpm lint`.
-- [ ] The initial migration creates all seven tables, and `step_dependencies` rejects a row where `stepId` equals `dependsOnStepId`.
+- [ ] The initial migration creates all eight tables, `step_dependencies` rejects a row where `stepId` equals `dependsOnStepId`, and `identities` rejects a duplicate `(provider, subject)` pair.
 - [ ] `pnpm db:seed` runs against a migrated database, and running it a second time leaves the same rows rather than duplicating them.
 - [ ] Two API tests that each insert a row with the same unique value both pass when run in the same file, proving truncation happens between them.
 - [ ] A test asserting a rolled-back transaction leaves no partial rows passes, proving the harness does not hide commit behaviour inside an outer transaction.
