@@ -45,6 +45,8 @@ just say it simply.
 | Mobile | Expo (managed workflow, prebuild only when required) |
 | Routing | Expo Router (file based) |
 | Data fetching | TanStack Query v5 |
+| Forms | `react-hook-form` with its Zod resolver |
+| Keyboard | `react-native-keyboard-controller` |
 | Styling | react-native-unistyles |
 | Animation | react-native-reanimated + react-native-gesture-handler |
 | Haptics | expo-haptics |
@@ -377,6 +379,8 @@ and nothing else.
 
 ## Mobile conventions
 
+- Forms use `react-hook-form`, validated by the same Zod schema the API validates with, taken from `packages/shared`. A form that accepts something the API rejects is a bug in the wiring, not a difference of opinion between two sets of rules.
+- No screen writes its own keyboard avoidance. `react-native-keyboard-controller` handles it once, so the field being typed into is never behind the keyboard.
 - One TanStack Query hook file per feature, e.g. `src/features/recipes/queries.ts`. Query keys are exported constants, never inline string arrays.
 - Mutations invalidate query keys explicitly. No blanket `invalidateQueries()`.
 - Screens live in `app/`, and contain routing and layout only. Real logic lives in `src/features/*`.
