@@ -15,17 +15,17 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | 0007 | Ingredients and equipment | Not written | Add, edit, remove and reorder what a recipe needs. |
 | 0008 | Steps and nesting | Not written | Write steps, and nest the ones that happen during a wait. |
 | 0009 | Step links | Not written | Attach ingredients and equipment to the step that uses them. |
-| 0010 | Step images | Not written | Show what a step should look like when it is done. |
+| 0010 | Images | Not written | A cover photo, and a picture of how each step should look. |
 | 0011 | Cooking mode | Not written | Cook a recipe, seeing what else you could do during each wait. |
 | 0012 | Cooking without an ingredient | Not written | Check off what you have, and cook it without the carrots. |
-| 0013 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
+| 0013 | Recipe history | Not written | See when you cooked something, and what you changed each time. |
 | 0014 | Cook's notes | Not written | Record what you learned, and see it next time you cook. |
-| 0015 | Recipe history | Not written | See when you cooked something, and what you changed each time. |
+| 0015 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
 | 0016 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
-| 0017 | Cover images | Not written | A picture on the recipe and in the list. |
 
-Numbers run in build order, and each spec depends only on lower-numbered ones. That is a convenience
-rather than a rule, and it will stop being true the first time something is inserted.
+Numbers run in build order, and each spec depends only on lower-numbered ones. That holds today because
+nothing below 0007 is written yet and the order has been kept tidy; it will stop being true the first
+time something has to be inserted after a spec is approved.
 
 A number is fixed once its spec is **Approved**. Draft specs can still be renumbered, because nothing
 has been built against them yet and a tidy order is worth more than an untouched number. Once a spec
@@ -43,14 +43,15 @@ ingredients do. It is a separate table because equipment has no amount and no un
 Equipment belongs in the check before cooking at least as much as ingredients do: a missing herb can be
 improvised, a stand mixer cannot, and finding out halfway through is worse.
 
-**0010 Step images - the storage question arrives early now.** A step can carry a picture of what it
+**0010 Images - one storage decision, made once.** A step can carry a picture of what it
 should look like when done, which is what makes a shared recipe worth reading. Cooking mode shows it
 behind a large button rather than inline, with an equally large button to close, so the instruction
 keeps the screen.
 
-This pulls the unresolved question from 0017 forward: the files need somewhere to live, and under
-rule 4 that means the developer machine, which nobody else can reach. Sharing recipes with pictures
-therefore depends on the same decision as sharing itself.
+Cover photos ship in the same spec rather than at the end, because they share the only hard part: the
+files need somewhere to live, and under rule 4 that means the developer machine, which nobody else can
+reach. Solving that twice, seven specs apart, would be the same work done badly. Sharing recipes with
+pictures depends on the same decision as sharing itself.
 
 **0011 Cooking mode - progress is stored on the device.** Which steps are done lives in local storage so cooking never needs the network, and several recipes can be in progress at once. This spec also adds the in-progress section to the home screen and the Cook button to the recipe screen, both deferred from 0005.
 
@@ -85,7 +86,34 @@ reader will sometimes exclude something and see the time stay put, which needs s
 hiding. Exclusions are chosen before cooking starts and are part of the device-local session, not the
 recipe: leaving the carrots out today does not change the recipe for next time.
 
-**0013 JSON import - the prompt is the hard part, not the parser.**
+**0013 Recipe history - the one place an offline queue is allowed.** A `cooks` row per time somebody
+made a recipe: when, whether they finished, and what they left out. The recipe screen can then say
+"made 6 times, last on 12 Jan", and each note links to the cook it came from.
+
+Cooking ends where a connection is least likely, and a lost history row cannot be recovered by asking
+the user to try again, so a finished cook is written to the device and sent when the app is next
+online. That is the single exception to the no-mutation-queue rule in `CLAUDE.md`, and it is only safe
+because history is append-only: rows are never edited or deleted, so there is nothing to merge. The
+exception must not be widened to anything that can be changed after the fact.
+
+`excluded` stores ingredient names rather than ids, because history records what happened and must not
+change when the recipe is edited later.
+
+**0014 Cook's notes - writing one needs a connection.** After cooking, and at any time from the recipe
+screen, the cook can add a dated note to a step or to the recipe as a whole. They build up rather than
+being overwritten, so a note from last winter is still there.
+
+Storage has a seam worth getting right. Notes live on the server so they survive a new phone, but
+finishing a meal is exactly when someone is least likely to have signal. **A note written as part of
+finishing a cook rides in the same queued record as the cook itself** (0014), because both are created
+in that one moment and it would be absurd for one to survive and the other to fail. A note added later
+from the recipe screen is an ordinary write and needs a connection; if it fails it keeps its text and
+can be sent again.
+
+The payoff is in cooking mode, where a step shows the author's `note` and the cook's own notes
+together. That pairing is the reason the two are separate columns rather than one field.
+
+**0015 JSON import - the prompt is the hard part, not the parser.**
 
 The flow: tapping + offers two ways to add a recipe, writing one or pasting one. The paste view holds
 a big input and a **Copy prompt** button. The user takes that prompt to their own AI, adds a TikTok or
@@ -119,43 +147,12 @@ Pasted input is untrusted. It needs hard caps on step and ingredient counts and 
 every `parentStepId` must be checked to point at a main step in the same document before anything
 reaches the database.
 
-**0014 Cook's notes - writing one needs a connection.** After cooking, and at any time from the recipe
-screen, the cook can add a dated note to a step or to the recipe as a whole. They build up rather than
-being overwritten, so a note from last winter is still there.
-
-Storage has a seam worth getting right. Notes live on the server so they survive a new phone, but
-finishing a meal is exactly when someone is least likely to have signal. **A note written as part of
-finishing a cook rides in the same queued record as the cook itself** (0014), because both are created
-in that one moment and it would be absurd for one to survive and the other to fail. A note added later
-from the recipe screen is an ordinary write and needs a connection; if it fails it keeps its text and
-can be sent again.
-
-The payoff is in cooking mode, where a step shows the author's `note` and the cook's own notes
-together. That pairing is the reason the two are separate columns rather than one field.
-
-**0015 Recipe history - the one place an offline queue is allowed.** A `cooks` row per time somebody
-made a recipe: when, whether they finished, and what they left out. The recipe screen can then say
-"made 6 times, last on 12 Jan", and each note links to the cook it came from.
-
-Cooking ends where a connection is least likely, and a lost history row cannot be recovered by asking
-the user to try again, so a finished cook is written to the device and sent when the app is next
-online. That is the single exception to the no-mutation-queue rule in `CLAUDE.md`, and it is only safe
-because history is append-only: rows are never edited or deleted, so there is nothing to merge. The
-exception must not be widened to anything that can be changed after the fact.
-
-`excluded` stores ingredient names rather than ids, because history records what happened and must not
-change when the recipe is edited later.
-
 **0016 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
 lives on a machine the reader cannot reach, so this feature cannot work under rule 4 as written. A
 tappable link that opens the app, or the App Store when the app is missing, additionally needs a
 domain and two files hosted on it; a `panna://` link cannot do it, and most messaging apps will not
 even make it tappable. The alternative that stays local is exporting a recipe as a file the reader
-imports with 0013, without the cook's notes, which never travel, which is a copy rather than a link and cannot be revoked. Deferred deliberately.
-
-**0017 Cover images - the files need somewhere to live.** `coverImageKey` implies a store, and 0010 already faced this for `imageKey`.
-Under rule 4 that means files on the developer machine served by the API, which works for development
-and shares the reachability problem above the moment anyone else needs to see them.
+imports with 0015, without the cook's notes, which never travel, which is a copy rather than a link and cannot be revoked. Deferred deliberately.
 
 ## Workflow
 

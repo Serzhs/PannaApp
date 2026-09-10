@@ -43,8 +43,8 @@ Three things were drawn ahead of the specs and should be read as proposals:
 - The home screen shows a progress bar and a line of what is happening now for each recipe in
   progress. 0005 does not ship that section; 0010 adds it.
 - Sign-in buttons are drawn plain. Real ones must follow Google's and Apple's branding rules.
-- The cover photo slot on the write screen belongs to 0017, the last spec. The description beside it is
-  real from 0005.
+- The cover photo slot on the write screen belongs to 0010, alongside step photos. The description
+  beside it is real from 0005.
 
 No status bar or battery icon is drawn. The phone draws its own over the layout, and a painted one
 looks doubled up.
