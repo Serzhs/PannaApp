@@ -55,11 +55,39 @@ reader will sometimes exclude something and see the time stay put, which needs s
 hiding. Exclusions are chosen before cooking starts and are part of the device-local session, not the
 recipe: leaving the carrots out today does not change the recipe for next time.
 
-**0012 JSON import - the format needs a version and limits.** The prompt handed to users will change,
-and JSON produced by an older version of it will still be circulating, so every document carries a
-`schemaVersion`. Pasted input is untrusted: it needs hard caps on step and ingredient counts and on
-text length, and every `parentStepId` must be checked to point at a main step in the same document
-before anything reaches the database.
+**0012 JSON import - the prompt is the hard part, not the parser.**
+
+The flow: tapping + offers two ways to add a recipe, writing one or pasting one. The paste view holds
+a big input and a **Copy prompt** button. The user takes that prompt to their own AI, adds a TikTok or
+YouTube link on the end, and pastes back what comes out. **The app never fetches the URL** - the
+user's AI watches the video - so there is no scraping, no terms-of-service question, and no
+user-supplied URL for the API to follow.
+
+JSON rather than YAML: models emit valid JSON reliably and mangle YAML indentation often enough to
+matter, and Zod already speaks JSON.
+
+The prompt is the real work. It has to teach a stranger's model the whole content model - main steps
+against nested ones, durations, which ingredients belong to which step, the unit enum - because a
+vague prompt returns flat recipes with no nesting, which is the one thing this app exists to express.
+It should also name the language to write in, from the user's locale, so a Latvian user gets a Latvian
+recipe. It carries the `schemaVersion` it was written for.
+
+Every document carries `schemaVersion`. The prompt will change and older output will still be in
+circulation, so an import states which version it was reading and refuses one it does not know.
+
+The paste box is forgiving by design. Real model output arrives wrapped in code fences, under "Here's
+your recipe!" and above a closing pleasantry; the box finds the JSON inside that rather than rejecting
+it.
+
+**Partial imports are accepted.** Everything valid comes in, and whatever could not be read is flagged
+for fixing in the editor. One bad unit should not cost the whole recipe.
+
+**Imported recipes land as `draft`.** A model will get something wrong, and the draft state already
+exists for exactly this: review and correct before it counts as a real recipe.
+
+Pasted input is untrusted. It needs hard caps on step and ingredient counts and on text length, and
+every `parentStepId` must be checked to point at a main step in the same document before anything
+reaches the database.
 
 **0013 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
 lives on a machine the reader cannot reach, so this feature cannot work under rule 4 as written. A

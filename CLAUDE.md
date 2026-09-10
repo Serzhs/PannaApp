@@ -2,8 +2,8 @@
 
 **Panna** is a cooking assistant app. Users write recipes as steps, nesting the ones that can be done
 while something else cooks, so that while the pork roasts you know what else you could get on with.
-Recipes are shared via private link. Recipes can also be imported
-as JSON produced by the user's own AI assistant from a video or a web page.
+Recipes are shared via private link, and can be brought in as JSON that the user's own AI produced
+from a video or a web page - the app hands out the prompt and never fetches anything itself.
 
 ## Non-negotiable rules
 
@@ -463,7 +463,7 @@ Six screens. Anything that feels like a seventh should be a state of one of thes
 | `(auth)/index` | Sign in with Google or Apple. The only screen when signed out. |
 | `(app)/index` | Home. Recipes in progress at the top, then everything else, drafts chipped. |
 | `(app)/recipes/[id]` | Read a recipe: ingredients, steps, total time. Has the Cook button. |
-| `(app)/recipes/new` and `[id]/edit` | Write a recipe. The same form in two modes. |
+| `(app)/recipes/new` and `[id]/edit` | Write a recipe, or paste one from your AI. The same form in two modes. |
 | `(app)/recipes/[id]/cook` | The guide. Opens on a check of what you have, then one step at a time, showing what can be done meanwhile. |
 | `(app)/settings` | Language, units, sign out. |
 
