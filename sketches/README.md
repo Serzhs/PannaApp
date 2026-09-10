@@ -19,8 +19,10 @@ One file per screen, each a self-contained HTML document.
 | `Cook.dc.html` | Cooking, with the meanwhile list |
 | `Settings.dc.html` | Language, units, sign out |
 
-`canvas.json` places them on a canvas and holds the sticky notes. Open any `.dc.html` in a browser to
-see that screen on its own.
+`index.html` shows all six side by side with notes on each. Open it in a browser and start there.
+
+`canvas.json` places them on a shared pan-and-zoom canvas. Open any `.dc.html` on its own to see that
+screen full size.
 
 ## What the sketches assume
 
