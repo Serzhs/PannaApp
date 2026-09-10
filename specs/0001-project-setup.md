@@ -22,7 +22,7 @@ A developer can clone the repo, run three commands, and have a linted, typecheck
 
 ## Data model
 
-Create every table listed in `CLAUDE.md` in the initial migration: `users`, `identities`, `refresh_tokens`, `recipes`, `ingredients`, `steps`, `step_ingredients`. Later specs add endpoints on top of them and never alter a table that already holds data.
+Create every table listed in `CLAUDE.md` in the initial migration: `users`, `identities`, `refresh_tokens`, `recipes`, `ingredients`, `steps`, `step_ingredients`, `cook_notes`. Later specs add endpoints on top of them and never alter a table that already holds data.
 
 Also created here: the `unit`, `unit_system`, `auth_provider` and `recipe_status` Postgres enums, and the `citext` extension so email uniqueness is case insensitive.
 
@@ -91,7 +91,7 @@ The Expo app boots to a single placeholder screen. It uses plain React Native st
 - [ ] `pnpm lint` passes with zero warnings, and fails if a warning is introduced.
 - [ ] Prettier in check mode reports no changes for any committed file.
 - [ ] Adding an unused local variable, an implicit `any`, or an unchecked index access each fail `pnpm typecheck` or `pnpm lint`.
-- [ ] The initial migration creates all seven tables, `identities` rejects a duplicate `(provider, subject)` pair, and `steps.parentStepId` accepts null and rejects an id that is not a step.
+- [ ] The initial migration creates all eight tables, `identities` rejects a duplicate `(provider, subject)` pair, and `steps.parentStepId` accepts null and rejects an id that is not a step.
 - [ ] `pnpm db:seed` runs against a migrated database, and running it a second time leaves the same rows rather than duplicating them.
 - [ ] Two API tests that each insert a row with the same unique value both pass when run in the same file, proving truncation happens between them.
 - [ ] A test asserting a rolled-back transaction leaves no partial rows passes, proving the harness does not hide commit behaviour inside an outer transaction.

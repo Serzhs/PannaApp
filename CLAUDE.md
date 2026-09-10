@@ -210,6 +210,19 @@ Null `unit` with a non-null `amount` means a bare count. Null `amount` means an 
 
 **step_ingredients**: stepId (fk steps, cascade), ingredientId (fk ingredients, cascade), composite primary key. Links an ingredient to the step where it is used, so the step-by-step cooking view can show only what is needed right now.
 
+**cook_notes**: id, recipeId (fk recipes, cascade), stepId (fk steps, cascade, nullable), authorId (fk users, cascade), body (text), createdAt, updatedAt
+
+What the cook learned, as opposed to what the author instructed. A null `stepId` is a note on the
+whole recipe; a set one is a note on that step, and it must belong to that recipe.
+
+`steps.note` and `cook_notes` are deliberately different things and must not be merged. The first is
+part of the recipe - "do not let the garlic brown" - and changes only when the recipe changes. The
+second accumulates: "needed 10 minutes longer in my oven", dated, one per cook. They appear together
+while cooking, which is the point: the author's tip and what you found out last time, side by side.
+
+Notes are personal. They belong to the cook, never travel with a shared recipe, and are never visible
+to anyone else.
+
 Ordering rules: `position` is a zero-based integer, unique within a parent. Reordering rewrites all
 positions in one transaction. Never rely on insertion order or `createdAt` for display order.
 
@@ -462,7 +475,7 @@ Six screens. Anything that feels like a seventh should be a state of one of thes
 | --- | --- |
 | `(auth)/index` | Sign in with Google or Apple. The only screen when signed out. |
 | `(app)/index` | Home. Recipes in progress at the top, then everything else, drafts chipped. |
-| `(app)/recipes/[id]` | Read a recipe: ingredients, steps, total time. Has the Cook button. |
+| `(app)/recipes/[id]` | Read a recipe: ingredients, steps, total time, your notes. Has the Cook button. |
 | `(app)/recipes/new` and `[id]/edit` | Write a recipe, or paste one from your AI. The same form in two modes. |
 | `(app)/recipes/[id]/cook` | The guide. Opens on a check of what you have, then one step at a time, showing what can be done meanwhile. |
 | `(app)/settings` | Language, units, sign out. |

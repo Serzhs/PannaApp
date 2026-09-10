@@ -18,8 +18,9 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | 0010 | Cooking mode | Not written | Cook a recipe, seeing what else you could do during each wait. |
 | 0011 | Cooking without an ingredient | Not written | Check off what you have, and cook it without the carrots. |
 | 0012 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
-| 0013 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
-| 0014 | Images | Not written | Cover and per-step images. |
+| 0013 | Cook's notes | Not written | Record what you learned, and see it next time you cook. |
+| 0014 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
+| 0015 | Images | Not written | Cover and per-step images. |
 
 Numbers run in build order, and each spec depends only on lower-numbered ones. That is a convenience
 rather than a rule, and it will stop being true the first time something is inserted.
@@ -89,14 +90,26 @@ Pasted input is untrusted. It needs hard caps on step and ingredient counts and 
 every `parentStepId` must be checked to point at a main step in the same document before anything
 reaches the database.
 
-**0013 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
+**0013 Cook's notes - writing one needs a connection.** After cooking, and at any time from the recipe
+screen, the cook can add a dated note to a step or to the recipe as a whole. They build up rather than
+being overwritten, so a note from last winter is still there.
+
+The one awkward moment: notes live on the server so they survive a new phone, but finishing a meal is
+exactly when someone is least likely to have signal. A note written offline fails and keeps its text,
+and the recipe screen is the second place to add one, so nothing is lost - it is just later than it
+should be. Worth watching once it is real.
+
+The payoff is in cooking mode, where a step shows the author's `note` and the cook's own notes
+together. That pairing is the reason the two are separate columns rather than one field.
+
+**0014 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
 lives on a machine the reader cannot reach, so this feature cannot work under rule 4 as written. A
 tappable link that opens the app, or the App Store when the app is missing, additionally needs a
 domain and two files hosted on it; a `panna://` link cannot do it, and most messaging apps will not
 even make it tappable. The alternative that stays local is exporting a recipe as a file the reader
-imports with 0012, which is a copy rather than a link and cannot be revoked. Deferred deliberately.
+imports with 0012, without the cook's notes, which never travel, which is a copy rather than a link and cannot be revoked. Deferred deliberately.
 
-**0014 Images - the files need somewhere to live.** `coverImageKey` and `imageKey` imply a store.
+**0015 Images - the files need somewhere to live.** `coverImageKey` and `imageKey` imply a store.
 Under rule 4 that means files on the developer machine served by the API, which works for development
 and shares the reachability problem above the moment anyone else needs to see them.
 
