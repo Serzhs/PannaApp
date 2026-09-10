@@ -210,7 +210,15 @@ Null `unit` with a non-null `amount` means a bare count. Null `amount` means an 
 
 **step_ingredients**: stepId (fk steps, cascade), ingredientId (fk ingredients, cascade), composite primary key. Links an ingredient to the step where it is used, so the step-by-step cooking view can show only what is needed right now.
 
-**cook_notes**: id, recipeId (fk recipes, cascade), stepId (fk steps, cascade, nullable), authorId (fk users, cascade), body (text), createdAt, updatedAt
+**cooks**: id, recipeId (fk recipes, cascade), userId (fk users, cascade), startedAt, finishedAt (nullable), excluded (jsonb, ingredient names as text), createdAt, updatedAt
+
+One row per time somebody cooked a recipe. A null `finishedAt` is a cook that was abandoned, which is
+worth knowing rather than hiding.
+
+`excluded` stores the **names** of ingredients left out, not their ids. History is a snapshot of what
+happened, so it must not change or break when the recipe is later edited and an ingredient is deleted.
+
+**cook_notes**: id, recipeId (fk recipes, cascade), stepId (fk steps, cascade, nullable), cookId (fk cooks, set null, nullable), authorId (fk users, cascade), body (text), createdAt, updatedAt
 
 What the cook learned, as opposed to what the author instructed. A null `stepId` is a note on the
 whole recipe; a set one is a note on that step, and it must belong to that recipe.
@@ -219,6 +227,9 @@ whole recipe; a set one is a note on that step, and it must belong to that recip
 part of the recipe - "do not let the garlic brown" - and changes only when the recipe changes. The
 second accumulates: "needed 10 minutes longer in my oven", dated, one per cook. They appear together
 while cooking, which is the point: the author's tip and what you found out last time, side by side.
+
+A note written during or just after a cook carries that `cookId`, so history can show what you thought
+each time you made it. A note added later from the recipe screen has none.
 
 Notes are personal. They belong to the cook, never travel with a shared recipe, and are never visible
 to anyone else.
@@ -420,9 +431,15 @@ thing the app can do to someone.
   edge - and refuses to start until it has. After that, a connection drop cannot interrupt cooking,
   because nothing in cooking mode needs the network. This is a guarantee by construction, not a
   cache that usually happens to be warm.
-- Writes require a connection. There is no mutation queue and no offline editing. A write attempted
-  offline fails immediately with a clear message and keeps the user's input, so nothing is lost and
-  nothing is silently pending.
+- Writes require a connection. There is no general mutation queue and no offline editing. A write
+  attempted offline fails immediately with a clear message and keeps the user's input, so nothing is
+  lost and nothing is silently pending.
+- **One exception: a finished cook.** Cooking ends exactly where a connection is least likely, and a
+  lost history row cannot be recreated by asking the user to try again. So a finished cook is written
+  to the device and sent when the app is next online. This stays simple because history is
+  append-only - rows are never edited or deleted, so there is nothing to merge and no conflict to
+  resolve. That property is what makes the exception safe, and it is the reason it does not generalise
+  to anything else.
 - Offline is a visible state, never a spinner that never resolves.
 
 **Cooking progress lives on the device, not the server.** Which steps are done, and when a timed step
@@ -486,6 +503,28 @@ without something is part of that session and never changes the recipe.
 
 Reading and cooking are deliberately separate. Reading happens before shopping and while deciding what
 to make; cooking happens with wet hands at a stove. The same screen cannot be good at both.
+
+## Cooking with dirty hands
+
+Cook mode is used with wet or greasy hands, from arm's length, with a knife in the other hand. It is
+the one screen where ordinary touch design is not enough.
+
+- **Targets are far bigger than the 44pt minimum.** The primary action is a full-width bar deep enough
+  to hit with a knuckle without looking, and the step card itself is tappable. Nothing important is a
+  small control.
+- Text is sized to be read from across a counter, not from reading distance.
+- The screen stays awake for the whole cook.
+- **This is not a mode.** Nobody switches on "dirty hands" once their hands are dirty, so cook mode is
+  always built this way.
+- **No audio, in either direction.** No listening, no reading aloud. A kitchen is loud enough that
+  speech recognition fails exactly when it is needed, and a microphone listening in someone's home
+  needs a better reason than this.
+- **The knuckle hint.** The first time someone opens cook mode, a short animation shows tapping with
+  the back of a finger rather than the pad, because that side stays cleaner. It plays once, is
+  dismissible, and never appears again unless asked for from settings.
+
+  An animation alone excludes people. It carries a text equivalent, and with reduce-motion on it shows
+  a still image and the words instead of moving. Per the Accessibility section, this is not optional.
 
 ## Motion
 
