@@ -464,8 +464,12 @@ Six screens. Anything that feels like a seventh should be a state of one of thes
 | `(app)/index` | Home. Recipes in progress at the top, then everything else, drafts chipped. |
 | `(app)/recipes/[id]` | Read a recipe: ingredients, steps, total time. Has the Cook button. |
 | `(app)/recipes/new` and `[id]/edit` | Write a recipe. The same form in two modes. |
-| `(app)/recipes/[id]/cook` | The guide. One step at a time, showing what can be done meanwhile. |
+| `(app)/recipes/[id]/cook` | The guide. Opens on a check of what you have, then one step at a time, showing what can be done meanwhile. |
 | `(app)/settings` | Language, units, sign out. |
+
+The check of what you have is the first state of cooking, not a seventh screen. Tapping Cook lands
+there: tick off the ingredients, mark anything you are going without, then start. Choosing to cook
+without something is part of that session and never changes the recipe.
 
 Reading and cooking are deliberately separate. Reading happens before shopping and while deciding what
 to make; cooking happens with wet hands at a stove. The same screen cannot be good at both.

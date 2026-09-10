@@ -16,9 +16,10 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | 0008 | Steps and nesting | Not written | Write steps, and nest the ones that happen during a wait. |
 | 0009 | Step to ingredient links | Not written | Attach ingredients to the step that uses them. |
 | 0010 | Cooking mode | Not written | Cook a recipe, seeing what else you could do during each wait. |
-| 0011 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
-| 0012 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
-| 0013 | Images | Not written | Cover and per-step images. |
+| 0011 | Cooking without an ingredient | Not written | Check off what you have, and cook it without the carrots. |
+| 0012 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
+| 0013 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
+| 0014 | Images | Not written | Cover and per-step images. |
 
 Numbers run in build order, and each spec depends only on lower-numbered ones. That is a convenience
 rather than a rule, and it will stop being true the first time something is inserted.
@@ -38,20 +39,36 @@ when its spec is written, and none of them should be discovered then for the fir
 screen is on is not a timer. This needs local notifications and a keep-awake, both additions to the
 stack, and it needs deciding what happens when several timers are running at once.
 
-**0011 JSON import - the format needs a version and limits.** The prompt handed to users will change,
+**0011 Cooking without an ingredient - the step text cannot be rewritten.** Before cooking, the reader
+ticks off what they have and can mark an ingredient as one they are going without. A step whose only
+ingredients were excluded is hidden entirely and the numbering closes up; a step that also uses other
+ingredients stays and simply does not list the excluded one.
+
+The limit is authored prose: if a step reads "chop the carrots and celery", that sentence still says
+carrots, and no amount of linking fixes it. Because skipped steps disappear silently, cooking mode
+must carry a visible marker of what is being left out - otherwise the reader is cooking an altered
+recipe with nothing on screen admitting it, and a step still mentioning carrots reads as a bug.
+
+The estimate only moves when a **main** step drops. Nested steps happen inside a main step's time, so
+skipping one changes nothing. That falls out of the nesting model and is correct, but it means a
+reader will sometimes exclude something and see the time stay put, which needs saying rather than
+hiding. Exclusions are chosen before cooking starts and are part of the device-local session, not the
+recipe: leaving the carrots out today does not change the recipe for next time.
+
+**0012 JSON import - the format needs a version and limits.** The prompt handed to users will change,
 and JSON produced by an older version of it will still be circulating, so every document carries a
 `schemaVersion`. Pasted input is untrusted: it needs hard caps on step and ingredient counts and on
 text length, and every `parentStepId` must be checked to point at a main step in the same document
 before anything reaches the database.
 
-**0012 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
+**0013 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
 lives on a machine the reader cannot reach, so this feature cannot work under rule 4 as written. A
 tappable link that opens the app, or the App Store when the app is missing, additionally needs a
 domain and two files hosted on it; a `panna://` link cannot do it, and most messaging apps will not
 even make it tappable. The alternative that stays local is exporting a recipe as a file the reader
-imports with 0011, which is a copy rather than a link and cannot be revoked. Deferred deliberately.
+imports with 0012, which is a copy rather than a link and cannot be revoked. Deferred deliberately.
 
-**0013 Images - the files need somewhere to live.** `coverImageKey` and `imageKey` imply a store.
+**0014 Images - the files need somewhere to live.** `coverImageKey` and `imageKey` imply a store.
 Under rule 4 that means files on the developer machine served by the API, which works for development
 and shares the reachability problem above the moment anyone else needs to see them.
 
