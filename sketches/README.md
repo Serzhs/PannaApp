@@ -26,8 +26,8 @@ One file per screen, each a self-contained HTML document.
 Ten drawings, six screens. Paste is a state of the create screen, and the hint, the checklist and the
 photo view are all states of cooking, per the App structure section of `CLAUDE.md`.
 
-`ReadRecipe` is drawn taller than the others because it shows the whole scrolling page rather than one
-phone screen's worth.
+`ReadRecipe` and `WriteRecipe` are drawn taller than the others because they show the whole scrolling
+page rather than one phone screen's worth.
 
 `index.html` shows them all side by side with notes on each. Open it in a browser and start there.
 
@@ -43,6 +43,8 @@ Three things were drawn ahead of the specs and should be read as proposals:
 - The home screen shows a progress bar and a line of what is happening now for each recipe in
   progress. 0005 does not ship that section; 0010 adds it.
 - Sign-in buttons are drawn plain. Real ones must follow Google's and Apple's branding rules.
+- The cover photo slot on the write screen belongs to 0017, the last spec. The description beside it is
+  real from 0005.
 
 No status bar or battery icon is drawn. The phone draws its own over the layout, and a painted one
 looks doubled up.

@@ -3,7 +3,7 @@
     { "file": "SignIn.dc.html",     "x": 0,    "y": 0,    "w": 390, "h": 844,  "title": "01 Sign in" },
     { "file": "Main.dc.html",       "x": 470,  "y": 0,    "w": 390, "h": 844,  "title": "02 Home" },
     { "file": "ReadRecipe.dc.html", "x": 940,  "y": 0,    "w": 390, "h": 1400, "title": "03 Read a recipe" },
-    { "file": "WriteRecipe.dc.html","x": 0,    "y": 1520, "w": 390, "h": 844,  "title": "04 Write a recipe" },
+    { "file": "WriteRecipe.dc.html","x": 0,    "y": 1520, "w": 390, "h": 1200, "title": "04 Write a recipe" },
     { "file": "Paste.dc.html",      "x": 470,  "y": 1520, "w": 390, "h": 844,  "title": "05 Paste a recipe" },
     { "file": "Checklist.dc.html",  "x": 940,  "y": 1520, "w": 390, "h": 844,  "title": "06 Before you start" },
     { "file": "KnuckleHint.dc.html","x": 0,    "y": 2484, "w": 390, "h": 844,  "title": "07 First open" },
