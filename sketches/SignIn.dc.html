@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Architects Daughter', 'Bradley Hand', cursive, sans-serif; color: #2b2b2b; -webkit-font-smoothing: antialiased; }
+    a { color: #2b2b2b; } a:hover { color: #000000; }
+    .paper { background-color: #fbfaf7; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); }
+    .sk { border: 2px solid #2b2b2b; border-radius: 16px 6px 18px 7px / 7px 18px 6px 16px; }
+    .skf { border: 1.5px solid #9a9a9a; border-radius: 13px 5px 14px 6px / 6px 14px 5px 13px; }
+    .chip { border: 1.5px solid #6b6b6b; border-radius: 20px 8px 22px 9px / 9px 22px 8px 20px; padding: 3px 10px; font-size: 12px; color: #4a4a4a; }
+    .rule { height: 0; border-top: 1.5px dashed #cfcfcf; }
+  </style>
+</helmet>
+<div class="paper" style="width: 390px; height: 844px; box-sizing: border-box; padding: 0 28px; display: flex; flex-direction: column; justify-content: center; gap: 40px;">
+
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 14px; transform: rotate(-1deg);">
+    <div style="font-size: 52px; letter-spacing: 1px;">Panna</div>
+    <div style="width: 120px; height: 10px;">
+      <svg viewBox="0 0 120 10" width="120" height="10" fill="none" stroke="#2b2b2b" stroke-width="2" stroke-linecap="round">
+        <path d="M2 6 C 22 2, 44 9, 66 4 S 104 3, 118 6" />
+      </svg>
+    </div>
+    <div style="font-size: 16px; color: #5a5a5a; text-align: center; line-height: 1.5; max-width: 250px;">Know what else you could<br>be doing while it cooks</div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 14px;">
+    <div class="sk" style="height: 52px; display: flex; align-items: center; justify-content: center; gap: 10px; background: #2b2b2b; color: #fbfaf7;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbfaf7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 3c0 1.6-1.3 3-2.9 3C13 4.4 14.4 3 16 3z" />
+        <path d="M19 16.5c-.5 1.2-.8 1.7-1.5 2.7-.9 1.4-2.2 3.1-3.8 3.1-1.4 0-1.8-.9-3.7-.9s-2.3.9-3.7.9c-1.6 0-2.8-1.5-3.7-2.9C.9 16.3.6 11.7 2.3 9.3c1.2-1.7 3-2.7 4.8-2.7 1.7 0 2.8 1 4.2 1 1.4 0 2.2-1 4.2-1 1.5 0 3.2.8 4.3 2.3-3.8 2-3.2 7.4-.8 8.6z" />
+      </svg>
+      <span style="font-size: 17px;">Continue with Apple</span>
+    </div>
+    <div class="sk" style="height: 52px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 12h9" />
+        <path d="M12 12 L5.5 18" />
+        <path d="M12 12 L5.5 6" />
+      </svg>
+      <span style="font-size: 17px;">Continue with Google</span>
+    </div>
+  </div>
+
+  <div style="text-align: center; font-size: 12px; color: #8a8a8a; line-height: 1.6;">no passwords, ever</div>
+
+</div>
+</x-dc>
+</body>
+</html>

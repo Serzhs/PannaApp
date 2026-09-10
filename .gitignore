@@ -30,3 +30,6 @@ apps/mobile/android/
 *.log
 npm-debug.log*
 pnpm-debug.log*
+
+# Built design canvas, ~2.4MB of bundled editor. Regenerated from sketches/*.dc.html
+panna-screens.html

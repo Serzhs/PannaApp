@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Architects Daughter', 'Bradley Hand', cursive, sans-serif; color: #2b2b2b; -webkit-font-smoothing: antialiased; }
+    a { color: #2b2b2b; } a:hover { color: #000000; }
+    .paper { background-color: #fbfaf7; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); }
+    .sk { border: 2px solid #2b2b2b; border-radius: 16px 6px 18px 7px / 7px 18px 6px 16px; }
+    .skf { border: 1.5px solid #9a9a9a; border-radius: 13px 5px 14px 6px / 6px 14px 5px 13px; }
+    .chip { border: 1.5px solid #6b6b6b; border-radius: 20px 8px 22px 9px / 9px 22px 8px 20px; padding: 3px 10px; font-size: 12px; color: #4a4a4a; }
+    .rule { height: 0; border-top: 1.5px dashed #cfcfcf; }
+  </style>
+</helmet>
+<div class="paper" style="width: 390px; height: 844px; box-sizing: border-box; padding: 26px 20px 0; display: flex; flex-direction: column; gap: 18px; overflow: hidden;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    <div style="font-size: 30px; transform: rotate(-1deg);">Panna</div>
+    <div style="display: flex; gap: 10px;">
+      <div class="sk" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+      </div>
+      <div class="sk" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.8"><circle cx="12" cy="12" r="3.2" /><path d="M12 3v2.4M12 18.6V21M21 12h-2.4M5.4 12H3M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7M18.4 18.4l-1.7-1.7M7.3 7.3L5.6 5.6" stroke-linecap="round" /></svg>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px;">
+    <div style="font-size: 15px; color: #6b6b6b;">Cooking now</div>
+
+    <div class="sk" style="padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px;">
+        <div style="font-size: 19px;">Pork with roast potatoes</div>
+        <div style="font-size: 13px; color: #6b6b6b; white-space: nowrap;">step 4 of 9</div>
+      </div>
+      <div style="display: flex; gap: 4px; align-items: center;">
+        <div style="height: 8px; flex-grow: 4; background: #2b2b2b; border-radius: 6px 2px 7px 3px / 3px 7px 2px 6px;"></div>
+        <div class="skf" style="height: 8px; flex-grow: 5;"></div>
+      </div>
+      <div style="font-size: 14px; color: #5a5a5a;">now: potatoes in the oven &middot; 22 min left</div>
+    </div>
+
+    <div class="sk" style="padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px;">
+        <div style="font-size: 19px;">Overnight oats</div>
+        <div style="font-size: 13px; color: #6b6b6b; white-space: nowrap;">step 2 of 3</div>
+      </div>
+      <div style="display: flex; gap: 4px; align-items: center;">
+        <div style="height: 8px; flex-grow: 2; background: #2b2b2b; border-radius: 6px 2px 7px 3px / 3px 7px 2px 6px;"></div>
+        <div class="skf" style="height: 8px; flex-grow: 1;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rule"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px;">
+    <div style="font-size: 15px; color: #6b6b6b;">Your recipes</div>
+
+    <div class="skf" style="padding: 13px 14px; display: flex; flex-direction: column; gap: 5px;">
+      <div style="font-size: 18px;">Mushroom risotto</div>
+      <div style="font-size: 13px; color: #6b6b6b;">2 servings &middot; 35 min</div>
+    </div>
+
+    <div class="skf" style="padding: 13px 14px; display: flex; flex-direction: column; gap: 6px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="font-size: 18px;">Sunday lasagne</div>
+        <div class="chip">draft</div>
+      </div>
+      <div style="font-size: 13px; color: #6b6b6b;">6 servings &middot; no time yet</div>
+    </div>
+
+    <div class="skf" style="padding: 13px 14px; display: flex; flex-direction: column; gap: 5px;">
+      <div style="font-size: 18px;">Grandmother's rye bread</div>
+      <div style="font-size: 13px; color: #6b6b6b;">1 loaf &middot; 4 h 20 min</div>
+    </div>
+
+    <div class="skf" style="padding: 13px 14px; display: flex; flex-direction: column; gap: 5px;">
+      <div style="font-size: 18px;">Cold beetroot soup</div>
+      <div style="font-size: 13px; color: #6b6b6b;">4 servings &middot; 20 min</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
