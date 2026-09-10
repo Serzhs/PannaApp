@@ -196,7 +196,7 @@ and Apple may give a private relay address instead of a real one.
 
 **recipes**: id, authorId (fk users, cascade), title, description (nullable), language (varchar 5), status (enum: `draft` | `ready`, default `draft`), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), visibility (enum: `private` | `unlisted`, default `private`), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
 
-**ingredients**: id, recipeId (fk recipes, cascade), position (int), name, amount (numeric 10,2, nullable), unit (enum, nullable)
+**ingredients**: id, recipeId (fk recipes, cascade), position (int), name, note (text, nullable), amount (numeric 10,2, nullable), unit (enum, nullable)
 
 The `unit` enum, grouped by dimension, because conversion only ever happens within a dimension:
 
@@ -206,7 +206,12 @@ The `unit` enum, grouped by dimension, because conversion only ever happens with
 
 Null `unit` with a non-null `amount` means a bare count. Null `amount` means an unmeasured quantity, as in "salt, to taste".
 
-**equipment**: id, recipeId (fk recipes, cascade), position (int), name, optional (boolean, default false)
+**equipment**: id, recipeId (fk recipes, cascade), position (int), name, note (text, nullable), optional (boolean, default false)
+
+`note` on both is the qualifier that does not belong in the name: "carrots, not too long", "flour,
+plain not self-raising", "roasting tin, at least 30cm". Putting it in `name` makes the shopping list
+read badly and makes the same ingredient look like a different one; a separate field keeps the name
+the name.
 
 The pans, tins and gadgets a recipe needs. Kept apart from `ingredients` because equipment has no
 amount and no unit, and folding the two together would mean a kind column and a row of nulls on every
@@ -500,20 +505,27 @@ picking one for both.
 
 ## App structure
 
-Six screens. Anything that feels like a seventh should be a state of one of these instead.
+Six screens. Anything that feels like a seventh should be a state of one of these instead - the four
+create pages are states, not screens.
 
 | Screen | What it is for |
 | --- | --- |
 | `(auth)/index` | Sign in with Google or Apple. The only screen when signed out. |
 | `(app)/index` | Home. Recipes in progress at the top, then everything else, drafts chipped. |
 | `(app)/recipes/[id]` | Read a recipe: ingredients, steps, total time, your notes. Has the Cook button. |
-| `(app)/recipes/new` and `[id]/edit` | Write a recipe, or paste one from your AI. The same form in two modes. |
+| `(app)/recipes/new` | Create: four pages, or paste one from your AI. |
+| `(app)/recipes/[id]/edit` | Edit: the whole recipe on one screen. |
 | `(app)/recipes/[id]/cook` | The guide. Opens on a check of what you have, then one step at a time, showing what can be done meanwhile. |
 | `(app)/settings` | Language, units, sign out. |
 
 The check of what you have is the first state of cooking, not a seventh screen. Tapping Cook lands
 there: tick off the ingredients, mark anything you are going without, then start. Choosing to cook
 without something is part of that session and never changes the recipe.
+
+**Creating a recipe is four pages; editing one is not.** New recipes go through basics, what you need,
+the steps, then a review before they stop being a draft - each page saving as it goes, so stopping
+halfway loses nothing. Editing an existing recipe is the whole thing on one screen: someone fixing a
+single wrong quantity should not be walked through four pages to reach it.
 
 Reading and cooking are deliberately separate. Reading happens before shopping and while deciding what
 to make; cooking happens with wet hands at a stove. The same screen cannot be good at both.

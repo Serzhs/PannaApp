@@ -13,18 +13,26 @@ One file per screen, each a self-contained HTML document.
 | File | Screen |
 | --- | --- |
 | `SignIn.dc.html` | Google and Apple sign-in |
+| `EmptyHome.dc.html` | Home with no recipes yet |
 | `Main.dc.html` | Home: cooking now, then your recipes |
-| `ReadRecipe.dc.html` | Read a recipe: ingredients, equipment, steps, history |
-| `WriteRecipe.dc.html` | Write a recipe, showing nesting |
+| `CreateBasics.dc.html` | Create 1: cover, title, description, servings |
+| `CreateNeed.dc.html` | Create 2: ingredients and equipment, each with a note |
+| `CreateSteps.dc.html` | Create 3: steps and nesting |
+| `CreateReview.dc.html` | Create 4: the whole recipe before it stops being a draft |
 | `Paste.dc.html` | Import: copy the prompt, paste the JSON back |
+| `ReadRecipe.dc.html` | Read a recipe: ingredients, equipment, steps, history |
+| `WriteRecipe.dc.html` | Edit a recipe, all on one screen |
 | `Checklist.dc.html` | Before you start: tick what you have, go without |
 | `KnuckleHint.dc.html` | The once-only hint about tapping with a knuckle |
 | `Cook.dc.html` | Cooking: meanwhile list, past notes, the photo button |
 | `StepImage.dc.html` | How it should look, full screen |
 | `Settings.dc.html` | Language, units, sign out |
 
-Ten drawings, six screens. Paste is a state of the create screen, and the hint, the checklist and the
-photo view are all states of cooking, per the App structure section of `CLAUDE.md`.
+Fifteen drawings, six screens. The four create pages and Paste are states of creating; the hint, the
+checklist and the photo view are states of cooking, per the App structure section of `CLAUDE.md`.
+
+Creating is four pages and editing is one, on purpose: someone fixing a single wrong quantity should
+not be walked through a wizard to reach it.
 
 `ReadRecipe` and `WriteRecipe` are drawn taller than the others because they show the whole scrolling
 page rather than one phone screen's worth.

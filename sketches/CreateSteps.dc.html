@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Architects Daughter', 'Bradley Hand', cursive, sans-serif; color: #2b2b2b; -webkit-font-smoothing: antialiased; }
+    a { color: #2b2b2b; } a:hover { color: #000000; }
+    .paper { background-color: #fbfaf7; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); }
+    .sk { border: 2px solid #2b2b2b; border-radius: 16px 6px 18px 7px / 7px 18px 6px 16px; }
+    .skf { border: 1.5px solid #9a9a9a; border-radius: 13px 5px 14px 6px / 6px 14px 5px 13px; }
+    .chip { border: 1.5px solid #6b6b6b; border-radius: 20px 8px 22px 9px / 9px 22px 8px 20px; padding: 3px 10px; font-size: 12px; color: #4a4a4a; }
+    .rule { height: 0; border-top: 1.5px dashed #cfcfcf; }
+  </style>
+</helmet>
+<div class="paper" style="width: 390px; height: 844px; box-sizing: border-box; padding: 26px 20px 0; display: flex; flex-direction: column; gap: 16px; overflow: hidden; position: relative;">
+
+  <div style="display: flex; align-items: center; gap: 14px;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
+    <div style="flex-grow: 1; font-size: 22px;">Steps</div>
+    <div class="chip">draft</div>
+  </div>
+
+  <div style="display: flex; gap: 6px; align-items: center;"><div style="height: 5px; flex-grow: 1; border-radius: 4px; background: #2b2b2b; border: 1.5px solid #2b2b2b;"></div><div style="height: 5px; flex-grow: 1; border-radius: 4px; background: #2b2b2b; border: 1.5px solid #2b2b2b;"></div><div style="height: 5px; flex-grow: 1; border-radius: 4px; background: #2b2b2b; border: 1.5px solid #2b2b2b;"></div><div style="height: 5px; flex-grow: 1; border-radius: 4px; background: transparent; border: 1.5px solid #cfcfcf;"></div></div>
+  <div style="font-size: 12px; color: #9a9a9a;">STEP 3 OF 4</div>
+
+
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    <div style="font-size: 15px; color: #6b6b6b;">Steps</div>
+    <div style="font-size: 13px; color: #8a8a8a;">+ add</div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px;">
+    <div class="skf" style="padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start;">
+      <svg width="14" height="18" viewBox="0 0 14 18" fill="none" stroke="#b0b0b0" stroke-width="1.6" stroke-linecap="round"><path d="M3 4h8M3 9h8M3 14h8" /></svg>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 5px;">
+        <div style="font-size: 16px;">Heat the oven to 200&deg;C</div>
+        <div style="display: flex; gap: 7px;">
+          <div class="chip" style="font-size: 11px; padding: 2px 8px;">15 min</div>
+          <div class="chip" style="font-size: 11px; padding: 2px 8px;">+ note</div>
+          <div class="chip" style="font-size: 11px; padding: 2px 8px;">+ photo</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding-left: 24px; display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-size: 12px; color: #9a9a9a; display: flex; align-items: center; gap: 6px;">
+        <svg viewBox="0 0 14 12" width="14" height="12" fill="none" stroke="#b0b0b0" stroke-width="1.5" stroke-linecap="round"><path d="M2 1 v5 q0 3 4 3 h6" /></svg>
+        can be done while this cooks
+      </div>
+      <div class="skf" style="padding: 10px 12px; display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.02);">
+        <svg width="14" height="18" viewBox="0 0 14 18" fill="none" stroke="#b0b0b0" stroke-width="1.6" stroke-linecap="round"><path d="M3 4h8M3 9h8M3 14h8" /></svg>
+        <div style="font-size: 15px; flex-grow: 1;">Peel and halve the potatoes</div>
+        <div class="chip" style="font-size: 11px; padding: 2px 8px;">6 min</div>
+      </div>
+    </div>
+
+    <div class="skf" style="padding: 10px 12px; display: flex; gap: 10px; align-items: center;">
+      <svg width="14" height="18" viewBox="0 0 14 18" fill="none" stroke="#b0b0b0" stroke-width="1.6" stroke-linecap="round"><path d="M3 4h8M3 9h8M3 14h8" /></svg>
+      <div style="font-size: 16px; flex-grow: 1;">Season and roast the pork</div>
+      <div class="chip" style="font-size: 11px; padding: 2px 8px;">45 min</div>
+    </div>
+  </div>
+
+  <div style="font-size: 13px; color: #9a9a9a; line-height: 1.5;">Drag a step under another to say it happens while that one cooks.</div>
+
+
+  <div style="position: absolute; left: 20px; right: 20px; bottom: 24px; display: flex; flex-direction: column; gap: 10px;">
+    <div style="text-align: center; font-size: 12px; color: #9a9a9a;">saved as you go &middot; stop and come back any time</div>
+    <div class="sk" style="height: 56px; background: #2b2b2b; color: #fbfaf7; display: flex; align-items: center; justify-content: center; font-size: 19px;">Next: review</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

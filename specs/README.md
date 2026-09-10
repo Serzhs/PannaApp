@@ -36,6 +36,10 @@ is approved its number never changes and is never reused.
 Things already identified that have no spec to live in yet. Each one is a decision that must be made
 when its spec is written, and none of them should be discovered then for the first time.
 
+**0007 Ingredients and equipment both carry a note.** "Carrots, not too long", "flour, plain not
+self-raising", "roasting tin, at least 30cm". It goes in its own field rather than in the name, so the
+name stays usable for a shopping list and the same ingredient does not read as three different ones.
+
 **0007 Equipment sits beside ingredients, not inside them.** A recipe lists the pans, tins and gadgets
 it needs, each optionally marked optional, and equipment links to the steps that use it the same way
 ingredients do. It is a separate table because equipment has no amount and no unit.

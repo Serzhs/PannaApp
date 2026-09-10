@@ -9,134 +9,174 @@
       "title": "01 Sign in"
     },
     {
-      "file": "Main.dc.html",
+      "file": "EmptyHome.dc.html",
       "x": 470,
       "y": 0,
       "w": 390,
       "h": 844,
-      "title": "02 Home"
+      "title": "02 Home, empty"
     },
     {
-      "file": "ReadRecipe.dc.html",
+      "file": "Main.dc.html",
       "x": 940,
       "y": 0,
       "w": 390,
-      "h": 1120,
-      "title": "03 Read a recipe"
+      "h": 844,
+      "title": "03 Home"
     },
     {
-      "file": "WriteRecipe.dc.html",
+      "file": "CreateBasics.dc.html",
       "x": 0,
-      "y": 1240,
+      "y": 964,
       "w": 390,
-      "h": 1200,
-      "title": "04 Write a recipe"
+      "h": 844,
+      "title": "04 Create 1 - basics"
+    },
+    {
+      "file": "CreateNeed.dc.html",
+      "x": 470,
+      "y": 964,
+      "w": 390,
+      "h": 844,
+      "title": "05 Create 2 - what you need"
+    },
+    {
+      "file": "CreateSteps.dc.html",
+      "x": 940,
+      "y": 964,
+      "w": 390,
+      "h": 844,
+      "title": "06 Create 3 - steps"
+    },
+    {
+      "file": "CreateReview.dc.html",
+      "x": 0,
+      "y": 1928,
+      "w": 390,
+      "h": 844,
+      "title": "07 Create 4 - review"
     },
     {
       "file": "Paste.dc.html",
       "x": 470,
-      "y": 1240,
+      "y": 1928,
       "w": 390,
       "h": 844,
-      "title": "05 Paste a recipe"
+      "title": "08 Paste a recipe"
+    },
+    {
+      "file": "ReadRecipe.dc.html",
+      "x": 940,
+      "y": 1928,
+      "w": 390,
+      "h": 1120,
+      "title": "09 Read a recipe"
+    },
+    {
+      "file": "WriteRecipe.dc.html",
+      "x": 0,
+      "y": 3168,
+      "w": 390,
+      "h": 1200,
+      "title": "10 Edit a recipe"
     },
     {
       "file": "Checklist.dc.html",
-      "x": 940,
-      "y": 1240,
+      "x": 470,
+      "y": 3168,
       "w": 390,
       "h": 844,
-      "title": "06 Before you start"
+      "title": "11 Before you start"
     },
     {
       "file": "KnuckleHint.dc.html",
-      "x": 0,
-      "y": 2560,
+      "x": 940,
+      "y": 3168,
       "w": 390,
       "h": 844,
-      "title": "07 First open"
+      "title": "12 First open"
     },
     {
       "file": "Cook.dc.html",
-      "x": 470,
-      "y": 2560,
+      "x": 0,
+      "y": 4488,
       "w": 390,
       "h": 844,
-      "title": "08 Cook"
+      "title": "13 Cook"
     },
     {
       "file": "StepImage.dc.html",
-      "x": 940,
-      "y": 2560,
+      "x": 470,
+      "y": 4488,
       "w": 390,
       "h": 844,
-      "title": "09 How it should look"
+      "title": "14 How it should look"
     },
     {
       "file": "Settings.dc.html",
-      "x": 0,
-      "y": 3524,
+      "x": 940,
+      "y": 4488,
       "w": 390,
       "h": 844,
-      "title": "10 Settings"
+      "title": "15 Settings"
     }
   ],
   "annotations": [
-    {
-      "id": "note-nesting",
-      "x": 1370,
-      "y": 200,
-      "w": 260,
-      "text": "Nesting is the whole idea.\nIndented steps happen DURING\nthe step above them.\n\nOne parentStepId reads three ways:\na bracket here, a drag handle in the\neditor, a \"meanwhile\" list while cooking."
-    },
-    {
-      "id": "note-history",
-      "x": 1370,
-      "y": 620,
-      "w": 260,
-      "text": "History and notes are one list.\n\nA cooks row per time you made it,\nwith what you left out. Notes link to\nthe cook they came from, so \"made 6\ntimes\" can show what you thought\neach time."
-    },
-    {
-      "id": "note-equipment",
-      "x": -300,
-      "y": 1800,
-      "w": 250,
-      "text": "Equipment is its own list, not part of\nthe ingredients -- a mandoline has no\namount and no unit.\n\nIt matters more in the check before\nyou start than ingredients do: a missing\nherb can be improvised, a stand mixer\ncannot."
-    },
-    {
-      "id": "note-hands",
-      "x": -300,
-      "y": 2700,
-      "w": 250,
-      "text": "Cook mode is used with wet hands,\nfrom arm's length, knife in the other\nhand.\n\nTargets far above the 44pt minimum,\nno audio in either direction, and none\nof it is a mode -- nobody switches on\n\"dirty hands\" once their hands are\ndirty."
-    },
-    {
-      "id": "note-image",
-      "x": 1370,
-      "y": 2700,
-      "w": 260,
-      "text": "The photo is behind a button, never\ninline.\n\nAn inline picture pushes the instruction\noff a screen that needs big text. One\nbig tap to see it, one big tap to close."
-    },
-    {
-      "id": "note-paste",
-      "x": -300,
-      "y": 1360,
-      "w": 250,
-      "text": "The app never opens the link.\nThe user's own AI watches the video.\n\nThe prompt is the hard part: it has to\nteach a stranger's model what nesting\nis, or imports come back flat."
-    },
     {
       "id": "note-progress",
       "x": -300,
       "y": 180,
       "w": 250,
-      "text": "Cooking progress is stored on the\nphone, so kitchen wifi dropping\ncannot interrupt a cook.\n\nA finished cook is the one thing that\nqueues when offline -- history is\nappend-only, so nothing can conflict."
+      "text": "Cooking progress is stored on the phone,\nso kitchen wifi dropping cannot\ninterrupt a cook.\n\nA finished cook is the one thing that\nqueues when offline -- history is\nappend-only, so nothing can conflict."
     },
     {
       "id": "note-branding",
       "x": -300,
       "y": 560,
       "w": 250,
-      "text": "Provider buttons are drawn plain here.\nReal ones must follow Google's and\nApple's branding rules -- the one\nplace the design system does not win."
+      "text": "Provider buttons are drawn plain here.\nReal ones must follow Google's and\nApple's branding rules -- the one place\nthe design system does not win."
+    },
+    {
+      "id": "note-create",
+      "x": 1370,
+      "y": 1080,
+      "w": 260,
+      "text": "Creating is four pages so nothing is\noverwhelming, and each saves the draft\nas you go.\n\nEditing is NOT. Fixing one wrong\nquantity should not walk you through\nfour pages."
+    },
+    {
+      "id": "note-notes",
+      "x": -300,
+      "y": 1120,
+      "w": 250,
+      "text": "Ingredients and equipment each carry\na note: \"carrots, not too long\",\n\"roasting tin, at least 30 cm\".\n\nIt goes in its own field, never the\nname -- otherwise the shopping list\nreads badly and the same ingredient\nlooks like three."
+    },
+    {
+      "id": "note-nesting",
+      "x": 1370,
+      "y": 2100,
+      "w": 260,
+      "text": "Nesting is the whole idea.\nIndented steps happen DURING the\nstep above them.\n\nOne parentStepId reads three ways:\na drag handle when writing, a bracket\nwhen reading, a \"meanwhile\" list\nwhen cooking."
+    },
+    {
+      "id": "note-paste",
+      "x": -300,
+      "y": 2100,
+      "w": 250,
+      "text": "The app never opens the link.\nThe user's own AI watches the video.\n\nThe prompt is the hard part: it has to\nteach a stranger's model what nesting\nis, or imports come back flat."
+    },
+    {
+      "id": "note-hands",
+      "x": -300,
+      "y": 3200,
+      "w": 250,
+      "text": "Cook mode is used with wet hands,\nfrom arm's length, knife in the other\nhand.\n\nTargets far above the 44pt minimum,\nno audio in either direction, and none\nof it is a mode -- nobody switches on\n\"dirty hands\" once their hands are\ndirty."
+    },
+    {
+      "id": "note-image",
+      "x": 1370,
+      "y": 3200,
+      "w": 260,
+      "text": "The photo is behind a button, never\ninline.\n\nAn inline picture pushes the instruction\noff a screen that needs big text. One\nbig tap to see it, one big tap to close."
     }
   ],
   "launch": {

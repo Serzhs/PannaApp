@@ -86,11 +86,13 @@ Three new routes in the `(app)` group, plus a change to the existing home screen
 - Error: a message and a retry control that refetches. Being offline is its own state with its own wording, not a generic failure, because the user can act on one and not the other.
 - Populated: one row per recipe showing title, servings and total time when it is set. A recipe in `draft` carries a chip saying so, and the chip is text rather than only a colour. Tapping a row opens the detail screen. A control in the header opens the create screen.
 
-**`(app)/recipes/new`**: a form for the four fields. Submit is disabled while the request is in flight. On success the app navigates to the new recipe's detail screen, and the list reflects it on return without a manual refresh. Field-level errors render against the field; a failure that is not field-specific renders once at form level.
+**`(app)/recipes/new`**: the first page of the create flow. Creating a recipe is four pages - basics, what you need, the steps, then a review - but only the first exists until 0007 and 0008 add the others, so here it is one page that saves a draft and lands on the recipe. The flow grows into a wizard rather than arriving as one, and this spec builds the shell it grows in.
+
+A form for the four fields. Submit is disabled while the request is in flight. On success the app navigates to the new recipe's detail screen, and the list reflects it on return without a manual refresh. Field-level errors render against the field; a failure that is not field-specific renders once at form level.
 
 **`(app)/recipes/[recipeId]`**: detail view showing title, description, servings and total time, with actions to edit and to delete. Metadata only. There are no placeholder sections for ingredients or steps, because those are not part of this slice. Loading, error and populated states as above; a 404 renders a "recipe not found" state with a way back to the list, not a crash.
 
-**`(app)/recipes/[recipeId]/edit`**: the same form prefilled, submitting a PATCH. On success it returns to the detail screen showing the new values.
+**`(app)/recipes/[recipeId]/edit`**: the whole recipe on one screen, prefilled, submitting a PATCH. Editing never uses the create flow's pages - someone fixing one wrong quantity should not be walked through a wizard to reach it. On success it returns to the detail screen showing the new values.
 
 Deleting asks for confirmation first. On confirmation the app returns to the list and the deleted recipe is gone from it without a manual refresh.
 

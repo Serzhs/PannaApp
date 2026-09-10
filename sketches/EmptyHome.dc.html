@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Architects Daughter', 'Bradley Hand', cursive, sans-serif; color: #2b2b2b; -webkit-font-smoothing: antialiased; }
+    a { color: #2b2b2b; } a:hover { color: #000000; }
+    .paper { background-color: #fbfaf7; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); }
+    .sk { border: 2px solid #2b2b2b; border-radius: 16px 6px 18px 7px / 7px 18px 6px 16px; }
+    .skf { border: 1.5px solid #9a9a9a; border-radius: 13px 5px 14px 6px / 6px 14px 5px 13px; }
+    .chip { border: 1.5px solid #6b6b6b; border-radius: 20px 8px 22px 9px / 9px 22px 8px 20px; padding: 3px 10px; font-size: 12px; color: #4a4a4a; }
+    .rule { height: 0; border-top: 1.5px dashed #cfcfcf; }
+  </style>
+</helmet>
+<div class="paper" style="width: 390px; height: 844px; box-sizing: border-box; padding: 26px 20px 0; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    <div style="font-size: 30px; transform: rotate(-1deg);">Panna</div>
+    <div class="sk" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.8"><circle cx="12" cy="12" r="3.2" /><path d="M12 3v2.4M12 18.6V21M21 12h-2.4M5.4 12H3M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7M18.4 18.4l-1.7-1.7M7.3 7.3L5.6 5.6" stroke-linecap="round" /></svg>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; padding: 0 18px 60px; text-align: center;">
+
+    <svg width="120" height="96" viewBox="0 0 120 96" fill="none" stroke="#c4c1bc" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 40 h76 a4 4 0 0 1 4 4 v6 a34 34 0 0 1 -34 34 h-16 a34 34 0 0 1 -34 -34 v-6 a4 4 0 0 1 4 -4 z" />
+      <path d="M102 48 h8 a9 9 0 0 1 0 18 h-9" />
+      <path d="M46 26 q6 -8 0 -16" />
+      <path d="M60 24 q7 -10 0 -20" />
+      <path d="M74 26 q6 -8 0 -16" />
+    </svg>
+
+    <div style="display: flex; flex-direction: column; gap: 11px;">
+      <div style="font-size: 25px; line-height: 1.3;">Nothing cooking yet</div>
+      <div style="font-size: 16px; color: #6b6b6b; line-height: 1.5;">Write down a recipe you already make, or paste one your AI wrote from a video.</div>
+    </div>
+
+    <div style="align-self: stretch; display: flex; flex-direction: column; gap: 11px;">
+      <div class="sk" style="height: 56px; background: #2b2b2b; color: #fbfaf7; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fbfaf7" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+        Write a recipe
+      </div>
+      <div class="sk" style="height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="8" width="12" height="13" rx="2" /><path d="M16 5H6a2 2 0 0 0-2 2v10" /></svg>
+        Paste one
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
