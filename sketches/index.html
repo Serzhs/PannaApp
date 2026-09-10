@@ -67,7 +67,7 @@
     box-shadow: 3px 4px 0 rgba(43,43,43,0.08);
   }
   .frame iframe { width: 390px; height: 844px; border: 0; display: block; background: var(--paper); }
-  .frame.tall, .frame.tall iframe { height: 1140px; }
+  .frame.tall, .frame.tall iframe { height: 1400px; }
   figcaption { font-size: 14px; color: var(--soft); line-height: 1.5; }
   figcaption a { font-size: 13px; color: var(--faint); }
 
@@ -98,7 +98,9 @@
     <a href="#write">Write a recipe</a>
     <a href="#paste">Paste a recipe</a>
     <a href="#checklist">Before you start</a>
+    <a href="#hint">First open</a>
     <a href="#cook">Cook</a>
+    <a href="#image">How it should look</a>
     <a href="#settings">Settings</a>
   </nav>
 </header>
@@ -122,7 +124,7 @@
   <figure id="read">
     <div class="label"><span class="num">03</span><span class="name">Read a recipe</span></div>
     <div class="frame tall"><iframe src="ReadRecipe.dc.html" title="Read a recipe" loading="lazy"></iframe></div>
-    <figcaption>For before shopping and while deciding what to make. Nested steps appear as a bracket, and your notes from past cooks collect at the bottom. Drawn as the full scrolling page. <a href="ReadRecipe.dc.html">open alone</a></figcaption>
+    <figcaption>Ingredients, equipment, nested steps, and history and notes together at the bottom. Drawn as the full scrolling page. <a href="ReadRecipe.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="write">
@@ -140,17 +142,29 @@
   <figure id="checklist">
     <div class="label"><span class="num">06</span><span class="name">Before you start</span></div>
     <div class="frame"><iframe src="Checklist.dc.html" title="Before you start" loading="lazy"></iframe></div>
-    <figcaption>Tick what you have and mark anything you are going without. The estimate only moves when a main step drops. <a href="Checklist.dc.html">open alone</a></figcaption>
+    <figcaption>Tick what you have, ingredients and equipment both, and mark anything you are going without. The estimate only moves when a main step drops. <a href="Checklist.dc.html">open alone</a></figcaption>
+  </figure>
+
+  <figure id="hint">
+    <div class="label"><span class="num">07</span><span class="name">First open</span></div>
+    <div class="frame"><iframe src="KnuckleHint.dc.html" title="First open" loading="lazy"></iframe></div>
+    <figcaption>Shown once. The back of a finger stays cleaner than the pad, and every button in cook mode is sized for it. Needs a text form and a still image for reduce-motion. <a href="KnuckleHint.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="cook">
-    <div class="label"><span class="num">07</span><span class="name">Cook</span></div>
+    <div class="label"><span class="num">08</span><span class="name">Cook</span></div>
     <div class="frame"><iframe src="Cook.dc.html" title="Cook" loading="lazy"></iframe></div>
     <figcaption>One step, large. The author&rsquo;s tip and your own past note sit under it, then the ingredients, then the nested steps as a Meanwhile list. The header says what you are leaving out. <a href="Cook.dc.html">open alone</a></figcaption>
   </figure>
 
+  <figure id="image">
+    <div class="label"><span class="num">09</span><span class="name">How it should look</span></div>
+    <div class="frame"><iframe src="StepImage.dc.html" title="How it should look" loading="lazy"></iframe></div>
+    <figcaption>Behind a button, never inline &mdash; an inline photo pushes the instruction off a screen that needs big text. One big tap in, one big tap out. <a href="StepImage.dc.html">open alone</a></figcaption>
+  </figure>
+
   <figure id="settings">
-    <div class="label"><span class="num">08</span><span class="name">Settings</span></div>
+    <div class="label"><span class="num">10</span><span class="name">Settings</span></div>
     <div class="frame"><iframe src="Settings.dc.html" title="Settings" loading="lazy"></iframe></div>
     <figcaption>Device is a real choice, not a blank, and shows what it currently resolves to. Sign out lives here. <a href="Settings.dc.html">open alone</a></figcaption>
   </figure>

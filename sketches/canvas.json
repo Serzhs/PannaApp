@@ -2,20 +2,24 @@
   "artboards": [
     { "file": "SignIn.dc.html",     "x": 0,    "y": 0,    "w": 390, "h": 844,  "title": "01 Sign in" },
     { "file": "Main.dc.html",       "x": 470,  "y": 0,    "w": 390, "h": 844,  "title": "02 Home" },
-    { "file": "ReadRecipe.dc.html", "x": 940,  "y": 0,    "w": 390, "h": 1140, "title": "03 Read a recipe" },
-    { "file": "WriteRecipe.dc.html","x": 0,    "y": 1260, "w": 390, "h": 844,  "title": "04 Write a recipe" },
-    { "file": "Paste.dc.html",      "x": 470,  "y": 1260, "w": 390, "h": 844,  "title": "05 Paste a recipe" },
-    { "file": "Checklist.dc.html",  "x": 940,  "y": 1260, "w": 390, "h": 844,  "title": "06 Before you start" },
-    { "file": "Cook.dc.html",       "x": 0,    "y": 2224, "w": 390, "h": 844,  "title": "07 Cook" },
-    { "file": "Settings.dc.html",   "x": 470,  "y": 2224, "w": 390, "h": 844,  "title": "08 Settings" }
+    { "file": "ReadRecipe.dc.html", "x": 940,  "y": 0,    "w": 390, "h": 1400, "title": "03 Read a recipe" },
+    { "file": "WriteRecipe.dc.html","x": 0,    "y": 1520, "w": 390, "h": 844,  "title": "04 Write a recipe" },
+    { "file": "Paste.dc.html",      "x": 470,  "y": 1520, "w": 390, "h": 844,  "title": "05 Paste a recipe" },
+    { "file": "Checklist.dc.html",  "x": 940,  "y": 1520, "w": 390, "h": 844,  "title": "06 Before you start" },
+    { "file": "KnuckleHint.dc.html","x": 0,    "y": 2484, "w": 390, "h": 844,  "title": "07 First open" },
+    { "file": "Cook.dc.html",       "x": 470,  "y": 2484, "w": 390, "h": 844,  "title": "08 Cook" },
+    { "file": "StepImage.dc.html",  "x": 940,  "y": 2484, "w": 390, "h": 844,  "title": "09 How it should look" },
+    { "file": "Settings.dc.html",   "x": 0,    "y": 3448, "w": 390, "h": 844,  "title": "10 Settings" }
   ],
   "annotations": [
     { "id": "note-nesting", "x": 1370, "y": 240, "w": 260, "text": "Nesting is the whole idea.\nIndented steps happen DURING\nthe step above them.\n\nOne parentStepId reads three ways:\na bracket here, a drag handle in the\neditor, a \"meanwhile\" list while cooking." },
-    { "id": "note-notes", "x": 1370, "y": 640, "w": 260, "text": "Two kinds of note, never merged.\n\nThe author's tip lives on the step.\nYours pile up with dates.\n\nThey meet on the cooking screen --\nthat pairing is why they are two\ncolumns and not one." },
-    { "id": "note-without", "x": 1370, "y": 1500, "w": 260, "text": "Going without an ingredient hides\nany step that used only that.\n\nThe estimate moves only when a MAIN\nstep drops -- a nested one happens\ninside another step's time.\n\nCooking then carries a \"without\ncarrots\" marker, because the skipped\nsteps vanish silently." },
-    { "id": "note-paste", "x": -300, "y": 1400, "w": 250, "text": "The app never opens the link.\nThe user's own AI watches the video.\n\nThe prompt is the hard part: it has to\nteach a stranger's model what nesting\nis, or imports come back flat." },
-    { "id": "note-progress", "x": -300, "y": 220, "w": 250, "text": "Cooking progress is stored on the\nphone, so kitchen wifi dropping\ncannot interrupt a cook.\n\nSeveral recipes can be part-way\nthrough at once." },
-    { "id": "note-branding", "x": -300, "y": 520, "w": 250, "text": "Provider buttons are drawn plain here.\nReal ones must follow Google's and\nApple's branding rules -- the one\nplace the design system does not win." }
+    { "id": "note-history", "x": 1370, "y": 700, "w": 260, "text": "History and notes are one list.\n\nA cooks row per time you made it,\nwith what you left out. Notes link to\nthe cook they came from, so \"made 6\ntimes\" can show what you thought\neach time." },
+    { "id": "note-equipment", "x": -300, "y": 1660, "w": 250, "text": "Equipment is its own list, not part of\nthe ingredients -- a mandoline has no\namount and no unit.\n\nIt matters more in the check before\nyou start than ingredients do: a missing\nherb can be improvised, a stand mixer\ncannot." },
+    { "id": "note-hands", "x": -300, "y": 2620, "w": 250, "text": "Cook mode is used with wet hands,\nfrom arm's length, knife in the other\nhand.\n\nTargets far above the 44pt minimum,\nno audio in either direction, and none\nof it is a mode -- nobody switches on\n\"dirty hands\" once their hands are\ndirty." },
+    { "id": "note-image", "x": 1370, "y": 2620, "w": 260, "text": "The photo is behind a button, never\ninline.\n\nAn inline picture pushes the instruction\noff a screen that needs big text. One\nbig tap to see it, one big tap to close." },
+    { "id": "note-paste", "x": -300, "y": 1180, "w": 250, "text": "The app never opens the link.\nThe user's own AI watches the video.\n\nThe prompt is the hard part: it has to\nteach a stranger's model what nesting\nis, or imports come back flat." },
+    { "id": "note-progress", "x": -300, "y": 220, "w": 250, "text": "Cooking progress is stored on the\nphone, so kitchen wifi dropping\ncannot interrupt a cook.\n\nA finished cook is the one thing that\nqueues when offline -- history is\nappend-only, so nothing can conflict." },
+    { "id": "note-branding", "x": -300, "y": 620, "w": 250, "text": "Provider buttons are drawn plain here.\nReal ones must follow Google's and\nApple's branding rules -- the one\nplace the design system does not win." }
   ],
   "launch": { "view": "canvas" }
 }
