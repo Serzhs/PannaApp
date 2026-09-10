@@ -59,7 +59,7 @@ just say it simply.
 | Lint | ESLint 9 flat config, `typescript-eslint` strict-type-checked |
 | Format | Prettier, with `eslint-config-prettier` disabling all conflicting rules |
 
-Explicitly **not** used: CSS Modules (does not work in React Native), NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL, Moti (Reanimated directly is enough for what this app does), `react-native-skia` (revisit only if the cooking view in 0010 genuinely outgrows Reanimated).
+Explicitly **not** used: CSS Modules (does not work in React Native), NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL, Moti (Reanimated directly is enough for what this app does), `react-native-skia` (revisit only if the cooking view in 0011 genuinely outgrows Reanimated).
 
 ## TypeScript strictness
 
@@ -206,7 +206,18 @@ The `unit` enum, grouped by dimension, because conversion only ever happens with
 
 Null `unit` with a non-null `amount` means a bare count. Null `amount` means an unmeasured quantity, as in "salt, to taste".
 
+**equipment**: id, recipeId (fk recipes, cascade), position (int), name, optional (boolean, default false)
+
+The pans, tins and gadgets a recipe needs. Kept apart from `ingredients` because equipment has no
+amount and no unit, and folding the two together would mean a kind column and a row of nulls on every
+piece of equipment.
+
+Called `equipment` rather than `tools` on purpose: this codebase already uses "tools" for the API
+contract and for AI tool calling, and a `tools` table would be read wrong.
+
 **steps**: id, recipeId (fk recipes, cascade), parentStepId (fk steps, nullable), position (int), body (text), note (text, nullable), durationSeconds (int, nullable), temperatureCelsius (int, nullable), imageKey (nullable)
+
+**step_equipment**: stepId (fk steps, cascade), equipmentId (fk equipment, cascade), composite primary key. Says which step needs the mandoline, so cooking mode can tell you before you reach for it.
 
 **step_ingredients**: stepId (fk steps, cascade), ingredientId (fk ingredients, cascade), composite primary key. Links an ingredient to the step where it is used, so the step-by-step cooking view can show only what is needed right now.
 
@@ -257,6 +268,9 @@ Rules:
 - A recipe with no nesting at all is an ordinary linear recipe. That is where every recipe starts.
 - Total time is the sum of the main steps' durations. Nested steps happen inside those and add
   nothing, which is the whole point of nesting them.
+
+`imageKey` is what the step should look like when done. It is never shown inline while cooking - it
+sits behind a button, described under Cooking with dirty hands.
 
 `body` is the instruction. `note` is anything extra worth knowing while doing it - "do not let the
 garlic brown", "it should smell nutty by now". Keeping them apart means the instruction stays short
@@ -519,6 +533,10 @@ the one screen where ordinary touch design is not enough.
 - **No audio, in either direction.** No listening, no reading aloud. A kitchen is loud enough that
   speech recognition fails exactly when it is needed, and a microphone listening in someone's home
   needs a better reason than this.
+- **"How it should look" is a button, not an inline image.** A step with a picture shows a large
+  button; pressing it fills the screen with the image, and an equally large button closes it. Cooking
+  needs big text and big targets, and an inline photo pushes the instruction off the screen for
+  something you only want to check once.
 - **The knuckle hint.** The first time someone opens cook mode, a short animation shows tapping with
   the back of a finger rather than the pad, because that side stays cleaner. It plays once, is
   dismissible, and never appears again unless asked for from settings.

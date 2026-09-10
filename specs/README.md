@@ -12,16 +12,17 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0004](0004-design-system-components.md) | Design system: display and feedback | Draft | Build a list screen's loading, empty and error states. |
 | [0005](0005-recipe-crud.md) | Recipe CRUD | Draft | Create, view, edit and delete your own recipes, with a draft state. |
 | [0006](0006-i18n.md) | Internationalisation | Draft | Run the app in another language, with correct plurals, formats and units. |
-| 0007 | Ingredients | Not written | Add, edit, remove and reorder the ingredients of a recipe. |
+| 0007 | Ingredients and equipment | Not written | Add, edit, remove and reorder what a recipe needs. |
 | 0008 | Steps and nesting | Not written | Write steps, and nest the ones that happen during a wait. |
-| 0009 | Step to ingredient links | Not written | Attach ingredients to the step that uses them. |
-| 0010 | Cooking mode | Not written | Cook a recipe, seeing what else you could do during each wait. |
-| 0011 | Cooking without an ingredient | Not written | Check off what you have, and cook it without the carrots. |
-| 0012 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
-| 0013 | Cook's notes | Not written | Record what you learned, and see it next time you cook. |
-| 0014 | Recipe history | Not written | See when you cooked something, and what you changed each time. |
-| 0015 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
-| 0016 | Images | Not written | Cover and per-step images. |
+| 0009 | Step links | Not written | Attach ingredients and equipment to the step that uses them. |
+| 0010 | Step images | Not written | Show what a step should look like when it is done. |
+| 0011 | Cooking mode | Not written | Cook a recipe, seeing what else you could do during each wait. |
+| 0012 | Cooking without an ingredient | Not written | Check off what you have, and cook it without the carrots. |
+| 0013 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
+| 0014 | Cook's notes | Not written | Record what you learned, and see it next time you cook. |
+| 0015 | Recipe history | Not written | See when you cooked something, and what you changed each time. |
+| 0016 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
+| 0017 | Cover images | Not written | A picture on the recipe and in the list. |
 
 Numbers run in build order, and each spec depends only on lower-numbered ones. That is a convenience
 rather than a rule, and it will stop being true the first time something is inserted.
@@ -35,9 +36,25 @@ is approved its number never changes and is never reused.
 Things already identified that have no spec to live in yet. Each one is a decision that must be made
 when its spec is written, and none of them should be discovered then for the first time.
 
-**0010 Cooking mode - progress is stored on the device.** Which steps are done lives in local storage so cooking never needs the network, and several recipes can be in progress at once. This spec also adds the in-progress section to the home screen and the Cook button to the recipe screen, both deferred from 0005.
+**0007 Equipment sits beside ingredients, not inside them.** A recipe lists the pans, tins and gadgets
+it needs, each optionally marked optional, and equipment links to the steps that use it the same way
+ingredients do. It is a separate table because equipment has no amount and no unit.
 
-**0010 Cooking mode - it is used with dirty hands.** Targets far larger than the accessibility
+Equipment belongs in the check before cooking at least as much as ingredients do: a missing herb can be
+improvised, a stand mixer cannot, and finding out halfway through is worse.
+
+**0010 Step images - the storage question arrives early now.** A step can carry a picture of what it
+should look like when done, which is what makes a shared recipe worth reading. Cooking mode shows it
+behind a large button rather than inline, with an equally large button to close, so the instruction
+keeps the screen.
+
+This pulls the unresolved question from 0017 forward: the files need somewhere to live, and under
+rule 4 that means the developer machine, which nobody else can reach. Sharing recipes with pictures
+therefore depends on the same decision as sharing itself.
+
+**0011 Cooking mode - progress is stored on the device.** Which steps are done lives in local storage so cooking never needs the network, and several recipes can be in progress at once. This spec also adds the in-progress section to the home screen and the Cook button to the recipe screen, both deferred from 0005.
+
+**0011 Cooking mode - it is used with dirty hands.** Targets far larger than the accessibility
 minimum, text readable from across a counter, screen kept awake, and no audio in either direction: a
 kitchen defeats speech recognition, and a microphone listening in someone's home needs a better reason
 than this app has. None of it is a mode to switch on - nobody enables "dirty hands" once their hands
@@ -48,11 +65,11 @@ the pad. It plays once and is dismissible. It also needs a text equivalent and a
 reduce-motion, because an animation alone excludes people - see the Accessibility section of
 `CLAUDE.md`.
 
-**0010 Cooking mode - timers stop when the phone locks.** A kitchen timer that only runs while the
+**0011 Cooking mode - timers stop when the phone locks.** A kitchen timer that only runs while the
 screen is on is not a timer. This needs local notifications and a keep-awake, both additions to the
 stack, and it needs deciding what happens when several timers are running at once.
 
-**0011 Cooking without an ingredient - the step text cannot be rewritten.** Before cooking, the reader
+**0012 Cooking without an ingredient - the step text cannot be rewritten.** Before cooking, the reader
 ticks off what they have and can mark an ingredient as one they are going without. A step whose only
 ingredients were excluded is hidden entirely and the numbering closes up; a step that also uses other
 ingredients stays and simply does not list the excluded one.
@@ -68,7 +85,7 @@ reader will sometimes exclude something and see the time stay put, which needs s
 hiding. Exclusions are chosen before cooking starts and are part of the device-local session, not the
 recipe: leaving the carrots out today does not change the recipe for next time.
 
-**0012 JSON import - the prompt is the hard part, not the parser.**
+**0013 JSON import - the prompt is the hard part, not the parser.**
 
 The flow: tapping + offers two ways to add a recipe, writing one or pasting one. The paste view holds
 a big input and a **Copy prompt** button. The user takes that prompt to their own AI, adds a TikTok or
@@ -102,7 +119,7 @@ Pasted input is untrusted. It needs hard caps on step and ingredient counts and 
 every `parentStepId` must be checked to point at a main step in the same document before anything
 reaches the database.
 
-**0013 Cook's notes - writing one needs a connection.** After cooking, and at any time from the recipe
+**0014 Cook's notes - writing one needs a connection.** After cooking, and at any time from the recipe
 screen, the cook can add a dated note to a step or to the recipe as a whole. They build up rather than
 being overwritten, so a note from last winter is still there.
 
@@ -116,7 +133,7 @@ can be sent again.
 The payoff is in cooking mode, where a step shows the author's `note` and the cook's own notes
 together. That pairing is the reason the two are separate columns rather than one field.
 
-**0014 Recipe history - the one place an offline queue is allowed.** A `cooks` row per time somebody
+**0015 Recipe history - the one place an offline queue is allowed.** A `cooks` row per time somebody
 made a recipe: when, whether they finished, and what they left out. The recipe screen can then say
 "made 6 times, last on 12 Jan", and each note links to the cook it came from.
 
@@ -129,14 +146,14 @@ exception must not be widened to anything that can be changed after the fact.
 `excluded` stores ingredient names rather than ids, because history records what happened and must not
 change when the recipe is edited later.
 
-**0015 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
+**0016 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
 lives on a machine the reader cannot reach, so this feature cannot work under rule 4 as written. A
 tappable link that opens the app, or the App Store when the app is missing, additionally needs a
 domain and two files hosted on it; a `panna://` link cannot do it, and most messaging apps will not
 even make it tappable. The alternative that stays local is exporting a recipe as a file the reader
-imports with 0012, without the cook's notes, which never travel, which is a copy rather than a link and cannot be revoked. Deferred deliberately.
+imports with 0013, without the cook's notes, which never travel, which is a copy rather than a link and cannot be revoked. Deferred deliberately.
 
-**0016 Images - the files need somewhere to live.** `coverImageKey` and `imageKey` imply a store.
+**0017 Cover images - the files need somewhere to live.** `coverImageKey` implies a store, and 0010 already faced this for `imageKey`.
 Under rule 4 that means files on the developer machine served by the API, which works for development
 and shares the reachability problem above the moment anyone else needs to see them.
 

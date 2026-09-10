@@ -18,6 +18,7 @@ A developer can build a list screen with all of its states - loading, empty, err
 - Illustrations for empty states. That is a separate decision with an asset dependency and no owner yet.
 - Toasts, banners, snackbars, pull-to-refresh. Nothing needs them.
 - Swipe actions and drag handles. 0007 and 0008 introduce reordering and can bring what they need.
+- A full-screen image viewer. 0010 introduces the one place an image is shown large, and brings it then.
 
 ## Data model
 

@@ -18,7 +18,7 @@ A logged-in user can create, view, edit and delete their own recipes, as metadat
 - Images. `coverImageKey` stays null and is never written or returned.
 - Search, filtering, sorting controls, tags, categories, favourites.
 - Pagination. A user's own list is returned in full.
-- The in-progress section of the home screen. Cooking does not exist until 0010, so there is nothing to be part-way through. The list ships as one section here and gains the other above it later.
+- The in-progress section of the home screen. Cooking does not exist until 0011, so there is nothing to be part-way through. The list ships as one section here and gains the other above it later.
 - The Cook button on the detail screen. Same reason.
 - Offline editing and any mutation queue. Reads are cached per the Offline section of `CLAUDE.md`; writes require a connection.
 - Duplicating a recipe, importing a recipe, exporting a recipe.
@@ -40,7 +40,7 @@ All bodies validated by Zod schemas in `packages/shared`. All routes require a v
 
 `{ id, title, description, language, status, servings, totalTimeMinutes, createdAt, updatedAt }`
 
-`authorId`, `coverImageKey`, `visibility` and `shareToken` are never returned by this spec's endpoints. Sharing state becomes visible to the client in 0012, not here.
+`authorId`, `coverImageKey`, `visibility` and `shareToken` are never returned by this spec's endpoints. Sharing state becomes visible to the client in 0016, not here.
 
 **Field rules**, shared by create and update:
 
