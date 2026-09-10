@@ -253,6 +253,66 @@ CSS syntax, and with type checking that CSS variables do not have.
 Shared components live in `apps/mobile/src/components/`. A component earns a place there once a
 second feature needs it, not in anticipation of one.
 
+## Security
+
+OWASP Top 10 and the API Security Top 10 are the reference. The rules below are the ones that apply
+to this app; they are not a summary of the lists.
+
+**Access control**
+
+- Ownership is checked in a guard, never scattered through service methods.
+- A resource belonging to another user returns **404, not 403**, and the body is identical to a 404
+  for an id that does not exist. A 403 confirms the thing exists, which is an answer nobody asked for.
+- **Every spec that adds an endpoint carries an access-control test**: another user's request returns
+  404 and changes nothing. This is the most common serious bug in an app shaped like this one, and it
+  is invisible in manual testing because the developer is always logged in as the owner.
+
+**Input**
+
+- Every request body, query and param is parsed by a Zod schema in `packages/shared`.
+- Schemas are **strict**: an unknown field is a 400, not something quietly dropped. Silently ignoring
+  an unexpected `authorId` is how mass assignment bugs survive review.
+- Request bodies are size limited. Pasted import JSON is untrusted input and additionally carries its
+  own caps on element counts and text length.
+- Drizzle parameterises queries. Never build SQL by string interpolation, including inside `sql`.
+
+**Passwords and tokens**
+
+- argon2id with explicitly chosen memory, iteration and parallelism parameters, written in the spec
+  rather than left to whatever the library defaults to this year.
+- Refresh tokens are 256 bits of cryptographic randomness, stored as a SHA-256 hash. They are already
+  high entropy, so a slow hash buys nothing here; argon2 is for low-entropy secrets people choose.
+- **Refresh token reuse is treated as theft.** Using a token that was already used revokes every token
+  in that chain, not just the one presented. Without this, a stolen refresh token keeps working after
+  the victim's own rotation fails.
+- Access tokens are short lived and carry no secret in their payload. A JWT is signed, not encrypted -
+  anyone holding it can read it.
+- The JWT secret is validated at boot for minimum length. A short secret is a brute-forceable one.
+
+**Responses and headers**
+
+- `helmet` for security headers. `x-powered-by` off.
+- CORS allows only what is actually needed.
+- No stack trace, SQL fragment, library name or internal path ever reaches a response body. `message`
+  is for developers reading logs, and the client shows `code`.
+
+**Logging**
+
+- Authentication events are logged: failed logins, rate limit hits, refresh token reuse. These are the
+  only evidence that anything is being attacked.
+- Passwords, tokens and hashes are redacted by logger configuration, not by remembering.
+
+**Dependencies**
+
+- The lockfile is committed. `pnpm audit` runs as part of `pnpm test`, and a high severity advisory
+  fails it.
+
+**Not applicable, and why**
+
+- No endpoint fetches a URL supplied by a user, so there is no SSRF surface. If one is ever added, that
+  changes and this line stops being true.
+- The app renders no user-supplied HTML, so there is no XSS surface in React Native.
+
 ## Accessibility
 
 The target is WCAG 2.2 AA. Accessibility is a property of each component, checked where the component

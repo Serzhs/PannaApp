@@ -51,6 +51,16 @@ The three config files are committed before any application code, so no file in 
 
 **Environment.** `@nestjs/config` validates the environment against a Zod schema at boot. A missing or malformed `DATABASE_URL` or JWT secret stops the API with a message naming the variable, rather than letting it start and fail later somewhere unrelated.
 
+**Security setup.** `helmet` for security headers with `x-powered-by` disabled, CORS restricted to
+what the app actually needs, and a request body size limit. The Zod validation pipe rejects unknown
+fields rather than stripping them, so an unexpected field in a body is a 400 everywhere by default
+and no endpoint has to remember to ask.
+
+The environment schema validates that the JWT secret meets a minimum length, so a short or placeholder
+secret stops the API at boot instead of shipping.
+
+`pnpm audit` runs as part of `pnpm test` and fails on a high severity advisory.
+
 **Logging.** `nestjs-pino`, structured, with a request id on every line. Passwords, tokens and hashes are redacted by configuration, not by remembering not to log them.
 
 ## API contract
@@ -89,6 +99,12 @@ The Expo app boots to a single placeholder screen. It uses plain React Native st
 - [ ] A response that does not match its schema is rejected by the client with a clear error, verified by pointing the client at a stub that returns the wrong shape.
 - [ ] Starting the API with `DATABASE_URL` removed exits with a message naming the missing variable, and does not start. An empty JWT secret fails the same way.
 - [ ] Logs carry a request id, and no log line contains a value from a field marked secret.
+- [ ] A request body containing a field the schema does not define returns 400, rather than succeeding with the field ignored.
+- [ ] A request body over the size limit is rejected before it is parsed.
+- [ ] Security headers are present on every response and `x-powered-by` is absent.
+- [ ] An error response contains no stack trace, SQL fragment or internal file path, including when the database is unreachable.
+- [ ] Starting the API with a JWT secret shorter than the minimum fails at boot with a message saying so.
+- [ ] `pnpm test` fails when a dependency with a high severity advisory is installed.
 - [ ] `.nvmrc` and `packageManager` are present and agree with the versions the project is developed on.
 - [ ] A commit with a message that is not a conventional commit is rejected by the hook, and a commit with a lint error in a staged file is rejected too.
 - [ ] Forcing a render error in the placeholder screen shows the error boundary's recovery screen rather than a blank app.
