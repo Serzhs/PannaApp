@@ -13,9 +13,9 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0005](0005-recipe-crud.md) | Recipe CRUD | Draft | Create, view, edit and delete your own recipes, as metadata only. |
 | [0006](0006-i18n.md) | Internationalisation | Draft | Run the app in another language, with correct plurals, formats and units. |
 | 0007 | Ingredients | Not written | Add, edit, remove and reorder the ingredients of a recipe. |
-| 0008 | Steps and the dependency graph | Not written | Write steps and declare which must finish before which. |
+| 0008 | Steps and nesting | Not written | Write steps, and nest the ones that happen during a wait. |
 | 0009 | Step to ingredient links | Not written | Attach ingredients to the step that uses them. |
-| 0010 | Cooking mode | Not written | Cook a recipe, seeing everything available to do right now. |
+| 0010 | Cooking mode | Not written | Cook a recipe, seeing what else you could do during each wait. |
 | 0011 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
 | 0012 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
 | 0013 | Images | Not written | Cover and per-step images. |
@@ -39,7 +39,8 @@ stack, and it needs deciding what happens when several timers are running at onc
 **0011 JSON import - the format needs a version and limits.** The prompt handed to users will change,
 and JSON produced by an older version of it will still be circulating, so every document carries a
 `schemaVersion`. Pasted input is untrusted: it needs hard caps on step and ingredient counts and on
-text length, and the dependency graph must be checked for cycles before anything reaches the database.
+text length, and every `parentStepId` must be checked to point at a main step in the same document
+before anything reaches the database.
 
 **0012 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
 lives on a machine the reader cannot reach, so this feature cannot work under rule 4 as written. A

@@ -1,7 +1,8 @@
 # CLAUDE.md
 
-**Panna** is a cooking assistant app. Users write recipes as a graph of steps, so independent work can happen
-in parallel while something cooks, and share them via private link. Recipes can also be imported
+**Panna** is a cooking assistant app. Users write recipes as steps, nesting the ones that can be done
+while something else cooks, so that while the pork roasts you know what else you could get on with.
+Recipes are shared via private link. Recipes can also be imported
 as JSON produced by the user's own AI assistant from a video or a web page.
 
 ## Non-negotiable rules
@@ -205,23 +206,33 @@ The `unit` enum, grouped by dimension, because conversion only ever happens with
 
 Null `unit` with a non-null `amount` means a bare count. Null `amount` means an unmeasured quantity, as in "salt, to taste".
 
-**steps**: id, recipeId (fk recipes, cascade), position (int), body (text), durationSeconds (int, nullable), temperatureCelsius (int, nullable), imageKey (nullable)
-
-**step_dependencies**: stepId (fk steps, cascade), dependsOnStepId (fk steps, cascade), composite primary key. A step is ready to cook once every step it depends on is done. Two steps with no path between them can therefore be cooked at the same time, which is what makes "cut the carrots while the water boils" expressible.
+**steps**: id, recipeId (fk recipes, cascade), parentStepId (fk steps, nullable), position (int), body (text), durationSeconds (int, nullable), temperatureCelsius (int, nullable), imageKey (nullable)
 
 **step_ingredients**: stepId (fk steps, cascade), ingredientId (fk ingredients, cascade), composite primary key. Links an ingredient to the step where it is used, so the step-by-step cooking view can show only what is needed right now.
 
-Ordering rules: `position` is a zero-based integer, unique per recipe. Reordering rewrites all positions in one transaction. Never rely on insertion order or `createdAt` for display order.
+Ordering rules: `position` is a zero-based integer, unique within a parent. Reordering rewrites all
+positions in one transaction. Never rely on insertion order or `createdAt` for display order.
 
-**Display order and execution order are different things, and confusing them is a bug.** `position` is display order: how steps are listed when reading or editing the recipe. `step_dependencies` is execution order: what has to be finished before a step can start. The cooking view derives what is available right now from the dependency graph and never from `position`.
+**Nesting is how parallel work is expressed.** A step with a null `parentStepId` is a main step, done
+in sequence. A step with a `parentStepId` is something that can be done *during* that step, while the
+oven heats or the pork roasts. When cooking, a main step with nested steps under it shows them as
+things you could get on with meanwhile.
 
-Dependency graph rules, enforced on every write inside the same transaction:
+The author decides this, not the app. Two steps that merely have nothing to do with each other are
+not parallel; a step is parallel because a person who understands the recipe said it can happen during
+a particular wait. That is also why steps carry no "needs your attention" flag: the author has already
+made that judgement by nesting or not nesting.
 
-- A step may not depend on itself.
-- Both steps in a dependency row must belong to the same recipe.
-- The graph must stay acyclic. A write that would close a cycle is rejected, and nothing is written.
-- Deleting a step removes the dependency rows on both sides via cascade. Steps that depended on it do not inherit its dependencies; they simply lose that edge.
-- A recipe with no dependency rows at all is a plain linear recipe, read in `position` order. That is the default a recipe starts in.
+Rules:
+
+- **One level only.** A nested step cannot itself have nested steps. Recipes that need more than that
+  are rare, and the second level costs more in confusion than it returns.
+- A step's parent must belong to the same recipe.
+- Deleting a main step **promotes** its nested steps to main steps at its position. It does not delete
+  them. Losing four steps because one was removed is the kind of thing people do not forgive.
+- A recipe with no nesting at all is an ordinary linear recipe. That is where every recipe starts.
+- Total time is the sum of the main steps' durations. Nested steps happen inside those and add
+  nothing, which is the whole point of nesting them.
 
 `shareToken` is null until the user shares the recipe for the first time. Generating it sets `visibility` to `unlisted`. Revoking sharing sets `shareToken` back to null and `visibility` to `private`.
 
