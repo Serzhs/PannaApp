@@ -27,6 +27,31 @@ A number is fixed once its spec is **Approved**. Draft specs can still be renumb
 has been built against them yet and a tidy order is worth more than an untouched number. Once a spec
 is approved its number never changes and is never reused.
 
+## Known problems in unwritten specs
+
+Things already identified that have no spec to live in yet. Each one is a decision that must be made
+when its spec is written, and none of them should be discovered then for the first time.
+
+**0010 Cooking mode - timers stop when the phone locks.** A kitchen timer that only runs while the
+screen is on is not a timer. This needs local notifications and a keep-awake, both additions to the
+stack, and it needs deciding what happens when several timers are running at once.
+
+**0011 JSON import - the format needs a version and limits.** The prompt handed to users will change,
+and JSON produced by an older version of it will still be circulating, so every document carries a
+`schemaVersion`. Pasted input is untrusted: it needs hard caps on step and ingredient counts and on
+text length, and the dependency graph must be checked for cycles before anything reaches the database.
+
+**0012 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
+lives on a machine the reader cannot reach, so this feature cannot work under rule 4 as written. A
+tappable link that opens the app, or the App Store when the app is missing, additionally needs a
+domain and two files hosted on it; a `panna://` link cannot do it, and most messaging apps will not
+even make it tappable. The alternative that stays local is exporting a recipe as a file the reader
+imports with 0011, which is a copy rather than a link and cannot be revoked. Deferred deliberately.
+
+**0013 Images - the files need somewhere to live.** `coverImageKey` and `imageKey` imply a store.
+Under rule 4 that means files on the developer machine served by the API, which works for development
+and shares the reachability problem above the moment anyone else needs to see them.
+
 ## Workflow
 
 1. **Write the spec.** Human writes the intent, or asks Claude to draft it from a rough description. Nothing gets implemented at this stage.
