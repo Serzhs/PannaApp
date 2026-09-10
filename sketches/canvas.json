@@ -1,16 +1,21 @@
 {
   "artboards": [
-    { "file": "SignIn.dc.html",     "x": 0,    "y": 0,   "w": 390, "h": 844, "title": "Sign in" },
-    { "file": "Main.dc.html",       "x": 470,  "y": 0,   "w": 390, "h": 844, "title": "Home" },
-    { "file": "ReadRecipe.dc.html", "x": 940,  "y": 0,   "w": 390, "h": 844, "title": "Read a recipe" },
-    { "file": "WriteRecipe.dc.html","x": 0,    "y": 964, "w": 390, "h": 844, "title": "Write a recipe" },
-    { "file": "Cook.dc.html",       "x": 470,  "y": 964, "w": 390, "h": 844, "title": "Cook" },
-    { "file": "Settings.dc.html",   "x": 940,  "y": 964, "w": 390, "h": 844, "title": "Settings" }
+    { "file": "SignIn.dc.html",     "x": 0,    "y": 0,    "w": 390, "h": 844,  "title": "01 Sign in" },
+    { "file": "Main.dc.html",       "x": 470,  "y": 0,    "w": 390, "h": 844,  "title": "02 Home" },
+    { "file": "ReadRecipe.dc.html", "x": 940,  "y": 0,    "w": 390, "h": 1140, "title": "03 Read a recipe" },
+    { "file": "WriteRecipe.dc.html","x": 0,    "y": 1260, "w": 390, "h": 844,  "title": "04 Write a recipe" },
+    { "file": "Paste.dc.html",      "x": 470,  "y": 1260, "w": 390, "h": 844,  "title": "05 Paste a recipe" },
+    { "file": "Checklist.dc.html",  "x": 940,  "y": 1260, "w": 390, "h": 844,  "title": "06 Before you start" },
+    { "file": "Cook.dc.html",       "x": 0,    "y": 2224, "w": 390, "h": 844,  "title": "07 Cook" },
+    { "file": "Settings.dc.html",   "x": 470,  "y": 2224, "w": 390, "h": 844,  "title": "08 Settings" }
   ],
   "annotations": [
-    { "id": "note-nesting", "x": 1370, "y": 300, "w": 260, "text": "Nesting is the whole idea.\nIndented steps happen DURING\nthe step above them.\n\nSame data shape reads three ways:\na bracket here, a drag handle in the\neditor, a \"meanwhile\" list while cooking." },
-    { "id": "note-progress", "x": -300, "y": 260, "w": 250, "text": "Cooking progress is stored on the\nphone, so the kitchen wifi dropping\ncannot interrupt a cook.\n\nSeveral recipes can be part-way\nthrough at once." },
-    { "id": "note-branding", "x": -300, "y": 560, "w": 250, "text": "Provider buttons are drawn plain here.\nReal ones must follow Google's and\nApple's own branding rules -- the one\nplace the design system does not win." }
+    { "id": "note-nesting", "x": 1370, "y": 240, "w": 260, "text": "Nesting is the whole idea.\nIndented steps happen DURING\nthe step above them.\n\nOne parentStepId reads three ways:\na bracket here, a drag handle in the\neditor, a \"meanwhile\" list while cooking." },
+    { "id": "note-notes", "x": 1370, "y": 640, "w": 260, "text": "Two kinds of note, never merged.\n\nThe author's tip lives on the step.\nYours pile up with dates.\n\nThey meet on the cooking screen --\nthat pairing is why they are two\ncolumns and not one." },
+    { "id": "note-without", "x": 1370, "y": 1500, "w": 260, "text": "Going without an ingredient hides\nany step that used only that.\n\nThe estimate moves only when a MAIN\nstep drops -- a nested one happens\ninside another step's time.\n\nCooking then carries a \"without\ncarrots\" marker, because the skipped\nsteps vanish silently." },
+    { "id": "note-paste", "x": -300, "y": 1400, "w": 250, "text": "The app never opens the link.\nThe user's own AI watches the video.\n\nThe prompt is the hard part: it has to\nteach a stranger's model what nesting\nis, or imports come back flat." },
+    { "id": "note-progress", "x": -300, "y": 220, "w": 250, "text": "Cooking progress is stored on the\nphone, so kitchen wifi dropping\ncannot interrupt a cook.\n\nSeveral recipes can be part-way\nthrough at once." },
+    { "id": "note-branding", "x": -300, "y": 520, "w": 250, "text": "Provider buttons are drawn plain here.\nReal ones must follow Google's and\nApple's branding rules -- the one\nplace the design system does not win." }
   ],
   "launch": { "view": "canvas" }
 }

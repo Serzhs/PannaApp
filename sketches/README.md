@@ -14,10 +14,18 @@ One file per screen, each a self-contained HTML document.
 | --- | --- |
 | `SignIn.dc.html` | Google and Apple sign-in |
 | `Main.dc.html` | Home: cooking now, then your recipes |
-| `ReadRecipe.dc.html` | Read a recipe, with the Cook button |
+| `ReadRecipe.dc.html` | Read a recipe, with notes and the Cook button |
 | `WriteRecipe.dc.html` | Write a recipe, showing nesting |
-| `Cook.dc.html` | Cooking, with the meanwhile list |
+| `Paste.dc.html` | Import: copy the prompt, paste the JSON back |
+| `Checklist.dc.html` | Before you start: tick what you have, go without |
+| `Cook.dc.html` | Cooking, with the meanwhile list and past notes |
 | `Settings.dc.html` | Language, units, sign out |
+
+Eight drawings, six screens. Paste is a state of the create screen, and Before you start is the first
+state of cooking, per the App structure section of `CLAUDE.md`.
+
+`ReadRecipe` is drawn taller than the others because it shows the whole scrolling page rather than one
+phone screen's worth.
 
 `index.html` shows all six side by side with notes on each. Open it in a browser and start there.
 

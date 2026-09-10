@@ -67,6 +67,7 @@
     box-shadow: 3px 4px 0 rgba(43,43,43,0.08);
   }
   .frame iframe { width: 390px; height: 844px; border: 0; display: block; background: var(--paper); }
+  .frame.tall, .frame.tall iframe { height: 1140px; }
   figcaption { font-size: 14px; color: var(--soft); line-height: 1.5; }
   figcaption a { font-size: 13px; color: var(--faint); }
 
@@ -95,6 +96,8 @@
     <a href="#home">Home</a>
     <a href="#read">Read a recipe</a>
     <a href="#write">Write a recipe</a>
+    <a href="#paste">Paste a recipe</a>
+    <a href="#checklist">Before you start</a>
     <a href="#cook">Cook</a>
     <a href="#settings">Settings</a>
   </nav>
@@ -118,8 +121,8 @@
 
   <figure id="read">
     <div class="label"><span class="num">03</span><span class="name">Read a recipe</span></div>
-    <div class="frame"><iframe src="ReadRecipe.dc.html" title="Read a recipe" loading="lazy"></iframe></div>
-    <figcaption>For before shopping and while deciding what to make. Nested steps appear as a bracket under the step they happen during. <a href="ReadRecipe.dc.html">open alone</a></figcaption>
+    <div class="frame tall"><iframe src="ReadRecipe.dc.html" title="Read a recipe" loading="lazy"></iframe></div>
+    <figcaption>For before shopping and while deciding what to make. Nested steps appear as a bracket, and your notes from past cooks collect at the bottom. Drawn as the full scrolling page. <a href="ReadRecipe.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="write">
@@ -128,14 +131,26 @@
     <figcaption>Same nesting, now with drag handles. Total time is shown as added up rather than typed, which runs slightly ahead of the open question in 0005. <a href="WriteRecipe.dc.html">open alone</a></figcaption>
   </figure>
 
+  <figure id="paste">
+    <div class="label"><span class="num">05</span><span class="name">Paste a recipe</span></div>
+    <div class="frame"><iframe src="Paste.dc.html" title="Paste a recipe" loading="lazy"></iframe></div>
+    <figcaption>Copy the prompt, take it to your own AI with a video link, paste back what it returns. The app never opens the link itself. <a href="Paste.dc.html">open alone</a></figcaption>
+  </figure>
+
+  <figure id="checklist">
+    <div class="label"><span class="num">06</span><span class="name">Before you start</span></div>
+    <div class="frame"><iframe src="Checklist.dc.html" title="Before you start" loading="lazy"></iframe></div>
+    <figcaption>Tick what you have and mark anything you are going without. The estimate only moves when a main step drops. <a href="Checklist.dc.html">open alone</a></figcaption>
+  </figure>
+
   <figure id="cook">
-    <div class="label"><span class="num">05</span><span class="name">Cook</span></div>
+    <div class="label"><span class="num">07</span><span class="name">Cook</span></div>
     <div class="frame"><iframe src="Cook.dc.html" title="Cook" loading="lazy"></iframe></div>
-    <figcaption>One step, large. The note sits under it, the ingredients for that step under that, and the nested steps become a Meanwhile list. <a href="Cook.dc.html">open alone</a></figcaption>
+    <figcaption>One step, large. The author&rsquo;s tip and your own past note sit under it, then the ingredients, then the nested steps as a Meanwhile list. The header says what you are leaving out. <a href="Cook.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="settings">
-    <div class="label"><span class="num">06</span><span class="name">Settings</span></div>
+    <div class="label"><span class="num">08</span><span class="name">Settings</span></div>
     <div class="frame"><iframe src="Settings.dc.html" title="Settings" loading="lazy"></iframe></div>
     <figcaption>Device is a real choice, not a blank, and shows what it currently resolves to. Sign out lives here. <a href="Settings.dc.html">open alone</a></figcaption>
   </figure>
