@@ -194,7 +194,7 @@ and Apple may give a private relay address instead of a real one.
 
 **refresh_tokens**: id, userId (fk users, cascade), tokenHash, expiresAt, revokedAt (nullable)
 
-**recipes**: id, authorId (fk users, cascade), title, description (nullable), language (varchar 5), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), visibility (enum: `private` | `unlisted`, default `private`), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
+**recipes**: id, authorId (fk users, cascade), title, description (nullable), language (varchar 5), status (enum: `draft` | `ready`, default `draft`), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), visibility (enum: `private` | `unlisted`, default `private`), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
 
 **ingredients**: id, recipeId (fk recipes, cascade), position (int), name, amount (numeric 10,2, nullable), unit (enum, nullable)
 
@@ -206,7 +206,7 @@ The `unit` enum, grouped by dimension, because conversion only ever happens with
 
 Null `unit` with a non-null `amount` means a bare count. Null `amount` means an unmeasured quantity, as in "salt, to taste".
 
-**steps**: id, recipeId (fk recipes, cascade), parentStepId (fk steps, nullable), position (int), body (text), durationSeconds (int, nullable), temperatureCelsius (int, nullable), imageKey (nullable)
+**steps**: id, recipeId (fk recipes, cascade), parentStepId (fk steps, nullable), position (int), body (text), note (text, nullable), durationSeconds (int, nullable), temperatureCelsius (int, nullable), imageKey (nullable)
 
 **step_ingredients**: stepId (fk steps, cascade), ingredientId (fk ingredients, cascade), composite primary key. Links an ingredient to the step where it is used, so the step-by-step cooking view can show only what is needed right now.
 
@@ -233,6 +233,13 @@ Rules:
 - A recipe with no nesting at all is an ordinary linear recipe. That is where every recipe starts.
 - Total time is the sum of the main steps' durations. Nested steps happen inside those and add
   nothing, which is the whole point of nesting them.
+
+`body` is the instruction. `note` is anything extra worth knowing while doing it - "do not let the
+garlic brown", "it should smell nutty by now". Keeping them apart means the instruction stays short
+enough to read at a glance with a knife in your hand, and the detail is there when wanted.
+
+`status` starts at `draft`. A recipe becomes `ready` when its author says so, not when the app decides
+it looks complete. Drafts are visible to their author with a chip, and are otherwise ordinary recipes.
 
 `shareToken` is null until the user shares the recipe for the first time. Generating it sets `visibility` to `unlisted`. Revoking sharing sets `shareToken` back to null and `visibility` to `private`.
 
@@ -405,6 +412,17 @@ thing the app can do to someone.
   nothing is silently pending.
 - Offline is a visible state, never a spinner that never resolves.
 
+**Cooking progress lives on the device, not the server.** Which steps are done, and when a timed step
+was started, are written to local storage as they happen. Nothing about cooking touches the network.
+
+This is not a shortcut, it is what makes the guarantee above true: if ticking off a step were a
+server write, cooking would break the moment the wifi dropped, which in a kitchen is most of the time.
+Several recipes can be in progress at once, each with its own stored progress, and closing the app or
+having it killed loses nothing.
+
+The cost is that progress does not follow you to another phone. For a session that lasts an hour and
+happens in one room, that is a fair trade.
+
 ## Platform behaviour
 
 One design on both platforms, and native behaviour on each.
@@ -435,6 +453,22 @@ before building it.
 
 Where a platform genuinely differs and both options are native, follow the platform rather than
 picking one for both.
+
+## App structure
+
+Six screens. Anything that feels like a seventh should be a state of one of these instead.
+
+| Screen | What it is for |
+| --- | --- |
+| `(auth)/index` | Sign in with Google or Apple. The only screen when signed out. |
+| `(app)/index` | Home. Recipes in progress at the top, then everything else, drafts chipped. |
+| `(app)/recipes/[id]` | Read a recipe: ingredients, steps, total time. Has the Cook button. |
+| `(app)/recipes/new` and `[id]/edit` | Write a recipe. The same form in two modes. |
+| `(app)/recipes/[id]/cook` | The guide. One step at a time, showing what can be done meanwhile. |
+| `(app)/settings` | Language, units, sign out. |
+
+Reading and cooking are deliberately separate. Reading happens before shopping and while deciding what
+to make; cooking happens with wet hands at a stove. The same screen cannot be good at both.
 
 ## Motion
 

@@ -10,7 +10,7 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0002](0002-design-system.md) | Design system: tokens and primitives | Draft | Build a form screen from tokens and components, with no raw values. |
 | [0003](0003-auth.md) | Sign in with Google and Apple | Draft | Sign in with one tap, no passwords, and stay signed in. |
 | [0004](0004-design-system-components.md) | Design system: display and feedback | Draft | Build a list screen's loading, empty and error states. |
-| [0005](0005-recipe-crud.md) | Recipe CRUD | Draft | Create, view, edit and delete your own recipes, as metadata only. |
+| [0005](0005-recipe-crud.md) | Recipe CRUD | Draft | Create, view, edit and delete your own recipes, with a draft state. |
 | [0006](0006-i18n.md) | Internationalisation | Draft | Run the app in another language, with correct plurals, formats and units. |
 | 0007 | Ingredients | Not written | Add, edit, remove and reorder the ingredients of a recipe. |
 | 0008 | Steps and nesting | Not written | Write steps, and nest the ones that happen during a wait. |
@@ -31,6 +31,8 @@ is approved its number never changes and is never reused.
 
 Things already identified that have no spec to live in yet. Each one is a decision that must be made
 when its spec is written, and none of them should be discovered then for the first time.
+
+**0010 Cooking mode - progress is stored on the device.** Which steps are done lives in local storage so cooking never needs the network, and several recipes can be in progress at once. This spec also adds the in-progress section to the home screen and the Cook button to the recipe screen, both deferred from 0005.
 
 **0010 Cooking mode - timers stop when the phone locks.** A kitchen timer that only runs while the
 screen is on is not a timer. This needs local notifications and a keep-awake, both additions to the
