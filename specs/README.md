@@ -162,13 +162,21 @@ Pasted input is untrusted. It needs hard caps on step and ingredient counts and 
 every `parentStepId` must be checked to point at a main step in the same document before anything
 reaches the database.
 
-**0016 Sharing - saving someone else's recipe is a reference, not a copy.** `recipe_saves` lets a reader
-keep a recipe they opened by link. Because it is a reference, the author still owns it: their edits
-change what the reader sees, and revoking the share takes it away. A copy-on-save would fix both and
-lose every later improvement. Decide which before building, because the table shape follows from it.
+**0016 Sharing - Add to my recipes makes a copy.** A reader who opens a share link can view the recipe.
+Pressing Add to my recipes duplicates it into their account: a new `recipes` row they own, with the
+ingredients, equipment, steps and both join tables copied. No shared row, no ongoing relationship.
 
-It is also the first thing in the schema that lets one user read another's recipe, so the ownership
-check that guards every other read needs a deliberate exception here rather than an accidental one.
+That keeps "one user owns everything" true, with the shared read as the single deliberate exception
+rather than a permission system growing inside the schema. It also means the author cannot change or
+withdraw a recipe someone has already kept, at the cost of the reader never seeing later improvements.
+
+The work is in the id remapping: steps point at each other through `parentStepId`, and both join tables
+point at step, ingredient and equipment ids. The copy builds a map from old id to new and rewrites
+every reference inside one transaction - a half-copied recipe is worse than a failed copy.
+
+**Images are the open part.** A copy that reuses the original's `coverImageKey` and `imageKey` breaks
+when the author deletes their recipe and its files. Duplicating the files avoids that and doubles
+storage. Which one depends on where files end up living, which 0010 has to settle first.
 
 **0016 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
 lives on a machine the reader cannot reach, so this feature cannot work under rule 4 as written. A

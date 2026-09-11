@@ -194,7 +194,7 @@ and Apple may give a private relay address instead of a real one.
 
 **refresh_tokens**: id, userId (fk users, cascade), tokenHash, expiresAt, revokedAt (nullable)
 
-**recipes**: id, authorId (fk users, cascade), title, description (nullable), language (varchar 5), status (enum: `draft` | `ready`, default `draft`), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), visibility (enum: `private` | `unlisted`, default `private`), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
+**recipes**: id, authorId (fk users, cascade), sourceRecipeId (fk recipes, set null, nullable), title, description (nullable), language (varchar 5), status (enum: `draft` | `ready`, default `draft`), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), visibility (enum: `private` | `unlisted`, default `private`), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
 
 **ingredients**: id, recipeId (fk recipes, cascade), position (int), name, note (text, nullable), amount (numeric 10,2, nullable), unit (enum, nullable)
 
@@ -233,17 +233,6 @@ worth knowing rather than hiding.
 
 `excluded` stores the **names** of ingredients left out, not their ids. History is a snapshot of what
 happened, so it must not change or break when the recipe is later edited and an ingredient is deleted.
-
-**recipe_saves**: userId (fk users, cascade), recipeId (fk recipes, cascade), createdAt, updatedAt. Composite primary key on the two ids.
-
-Someone who opens a share link can read the recipe but had no way to keep it. This is that: a
-reference, not a copy. The consequence to be clear about is that the author still owns it - if they
-edit it your saved copy changes, and if they revoke sharing it goes away. A copy-on-save would avoid
-that and lose every later improvement the author makes. Which of those is wanted is a question for the
-sharing spec, and the table shape follows from the answer.
-
-It is also the first row in the schema that lets one user read another user's recipe, so the
-"one user owns everything" reading above stops being the whole story from here.
 
 **cook_notes**: id, recipeId (fk recipes, cascade), stepId (fk steps, cascade, nullable), cookId (fk cooks, set null, nullable), authorId (fk users, cascade), body (text), createdAt, updatedAt
 
@@ -309,6 +298,23 @@ sits behind a button, described under Cooking with dirty hands.
 `body` is the instruction. `note` is anything extra worth knowing while doing it - "do not let the
 garlic brown", "it should smell nutty by now". Keeping them apart means the instruction stays short
 enough to read at a glance with a knife in your hand, and the detail is there when wanted.
+
+**Saving a shared recipe copies it.** Someone who opens a share link and presses Add to my recipes gets
+a new `recipes` row of their own, with its ingredients, equipment, steps and links duplicated. There is
+no shared row and no ongoing relationship: from that moment the two recipes are strangers. The author
+cannot edit it under them, revoking the share cannot take it away, and they can change whatever they
+disagree with - which is the whole point of keeping a recipe.
+
+What is copied: the recipe, its ingredients, its equipment, its steps, and both join tables. What is
+not: `cooks` and `cook_notes`, which are the author's own history and nobody else's; `shareToken` and
+`visibility`, so the copy starts unshared.
+
+The fiddly part is that steps reference each other through `parentStepId`, and both join tables
+reference step, ingredient and equipment ids. A copy has to build a map from old id to new and rewrite
+every reference, all inside one transaction. A half-copied recipe is worse than a failed copy.
+
+`sourceRecipeId` is provenance only - it records where a copy came from so the app can say "saved from
+a link", and is set to null if the original is deleted. It grants no access to anything.
 
 `status` starts at `draft`. A recipe becomes `ready` when its author says so, not when the app decides
 it looks complete. Drafts are visible to their author with a chip, and are otherwise ordinary recipes.
