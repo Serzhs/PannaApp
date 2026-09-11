@@ -233,6 +233,17 @@ contract and for AI tool calling, and a `tools` table would be read wrong.
 
 **step_equipment**: stepId (fk steps, cascade), equipmentId (fk equipment, cascade), createdAt, updatedAt. Composite primary key on the two ids. Says which step needs the mandoline, so cooking mode can tell you before you reach for it.
 
+**Why these are tables and not arrays on `steps`.** Postgres cannot put a foreign key on ids inside an
+array, so `steps.ingredientIds` would let a step keep pointing at an ingredient the author deleted -
+silently, with nothing to clean it up. A join row cascades away on its own. Two further reasons: "which
+steps use the carrots?" is one query here and a scan-and-unpack against arrays, and 0012 needs exactly
+that question; and copying a recipe rewrites every id, which is easier to get right inserting mapped
+rows than parsing, remapping and re-serialising JSON.
+
+**And two tables rather than one with a `kind` column**, because a single `targetId` would point at
+`ingredients` sometimes and `equipment` other times, and a foreign key can only name one table. One
+table would trade both guarantees for one fewer name in the schema.
+
 **step_ingredients**: stepId (fk steps, cascade), ingredientId (fk ingredients, cascade), createdAt, updatedAt. Composite primary key on the two ids. Links an ingredient to the step where it is used, so the step-by-step cooking view can show only what is needed right now.
 
 **cooks**: id, recipeId (fk recipes, cascade), startedAt, finishedAt (nullable), excluded (jsonb, ingredient names as text), createdAt, updatedAt
