@@ -162,6 +162,14 @@ Pasted input is untrusted. It needs hard caps on step and ingredient counts and 
 every `parentStepId` must be checked to point at a main step in the same document before anything
 reaches the database.
 
+**0016 Sharing - saving someone else's recipe is a reference, not a copy.** `recipe_saves` lets a reader
+keep a recipe they opened by link. Because it is a reference, the author still owns it: their edits
+change what the reader sees, and revoking the share takes it away. A copy-on-save would fix both and
+lose every later improvement. Decide which before building, because the table shape follows from it.
+
+It is also the first thing in the schema that lets one user read another's recipe, so the ownership
+check that guards every other read needs a deliberate exception here rather than an accidental one.
+
 **0016 Sharing - the API has to be reachable by the reader.** A share link is useless if the recipe
 lives on a machine the reader cannot reach, so this feature cannot work under rule 4 as written. A
 tappable link that opens the app, or the App Store when the app is missing, additionally needs a

@@ -177,7 +177,7 @@ wrong language.
 
 ## Data model
 
-Tables live in `apps/api/src/db/schema/`. All ids are `uuid` with `defaultRandom()`. All tables have `createdAt` and `updatedAt` as `timestamptz`.
+Tables live in `apps/api/src/db/schema/`. All ids are `uuid` with `defaultRandom()`. **Every table has `createdAt` and `updatedAt` as `timestamptz`**, join tables included - a uniform rule is cheaper to keep than an exception nobody remembers.
 
 **users**: id, email (unique, citext), displayName, locale (varchar 5, nullable), unitSystem (enum: `metric` | `imperial`, nullable), createdAt, updatedAt
 
@@ -222,9 +222,9 @@ contract and for AI tool calling, and a `tools` table would be read wrong.
 
 **steps**: id, recipeId (fk recipes, cascade), parentStepId (fk steps, nullable), position (int), body (text), note (text, nullable), durationSeconds (int, nullable), temperatureCelsius (int, nullable), imageKey (nullable)
 
-**step_equipment**: stepId (fk steps, cascade), equipmentId (fk equipment, cascade), composite primary key. Says which step needs the mandoline, so cooking mode can tell you before you reach for it.
+**step_equipment**: stepId (fk steps, cascade), equipmentId (fk equipment, cascade), createdAt, updatedAt. Composite primary key on the two ids. Says which step needs the mandoline, so cooking mode can tell you before you reach for it.
 
-**step_ingredients**: stepId (fk steps, cascade), ingredientId (fk ingredients, cascade), composite primary key. Links an ingredient to the step where it is used, so the step-by-step cooking view can show only what is needed right now.
+**step_ingredients**: stepId (fk steps, cascade), ingredientId (fk ingredients, cascade), createdAt, updatedAt. Composite primary key on the two ids. Links an ingredient to the step where it is used, so the step-by-step cooking view can show only what is needed right now.
 
 **cooks**: id, recipeId (fk recipes, cascade), userId (fk users, cascade), startedAt, finishedAt (nullable), excluded (jsonb, ingredient names as text), createdAt, updatedAt
 
@@ -233,6 +233,17 @@ worth knowing rather than hiding.
 
 `excluded` stores the **names** of ingredients left out, not their ids. History is a snapshot of what
 happened, so it must not change or break when the recipe is later edited and an ingredient is deleted.
+
+**recipe_saves**: userId (fk users, cascade), recipeId (fk recipes, cascade), createdAt, updatedAt. Composite primary key on the two ids.
+
+Someone who opens a share link can read the recipe but had no way to keep it. This is that: a
+reference, not a copy. The consequence to be clear about is that the author still owns it - if they
+edit it your saved copy changes, and if they revoke sharing it goes away. A copy-on-save would avoid
+that and lose every later improvement the author makes. Which of those is wanted is a question for the
+sharing spec, and the table shape follows from the answer.
+
+It is also the first row in the schema that lets one user read another user's recipe, so the
+"one user owns everything" reading above stops being the whole story from here.
 
 **cook_notes**: id, recipeId (fk recipes, cascade), stepId (fk steps, cascade, nullable), cookId (fk cooks, set null, nullable), authorId (fk users, cascade), body (text), createdAt, updatedAt
 
@@ -246,6 +257,15 @@ while cooking, which is the point: the author's tip and what you found out last 
 
 A note written during or just after a cook carries that `cookId`, so history can show what you thought
 each time you made it. A note added later from the recipe screen has none.
+
+**`recipeId` and `authorId` stay, even though `cookId` looks like it implies them.** It does not, for
+three reasons: `cookId` is nullable, so a note added from the recipe screen would have nothing to
+derive from; `cookId` is `on delete set null`, so deleting a cook would orphan every note attached to
+it; and deriving a recipe through a join to answer "show this recipe's notes" is work on every read to
+save one column.
+
+What is true is that the columns can disagree - a note could name cook X and recipe Y. They are checked
+against each other on write, in the same transaction, like the other same-recipe rules above.
 
 Notes are personal. They belong to the cook, never travel with a shared recipe, and are never visible
 to anyone else.
@@ -262,6 +282,15 @@ The author decides this, not the app. Two steps that merely have nothing to do w
 not parallel; a step is parallel because a person who understands the recipe said it can happen during
 a particular wait. That is also why steps carry no "needs your attention" flag: the author has already
 made that judgement by nesting or not nesting.
+
+**Nothing in the schema stops a step in one recipe from linking an ingredient in another.** A foreign
+key constrains the target row's existence, not which recipe it belongs to. The same hole exists for
+`steps.parentStepId`, `step_equipment`, and `cook_notes.stepId`. All of them are checked in application
+code on write, inside the same transaction.
+
+The database-level fix is a composite foreign key carrying `recipeId` on both sides, which would make
+it impossible rather than merely checked. That is worth doing if this ever bites; it is not worth the
+extra column and index on every child table before it has.
 
 Rules:
 
