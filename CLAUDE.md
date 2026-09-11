@@ -190,7 +190,16 @@ One user can have several identities, which is what makes signing in with Google
 tomorrow land in the same account. `subject` is the only reliable key: an email address can change,
 and Apple may give a private relay address instead of a real one.
 
-`locale` and `unitSystem` are null until the user chooses. Null means "follow the device", which is a different state from having picked the value the device happens to report, and the two must not be collapsed: a user who explicitly chose metric keeps metric on a device set to imperial.
+`locale` and `unitSystem` are null until the user chooses. Null means "follow the device", which is a
+different state from having picked the value the device happens to report, and the two must not be
+collapsed: a user who explicitly chose metric keeps metric on a device set to imperial.
+
+**Resolving a locale, in order: the explicit choice, then the device, then English.** Null does not
+mean English - a Latvian on a Latvian phone who never opened settings gets Latvian. English is the
+last resort, for when the device asks for a language the app does not ship. Collapsing that into
+"null means English" would give most non-English users the wrong language by default.
+
+`unitSystem` resolves the same way, ending at metric rather than English.
 
 **refresh_tokens**: id, userId (fk users, cascade), tokenHash, expiresAt, revokedAt (nullable)
 

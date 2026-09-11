@@ -17,7 +17,7 @@ TABLES = {
         ('displayName', 'varchar(80)', NOT_NULL), ('locale', 'varchar(5)', NULL),
         ('unitSystem', 'unit_system', NULL), ('createdAt', 'timestamptz', NOT_NULL),
         ('updatedAt', 'timestamptz', NOT_NULL),
-        ('~', 'unique on email', ''), ('~', 'null locale = follow the device', ''),
+        ('~', 'unique on email', ''), ('~', 'null locale = device, then English', ''),
     ],
     'identities': [
         ('id', 'uuid', NOT_NULL), ('userId', 'uuid', NOT_NULL),
@@ -25,6 +25,7 @@ TABLES = {
         ('email', 'citext', NULL), ('emailVerified', 'boolean', NOT_NULL),
         ('createdAt', 'timestamptz', NOT_NULL), ('updatedAt', 'timestamptz', NOT_NULL),
         ('~', 'unique on (provider, subject)', ''),
+        ('~', 'null email = provider did not say', ''),
     ],
     'refresh_tokens': [
         ('id', 'uuid', NOT_NULL), ('userId', 'uuid', NOT_NULL),
@@ -139,13 +140,21 @@ def render(name):
         if c == '~':
             rows += f'<div style="font-size:11.5px;color:#a8a5a0;height:{FOOT}px;line-height:{FOOT}px;">{typ}</div>'
             continue
-        key = 'PK' if c in PK.get(name, ()) else ('FK' if c in FK.get(name, {}) else '')
+        is_fk = c in FK.get(name, {})
+        key = 'PK' if c in PK.get(name, ()) else ('FK' if is_fk else '')
         tag = f'<span style="color:#9a9a9a;font-size:10.5px;width:20px;flex-shrink:0;">{key}</span>'
         nul = ('<span style="font-size:11px;color:#8a8a8a;">null</span>' if nullable
                else '<span style="font-size:11px;color:#c8c5c0;">not null</span>')
+        # Every foreign key is a uuid, so the type says nothing the legend has not.
+        # That space is worth more spent naming what the key points at.
+        if is_fk:
+            target, on_delete = FK[name][c]
+            right = (f'<span style="color:#7a7772;font-size:11.5px;flex-grow:1;text-align:right;">'
+                     f'&rarr; {target}.id <span style="color:#bcb9b4;">{on_delete}</span></span>')
+        else:
+            right = f'<span style="color:#a8a5a0;font-size:12px;flex-grow:1;text-align:right;">{typ}</span>'
         rows += (f'<div style="display:flex;align-items:baseline;gap:6px;height:{ROW}px;font-size:13.5px;">'
-                 f'{tag}<span style="flex-shrink:0;">{c}</span>'
-                 f'<span style="color:#a8a5a0;font-size:12px;flex-grow:1;text-align:right;">{typ}</span>'
+                 f'{tag}<span style="flex-shrink:0;">{c}</span>{right}'
                  f'<span style="width:46px;text-align:right;flex-shrink:0;">{nul}</span></div>')
     return (f'<div class="sk" style="position:absolute;left:{x}px;top:{y}px;width:{BOX_W}px;height:{h}px;'
             f'box-sizing:border-box;background:#fbfaf7;display:flex;flex-direction:column;">'
@@ -185,11 +194,12 @@ lx = 40 + len(COLUMNS) * (BOX_W + COL_GAP)
 side = f'''<div style="position:absolute;left:{lx}px;top:{TOP}px;width:270px;display:flex;flex-direction:column;gap:16px;">
   <div style="font-size:15px;color:#6b6b6b;">Reading it</div>
   <div style="font-size:13px;color:#5a5a5a;line-height:1.5;">Each row is <b>column</b>, then its type, then whether it may be null.</div>
+  <div style="font-size:13px;color:#5a5a5a;line-height:1.5;">A foreign key shows <b>&rarr; table.id</b> and what happens when that row is deleted, instead of its type &mdash; every one is a uuid.</div>
   <div style="display:flex;gap:9px;align-items:center;font-size:13px;color:#5a5a5a;">
     <svg width="34" height="10"><path d="M2 5h30" stroke="#2b2b2b" stroke-width="1.7" /></svg>owns it, cascades on delete</div>
   <div style="display:flex;gap:9px;align-items:center;font-size:13px;color:#5a5a5a;">
     <svg width="34" height="10"><path d="M2 5h30" stroke="#8a8a8a" stroke-width="1.7" stroke-dasharray="6 5" /></svg>points at it, may be null</div>
-  <div style="font-size:12.5px;color:#8a8a8a;line-height:1.55;">All ids are uuid with a random default. cook_notes also points at steps and cooks; those two lines are left off so the picture stays readable.</div>
+  <div style="font-size:12.5px;color:#8a8a8a;line-height:1.55;">All ids are uuid with a random default. cook_notes also points at steps and cooks; those two lines are left off so the picture stays readable, but every arrow below names its target.</div>
   <div style="height:1px;background:#dedbd6;margin:2px 0;"></div>
   <div style="font-size:12.5px;color:#5a5a5a;line-height:1.55;"><b>recipes is the hub.</b> Ingredients, equipment, steps, cooks and notes all hang off it.</div>
   <div style="font-size:12.5px;color:#5a5a5a;line-height:1.55;"><b>steps nests into itself.</b> A tree, not a graph, so no cycle can exist. One level only, enforced in code.</div>
