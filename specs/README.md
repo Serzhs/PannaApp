@@ -47,15 +47,19 @@ ingredients do. It is a separate table because equipment has no amount and no un
 Equipment belongs in the check before cooking at least as much as ingredients do: a missing herb can be
 improvised, a stand mixer cannot, and finding out halfway through is worse.
 
-**0010 Images - one storage decision, made once.** A step can carry a picture of what it
-should look like when done, which is what makes a shared recipe worth reading. Cooking mode shows it
-behind a large button rather than inline, with an equally large button to close, so the instruction
-keeps the screen.
+**0010 Images - files on disk, keys in the database.** A step can carry a picture of what it should look
+like when done, and a recipe a cover photo. Cooking mode shows the step photo behind a large button
+rather than inline, with an equally large button to close, so the instruction keeps the screen. The
+cover photo appears as a thumbnail on each home row and as a header on the read screen - without those
+two, it would be a field you can set and never see.
 
-Cover photos ship in the same spec rather than at the end, because they share the only hard part: the
-files need somewhere to live, and under rule 4 that means the developer machine, which nobody else can
-reach. Solving that twice, seven specs apart, would be the same work done badly. Sharing recipes with
-pictures depends on the same decision as sharing itself.
+Files live beside the API and it serves them; the column holds a key, not a URL, so the store can
+change without touching rows. Uploads are resized and re-encoded on the way in, and EXIF is stripped -
+a phone photo is 3 to 12 MB and carries GPS coordinates, and a recipe shared by link would otherwise
+carry the author's kitchen with it.
+
+The limit is the same one sharing has: files live on one machine and nobody else can reach it. That
+does not block the app working locally, and it does block a shared recipe having pictures.
 
 **0011 Cooking mode - progress is stored on the device.** Which steps are done lives in local storage so cooking never needs the network, and several recipes can be in progress at once. This spec also adds the in-progress section to the home screen and the Cook button to the recipe screen, both deferred from 0005.
 

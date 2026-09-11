@@ -511,6 +511,24 @@ The walkthrough covers: reaching every interactive element in an order that make
 element announcing what it is and what it does, no element announced twice or not at all, and every
 state change spoken.
 
+## Images
+
+Files live on disk beside the API, in a directory outside the repo, and are served back by it. The
+column holds a **key**, never a URL, so where files live can change without touching a single row.
+
+- Upload is authenticated and goes through the API. `GET /api/images/:key` serves the file.
+- **Every upload is resized and re-encoded before it is stored.** A phone photo is 3 to 12 MB, and a
+  list screen showing ten of them at full size is unusable. The original is not kept.
+- **EXIF is stripped, always.** Phone photos carry GPS coordinates, and a recipe shared by link would
+  otherwise carry the author's kitchen with it. Orientation is applied before stripping, or half the
+  photos arrive sideways.
+- A key is opaque and unguessable, so knowing one image key tells you nothing about any other.
+- Deleting a recipe or a step deletes its files. Orphaned files are a slow leak that nobody notices
+  until the disk is full.
+
+Nothing about this survives the machine it runs on, which is the same limit sharing has. Moving to a
+real object store later is one adapter, which is the reason the column holds a key rather than a path.
+
 ## Offline
 
 This app is used standing in a kitchen, on bad wifi, with dirty hands. A dropped connection is the

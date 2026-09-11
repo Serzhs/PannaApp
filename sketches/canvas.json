@@ -77,14 +77,14 @@
       "x": 940,
       "y": 1928,
       "w": 390,
-      "h": 1120,
+      "h": 1290,
       "title": "09 Read a recipe",
       "page": "page-1"
     },
     {
       "file": "WriteRecipe.dc.html",
       "x": 0,
-      "y": 3168,
+      "y": 3338,
       "w": 390,
       "h": 1200,
       "title": "10 Edit a recipe",
@@ -93,7 +93,7 @@
     {
       "file": "Checklist.dc.html",
       "x": 470,
-      "y": 3168,
+      "y": 3338,
       "w": 390,
       "h": 844,
       "title": "11 Before you start",
@@ -102,7 +102,7 @@
     {
       "file": "KnuckleHint.dc.html",
       "x": 940,
-      "y": 3168,
+      "y": 3338,
       "w": 390,
       "h": 844,
       "title": "12 First open",
@@ -111,7 +111,7 @@
     {
       "file": "Cook.dc.html",
       "x": 0,
-      "y": 4488,
+      "y": 4658,
       "w": 390,
       "h": 844,
       "title": "13 Cook",
@@ -120,7 +120,7 @@
     {
       "file": "StepImage.dc.html",
       "x": 470,
-      "y": 4488,
+      "y": 4658,
       "w": 390,
       "h": 844,
       "title": "14 How it should look",
@@ -129,7 +129,7 @@
     {
       "file": "Settings.dc.html",
       "x": 940,
-      "y": 4488,
+      "y": 4658,
       "w": 390,
       "h": 844,
       "title": "15 Settings",
