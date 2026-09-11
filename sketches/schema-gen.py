@@ -40,9 +40,10 @@ TABLES = {
         ('description', 'text', NULL), ('language', 'varchar(5)', NOT_NULL),
         ('status', 'recipe_status', NOT_NULL), ('servings', 'integer', NOT_NULL),
         ('totalTimeMinutes', 'integer', NULL), ('coverImageKey', 'varchar(255)', NULL),
-        ('visibility', 'recipe_visibility', NOT_NULL), ('shareToken', 'varchar(12)', NULL),
+        ('shareToken', 'varchar(12)', NULL),
         ('createdAt', 'timestamptz', NOT_NULL), ('updatedAt', 'timestamptz', NOT_NULL),
-        ('~', 'default status draft, visibility private', ''),
+        ('~', 'unique on shareToken', ''),
+        ('~', 'null shareToken = not shared', ''),
     ],
     'ingredients': [
         ('id', 'uuid', NOT_NULL), ('recipeId', 'uuid', NOT_NULL),

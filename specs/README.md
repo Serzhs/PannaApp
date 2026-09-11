@@ -162,6 +162,10 @@ Pasted input is untrusted. It needs hard caps on step and ingredient counts and 
 every `parentStepId` must be checked to point at a main step in the same document before anything
 reaches the database.
 
+**0016 Sharing - revoking destroys the link.** Revoking nulls `shareToken`, so anything already sent
+stops working and sharing again produces a different URL. There is no way to bring an old link back,
+which is why the recipe needs no `visibility` column: shared is exactly `shareToken IS NOT NULL`.
+
 **0016 Sharing - a reader cannot cook without saving first.** A share link is read-only: to cook it you
 press Add to my recipes, which copies it into your list. One clear action, at the cost of a recipe you
 tried once staying in your list.

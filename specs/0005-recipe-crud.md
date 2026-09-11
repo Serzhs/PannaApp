@@ -14,7 +14,7 @@ A logged-in user can create, view, edit and delete their own recipes, as metadat
 ## Out of scope
 
 - Ingredients, steps and the `step_ingredients` link. The tables exist from 0001 and stay empty.
-- Sharing. `shareToken` stays null, `visibility` stays `private`, and `GET /api/shared/:shareToken` is not implemented.
+- Sharing. `shareToken` stays null and `GET /api/shared/:shareToken` is not implemented.
 - Images. `coverImageKey` stays null and is never written or returned.
 - Search, filtering, sorting controls, tags, categories, favourites.
 - Pagination. A user's own list is returned in full.
@@ -30,7 +30,7 @@ A logged-in user can create, view, edit and delete their own recipes, as metadat
 No new tables and no new columns. The `recipes` table created in 0001 is used as-is, so this spec adds no migration.
 
 Fields written by this spec: `title`, `description`, `servings`, `totalTimeMinutes`, `authorId`.
-Fields not written by this spec: `coverImageKey`, `visibility` (stays at its `private` default), `shareToken`.
+Fields not written by this spec: `coverImageKey`, `shareToken`.
 
 ## API contract
 
@@ -40,7 +40,7 @@ All bodies validated by Zod schemas in `packages/shared`. All routes require a v
 
 `{ id, title, description, language, status, servings, totalTimeMinutes, createdAt, updatedAt }`
 
-`authorId`, `coverImageKey`, `visibility` and `shareToken` are never returned by this spec's endpoints. Sharing state becomes visible to the client in 0016, not here.
+`authorId`, `coverImageKey` and `shareToken` are never returned by this spec's endpoints. Sharing state becomes visible to the client in 0016, not here.
 
 **Field rules**, shared by create and update:
 
@@ -102,7 +102,7 @@ All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/featur
 
 - [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
 - [ ] Every one of the five endpoints returns 401 when called with no access token, and with an expired one.
-- [ ] Creating a recipe returns 201 and a body whose keys are exactly the nine in the recipe response shape, with no `authorId`, `coverImageKey`, `visibility` or `shareToken`.
+- [ ] Creating a recipe returns 201 and a body whose keys are exactly the nine in the recipe response shape, with no `authorId`, `coverImageKey` or `shareToken`.
 - [ ] `GET /api/recipes` for a user returns only that user's recipes: with two users each owning recipes, neither sees any of the other's.
 - [ ] `GET /api/recipes` returns `[]` with status 200 for a freshly registered user.
 - [ ] `GET`, `PATCH` and `DELETE` on a recipe owned by another user each return 404 with the same body as a `GET` for a random non-existent uuid.

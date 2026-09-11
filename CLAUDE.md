@@ -203,7 +203,7 @@ last resort, for when the device asks for a language the app does not ship. Coll
 
 **refresh_tokens**: id, userId (fk users, cascade), tokenHash, expiresAt, revokedAt (nullable)
 
-**recipes**: id, authorId (fk users, cascade), sourceRecipeId (fk recipes, set null, nullable), title, description (nullable), language (varchar 5), status (enum: `draft` | `ready`, default `draft`), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), visibility (enum: `private` | `unlisted`, default `private`), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
+**recipes**: id, authorId (fk users, cascade), sourceRecipeId (fk recipes, set null, nullable), title, description (nullable), language (varchar 5), status (enum: `draft` | `ready`, default `draft`), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
 
 **ingredients**: id, recipeId (fk recipes, cascade), position (int), name, note (text, nullable), amount (numeric 10,2, nullable), unit (enum, nullable)
 
@@ -325,8 +325,8 @@ cannot edit it under them, revoking the share cannot take it away, and they can 
 disagree with - which is the whole point of keeping a recipe.
 
 What is copied: the recipe, its ingredients, its equipment, its steps, and both join tables. What is
-not: `cooks` and `cook_notes`, which are the author's own history and nobody else's; `shareToken` and
-`visibility`, so the copy starts unshared.
+not: `cooks` and `cook_notes`, which are the author's own history and nobody else's; and `shareToken`,
+so the copy starts unshared.
 
 The fiddly part is that steps reference each other through `parentStepId`, and both join tables
 reference step, ingredient and equipment ids. A copy has to build a map from old id to new and rewrite
@@ -338,7 +338,14 @@ a link", and is set to null if the original is deleted. It grants no access to a
 `status` starts at `draft`. A recipe becomes `ready` when its author says so, not when the app decides
 it looks complete. Drafts are visible to their author with a chip, and are otherwise ordinary recipes.
 
-`shareToken` is null until the user shares the recipe for the first time. Generating it sets `visibility` to `unlisted`. Revoking sharing sets `shareToken` back to null and `visibility` to `private`.
+`shareToken` is null until the user shares the recipe, and null again the moment they revoke. **A
+revoked link is gone for good**: sharing again generates a new token and a new URL, and anything
+already sent stops working. Revoked means revoked, with nothing to explain.
+
+**There is no `visibility` column.** Shared is exactly `shareToken IS NOT NULL`, so a second column
+could only ever repeat it or contradict it. One would be needed if a token could exist while switched
+off - which is what keeping a link alive across a revoke would require - or if a third state such as
+publicly listed ever arrives. Neither is true.
 
 ## API conventions
 
