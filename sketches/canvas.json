@@ -139,8 +139,8 @@
       "file": "Schema.dc.html",
       "x": 0,
       "y": 0,
-      "w": 1460,
-      "h": 1200,
+      "w": 1860,
+      "h": 1114,
       "title": "Database schema",
       "page": "page-2"
     }
@@ -213,7 +213,7 @@
     {
       "id": "note-schema",
       "page": "page-2",
-      "x": 1520,
+      "x": 1920,
       "y": 40,
       "w": 300,
       "text": "Eleven tables, created in one migration\nby 0001 so no later spec has to alter\na table that already holds data.\n\nTwo things worth arguing about:\n\nsteps.parentStepId is a tree, not a\ngraph -- one level, no cycles possible,\nno edge table.\n\ncooks.excluded stores NAMES, not ids.\nHistory records what happened and\nmust not change when the recipe is\nedited later."

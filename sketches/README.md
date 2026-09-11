@@ -27,7 +27,7 @@ One file per screen, each a self-contained HTML document.
 | `Cook.dc.html` | Cooking: meanwhile list, past notes, the photo button |
 | `StepImage.dc.html` | How it should look, full screen |
 | `Settings.dc.html` | Language, units, sign out |
-| `Schema.dc.html` | The eleven database tables and how they relate |
+| `Schema.dc.html` | Every table, column, type and nullability &mdash; generated, see below |
 
 The canvas has two pages: **Screens** and **Database**. Fifteen drawings cover six screens. The four create pages and Paste are states of creating; the hint, the
 checklist and the photo view are states of cooking, per the App structure section of `CLAUDE.md`.
@@ -57,6 +57,18 @@ Three things were drawn ahead of the specs and should be read as proposals:
 
 No status bar or battery icon is drawn. The phone draws its own over the layout, and a painted one
 looks doubled up.
+
+## The schema diagram is generated
+
+`Schema.dc.html` is written by `schema-gen.py` from the table definitions at the top of that file. To
+change a column, edit the definition and re-run it:
+
+```
+python3 schema-gen.py
+```
+
+It is generated rather than drawn because positioning a hundred rows by hand is how the boxes ended up
+clipped twice. Do not hand-edit `Schema.dc.html`; the next run overwrites it.
 
 ## Changing them
 
