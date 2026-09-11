@@ -117,6 +117,17 @@ can be sent again.
 The payoff is in cooking mode, where a step shows the author's `note` and the cook's own notes
 together. That pairing is the reason the two are separate columns rather than one field.
 
+**0015 JSON import - a link may not be readable by the user's AI.** Tested on 2026-09-11: fetching a
+`tiktok.com` video URL returns an empty shell with no caption, transcript or text to anything that is
+not a logged-in browser. Assistants that browse hit the same wall, and the failure is not loud - a
+model handed an unreadable link tends to produce a plausible recipe rather than refuse, so the user
+gets confident nonsense.
+
+What follows: the prompt must not promise that a link works. It should ask for the recipe **text** -
+the caption, the transcript, or what the user typed out - and treat a link as a best effort that often
+will not resolve. Worth re-testing per platform before writing the spec, since YouTube and ordinary
+web pages behave differently from TikTok.
+
 **0015 JSON import - the prompt is the hard part, not the parser.**
 
 The flow: tapping + offers two ways to add a recipe, writing one or pasting one. The paste view holds
