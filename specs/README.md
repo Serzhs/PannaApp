@@ -162,6 +162,15 @@ Pasted input is untrusted. It needs hard caps on step and ingredient counts and 
 every `parentStepId` must be checked to point at a main step in the same document before anything
 reaches the database.
 
+**0016 Sharing - a reader cannot cook without saving first.** A share link is read-only: to cook it you
+press Add to my recipes, which copies it into your list. One clear action, at the cost of a recipe you
+tried once staying in your list.
+
+This is load-bearing for the schema. Because cooking requires owning, `cooks` needs no `userId` and
+`cook_notes` needs no `authorId` - the person is always `recipes.authorId`. **If cooking straight from
+a link is ever allowed, both columns have to come back**, because nothing else would record who
+actually cooked or wrote the note.
+
 **0016 Sharing - Add to my recipes makes a copy.** A reader who opens a share link can view the recipe.
 Pressing Add to my recipes duplicates it into their account: a new `recipes` row they own, with the
 ingredients, equipment, steps and both join tables copied. No shared row, no ongoing relationship.

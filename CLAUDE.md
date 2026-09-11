@@ -226,15 +226,23 @@ contract and for AI tool calling, and a `tools` table would be read wrong.
 
 **step_ingredients**: stepId (fk steps, cascade), ingredientId (fk ingredients, cascade), createdAt, updatedAt. Composite primary key on the two ids. Links an ingredient to the step where it is used, so the step-by-step cooking view can show only what is needed right now.
 
-**cooks**: id, recipeId (fk recipes, cascade), userId (fk users, cascade), startedAt, finishedAt (nullable), excluded (jsonb, ingredient names as text), createdAt, updatedAt
+**cooks**: id, recipeId (fk recipes, cascade), startedAt, finishedAt (nullable), excluded (jsonb, ingredient names as text), createdAt, updatedAt
 
 One row per time somebody cooked a recipe. A null `finishedAt` is a cook that was abandoned, which is
 worth knowing rather than hiding.
 
+**There is no `userId`.** Cooking requires the recipe to be in your own list, and saving a shared
+recipe copies it, so the cook is always `recipes.authorId`. A second column for the same person could
+only ever disagree with the first.
+
+That holds only while cooking requires saving. If a reader is ever allowed to cook straight from a
+share link, the cook and the author become different people and this column has to come back - there
+would be nothing else recording who actually did it.
+
 `excluded` stores the **names** of ingredients left out, not their ids. History is a snapshot of what
 happened, so it must not change or break when the recipe is later edited and an ingredient is deleted.
 
-**cook_notes**: id, recipeId (fk recipes, cascade), stepId (fk steps, cascade, nullable), cookId (fk cooks, set null, nullable), authorId (fk users, cascade), body (text), createdAt, updatedAt
+**cook_notes**: id, recipeId (fk recipes, cascade), stepId (fk steps, cascade, nullable), cookId (fk cooks, set null, nullable), body (text), createdAt, updatedAt
 
 What the cook learned, as opposed to what the author instructed. A null `stepId` is a note on the
 whole recipe; a set one is a note on that step, and it must belong to that recipe.
@@ -247,13 +255,15 @@ while cooking, which is the point: the author's tip and what you found out last 
 A note written during or just after a cook carries that `cookId`, so history can show what you thought
 each time you made it. A note added later from the recipe screen has none.
 
-**`recipeId` and `authorId` stay, even though `cookId` looks like it implies them.** It does not, for
-three reasons: `cookId` is nullable, so a note added from the recipe screen would have nothing to
-derive from; `cookId` is `on delete set null`, so deleting a cook would orphan every note attached to
-it; and deriving a recipe through a join to answer "show this recipe's notes" is work on every read to
-save one column.
+**`recipeId` stays; `authorId` does not.** `cookId` looks like it implies the recipe, but it does not:
+it is nullable, so a note added from the recipe screen has nothing to derive from, and it is
+`on delete set null`, so deleting a cook would orphan every note attached to it. Deriving the recipe
+through a join on every read to save one column is the wrong trade.
 
-What is true is that the columns can disagree - a note could name cook X and recipe Y. They are checked
+`authorId` is a different case and goes, for the same reason as `cooks.userId`: notes only exist on
+recipes you own, so the author is always `recipes.authorId`.
+
+`recipeId` and `cookId` can still disagree - a note naming cook X and recipe Y - so they are checked
 against each other on write, in the same transaction, like the other same-recipe rules above.
 
 Notes are personal. They belong to the cook, never travel with a shared recipe, and are never visible
