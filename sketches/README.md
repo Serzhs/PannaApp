@@ -27,8 +27,9 @@ One file per screen, each a self-contained HTML document.
 | `Cook.dc.html` | Cooking: meanwhile list, past notes, the photo button |
 | `StepImage.dc.html` | How it should look, full screen |
 | `Settings.dc.html` | Language, units, sign out |
+| `Schema.dc.html` | The eleven database tables and how they relate |
 
-Fifteen drawings, six screens. The four create pages and Paste are states of creating; the hint, the
+The canvas has two pages: **Screens** and **Database**. Fifteen drawings cover six screens. The four create pages and Paste are states of creating; the hint, the
 checklist and the photo view are states of cooking, per the App structure section of `CLAUDE.md`.
 
 Creating is four pages and editing is one, on purpose: someone fixing a single wrong quantity should
