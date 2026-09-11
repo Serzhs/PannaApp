@@ -38,20 +38,19 @@ All bodies validated by Zod schemas in `packages/shared`. All routes require a v
 
 **Recipe response shape**, used by every endpoint below:
 
-`{ id, title, description, language, status, servings, totalTimeMinutes, createdAt, updatedAt }`
+`{ id, title, description, status, servings, totalTimeMinutes, createdAt, updatedAt }`
 
 `authorId`, `coverImageKey` and `shareToken` are never returned by this spec's endpoints. Sharing state becomes visible to the client in 0016, not here.
 
 **Field rules**, shared by create and update:
 
 - `title`: string, trimmed, 1 to 120 characters. A title that is empty after trimming is a 400.
-- `language`: a BCP-47 tag from the set the app ships. Defaults to the author's locale when omitted, because a recipe is almost always written in the language its author is using.
 - `description`: string or null, trimmed, up to 2000 characters.
 - `servings`: integer, 1 to 100.
 - `totalTimeMinutes`: integer or null, 1 to 1440.
 
 **POST /api/recipes**
-Body: `{ title, description?, language?, servings, totalTimeMinutes? }`. Omitted optional fields are stored as null, except `language`, which falls back to the author's locale. `status` is not accepted here: every new recipe starts as `draft`.
+Body: `{ title, description?, servings, totalTimeMinutes? }`. Omitted optional fields are stored as null. `status` is not accepted here: every new recipe starts as `draft`.
 201: recipe response shape.
 400 on validation failure.
 
@@ -64,7 +63,7 @@ Returns every recipe owned by the caller, ordered by `updatedAt` descending, the
 404 if the recipe does not exist **or** exists and belongs to another user. The two cases are indistinguishable to the caller, so the endpoint does not reveal which recipe ids are real.
 
 **PATCH /api/recipes/:recipeId**
-Body: any subset of `{ title, description, language, status, servings, totalTimeMinutes }`. `status` moves a recipe between `draft` and `ready` in both directions, because a finished recipe can turn out to need more work. An empty body is a 400. A field present with value `null` clears it, for the two nullable fields only; `title` and `servings` cannot be set to null.
+Body: any subset of `{ title, description, status, servings, totalTimeMinutes }`. `status` moves a recipe between `draft` and `ready` in both directions, because a finished recipe can turn out to need more work. An empty body is a 400. A field present with value `null` clears it, for the two nullable fields only; `title` and `servings` cannot be set to null.
 200: the updated recipe response shape, with `updatedAt` refreshed.
 404 under the same rule as `GET`. A rejected update writes nothing.
 
@@ -102,7 +101,7 @@ All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/featur
 
 - [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
 - [ ] Every one of the five endpoints returns 401 when called with no access token, and with an expired one.
-- [ ] Creating a recipe returns 201 and a body whose keys are exactly the nine in the recipe response shape, with no `authorId`, `coverImageKey` or `shareToken`.
+- [ ] Creating a recipe returns 201 and a body whose keys are exactly the eight in the recipe response shape, with no `authorId`, `coverImageKey` or `shareToken`.
 - [ ] `GET /api/recipes` for a user returns only that user's recipes: with two users each owning recipes, neither sees any of the other's.
 - [ ] `GET /api/recipes` returns `[]` with status 200 for a freshly registered user.
 - [ ] `GET`, `PATCH` and `DELETE` on a recipe owned by another user each return 404 with the same body as a `GET` for a random non-existent uuid.

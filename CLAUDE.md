@@ -203,7 +203,7 @@ last resort, for when the device asks for a language the app does not ship. Coll
 
 **refresh_tokens**: id, userId (fk users, cascade), tokenHash, expiresAt, revokedAt (nullable)
 
-**recipes**: id, authorId (fk users, cascade), sourceRecipeId (fk recipes, set null, nullable), title, description (nullable), language (varchar 5), status (enum: `draft` | `ready`, default `draft`), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
+**recipes**: id, authorId (fk users, cascade), sourceRecipeId (fk recipes, set null, nullable), title, description (nullable), status (enum: `draft` | `ready`, default `draft`), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
 
 **ingredients**: id, recipeId (fk recipes, cascade), position (int), name, note (text, nullable), amount (numeric 10,2, nullable), unit (enum, nullable)
 
@@ -650,8 +650,10 @@ and nothing else.
   translation file rather than a sweep through every component in the app. No RTL language ships yet;
   the discipline is what is being kept, not the feature.
 - Recipe content - titles, ingredient names, step bodies - is authored by a user in their own
-  language and is **never** translated, machine or otherwise. `recipes.language` records what that
-  language is so a reader can be told, not so the app can rewrite it.
+  language and is **never** translated, machine or otherwise. The recipe does not record which
+  language that is: nothing reads it. A reader can see what language a recipe is in by reading it, and
+  a shared recipe goes to someone who can already read it. A `language` column would come back only
+  for language-aware search, reading aloud, or translation, none of which exist.
 - Units convert within a dimension only: mass to mass, volume to volume, Celsius to Fahrenheit.
   Volume to mass is never attempted, because it needs the density of the specific ingredient and
   guessing it produces confidently wrong recipes.

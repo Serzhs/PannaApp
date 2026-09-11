@@ -37,7 +37,7 @@ TABLES = {
     'recipes': [
         ('id', 'uuid', NOT_NULL), ('authorId', 'uuid', NOT_NULL),
         ('sourceRecipeId', 'uuid', NULL), ('title', 'varchar(120)', NOT_NULL),
-        ('description', 'text', NULL), ('language', 'varchar(5)', NOT_NULL),
+        ('description', 'text', NULL),
         ('status', 'recipe_status', NOT_NULL), ('servings', 'integer', NOT_NULL),
         ('totalTimeMinutes', 'integer', NULL), ('coverImageKey', 'varchar(255)', NULL),
         ('shareToken', 'varchar(12)', NULL),
