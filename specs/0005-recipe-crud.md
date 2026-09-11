@@ -126,4 +126,11 @@ All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/featur
 ## Open questions
 
 1. **List ordering.** This spec orders by `updatedAt` descending, so the recipe most recently worked on is first. The alternative is alphabetical by title, which is more predictable for a large collection but pushes an in-progress recipe out of sight. Which one is intended?
-2. **`totalTimeMinutes` ownership.** *(Nearly resolved by the nesting decision.)* Here it is a number the author types. Once steps exist in 0008, total time is simply the sum of the main steps' durations, because nested steps happen inside those and add nothing. That is easy to compute and more reliable than a typed guess, which suggests the field should become derived and stop being editable. Keep it author-entered until 0008, then derive it?
+
+## Decided
+
+**`totalTimeMinutes` is author-entered here and derived from 0008.** Until steps exist there is nothing
+to sum, so this spec keeps it a number the author types. Once 0008 lands it becomes the sum of the main
+steps' durations - nested steps happen inside those and correctly add nothing - and stops being
+editable. A computed number cannot drift out of date when someone edits a step, which a typed one
+always eventually does. 0008 owns removing the field from the form.
