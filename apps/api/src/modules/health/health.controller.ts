@@ -3,7 +3,7 @@ import { ERROR_CODES, nestPath, type ErrorBody, type ResponseOf } from '@panna/s
 import { sql } from 'drizzle-orm';
 import type { Response } from 'express';
 
-import { DatabaseService } from '../../db/database.service';
+import { DatabaseService } from '../../db/database.service.js';
 
 @Controller()
 export class HealthController {

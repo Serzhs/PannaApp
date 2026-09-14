@@ -1,9 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "CommonJS",
-    "moduleResolution": "Node10",
-    "verbatimModuleSyntax": false
+    // fetch and AbortSignal are web APIs, and this package runs in both Node and
+    // React Native, each of which provides them.
+    "lib": ["ES2022", "DOM"],
+    "module": "node16",
+    "moduleResolution": "node16"
   },
   "include": ["src/**/*.ts"]
 }

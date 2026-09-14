@@ -10,8 +10,8 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
-import { timestamps } from './columns';
-import { authProvider, unitSystem } from './enums';
+import { timestamps } from './columns.js';
+import { authProvider, unitSystem } from './enums.js';
 
 /** Case-insensitive text, so email uniqueness does not depend on how it was typed. */
 const citext = customType<{ data: string }>({ dataType: () => 'citext' });

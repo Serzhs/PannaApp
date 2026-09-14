@@ -1,8 +1,8 @@
 import { config } from 'dotenv';
 import { eq } from 'drizzle-orm';
 
-import { createDatabase } from './client';
-import { recipes, users } from './schema';
+import { createDatabase } from './client.js';
+import { recipes, users } from './schema/index.js';
 
 config({ path: '../../.env' });
 

@@ -91,10 +91,9 @@ it. A cast is a last resort and carries a comment saying why the compiler cannot
 `@ts-expect-error` is allowed with a reason on the same line. `@ts-ignore` is not: it stays silent
 when the underlying error goes away.
 
-**`verbatimModuleSyntax` is off in `apps/api` and `packages/shared`, deliberately.** Both are CommonJS,
-because drizzle-kit loads the schema through a CommonJS loader and NestJS is CommonJS-first, and TypeScript
-rejects ESM syntax in a CommonJS file when that flag is on. The flag stays on everywhere else. If those
-packages ever move to ESM, turn it back on rather than leaving the exception lying around.
+**Every package is ESM, and every strict flag is on everywhere.** `apps/api` and `packages/shared` were
+briefly CommonJS with `verbatimModuleSyntax` disabled; NestJS 12 ships as `"type": "module"`, so that
+exception is gone and relative imports carry `.js` extensions as ESM requires.
 
 **Node is 22, and everything in the stack depends on that.** React Native needs `^22.13`, nestjs-pino 5
 needs `>=22.12`, and vitest 5 and vite 8 want the same. Node 20 blocked all of them and forced pinned-back

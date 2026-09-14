@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 
-import type { Database } from '../db/client';
+import type { Database } from '../db/client.js';
 
 /**
  * Tests isolate by truncating, not by wrapping each test in a transaction that is

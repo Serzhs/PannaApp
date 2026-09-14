@@ -1,6 +1,6 @@
-import { api, type EndpointName, type ResponseOf } from './contract';
-import { errorBodySchema, type ErrorBody } from './error';
-import { ERROR_CODES } from './error-codes';
+import { api, type EndpointName, type ResponseOf } from './contract.js';
+import { ERROR_CODES } from './error-codes.js';
+import { errorBodySchema, type ErrorBody } from './error.js';
 
 /** Carries the machine `code`, which is what the app translates. */
 export class ApiError extends Error {

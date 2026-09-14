@@ -1,8 +1,8 @@
 import { afterAll, afterEach } from 'vitest';
 
-import { createDatabase } from '../db/client';
+import { createDatabase } from '../db/client.js';
 
-import { truncateAll } from './truncate';
+import { truncateAll } from './truncate.js';
 
 const url = process.env.DATABASE_URL;
 if (!url)

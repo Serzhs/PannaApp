@@ -1,9 +1,9 @@
 import { Injectable, type OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import type { Env } from '../config/env';
+import type { Env } from '../config/env.js';
 
-import { createDatabase, type Database } from './client';
+import { createDatabase, type Database } from './client.js';
 
 @Injectable()
 export class DatabaseService implements OnModuleDestroy {

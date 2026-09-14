@@ -15,9 +15,9 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
-import { timestamps } from './columns';
-import { recipeStatus, unit } from './enums';
-import { users } from './users';
+import { timestamps } from './columns.js';
+import { recipeStatus, unit } from './enums.js';
+import { users } from './users.js';
 
 export const recipes = pgTable(
   'recipes',

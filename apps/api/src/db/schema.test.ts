@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
 
-import { db } from '../test/db';
+import { db } from '../test/db.js';
 
-import { identities, recipes, steps, users } from './schema';
+import { identities, recipes, steps, users } from './schema/index.js';
 
 describe('the test harness', () => {
   it('reaches the database', async () => {

@@ -9,7 +9,7 @@ import {
 import { ERROR_CODES, type ErrorBody } from '@panna/shared';
 import type { Response } from 'express';
 
-import { AppException } from './app-exception';
+import { AppException } from './app-exception.js';
 
 const TOO_MANY_REQUESTS: number = HttpStatus.TOO_MANY_REQUESTS;
 const PAYLOAD_TOO_LARGE: number = HttpStatus.PAYLOAD_TOO_LARGE;

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ApiError, request } from './client';
-import { ERROR_CODES } from './error-codes';
+import { ApiError, request } from './client.js';
+import { ERROR_CODES } from './error-codes.js';
 
 function respondWith(body: unknown, status = 200): void {
   vi.stubGlobal(

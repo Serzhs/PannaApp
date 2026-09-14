@@ -1,5 +1,5 @@
-export { ERROR_CODES, type ErrorCode } from './error-codes';
-export { errorBodySchema, type ErrorBody } from './error';
+export { ERROR_CODES, type ErrorCode } from './error-codes.js';
+export { errorBodySchema, type ErrorBody } from './error.js';
 export {
   api,
   healthResponseSchema,
@@ -9,5 +9,5 @@ export {
   type ResponseOf,
   API_PREFIX,
   nestPath,
-} from './contract';
-export { ApiError, request, type RequestOptions } from './client';
+} from './contract.js';
+export { ApiError, request, type RequestOptions } from './client.js';

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { validateEnv } from './env';
+import { validateEnv } from './env.js';
 
 const valid = {
   DATABASE_URL: 'postgresql://panna:panna@localhost:5433/panna',

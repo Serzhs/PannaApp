@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ERROR_CODES } from './error-codes';
+import { ERROR_CODES } from './error-codes.js';
 
 /**
  * `message` is English and exists for logs and developers. The client renders `code`,

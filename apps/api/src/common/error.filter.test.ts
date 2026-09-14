@@ -2,8 +2,8 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { ERROR_CODES, errorBodySchema } from '@panna/shared';
 import { describe, expect, it, vi } from 'vitest';
 
-import { AppException } from './app-exception';
-import { ErrorFilter } from './error.filter';
+import { AppException } from './app-exception.js';
+import { ErrorFilter } from './error.filter.js';
 
 function capture(exception: unknown): unknown {
   const json = vi.fn();

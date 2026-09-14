@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 
-import type { Env } from './config/env';
-import { validateEnv } from './config/env';
-import { DatabaseModule } from './db/database.module';
-import { HealthModule } from './modules/health/health.module';
+import type { Env } from './config/env.js';
+import { validateEnv } from './config/env.js';
+import { DatabaseModule } from './db/database.module.js';
+import { HealthModule } from './modules/health/health.module.js';
 
 @Module({
   imports: [

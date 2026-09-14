@@ -8,9 +8,9 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 
-import { AppModule } from './app.module';
-import { ErrorFilter } from './common/error.filter';
-import type { Env } from './config/env';
+import { AppModule } from './app.module.js';
+import { ErrorFilter } from './common/error.filter.js';
+import type { Env } from './config/env.js';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
