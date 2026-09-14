@@ -740,16 +740,24 @@ and nothing else.
 ## Commands
 
 ```bash
-pnpm db:up            # docker compose up -d database
-pnpm --filter api dev
-pnpm --filter mobile start
-pnpm --filter mobile storybook   # component browser, on a simulator
-pnpm --filter api db:generate   # drizzle-kit generate
-pnpm --filter api db:migrate    # drizzle-kit migrate
-pnpm typecheck        # every workspace
-pnpm lint
-pnpm test
+pnpm dev              # database, migrations, then the API. The one you press most.
+pnpm mobile           # Expo. Scan the QR code with Expo Go.
+
+pnpm check            # lint, typecheck and test. Run before committing.
+pnpm build
+
+pnpm db:studio        # browse the data in a browser
+pnpm db:reset         # wipe, migrate and seed from nothing
+pnpm db:up            # waits for the healthcheck, so nothing races it
+pnpm db:down
+pnpm db:generate      # after changing the schema
+pnpm db:migrate
+pnpm db:seed
 ```
+
+Every one of these is a root script, so it has a run button beside it in an editor that
+shows them. `pnpm dev` starts the database and applies migrations first, so it works from
+a cold machine rather than assuming something is already up.
 
 ## Testing
 
