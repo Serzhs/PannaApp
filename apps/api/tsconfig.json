@@ -5,8 +5,8 @@
     "moduleResolution": "Node10",
     // CommonJS cannot carry ESM syntax verbatim. See the note in CLAUDE.md.
     "verbatimModuleSyntax": false,
-    // NestJS and ts-rest use legacy parameter decorators, which is also what
-    // emitDecoratorMetadata needs in order to record types for injection.
+    // NestJS uses legacy parameter decorators, and emitDecoratorMetadata needs them
+    // to record types for injection.
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "types": ["node"]

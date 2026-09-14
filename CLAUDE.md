@@ -38,7 +38,7 @@ just say it simply.
 | ORM               | Drizzle ORM + drizzle-kit migrations                                                            |
 | DB                | PostgreSQL 16 via docker compose                                                                |
 | Validation        | Zod, shared between API and mobile                                                              |
-| API contract      | `ts-rest` - one Zod contract in `packages/shared`, both sides typed from it                     |
+| API contract      | One Zod contract in `packages/shared`, hand-rolled, both sides typed from it                    |
 | Config            | `@nestjs/config` with a Zod schema. The API refuses to start on a bad env                       |
 | Logging           | `nestjs-pino`, structured, one request id per request                                           |
 | Git hooks         | husky + lint-staged + commitlint                                                                |
@@ -96,11 +96,10 @@ because drizzle-kit loads the schema through a CommonJS loader and NestJS is Com
 rejects ESM syntax in a CommonJS file when that flag is on. The flag stays on everywhere else. If those
 packages ever move to ESM, turn it back on rather than leaving the exception lying around.
 
-**Node is pinned to 20.10.0, which is already holding the toolchain back.** vitest 4 needs `styleText`
-from `node:util` (Node 20.12), vitest 5 needs Node 22.12, and vite 8 needs 20.19. The project currently
-runs vitest 3.2.7 with vite pinned to `~6.4.3` - the lowest version patching a `server.fs.deny` advisory
-that still supports Node 20. Raising Node is the fix; until then, check `engines` before upgrading any
-dev dependency.
+**Node is 22, and everything in the stack depends on that.** React Native needs `^22.13`, nestjs-pino 5
+needs `>=22.12`, and vitest 5 and vite 8 want the same. Node 20 blocked all of them and forced pinned-back
+versions of each; raising it removed the whole class of problem at once. Check `engines` before
+upgrading anything, and do not drop Node below 22.13.
 
 ## Lint and format
 
@@ -397,7 +396,7 @@ being the same thing.
 
 ## API conventions
 
-- **Every endpoint is defined once, in the `ts-rest` contract in `packages/shared`.** The controller will not compile if it does not match the contract, and the mobile client is generated from the same contract. Neither side can drift, because there is only one description of the endpoint.
+- **Every endpoint is defined once, in the contract in `packages/shared`.** A controller's return type is derived from it, so it will not compile if it answers with the wrong shape, and the mobile client parses against the same schema. Neither side can drift, because there is only one description of the endpoint. This is about sixty lines we own rather than a dependency: ts-rest was the obvious candidate and had not shipped a stable release in fifteen months.
 - **The mobile client parses every response against its schema before using it.** Types disappear when the code runs, so a type alone only proves what the server _should_ send. Parsing proves what it did send, and turns a silent wrong-shape bug into an obvious error at the boundary.
 - Base path `/api`. Resource routes are plural and nested: `/api/recipes/:recipeId/steps`.
 - Public share route is unauthenticated and separate: `GET /api/shared/:shareToken`.

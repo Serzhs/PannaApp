@@ -3,7 +3,6 @@
   "compilerOptions": {
     "module": "CommonJS",
     "moduleResolution": "Node10",
-    // CommonJS cannot carry ESM syntax verbatim. See the note in CLAUDE.md.
     "verbatimModuleSyntax": false
   },
   "include": ["src/**/*.ts"]

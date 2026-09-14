@@ -3,6 +3,8 @@ import 'reflect-metadata';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import { API_PREFIX } from '@panna/shared';
+import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 
@@ -19,8 +21,14 @@ async function bootstrap(): Promise<void> {
   });
 
   app.useLogger(app.get(Logger));
+  app.setGlobalPrefix(API_PREFIX);
   app.use(helmet());
   app.useBodyParser('json', { limit: '256kb' });
+  // A blanket ceiling. 0003 adds tighter, per-endpoint limits where enumeration
+  // and password guessing actually happen.
+  app.use(
+    rateLimit({ windowMs: 60_000, limit: 100, standardHeaders: 'draft-7', legacyHeaders: false }),
+  );
   app.getHttpAdapter().getInstance().disable('x-powered-by');
   app.enableCors({ origin: false });
   app.useGlobalFilters(new ErrorFilter());

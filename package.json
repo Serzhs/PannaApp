@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "engines": {
-    "node": ">=20.10.0 <21"
+    "node": ">=22.13.0"
   },
   "scripts": {
     "db:up": "docker compose up -d postgres",
@@ -16,7 +16,9 @@
     "prepare": "husky",
     "db:studio": "pnpm --filter @panna/api db:studio",
     "db:migrate": "pnpm --filter @panna/api db:migrate",
-    "db:generate": "pnpm --filter @panna/api db:generate"
+    "db:generate": "pnpm --filter @panna/api db:generate",
+    "build": "pnpm --filter @panna/shared build && pnpm --filter @panna/api build",
+    "dev": "pnpm --filter @panna/api dev"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",
@@ -42,7 +44,6 @@
   },
   "pnpm": {
     "overrides": {
-      "vite": "~6.4.3",
       "multer": ">=2.3.0"
     }
   }

@@ -66,7 +66,7 @@ instead of shipping.
 
 ## API contract
 
-`packages/shared` holds the `ts-rest` contract and the error code const object. Controllers implement the contract and the mobile client is built from it, so neither side can drift. The mobile client parses each response against its schema before handing it to the caller, so a mismatch surfaces at the boundary rather than as a strange bug three screens later.
+`packages/shared` holds the contract and the error code const object. A controller's return type is derived from the contract and the mobile client parses against the same schema, so neither side can drift. The mobile client parses each response against its schema before handing it to the caller, so a mismatch surfaces at the boundary rather than as a strange bug three screens later.
 
 This spec defines one endpoint, so that "it works" is something that can be checked rather than assumed.
 
@@ -96,7 +96,7 @@ The Expo app boots to a single placeholder screen. It uses plain React Native st
 - [ ] Two API tests that each insert a row with the same unique value both pass when run in the same file, proving truncation happens between them.
 - [ ] A test asserting a rolled-back transaction leaves no partial rows passes, proving the harness does not hide commit behaviour inside an outer transaction.
 - [ ] Throwing with a code that is not in the shared const object fails `pnpm typecheck`.
-- [ ] A controller returning a shape the `ts-rest` contract does not describe fails `pnpm typecheck`, and so does a mobile call passing the wrong request body.
+- [ ] A controller returning a shape the contract does not describe fails `pnpm typecheck`, and so does a mobile call passing the wrong request body.
 - [ ] A response that does not match its schema is rejected by the client with a clear error, verified by pointing the client at a stub that returns the wrong shape.
 - [ ] Starting the API with `DATABASE_URL` removed exits with a message naming the missing variable, and does not start. An empty JWT secret fails the same way.
 - [ ] Logs carry a request id, and no log line contains a value from a field marked secret.

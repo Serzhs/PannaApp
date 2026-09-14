@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 
 import type { Env } from './config/env';
@@ -39,7 +38,6 @@ import { HealthModule } from './modules/health/health.module';
         },
       }),
     }),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     DatabaseModule,
     HealthModule,
   ],

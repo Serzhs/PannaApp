@@ -1,38 +1,40 @@
-import { Controller, Inject, Logger } from '@nestjs/common';
-import { contract, ERROR_CODES } from '@panna/shared';
-import { TsRestHandler, tsRestHandler } from '@ts-rest/nest';
+import { Controller, Get, HttpCode, Logger, Res } from '@nestjs/common';
+import { ERROR_CODES, nestPath, type ErrorBody, type ResponseOf } from '@panna/shared';
 import { sql } from 'drizzle-orm';
+import type { Response } from 'express';
 
-import type { Database } from '../../db/client';
-import { DATABASE } from '../../db/database.module';
+import { DatabaseService } from '../../db/database.service';
 
 @Controller()
 export class HealthController {
   private readonly logger = new Logger(HealthController.name);
 
-  constructor(@Inject(DATABASE) private readonly db: Database) {}
+  constructor(private readonly database: DatabaseService) {}
 
-  @TsRestHandler(contract.health)
-  health() {
-    return tsRestHandler(contract.health, async () => {
-      try {
-        // A trivial query, so an unreachable database fails here rather than on the
-        // first real request.
-        await this.db.execute(sql`select 1`);
-      } catch (error: unknown) {
-        this.logger.error(error instanceof Error ? error.message : String(error));
-        // Unavailable, not broken: the service is fine, its database is not.
-        return {
-          status: 503 as const,
-          body: {
-            statusCode: 503,
-            error: 'Service Unavailable',
-            message: 'The database is not reachable.',
-            code: ERROR_CODES.INTERNAL,
-          },
-        };
-      }
-      return { status: 200 as const, body: { status: 'ok' as const, database: 'ok' as const } };
-    });
+  /**
+   * The return type comes from the shared contract, so this will not compile if it
+   * answers with a shape the client does not expect.
+   */
+  @Get(nestPath('health'))
+  @HttpCode(200)
+  async health(
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<ResponseOf<'health'> | ErrorBody> {
+    try {
+      // A trivial query, so an unreachable database fails here rather than on the
+      // first real request.
+      await this.database.db.execute(sql`select 1`);
+    } catch (error: unknown) {
+      this.logger.error(error instanceof Error ? error.message : String(error));
+      res.status(503);
+      // Unavailable, not broken: the service is fine, its database is not.
+      return {
+        statusCode: 503,
+        error: 'Service Unavailable',
+        message: 'The database is not reachable.',
+        code: ERROR_CODES.INTERNAL,
+      };
+    }
+    return { status: 'ok', database: 'ok' };
   }
 }
