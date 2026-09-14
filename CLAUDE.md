@@ -176,7 +176,7 @@ apps/
 packages/
   shared/             Zod schemas and inferred types used by both apps
 specs/                source of truth for behaviour
-docker-compose.yml    postgres only
+docker-compose.yml    the database only
 ```
 
 **Everything a component owns lives in the component's own folder.** Its styles, its tests, its
@@ -740,7 +740,7 @@ and nothing else.
 ## Commands
 
 ```bash
-pnpm db:up            # docker compose up -d postgres
+pnpm db:up            # docker compose up -d database
 pnpm --filter api dev
 pnpm --filter mobile start
 pnpm --filter mobile storybook   # component browser, on a simulator

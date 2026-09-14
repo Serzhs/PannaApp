@@ -6,7 +6,7 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "db:up": "docker compose up -d postgres",
+    "db:up": "docker compose up -d database",
     "db:down": "docker compose down",
     "db:seed": "pnpm --filter @panna/api db:seed",
     "typecheck": "pnpm -r typecheck",

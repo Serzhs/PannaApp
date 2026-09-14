@@ -28,7 +28,7 @@ Also created here: the `unit`, `unit_system`, `auth_provider`, `recipe_status` P
 
 `steps.parentStepId` is a nullable self-reference, which is how a step records that it happens during another one. The schema can express the foreign key and nothing else: that a parent belongs to the same recipe, and that nesting never goes more than one level deep, are enforced in application code from 0008 onward.
 
-`docker-compose.yml` runs Postgres 16 only, on port 5433 to avoid clashing with a local install. Credentials come from `.env`, and `.env.example` is committed.
+`docker-compose.yml` runs one service, `database`, on Postgres 16 and port 5433 to avoid clashing with a local install. Credentials come from `.env`, and `.env.example` is committed.
 
 ## Tooling
 
