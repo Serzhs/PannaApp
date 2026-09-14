@@ -46,5 +46,11 @@ export default tseslint.config(
       '@typescript-eslint/consistent-type-imports': 'error',
     },
   },
+  {
+    // NestJS modules are declaration-only: the decorator carries everything and the
+    // class body is meant to be empty.
+    files: ['**/*.module.ts'],
+    rules: { '@typescript-eslint/no-extraneous-class': 'off' },
+  },
   prettier,
 );

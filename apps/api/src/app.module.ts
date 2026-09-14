@@ -1,0 +1,47 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { LoggerModule } from 'nestjs-pino';
+
+import type { Env } from './config/env';
+import { validateEnv } from './config/env';
+import { DatabaseModule } from './db/database.module';
+import { HealthModule } from './modules/health/health.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      // One .env at the repo root, so the API and drizzle-kit read the same file.
+      envFilePath: '../../.env',
+      validate: validateEnv,
+    }),
+    LoggerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<Env, true>) => ({
+        pinoHttp: {
+          level: config.get('LOG_LEVEL', { infer: true }),
+          // Redaction is configuration, not something to remember at each call site.
+          redact: {
+            paths: [
+              'req.headers.authorization',
+              'req.headers.cookie',
+              'req.body.password',
+              'req.body.idToken',
+              'req.body.refreshToken',
+              'res.headers["set-cookie"]',
+            ],
+            censor: '[redacted]',
+          },
+          ...(config.get('NODE_ENV', { infer: true }) === 'development'
+            ? { transport: { target: 'pino-pretty', options: { singleLine: true } } }
+            : {}),
+        },
+      }),
+    }),
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
+    DatabaseModule,
+    HealthModule,
+  ],
+})
+export class AppModule {}
