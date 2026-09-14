@@ -12,6 +12,13 @@ import type { Response } from 'express';
 import { AppException } from './app-exception';
 
 const TOO_MANY_REQUESTS: number = HttpStatus.TOO_MANY_REQUESTS;
+const PAYLOAD_TOO_LARGE: number = HttpStatus.PAYLOAD_TOO_LARGE;
+
+function hasNumericStatus(e: unknown): e is { status: number } {
+  return (
+    typeof e === 'object' && e !== null && typeof (e as { status?: unknown }).status === 'number'
+  );
+}
 
 function isRateLimited(status: number): boolean {
   return status === TOO_MANY_REQUESTS;
@@ -46,6 +53,17 @@ export class ErrorFilter implements ExceptionFilter {
         message: exception.message,
         code: exception.code,
         ...(exception.fields ? { fields: exception.fields } : {}),
+      };
+    }
+
+    // body-parser rejects an oversized body before parsing it, but throws a plain
+    // Error carrying a status rather than an HttpException.
+    if (hasNumericStatus(exception) && exception.status === PAYLOAD_TOO_LARGE) {
+      return {
+        statusCode: PAYLOAD_TOO_LARGE,
+        error: 'Payload Too Large',
+        message: 'The request body is larger than this endpoint accepts.',
+        code: ERROR_CODES.PAYLOAD_TOO_LARGE,
       };
     }
 

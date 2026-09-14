@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { db } from '../test/db';
 
-import { recipes, steps, users } from './schema';
+import { identities, recipes, steps, users } from './schema';
 
 describe('the test harness', () => {
   it('reaches the database', async () => {
@@ -71,6 +71,41 @@ describe('the schema', () => {
     expect(recipe?.status).toBe('draft');
     expect(recipe?.featured).toBe(false);
     expect(recipe?.shareToken).toBeNull();
+  });
+
+  it('refuses a parentStepId that points at no step', async () => {
+    const [user] = await db
+      .insert(users)
+      .values({ email: 'fk@example.com', displayName: 'FK' })
+      .returning();
+    if (!user) throw new Error('insert returned nothing');
+    const [recipe] = await db
+      .insert(recipes)
+      .values({ authorId: user.id, title: 'Orphan', servings: 1 })
+      .returning();
+    if (!recipe) throw new Error('insert returned nothing');
+
+    await expect(
+      db.insert(steps).values({
+        recipeId: recipe.id,
+        parentStepId: '00000000-0000-0000-0000-000000000000',
+        position: 0,
+        body: 'points nowhere',
+      }),
+    ).rejects.toThrow();
+  });
+
+  it('refuses a second identity with the same provider and subject', async () => {
+    const [user] = await db
+      .insert(users)
+      .values({ email: 'dup@example.com', displayName: 'Dup' })
+      .returning();
+    if (!user) throw new Error('insert returned nothing');
+
+    await db.insert(identities).values({ userId: user.id, provider: 'google', subject: 's1' });
+    await expect(
+      db.insert(identities).values({ userId: user.id, provider: 'google', subject: 's1' }),
+    ).rejects.toThrow();
   });
 
   it('lets a step nest under another, and treats a null parent as a main step', async () => {

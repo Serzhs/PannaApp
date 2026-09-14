@@ -1,4 +1,5 @@
 import { relations } from 'drizzle-orm';
+import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 import {
   boolean,
   index,
@@ -26,7 +27,7 @@ export const recipes = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     /** Provenance only: where a copy came from. Grants no access to anything. */
-    sourceRecipeId: uuid(),
+    sourceRecipeId: uuid().references((): AnyPgColumn => recipes.id, { onDelete: 'set null' }),
     title: varchar({ length: 120 }).notNull(),
     description: text(),
     status: recipeStatus().notNull().default('draft'),
@@ -98,7 +99,7 @@ export const steps = pgTable(
      * parent must belong to the same recipe: neither is expressible as a constraint,
      * so both are enforced in application code from 0008.
      */
-    parentStepId: uuid(),
+    parentStepId: uuid().references((): AnyPgColumn => steps.id, { onDelete: 'cascade' }),
     position: integer().notNull(),
     body: text().notNull(),
     /** Extra worth knowing while doing it, as opposed to the instruction itself. */

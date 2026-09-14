@@ -1,5 +1,5 @@
 {
-  "id": "f6a4e6aa-8f35-4d5d-85c8-1ef45c540a29",
+  "id": "c897d9e9-5039-4c7e-9b81-9dac920bef97",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -221,6 +221,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "refresh_tokens_replaced_token_id_refresh_tokens_id_fk": {
+          "name": "refresh_tokens_replaced_token_id_refresh_tokens_id_fk",
+          "tableFrom": "refresh_tokens",
+          "tableTo": "refresh_tokens",
+          "columnsFrom": [
+            "replaced_token_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -889,6 +902,19 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "recipes_source_recipe_id_recipes_id_fk": {
+          "name": "recipes_source_recipe_id_recipes_id_fk",
+          "tableFrom": "recipes",
+          "tableTo": "recipes",
+          "columnsFrom": [
+            "source_recipe_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -1163,6 +1189,19 @@
           "tableTo": "recipes",
           "columnsFrom": [
             "recipe_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "steps_parent_step_id_steps_id_fk": {
+          "name": "steps_parent_step_id_steps_id_fk",
+          "tableFrom": "steps",
+          "tableTo": "steps",
+          "columnsFrom": [
+            "parent_step_id"
           ],
           "columnsTo": [
             "id"

@@ -1,3 +1,4 @@
+import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 import {
   boolean,
   customType,
@@ -61,7 +62,9 @@ export const refreshTokens = pgTable(
     /** SHA-256 of 256 bits of randomness. A raw token never reaches the database. */
     tokenHash: varchar({ length: 64 }).notNull().unique(),
     /** The token this one replaced, so reuse can revoke a whole chain rather than one link. */
-    replacedTokenId: uuid(),
+    replacedTokenId: uuid().references((): AnyPgColumn => refreshTokens.id, {
+      onDelete: 'set null',
+    }),
     expiresAt: timestamp({ withTimezone: true }).notNull(),
     revokedAt: timestamp({ withTimezone: true }),
     ...timestamps,
