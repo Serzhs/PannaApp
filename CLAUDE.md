@@ -91,6 +91,17 @@ it. A cast is a last resort and carries a comment saying why the compiler cannot
 `@ts-expect-error` is allowed with a reason on the same line. `@ts-ignore` is not: it stays silent
 when the underlying error goes away.
 
+**`verbatimModuleSyntax` is off in `apps/api` and `packages/shared`, deliberately.** Both are CommonJS,
+because drizzle-kit loads the schema through a CommonJS loader and NestJS is CommonJS-first, and TypeScript
+rejects ESM syntax in a CommonJS file when that flag is on. The flag stays on everywhere else. If those
+packages ever move to ESM, turn it back on rather than leaving the exception lying around.
+
+**Node is pinned to 20.10.0, which is already holding the toolchain back.** vitest 4 needs `styleText`
+from `node:util` (Node 20.12), vitest 5 needs Node 22.12, and vite 8 needs 20.19. The project currently
+runs vitest 3.2.7 with vite pinned to `~6.4.3` - the lowest version patching a `server.fs.deny` advisory
+that still supports Node 20. Raising Node is the fix; until then, check `engines` before upgrading any
+dev dependency.
+
 ## Lint and format
 
 ESLint 9 flat config in `eslint.config.js` at the root, one shared base with per-workspace overrides.

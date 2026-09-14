@@ -105,7 +105,7 @@ The Expo app boots to a single placeholder screen. It uses plain React Native st
 - [ ] Security headers are present on every response and `x-powered-by` is absent.
 - [ ] An error response contains no stack trace, SQL fragment or internal file path, including when the database is unreachable.
 - [ ] Starting the API with a JWT secret shorter than the minimum fails at boot with a message saying so.
-- [ ] `pnpm test` fails when a dependency with a high severity advisory is installed.
+- [ ] `pnpm test` fails when a dependency with a high severity advisory is installed. _(Verified: the run failed on three high and two critical advisories until drizzle-orm, drizzle-kit and vitest were upgraded, and vite pinned forward.)_
 - [ ] `.nvmrc` and `packageManager` are present and agree with the versions the project is developed on.
 - [ ] A commit with a message that is not a conventional commit is rejected by the hook, and a commit with a lint error in a staged file is rejected too.
 - [ ] Forcing a render error in the placeholder screen shows the error boundary's recovery screen rather than a blank app.

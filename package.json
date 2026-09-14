@@ -13,7 +13,10 @@
     "lint": "eslint . --max-warnings 0 && prettier --check .",
     "format": "prettier --write .",
     "test": "pnpm -r test && pnpm audit --audit-level high",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:studio": "pnpm --filter @panna/api db:studio",
+    "db:migrate": "pnpm --filter @panna/api db:migrate",
+    "db:generate": "pnpm --filter @panna/api db:generate"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",
@@ -36,5 +39,10 @@
     "*.{json,md,yml,yaml}": [
       "prettier --write"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "~6.4.3"
+    }
   }
 }
