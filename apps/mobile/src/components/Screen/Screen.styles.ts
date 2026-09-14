@@ -16,4 +16,8 @@ export const styles = StyleSheet.create({
   padded: {
     paddingHorizontal: theme.space.space4,
   },
+  /** Breathing room between the focused field and the top of the keyboard. */
+  keyboardOffset: {
+    marginBottom: theme.space.space4,
+  },
 });

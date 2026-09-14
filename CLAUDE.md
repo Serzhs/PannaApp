@@ -635,7 +635,7 @@ Always native, never rebuilt:
 - Sign-in buttons follow Google's and Apple's own branding rules. They are the one place the app's
   design does not win, because both providers require their button to look the way they say.
 - The system font, which resolves to San Francisco on iOS and Roboto on Android with no work.
-- Safe areas, the notch and the home indicator, handled once in `Screen`.
+- Safe areas on all four edges, the notch and the home indicator, handled once in `Screen`. The bottom edge is not optional: without it the last row of a screen sits under the home indicator.
 
 React Native gives most of this by default. It is lost only by building a replacement for something
 the platform already provides, so the rule in practice is: check whether the OS already does it

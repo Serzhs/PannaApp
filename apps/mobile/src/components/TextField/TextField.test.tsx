@@ -50,4 +50,22 @@ describe('TextField', () => {
     await render(<TextField label="Recipe title" value="" testID="input" />);
     expect(screen.getByTestId('input')).toHaveStyle({ minHeight: 44 });
   });
+
+  /**
+   * A border that grows on focus or error changes the field's height, which shifts
+   * every field below it. In a form that reads as a jump, so the width is fixed and
+   * only the colour moves.
+   */
+  it('keeps the same border width in every state, so the height cannot shift', async () => {
+    const view = await render(<TextField label="Title" value="" testID="input" />);
+    expect(screen.getByTestId('input')).toHaveStyle({ borderWidth: 1 });
+
+    await view.rerender(<TextField label="Title" value="S" error="Too short" testID="input" />);
+    expect(screen.getByTestId('input')).toHaveStyle({ borderWidth: 1 });
+  });
+
+  it('does not take the line height token, which would push the text off centre on iOS', async () => {
+    await render(<TextField label="Title" value="" testID="input" />);
+    expect(screen.getByTestId('input')).not.toHaveStyle({ lineHeight: theme.text.body.lineHeight });
+  });
 });

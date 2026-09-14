@@ -76,11 +76,11 @@ spec having to restate it.
 
 The list is confined to what a form screen needs, which is what 0003 builds next:
 
-- **`Screen`** — safe area, background, standard horizontal padding, optional scrolling.
+- **`Screen`** — safe area on all four edges, background, standard horizontal padding, optional scrolling, and keyboard avoidance. The bottom edge matters as much as the top: without it the last row sits under the home indicator. Keyboard avoidance lives here because `CLAUDE.md` says no screen writes its own.
 - **`Text`** — takes a named text style and a semantic colour. The only component in the app allowed to render a raw React Native `Text`.
 - **`Stack`** — vertical or horizontal, with `gap` taken from the spacing scale. Replaces ad hoc margins, so spacing lives with the container rather than being sprinkled on children.
 - **`Button`** — variants `primary`, `secondary`, `ghost`, `danger`. States: default, pressed, disabled, loading. Loading shows a spinner in place of the label and blocks further presses without changing the button's size.
-- **`TextField`** — label, value, optional error, optional helper text, secure entry. The error state changes the border, shows the message, and is announced to screen readers rather than being colour alone.
+- **`TextField`** — label, value, optional error, optional helper text, secure entry. The error state changes the border colour, shows the message, and is announced to screen readers rather than being colour alone. The border width never changes, because a border that thickens on focus changes the field's height and shifts everything below it. The input does not take the type token's `lineHeight`: iOS applies it inside the text container and the text lands off-centre.
 
 ## UI
 
@@ -115,6 +115,8 @@ There is no screen to refactor here, because no real screen exists yet. The proo
 - [x] Every component lives in its own folder with its component, styles, test and index files, and no component's styles or tests live outside its folder.
 - [x] There is no `components/index.ts` re-exporting the directory.
 - [x] Every interactive element has a touch target of at least 44 by 44 points. _(Tested for all four `Button` variants and for `TextField`. There is no `TextField` clear affordance in this spec, so nothing was measured for one.)_
+- [x] A field's height does not change between its default, focused and error states, and its text sits centred. _(Two tests, added after the first look at the gallery found both wrong.)_
+- [x] Content never sits under the home indicator, and the field being typed into is never behind the keyboard.
 - [x] A test walks every semantic token pair used as foreground on background and asserts 4.5:1 for body text and 3:1 for large text, icons and control boundaries. It fails if a primitive is changed to a value that breaks a pair.
 - [x] Every component's own tests query it by accessible role and name rather than by `testID`, so a component that cannot be found by a screen reader cannot pass its own tests.
 - [x] Every interactive component exposes an `accessibilityRole` and an accessible name, and `Button` in its disabled and loading states reports `disabled` and `busy` through `accessibilityState`.
