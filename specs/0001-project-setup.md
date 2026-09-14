@@ -100,7 +100,7 @@ The Expo app boots to a single placeholder screen. It uses plain React Native st
 - [ ] A response that does not match its schema is rejected by the client with a clear error, verified by pointing the client at a stub that returns the wrong shape.
 - [ ] Starting the API with `DATABASE_URL` removed exits with a message naming the missing variable, and does not start. An empty JWT secret fails the same way.
 - [ ] Logs carry a request id, and no log line contains a value from a field marked secret.
-- [ ] A request body containing a field the schema does not define returns 400, rather than succeeding with the field ignored.
+- [ ] ~~A request body containing a field the schema does not define returns 400.~~ **Moved to 0003.** No endpoint in this spec accepts a body, so there is nothing to reject; 0003 adds the first ones. The strict-schema rule stands in `CLAUDE.md`.
 - [ ] A request body over the size limit is rejected before it is parsed.
 - [ ] Security headers are present on every response and `x-powered-by` is absent.
 - [ ] An error response contains no stack trace, SQL fragment or internal file path, including when the database is unreachable.
@@ -108,8 +108,25 @@ The Expo app boots to a single placeholder screen. It uses plain React Native st
 - [ ] `pnpm test` fails when a dependency with a high severity advisory is installed. _(Verified: the run failed on three high and two critical advisories until drizzle-orm, drizzle-kit and vitest were upgraded, and vite pinned forward.)_
 - [ ] `.nvmrc` and `packageManager` are present and agree with the versions the project is developed on.
 - [ ] A commit with a message that is not a conventional commit is rejected by the hook, and a commit with a lint error in a staged file is rejected too.
-- [ ] Forcing a render error in the placeholder screen shows the error boundary's recovery screen rather than a blank app.
-- [ ] Turning airplane mode on is reflected in the app's online state within a few seconds, and returning from the background triggers a refetch.
+- [ ] Forcing a render error in the placeholder screen shows the error boundary's recovery screen rather than a blank app. **Needs a simulator; not verified from the command line.**
+- [ ] Turning airplane mode on is reflected in the app's online state within a few seconds, and returning from the background triggers a refetch. **Needs a device or simulator; not verified from the command line.**
+
+## Verification
+
+Walked on 2026-09-14. Twenty-two of twenty-five criteria verified by running them.
+
+Three found real defects, all fixed and covered by regression tests:
+
+- `steps.parentStepId`, `recipes.sourceRecipeId` and `refreshTokens.replacedTokenId` were declared as
+  plain `uuid` columns with no foreign key, so a step could point at a step that did not exist.
+- An oversized request body was rejected before parsing but surfaced as a 500 rather than a 413.
+- The health endpoint returned 500 when the database was down, while the contract promised 503.
+
+One criterion could not be checked as written and moved to 0003: nothing in this spec accepts a
+request body, so "an unknown field returns 400" has nothing to reject.
+
+Two remain unverified and need a simulator: the error boundary's recovery screen, and airplane mode
+reaching the app's online state. Both are marked above rather than assumed.
 
 ## Open questions
 
