@@ -7,6 +7,8 @@ import { styles } from './Screen.styles';
 export interface ScreenProps extends ViewProps {
   readonly scroll?: boolean;
   readonly padded?: boolean;
+  /** A navigation header sits above this screen and already covers the top inset. */
+  readonly withHeader?: boolean;
 }
 
 /**
@@ -20,14 +22,19 @@ export interface ScreenProps extends ViewProps {
 export function Screen({
   scroll = false,
   padded = true,
+  withHeader = false,
   children,
   style,
   ...rest
 }: ScreenProps): React.JSX.Element {
   const padding = padded ? styles.padded : undefined;
+  // Taking the top inset twice leaves a visible gap under the header.
+  const edges = withHeader
+    ? (['bottom', 'left', 'right'] as const)
+    : (['top', 'bottom', 'left', 'right'] as const);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
+    <SafeAreaView style={styles.safeArea} edges={edges}>
       {scroll ? (
         <KeyboardAwareScrollView
           contentContainerStyle={[styles.scrollContent, padding]}

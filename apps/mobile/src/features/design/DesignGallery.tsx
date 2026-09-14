@@ -181,10 +181,9 @@ function Stacks(): React.JSX.Element {
  */
 export function DesignGallery(): React.JSX.Element {
   return (
-    <Screen scroll>
+    <Screen scroll withHeader>
       <Stack gap="space0">
         <View style={styles.section}>
-          <Text variant="display">Design system</Text>
           <Text variant="body" color="textSecondary">
             Tokens and components as the device renders them.
           </Text>
