@@ -6,8 +6,8 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 
 | #                                        | Title                                | Status      | Goal                                                                      |
 | ---------------------------------------- | ------------------------------------ | ----------- | ------------------------------------------------------------------------- |
-| [0001](0001-project-setup.md)            | Project setup and database           | In progress | Clone, run three commands, get a linted API on a migrated database.       |
-| [0002](0002-design-system.md)            | Design system: tokens and primitives | Draft       | Build a form screen from tokens and components, with no raw values.       |
+| [0001](0001-project-setup.md)            | Project setup and database           | Done        | Clone, run three commands, get a linted API on a migrated database.       |
+| [0002](0002-design-system.md)            | Design system: tokens and primitives | Done        | Build a form screen from tokens and components, with no raw values.       |
 | [0003](0003-auth.md)                     | Sign in with Google and Apple        | Draft       | Sign in with one tap, no passwords, and stay signed in.                   |
 | [0004](0004-design-system-components.md) | Design system: display and feedback  | Draft       | Build a list screen's loading, empty and error states.                    |
 | [0005](0005-recipe-crud.md)              | Recipe CRUD                          | Draft       | Create, view, edit and delete your own recipes, with a draft state.       |

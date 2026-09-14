@@ -1,6 +1,6 @@
 # 0002: Design system - tokens and primitives
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0001
 
 ## Context
