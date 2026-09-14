@@ -5,7 +5,6 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "storybook": "storybook dev -p 6006",
     "ios": "expo start --ios",
     "android": "expo start --android",
     "typecheck": "tsc --noEmit",
@@ -26,17 +25,13 @@
     "react-native-screens": "~4.26.0"
   },
   "devDependencies": {
-    "@storybook/react-native-web-vite": "^10.6.0",
     "@testing-library/react-native": "^14.0.1",
     "@types/jest": "^29.5.14",
+    "@types/node": "^20.17.12",
     "@types/react": "^19.2.18",
     "jest": "^29.7.0",
     "jest-expo": "^57.0.5",
-    "react-dom": "19.2.3",
-    "react-native-web": "^0.21.2",
     "react-test-renderer": "^19.3.0",
-    "storybook": "^10.6.0",
-    "typescript": "^6.0.3",
-    "vite": "^8.3.0"
+    "typescript": "^6.0.3"
   }
 }

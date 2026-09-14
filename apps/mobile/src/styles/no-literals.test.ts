@@ -38,4 +38,21 @@ describe('raw values', () => {
       expect(matches?.[0]).toBeUndefined();
     },
   );
+
+  /**
+   * The rule the design system stands on: spacing, radii and gaps name a token or they
+   * are not consistent, whatever they happen to measure. `minHeight: 44` and friends are
+   * deliberately not covered - that is a WCAG constant, not a spacing decision.
+   */
+  it.each(files.map((f) => [f.slice(srcDir.length), f]))(
+    '%s takes spacing and radii from a token',
+    (_label, file) => {
+      const source = readFileSync(file, 'utf8');
+      const offender =
+        /\b(?:padding|paddingTop|paddingBottom|paddingLeft|paddingRight|paddingHorizontal|paddingVertical|margin|marginTop|marginBottom|marginLeft|marginRight|marginHorizontal|marginVertical|marginStart|marginEnd|paddingStart|paddingEnd|gap|rowGap|columnGap|borderRadius):\s*-?\d/.exec(
+          source,
+        );
+      expect(offender?.[0]).toBeUndefined();
+    },
+  );
 });

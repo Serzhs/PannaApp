@@ -31,33 +31,33 @@ just say it simply.
 
 ## Stack
 
-| Layer             | Choice                                                                                          |
-| ----------------- | ----------------------------------------------------------------------------------------------- |
-| Monorepo          | pnpm workspaces (no Turborepo yet)                                                              |
-| Backend           | NestJS, TypeScript strict                                                                       |
-| ORM               | Drizzle ORM + drizzle-kit migrations                                                            |
-| DB                | PostgreSQL 16 via docker compose                                                                |
-| Validation        | Zod, shared between API and mobile                                                              |
-| API contract      | One Zod contract in `packages/shared`, hand-rolled, both sides typed from it                    |
-| Config            | `@nestjs/config` with a Zod schema. The API refuses to start on a bad env                       |
-| Logging           | `nestjs-pino`, structured, one request id per request                                           |
-| Git hooks         | husky + lint-staged + commitlint                                                                |
-| Auth              | Sign in with Google and Apple only. Our own JWT access token (15 min) + refresh token (30 days) |
-| Mobile            | Expo (managed workflow, Expo Go on device; prebuild only when required)                         |
-| Routing           | Expo Router (file based)                                                                        |
-| Data fetching     | TanStack Query v5                                                                               |
-| Forms             | `react-hook-form` with its Zod resolver                                                         |
-| Keyboard          | `react-native-keyboard-controller`                                                              |
-| Styling           | React Native `StyleSheet` over a typed theme module in `src/styles`                             |
-| Animation         | react-native-reanimated + react-native-gesture-handler                                          |
-| Haptics           | expo-haptics                                                                                    |
-| i18n              | `i18next` + `react-i18next`, locale detection via `expo-localization`                           |
-| Offline           | TanStack Query cache persisted to `expo-sqlite/kv-store`                                        |
-| Component browser | `@storybook/react-native-web-vite`, in a browser. See the caveat below                          |
-| Rate limiting     | `@nestjs/throttler`                                                                             |
-| Language          | TypeScript everywhere, strict (see below), no `any`                                             |
-| Lint              | ESLint 9 flat config, `typescript-eslint` strict-type-checked                                   |
-| Format            | Prettier, with `eslint-config-prettier` disabling all conflicting rules                         |
+| Layer          | Choice                                                                                          |
+| -------------- | ----------------------------------------------------------------------------------------------- |
+| Monorepo       | pnpm workspaces (no Turborepo yet)                                                              |
+| Backend        | NestJS, TypeScript strict                                                                       |
+| ORM            | Drizzle ORM + drizzle-kit migrations                                                            |
+| DB             | PostgreSQL 16 via docker compose                                                                |
+| Validation     | Zod, shared between API and mobile                                                              |
+| API contract   | One Zod contract in `packages/shared`, hand-rolled, both sides typed from it                    |
+| Config         | `@nestjs/config` with a Zod schema. The API refuses to start on a bad env                       |
+| Logging        | `nestjs-pino`, structured, one request id per request                                           |
+| Git hooks      | husky + lint-staged + commitlint                                                                |
+| Auth           | Sign in with Google and Apple only. Our own JWT access token (15 min) + refresh token (30 days) |
+| Mobile         | Expo (managed workflow, Expo Go on device; prebuild only when required)                         |
+| Routing        | Expo Router (file based)                                                                        |
+| Data fetching  | TanStack Query v5                                                                               |
+| Forms          | `react-hook-form` with its Zod resolver                                                         |
+| Keyboard       | `react-native-keyboard-controller`                                                              |
+| Styling        | React Native `StyleSheet` over a typed theme module in `src/styles`                             |
+| Animation      | react-native-reanimated + react-native-gesture-handler                                          |
+| Haptics        | expo-haptics                                                                                    |
+| i18n           | `i18next` + `react-i18next`, locale detection via `expo-localization`                           |
+| Offline        | TanStack Query cache persisted to `expo-sqlite/kv-store`                                        |
+| Design gallery | A development-only `/design` route in the app itself. No Storybook                              |
+| Rate limiting  | `@nestjs/throttler`                                                                             |
+| Language       | TypeScript everywhere, strict (see below), no `any`                                             |
+| Lint           | ESLint 9 flat config, `typescript-eslint` strict-type-checked                                   |
+| Format         | Prettier, with `eslint-config-prettier` disabling all conflicting rules                         |
 
 Explicitly **not** used: CSS Modules (does not work in React Native), **react-native-unistyles**, NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL, Moti (Reanimated directly is enough for what this app does), `react-native-skia` (revisit only if the cooking view in 0011 genuinely outgrows Reanimated).
 
@@ -175,7 +175,6 @@ apps/
         Button/
           Button.tsx            the component
           Button.styles.ts      its stylesheet
-          Button.stories.tsx    its Storybook stories
           Button.test.tsx       its tests
           index.ts              re-exports Button
       api/            typed fetch client + TanStack Query hooks
@@ -190,9 +189,6 @@ docker-compose.yml    the database only
 **Everything a component owns lives in the component's own folder.** Its styles, its tests, its
 sub-components, any hook or helper only it uses. Nothing belonging to `Button` is anywhere but
 `Button/`, so deleting the folder deletes the component completely and leaves nothing orphaned.
-
-Stories are part of that ownership. A component without a `.stories.tsx` file is a component nobody
-can look at in isolation, so it is not finished.
 
 A file moves out of the folder the moment a second component needs it, and not before. Anticipating
 that second use is how a shared directory fills up with things used once.
@@ -438,13 +434,17 @@ CSS syntax, and with type checking that CSS variables do not have.
 Shared components live in `apps/mobile/src/components/`. A component earns a place there once a
 second feature needs it, not in anticipation of one.
 
-**Storybook runs in a browser, and that is a compromise.** It renders through
-`react-native-web`, which is not what ships, so it is good for looking at spacing, type,
-colour and component states and is not evidence about touch behaviour, platform
-differences, or anything native. Three ways of running it on the device were tried and
-all failed: Storybook needs to own the root component, and Expo Router will not give up
-the root without losing its own navigation context. Judge anything that matters on the
-simulator or a phone, not in the gallery.
+**The design system is browsed at `/design`, inside the app.** It is an ordinary
+development-only route listing every semantic colour with its measured contrast ratio, the
+spacing scale, the type ramp and every component in every state. Because it is the app, what
+it shows is what ships - which is the whole point, and the reason Storybook was dropped rather
+than run in a browser through a different renderer.
+
+`__DEV__` is false in a release build and the route renders nothing, so the gallery cannot be
+reached by guessing the path.
+
+A component without an entry in the gallery is a component nobody can look at in isolation.
+Add it when you add the component.
 
 ## Security
 
