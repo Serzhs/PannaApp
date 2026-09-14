@@ -1,6 +1,6 @@
 # 0001: Project setup and database
 
-**Status:** Draft
+**Status:** In progress
 **Depends on:** none
 
 ## Context

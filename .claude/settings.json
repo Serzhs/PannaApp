@@ -25,11 +25,7 @@
       "Bash(tail:*)",
       "Bash(wc:*)"
     ],
-    "ask": [
-      "Bash(pnpm --filter api db:migrate)",
-      "Bash(git push:*)",
-      "Bash(git commit:*)"
-    ],
+    "ask": ["Bash(pnpm --filter api db:migrate)", "Bash(git push:*)", "Bash(git commit:*)"],
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
