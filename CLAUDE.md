@@ -31,33 +31,33 @@ just say it simply.
 
 ## Stack
 
-| Layer | Choice |
-| --- | --- |
-| Monorepo | pnpm workspaces (no Turborepo yet) |
-| Backend | NestJS, TypeScript strict |
-| ORM | Drizzle ORM + drizzle-kit migrations |
-| DB | PostgreSQL 16 via docker compose |
-| Validation | Zod, shared between API and mobile |
-| API contract | `ts-rest` - one Zod contract in `packages/shared`, both sides typed from it |
-| Config | `@nestjs/config` with a Zod schema. The API refuses to start on a bad env |
-| Logging | `nestjs-pino`, structured, one request id per request |
-| Git hooks | husky + lint-staged + commitlint |
-| Auth | Sign in with Google and Apple only. Our own JWT access token (15 min) + refresh token (30 days) |
-| Mobile | Expo (managed workflow, prebuild only when required) |
-| Routing | Expo Router (file based) |
-| Data fetching | TanStack Query v5 |
-| Forms | `react-hook-form` with its Zod resolver |
-| Keyboard | `react-native-keyboard-controller` |
-| Styling | react-native-unistyles |
-| Animation | react-native-reanimated + react-native-gesture-handler |
-| Haptics | expo-haptics |
-| i18n | `i18next` + `react-i18next`, locale detection via `expo-localization` |
-| Offline | TanStack Query cache persisted to `expo-sqlite/kv-store` |
-| Component browser | `@storybook/react-native`, on device only |
-| Rate limiting | `@nestjs/throttler` |
-| Language | TypeScript everywhere, strict (see below), no `any` |
-| Lint | ESLint 9 flat config, `typescript-eslint` strict-type-checked |
-| Format | Prettier, with `eslint-config-prettier` disabling all conflicting rules |
+| Layer             | Choice                                                                                          |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| Monorepo          | pnpm workspaces (no Turborepo yet)                                                              |
+| Backend           | NestJS, TypeScript strict                                                                       |
+| ORM               | Drizzle ORM + drizzle-kit migrations                                                            |
+| DB                | PostgreSQL 16 via docker compose                                                                |
+| Validation        | Zod, shared between API and mobile                                                              |
+| API contract      | One Zod contract in `packages/shared`, hand-rolled, both sides typed from it                    |
+| Config            | `@nestjs/config` with a Zod schema. The API refuses to start on a bad env                       |
+| Logging           | `nestjs-pino`, structured, one request id per request                                           |
+| Git hooks         | husky + lint-staged + commitlint                                                                |
+| Auth              | Sign in with Google and Apple only. Our own JWT access token (15 min) + refresh token (30 days) |
+| Mobile            | Expo (managed workflow, prebuild only when required)                                            |
+| Routing           | Expo Router (file based)                                                                        |
+| Data fetching     | TanStack Query v5                                                                               |
+| Forms             | `react-hook-form` with its Zod resolver                                                         |
+| Keyboard          | `react-native-keyboard-controller`                                                              |
+| Styling           | react-native-unistyles                                                                          |
+| Animation         | react-native-reanimated + react-native-gesture-handler                                          |
+| Haptics           | expo-haptics                                                                                    |
+| i18n              | `i18next` + `react-i18next`, locale detection via `expo-localization`                           |
+| Offline           | TanStack Query cache persisted to `expo-sqlite/kv-store`                                        |
+| Component browser | `@storybook/react-native`, on device only                                                       |
+| Rate limiting     | `@nestjs/throttler`                                                                             |
+| Language          | TypeScript everywhere, strict (see below), no `any`                                             |
+| Lint              | ESLint 9 flat config, `typescript-eslint` strict-type-checked                                   |
+| Format            | Prettier, with `eslint-config-prettier` disabling all conflicting rules                         |
 
 Explicitly **not** used: CSS Modules (does not work in React Native), NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL, Moti (Reanimated directly is enough for what this app does), `react-native-skia` (revisit only if the cooking view in 0011 genuinely outgrows Reanimated).
 
@@ -90,6 +90,15 @@ it. A cast is a last resort and carries a comment saying why the compiler cannot
 
 `@ts-expect-error` is allowed with a reason on the same line. `@ts-ignore` is not: it stays silent
 when the underlying error goes away.
+
+**Every package is ESM, and every strict flag is on everywhere.** `apps/api` and `packages/shared` were
+briefly CommonJS with `verbatimModuleSyntax` disabled; NestJS 12 ships as `"type": "module"`, so that
+exception is gone and relative imports carry `.js` extensions as ESM requires.
+
+**Node is 22, and everything in the stack depends on that.** React Native needs `^22.13`, nestjs-pino 5
+needs `>=22.12`, and vitest 5 and vite 8 want the same. Node 20 blocked all of them and forced pinned-back
+versions of each; raising it removed the whole class of problem at once. Check `engines` before
+upgrading anything, and do not drop Node below 22.13.
 
 ## Lint and format
 
@@ -167,7 +176,7 @@ apps/
 packages/
   shared/             Zod schemas and inferred types used by both apps
 specs/                source of truth for behaviour
-docker-compose.yml    postgres only
+docker-compose.yml    the database only
 ```
 
 **Everything a component owns lives in the component's own folder.** Its styles, its tests, its
@@ -310,7 +319,7 @@ Ordering rules: `position` is a zero-based integer, unique within a parent. Reor
 positions in one transaction. Never rely on insertion order or `createdAt` for display order.
 
 **Nesting is how parallel work is expressed.** A step with a null `parentStepId` is a main step, done
-in sequence. A step with a `parentStepId` is something that can be done *during* that step, while the
+in sequence. A step with a `parentStepId` is something that can be done _during_ that step, while the
 oven heats or the pork roasts. When cooking, a main step with nested steps under it shows them as
 things you could get on with meanwhile.
 
@@ -386,8 +395,8 @@ being the same thing.
 
 ## API conventions
 
-- **Every endpoint is defined once, in the `ts-rest` contract in `packages/shared`.** The controller will not compile if it does not match the contract, and the mobile client is generated from the same contract. Neither side can drift, because there is only one description of the endpoint.
-- **The mobile client parses every response against its schema before using it.** Types disappear when the code runs, so a type alone only proves what the server *should* send. Parsing proves what it did send, and turns a silent wrong-shape bug into an obvious error at the boundary.
+- **Every endpoint is defined once, in the contract in `packages/shared`.** A controller's return type is derived from it, so it will not compile if it answers with the wrong shape, and the mobile client parses against the same schema. Neither side can drift, because there is only one description of the endpoint. This is about sixty lines we own rather than a dependency: ts-rest was the obvious candidate and had not shipped a stable release in fifteen months.
+- **The mobile client parses every response against its schema before using it.** Types disappear when the code runs, so a type alone only proves what the server _should_ send. Parsing proves what it did send, and turns a silent wrong-shape bug into an obvious error at the boundary.
 - Base path `/api`. Resource routes are plural and nested: `/api/recipes/:recipeId/steps`.
 - Public share route is unauthenticated and separate: `GET /api/shared/:shareToken`.
 - Errors use NestJS built-in HTTP exceptions, with one addition: every error body carries a stable `code`. Response body: `{ statusCode, error, message, code }`.
@@ -406,9 +415,9 @@ refers to it by name.
 
 Tokens come in two layers, and the distinction is not decoration:
 
-- **Primitives** are the raw scales: `slate900`, `space4`, `text16`. They describe what a value *is*.
+- **Primitives** are the raw scales: `slate900`, `space4`, `text16`. They describe what a value _is_.
 - **Semantics** map primitives to roles: `surface`, `textPrimary`, `borderSubtle`, `danger`. They
-  describe what a value is *for*.
+  describe what a value is _for_.
 
 Components use semantic tokens only. A component that reaches for a primitive is a component that
 will break the first time the palette changes, which is the whole reason the layer exists.
@@ -511,7 +520,7 @@ is built, and not an audit somebody schedules later.
 - Contrast meets 4.5:1 for body text and 3:1 for large text, icons and control boundaries. This is
   enforced by a test over the semantic token pairs, not by eye, because the eye is unreliable and the
   palette changes.
-- **Colour is never the only carrier of meaning.** An error field changes its border *and* shows a
+- **Colour is never the only carrier of meaning.** An error field changes its border _and_ shows a
   message. A completed step gets a mark, not just a green tint.
 - Font scaling is always on. `allowFontScaling={false}` is banned outright. A `maxFontSizeMultiplier`
   is permitted only where a layout genuinely cannot stretch, with a comment saying why, and it is
@@ -623,20 +632,20 @@ picking one for both.
 
 Three tabs, and screens that stack inside them.
 
-| Tab | Screen | What it is for |
-| --- | --- | --- |
-| Recipes | `(app)/(tabs)/index` | Yours. In progress at the top, then everything else, drafts chipped. |
+| Tab      | Screen                  | What it is for                                                       |
+| -------- | ----------------------- | -------------------------------------------------------------------- |
+| Recipes  | `(app)/(tabs)/index`    | Yours. In progress at the top, then everything else, drafts chipped. |
 | Featured | `(app)/(tabs)/featured` | Recipes we wrote, to start from. Searchable; nothing user-generated. |
-| You | `(app)/(tabs)/you` | Your avatar and name, language, units, sign out. |
+| You      | `(app)/(tabs)/you`      | Your avatar and name, language, units, sign out.                     |
 
 Stacked on top of whichever tab you are in:
 
-| Screen | What it is for |
-| --- | --- |
-| `(auth)/index` | Sign in with Google or Apple. The only screen when signed out. |
-| `(app)/recipes/[id]` | Read a recipe: ingredients, equipment, steps, history. |
-| `(app)/recipes/new` | Create: four pages, or paste one from your AI. |
-| `(app)/recipes/[id]/edit` | Edit: the whole recipe on one screen. |
+| Screen                    | What it is for                                                         |
+| ------------------------- | ---------------------------------------------------------------------- |
+| `(auth)/index`            | Sign in with Google or Apple. The only screen when signed out.         |
+| `(app)/recipes/[id]`      | Read a recipe: ingredients, equipment, steps, history.                 |
+| `(app)/recipes/new`       | Create: four pages, or paste one from your AI.                         |
+| `(app)/recipes/[id]/edit` | Edit: the whole recipe on one screen.                                  |
 | `(app)/recipes/[id]/cook` | The guide. Opens on a check of what you have, then one step at a time. |
 
 **The tab bar is hidden in cook mode.** Cooking needs the bottom of the screen for a bar big enough to
@@ -731,16 +740,24 @@ and nothing else.
 ## Commands
 
 ```bash
-pnpm db:up            # docker compose up -d postgres
-pnpm --filter api dev
-pnpm --filter mobile start
-pnpm --filter mobile storybook   # component browser, on a simulator
-pnpm --filter api db:generate   # drizzle-kit generate
-pnpm --filter api db:migrate    # drizzle-kit migrate
-pnpm typecheck        # every workspace
-pnpm lint
-pnpm test
+pnpm dev              # database, migrations, then the API. The one you press most.
+pnpm mobile           # Expo. Scan the QR code with Expo Go.
+
+pnpm check            # lint, typecheck and test. Run before committing.
+pnpm build
+
+pnpm db:studio        # browse the data in a browser
+pnpm db:reset         # wipe, migrate and seed from nothing
+pnpm db:up            # waits for the healthcheck, so nothing races it
+pnpm db:down
+pnpm db:generate      # after changing the schema
+pnpm db:migrate
+pnpm db:seed
 ```
+
+Every one of these is a root script, so it has a run button beside it in an editor that
+shows them. `pnpm dev` starts the database and applies migrations first, so it works from
+a cold machine rather than assuming something is already up.
 
 ## Testing
 

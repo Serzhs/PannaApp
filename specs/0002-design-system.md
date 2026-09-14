@@ -35,7 +35,7 @@ Two files under `apps/mobile/src/styles/`.
 
 **`tokens.ts`** is the only file in `apps/mobile/src` permitted to contain a hex colour, a spacing number, a radius or a font size literal. It exports two layers.
 
-*Primitives* — the raw scales, named for what they are:
+_Primitives_ — the raw scales, named for what they are:
 
 - Spacing on a 4pt base: `space0` 0, `space1` 4, `space2` 8, `space3` 12, `space4` 16, `space5` 20, `space6` 24, `space8` 32, `space10` 40, `space12` 48, `space16` 64.
 - Radii: `radiusNone` 0, `radiusSm` 4, `radiusMd` 8, `radiusLg` 16, `radiusFull` 9999.
@@ -44,7 +44,7 @@ Two files under `apps/mobile/src/styles/`.
 - Durations: `durationInstant` 0, `durationFast` 120, `durationBase` 200, `durationSlow` 320, `durationDeliberate` 480, in milliseconds.
 - Easings: `easeStandard` for movement that starts and ends on screen, `easeDecelerate` for something entering, `easeAccelerate` for something leaving, and one spring configuration for anything the user drags or presses.
 
-*Semantics* — a mapping from primitives to roles, named for what they are for. Every entry's value is a primitive reference, never a literal:
+_Semantics_ — a mapping from primitives to roles, named for what they are for. Every entry's value is a primitive reference, never a literal:
 
 - Surfaces: `background`, `surface`, `surfaceRaised`, `overlay`.
 - Text: `textPrimary`, `textSecondary`, `textDisabled`, `textInverse`.

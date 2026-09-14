@@ -1,0 +1,25 @@
+# Services are named for what they are, not for what runs them: `database`, not
+# `postgres`. Swapping the image later should not mean renaming everything that
+# refers to it.
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: panna-database
+    restart: unless-stopped
+    # 5433 on the host, so a locally installed Postgres on 5432 keeps working.
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-panna}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-panna}
+      POSTGRES_DB: ${POSTGRES_DB:-panna}
+    volumes:
+      - panna-database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-panna} -d ${POSTGRES_DB:-panna}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  panna-database-data:

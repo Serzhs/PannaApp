@@ -1,6 +1,6 @@
 # 0001: Project setup and database
 
-**Status:** Draft
+**Status:** In progress
 **Depends on:** none
 
 ## Context
@@ -28,7 +28,7 @@ Also created here: the `unit`, `unit_system`, `auth_provider`, `recipe_status` P
 
 `steps.parentStepId` is a nullable self-reference, which is how a step records that it happens during another one. The schema can express the foreign key and nothing else: that a parent belongs to the same recipe, and that nesting never goes more than one level deep, are enforced in application code from 0008 onward.
 
-`docker-compose.yml` runs Postgres 16 only, on port 5433 to avoid clashing with a local install. Credentials come from `.env`, and `.env.example` is committed.
+`docker-compose.yml` runs one service, `database`, on Postgres 16 and port 5433 to avoid clashing with a local install. Credentials come from `.env`, and `.env.example` is committed.
 
 ## Tooling
 
@@ -66,7 +66,7 @@ instead of shipping.
 
 ## API contract
 
-`packages/shared` holds the `ts-rest` contract and the error code const object. Controllers implement the contract and the mobile client is built from it, so neither side can drift. The mobile client parses each response against its schema before handing it to the caller, so a mismatch surfaces at the boundary rather than as a strange bug three screens later.
+`packages/shared` holds the contract and the error code const object. A controller's return type is derived from the contract and the mobile client parses against the same schema, so neither side can drift. The mobile client parses each response against its schema before handing it to the caller, so a mismatch surfaces at the boundary rather than as a strange bug three screens later.
 
 This spec defines one endpoint, so that "it works" is something that can be checked rather than assumed.
 
@@ -96,20 +96,53 @@ The Expo app boots to a single placeholder screen. It uses plain React Native st
 - [ ] Two API tests that each insert a row with the same unique value both pass when run in the same file, proving truncation happens between them.
 - [ ] A test asserting a rolled-back transaction leaves no partial rows passes, proving the harness does not hide commit behaviour inside an outer transaction.
 - [ ] Throwing with a code that is not in the shared const object fails `pnpm typecheck`.
-- [ ] A controller returning a shape the `ts-rest` contract does not describe fails `pnpm typecheck`, and so does a mobile call passing the wrong request body.
+- [ ] A controller returning a shape the contract does not describe fails `pnpm typecheck`, and so does a mobile call passing the wrong request body.
 - [ ] A response that does not match its schema is rejected by the client with a clear error, verified by pointing the client at a stub that returns the wrong shape.
 - [ ] Starting the API with `DATABASE_URL` removed exits with a message naming the missing variable, and does not start. An empty JWT secret fails the same way.
 - [ ] Logs carry a request id, and no log line contains a value from a field marked secret.
-- [ ] A request body containing a field the schema does not define returns 400, rather than succeeding with the field ignored.
+- [ ] ~~A request body containing a field the schema does not define returns 400.~~ **Moved to 0003.** No endpoint in this spec accepts a body, so there is nothing to reject; 0003 adds the first ones. The strict-schema rule stands in `CLAUDE.md`.
 - [ ] A request body over the size limit is rejected before it is parsed.
 - [ ] Security headers are present on every response and `x-powered-by` is absent.
 - [ ] An error response contains no stack trace, SQL fragment or internal file path, including when the database is unreachable.
 - [ ] Starting the API with a JWT secret shorter than the minimum fails at boot with a message saying so.
-- [ ] `pnpm test` fails when a dependency with a high severity advisory is installed.
+- [ ] `pnpm test` fails when a dependency with a high severity advisory is installed. _(Verified: the run failed on three high and two critical advisories until drizzle-orm, drizzle-kit and vitest were upgraded, and vite pinned forward.)_
 - [ ] `.nvmrc` and `packageManager` are present and agree with the versions the project is developed on.
 - [ ] A commit with a message that is not a conventional commit is rejected by the hook, and a commit with a lint error in a staged file is rejected too.
-- [ ] Forcing a render error in the placeholder screen shows the error boundary's recovery screen rather than a blank app.
-- [ ] Turning airplane mode on is reflected in the app's online state within a few seconds, and returning from the background triggers a refetch.
+- [ ] Forcing a render error in the placeholder screen shows the error boundary's recovery screen rather than a blank app. **Still unverified.** The error was forced on the simulator and the app did not crash, but Expo Go covers the screen with its own error log in both dev and production bundles, and dismissing it needs a tap that cannot be scripted. What renders underneath was never seen.
+- [x] Turning airplane mode on is reflected in the app's online state within a few seconds, and returning from the background triggers a refetch. _(Verified on the simulator: the app went offline within 3 seconds of the host losing wifi; idling 35 seconds triggered no refetch while backgrounding and foregrounding did. See the note below about coming back online.)_
+
+## Verification
+
+Walked on 2026-09-14, first from the command line and then on an iPhone 17 Pro simulator.
+Twenty-three of twenty-five criteria verified by running them.
+
+Three found real defects, all fixed and covered by regression tests:
+
+- `steps.parentStepId`, `recipes.sourceRecipeId` and `refreshTokens.replacedTokenId` were declared as
+  plain `uuid` columns with no foreign key, so a step could point at a step that did not exist.
+- An oversized request body was rejected before parsing but surfaced as a 500 rather than a 413.
+- The health endpoint returned 500 when the database was down, while the contract promised 503.
+
+One criterion could not be checked as written and moved to 0003: nothing in this spec accepts a
+request body, so "an unknown field returns 400" has nothing to reject.
+
+**The simulator does not come back online, and it is the simulator.** Dropping the host's wifi put
+the app offline in under three seconds, correctly. Restoring it left the app stuck offline for as
+long as it was watched. Rendering a live `fetch` next to the raw NetInfo state settled where the
+fault is: the fetch returned HTTP 204 from the open internet while NetInfo still reported
+`type: none` and `isConnected: false`. The stale value comes from the iOS Simulator's reachability
+API, which does not re-fire after the host interface returns; the wiring in `src/query/client.ts`
+reads it correctly. Real airplane mode on a real device does not have this problem.
+
+Worth recording rather than fixing: if that state ever did stick on a real device, `onlineManager`
+would stay false and TanStack Query would never fetch again. Nothing in this spec asks for a
+fallback, so none was added.
+
+One criterion remains unverified: the error boundary's recovery screen. Expo Go puts its own error
+log over the whole screen whenever a render throws, in dev and in a `--no-dev --minify` bundle
+alike, and clearing it needs a tap on the simulator that macOS will not let a script send. The
+boundary catches the error - the app did not go white or die - but the recovery screen itself was
+never seen. It is marked unchecked rather than assumed.
 
 ## Open questions
 

@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Panna",
+    "slug": "panna",
+    "scheme": "panna",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": { "supportsTablet": false, "bundleIdentifier": "app.panna.mobile" },
+    "android": { "package": "app.panna.mobile", "edgeToEdgeEnabled": true },
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": true }
+  }
+}

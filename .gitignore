@@ -33,3 +33,5 @@ pnpm-debug.log*
 
 # Built design canvas, ~2.4MB of bundled editor. Regenerated from sketches/*.dc.html
 panna-screens.html
+apps/mobile/.expo/
+expo-env.d.ts
