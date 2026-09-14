@@ -18,7 +18,8 @@
     "db:migrate": "pnpm --filter @panna/api db:migrate",
     "db:generate": "pnpm --filter @panna/api db:generate",
     "build": "pnpm --filter @panna/shared build && pnpm --filter @panna/api build",
-    "dev": "pnpm --filter @panna/api dev"
+    "dev": "pnpm --filter @panna/api dev",
+    "mobile": "pnpm --filter @panna/mobile start"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",

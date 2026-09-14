@@ -12,6 +12,8 @@ export default tseslint.config(
       '**/.expo/**',
       'apps/api/src/db/migrations/**',
       'sketches/**',
+      'apps/mobile/.expo/**',
+      'apps/mobile/expo-env.d.ts',
     ],
   },
   js.configs.recommended,
@@ -44,6 +46,19 @@ export default tseslint.config(
         { 'ts-expect-error': 'allow-with-description', 'ts-ignore': true },
       ],
       '@typescript-eslint/consistent-type-imports': 'error',
+    },
+  },
+  {
+    // Config files Metro and friends load with require(), not as modules.
+    files: ['**/metro.config.js', '**/*.cjs'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: {
+        require: 'readonly',
+        module: 'writable',
+        __dirname: 'readonly',
+        process: 'readonly',
+      },
     },
   },
   {
