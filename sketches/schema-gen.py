@@ -14,10 +14,12 @@ NULL, NOT_NULL = True, False
 TABLES = {
     'users': [
         ('id', 'uuid', NOT_NULL), ('email', 'citext', NOT_NULL),
-        ('displayName', 'varchar(80)', NOT_NULL), ('locale', 'varchar(5)', NULL),
+        ('displayName', 'varchar(80)', NOT_NULL), ('avatarImageKey', 'varchar(255)', NULL),
+        ('locale', 'varchar(5)', NULL),
         ('unitSystem', 'unit_system', NULL), ('createdAt', 'timestamptz', NOT_NULL),
         ('updatedAt', 'timestamptz', NOT_NULL),
         ('~', 'unique on email', ''), ('~', 'null locale = device, then English', ''),
+        ('~', 'displayName is the public name', ''),
     ],
     'identities': [
         ('id', 'uuid', NOT_NULL), ('userId', 'uuid', NOT_NULL),
@@ -38,12 +40,15 @@ TABLES = {
         ('id', 'uuid', NOT_NULL), ('authorId', 'uuid', NOT_NULL),
         ('sourceRecipeId', 'uuid', NULL), ('title', 'varchar(120)', NOT_NULL),
         ('description', 'text', NULL),
-        ('status', 'recipe_status', NOT_NULL), ('servings', 'integer', NOT_NULL),
+        ('status', 'recipe_status', NOT_NULL), ('visibility', 'recipe_visibility', NOT_NULL),
+        ('servings', 'integer', NOT_NULL),
         ('totalTimeMinutes', 'integer', NULL), ('coverImageKey', 'varchar(255)', NULL),
         ('shareToken', 'varchar(12)', NULL),
         ('createdAt', 'timestamptz', NOT_NULL), ('updatedAt', 'timestamptz', NOT_NULL),
         ('~', 'unique on shareToken', ''),
-        ('~', 'null shareToken = not shared', ''),
+        ('~', 'null shareToken = no link', ''),
+        ('~', 'public needs status ready', ''),
+        ('~', 'trigram index on title, for search', ''),
     ],
     'ingredients': [
         ('id', 'uuid', NOT_NULL), ('recipeId', 'uuid', NOT_NULL),

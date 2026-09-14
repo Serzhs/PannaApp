@@ -67,8 +67,9 @@
     box-shadow: 3px 4px 0 rgba(43,43,43,0.08);
   }
   .frame iframe { width: 390px; height: 844px; border: 0; display: block; background: var(--paper); }
-  .frame.tall, .frame.tall iframe { height: 1290px; }
+  .frame.tall, .frame.tall iframe { height: 1390px; }
   .frame.mid, .frame.mid iframe { height: 1200px; }
+  .frame.xl, .frame.xl iframe { height: 960px; }
 
   .wide { max-width: 1400px; margin: 0 auto; padding: 0 32px 60px; }
   .wide h2 { font-size: 26px; font-weight: 400; margin: 0 0 6px; }
@@ -102,8 +103,11 @@
   <p class="sub">Pencil sketches of the six screens. Black and white on purpose &mdash; the accent colour is still undecided, and colour would only distract from whether the layouts are right. These are drawings, not decisions: where a sketch and a spec disagree, the spec wins.</p>
   <nav>
     <a href="#sign-in">Sign in</a>
-    <a href="#empty">Home, empty</a>
-    <a href="#home">Home</a>
+    <a href="#empty">Recipes, empty</a>
+    <a href="#home">Recipes</a>
+    <a href="#featured">Featured</a>
+    <a href="#you">You</a>
+    <a href="#profile">Somebody&rsquo;s profile</a>
     <a href="#create">Create a recipe</a>
     <a href="#paste">Paste a recipe</a>
     <a href="#read">Read a recipe</a>
@@ -112,7 +116,7 @@
     <a href="#hint">First open</a>
     <a href="#cook">Cook</a>
     <a href="#image">How it should look</a>
-    <a href="#settings">Settings</a>
+    <a href="#settings">Language and units</a>
     <a href="#schema">Database</a>
   </nav>
 </header>
@@ -128,87 +132,105 @@
   </figure>
 
   <figure id="empty">
-    <div class="label"><span class="num">02</span><span class="name">Home, empty</span></div>
-    <div class="frame"><iframe src="EmptyHome.dc.html" title="Home, empty" loading="lazy"></iframe></div>
-    <figcaption>The first thing anyone sees. Two ways in, because writing one out and pasting one from your AI are both first-class. <a href="EmptyHome.dc.html">open alone</a></figcaption>
+    <div class="label"><span class="num">02</span><span class="name">Recipes, empty</span></div>
+    <div class="frame"><iframe src="EmptyHome.dc.html" title="Recipes, empty" loading="lazy"></iframe></div>
+    <figcaption>The first thing anyone sees. Writing one out and pasting one from your AI are both first-class. <a href="EmptyHome.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="home">
-    <div class="label"><span class="num">03</span><span class="name">Home</span></div>
-    <div class="frame"><iframe src="Main.dc.html" title="Home" loading="lazy"></iframe></div>
-    <figcaption>Cooking now sits above everything else, each showing what is happening right now rather than only a step count. Every recipe row carries its cover photo; drafts carry a text chip. <a href="Main.dc.html">open alone</a></figcaption>
+    <div class="label"><span class="num">03</span><span class="name">Recipes</span></div>
+    <div class="frame"><iframe src="Main.dc.html" title="Recipes" loading="lazy"></iframe></div>
+    <figcaption>Cooking now sits above everything else, each showing what is happening right now. Every row carries its cover photo; drafts carry a text chip. <a href="Main.dc.html">open alone</a></figcaption>
+  </figure>
+
+  <figure id="featured">
+    <div class="label"><span class="num">04</span><span class="name">Featured</span></div>
+    <div class="frame"><iframe src="Featured.dc.html" title="Featured" loading="lazy"></iframe></div>
+    <figcaption>Other people&rsquo;s public recipes. Search, most copied, latest &mdash; three different queries behind one screen. <a href="Featured.dc.html">open alone</a></figcaption>
+  </figure>
+
+  <figure id="you">
+    <div class="label"><span class="num">05</span><span class="name">You</span></div>
+    <div class="frame"><iframe src="You.dc.html" title="You" loading="lazy"></iframe></div>
+    <figcaption>Your avatar and public name, the recipes you have published, and where language, units and sign out now live. <a href="You.dc.html">open alone</a></figcaption>
+  </figure>
+
+  <figure id="profile">
+    <div class="label"><span class="num">06</span><span class="name">Somebody&rsquo;s profile</span></div>
+    <div class="frame"><iframe src="PublicProfile.dc.html" title="Somebody&rsquo;s profile" loading="lazy"></iframe></div>
+    <figcaption>Reached by tapping an author&rsquo;s name. Only public recipes appear &mdash; private ones and drafts are not listed. <a href="PublicProfile.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="create">
-    <div class="label"><span class="num">04</span><span class="name">Create 1 &mdash; basics</span></div>
-    <div class="frame"><iframe src="CreateBasics.dc.html" title="Create 1 &mdash; basics" loading="lazy"></iframe></div>
-    <figcaption>Creating is four pages so no single screen is overwhelming, and each one saves the draft as you go. <a href="CreateBasics.dc.html">open alone</a></figcaption>
+    <div class="label"><span class="num">07</span><span class="name">Create 1 &mdash; basics</span></div>
+    <div class="frame xl"><iframe src="CreateBasics.dc.html" title="Create 1 &mdash; basics" loading="lazy"></iframe></div>
+    <figcaption>Cover, title, description, servings, and who can see it. A recipe can only go public once it is marked ready. <a href="CreateBasics.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="create2">
-    <div class="label"><span class="num">05</span><span class="name">Create 2 &mdash; what you need</span></div>
+    <div class="label"><span class="num">08</span><span class="name">Create 2 &mdash; what you need</span></div>
     <div class="frame"><iframe src="CreateNeed.dc.html" title="Create 2 &mdash; what you need" loading="lazy"></iframe></div>
-    <figcaption>Ingredients and equipment, each able to carry a note: &ldquo;carrots, not too long&rdquo;, &ldquo;roasting tin, at least 30 cm&rdquo;. <a href="CreateNeed.dc.html">open alone</a></figcaption>
+    <figcaption>Ingredients and equipment, each able to carry a note: &ldquo;carrots, not too long&rdquo;. <a href="CreateNeed.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="create3">
-    <div class="label"><span class="num">06</span><span class="name">Create 3 &mdash; steps</span></div>
+    <div class="label"><span class="num">09</span><span class="name">Create 3 &mdash; steps</span></div>
     <div class="frame"><iframe src="CreateSteps.dc.html" title="Create 3 &mdash; steps" loading="lazy"></iframe></div>
-    <figcaption>Drag a step under another to say it happens while that one cooks. The same gesture the whole app is built around. <a href="CreateSteps.dc.html">open alone</a></figcaption>
+    <figcaption>Drag a step under another to say it happens while that one cooks. <a href="CreateSteps.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="create4">
-    <div class="label"><span class="num">07</span><span class="name">Create 4 &mdash; review</span></div>
+    <div class="label"><span class="num">10</span><span class="name">Create 4 &mdash; review</span></div>
     <div class="frame"><iframe src="CreateReview.dc.html" title="Create 4 &mdash; review" loading="lazy"></iframe></div>
-    <figcaption>The whole recipe in one place before it stops being a draft, with a nudge about anything thin. <a href="CreateReview.dc.html">open alone</a></figcaption>
+    <figcaption>The whole recipe in one place before it stops being a draft. <a href="CreateReview.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="paste">
-    <div class="label"><span class="num">08</span><span class="name">Paste a recipe</span></div>
+    <div class="label"><span class="num">11</span><span class="name">Paste a recipe</span></div>
     <div class="frame"><iframe src="Paste.dc.html" title="Paste a recipe" loading="lazy"></iframe></div>
     <figcaption>Copy the prompt, take it to your own AI with a video link, paste back what it returns. The app never opens the link itself. <a href="Paste.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="read">
-    <div class="label"><span class="num">09</span><span class="name">Read a recipe</span></div>
+    <div class="label"><span class="num">12</span><span class="name">Read a recipe</span></div>
     <div class="frame tall"><iframe src="ReadRecipe.dc.html" title="Read a recipe" loading="lazy"></iframe></div>
-    <figcaption>Cover photo, then ingredients, equipment, nested steps, and history and notes at the bottom. Drawn as the full scrolling page. <a href="ReadRecipe.dc.html">open alone</a></figcaption>
+    <figcaption>Cover photo, author, ingredients, equipment, nested steps, history. Somebody else&rsquo;s recipe also offers Add to my recipes, which copies it. Full scrolling page. <a href="ReadRecipe.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="edit">
-    <div class="label"><span class="num">10</span><span class="name">Edit a recipe</span></div>
+    <div class="label"><span class="num">13</span><span class="name">Edit a recipe</span></div>
     <div class="frame mid"><iframe src="WriteRecipe.dc.html" title="Edit a recipe" loading="lazy"></iframe></div>
-    <figcaption>Editing is one screen, deliberately not the four-page flow &mdash; fixing one wrong quantity should not walk you through a wizard. Drawn as the full scrolling page. <a href="WriteRecipe.dc.html">open alone</a></figcaption>
+    <figcaption>Editing is one screen, deliberately not the four-page flow. Full scrolling page. <a href="WriteRecipe.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="checklist">
-    <div class="label"><span class="num">11</span><span class="name">Before you start</span></div>
+    <div class="label"><span class="num">14</span><span class="name">Before you start</span></div>
     <div class="frame"><iframe src="Checklist.dc.html" title="Before you start" loading="lazy"></iframe></div>
-    <figcaption>Tick what you have, ingredients and equipment both, and mark anything you are going without. The estimate only moves when a main step drops. <a href="Checklist.dc.html">open alone</a></figcaption>
+    <figcaption>Tick what you have, ingredients and equipment both, and mark anything you are going without. <a href="Checklist.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="hint">
-    <div class="label"><span class="num">12</span><span class="name">First open</span></div>
+    <div class="label"><span class="num">15</span><span class="name">First open</span></div>
     <div class="frame"><iframe src="KnuckleHint.dc.html" title="First open" loading="lazy"></iframe></div>
-    <figcaption>Shown once. The back of a finger stays cleaner than the pad, and every button in cook mode is sized for it. Needs a text form and a still image for reduce-motion. <a href="KnuckleHint.dc.html">open alone</a></figcaption>
+    <figcaption>Shown once. The back of a finger stays cleaner than the pad. <a href="KnuckleHint.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="cook">
-    <div class="label"><span class="num">13</span><span class="name">Cook</span></div>
+    <div class="label"><span class="num">16</span><span class="name">Cook</span></div>
     <div class="frame"><iframe src="Cook.dc.html" title="Cook" loading="lazy"></iframe></div>
-    <figcaption>One step, large. The author&rsquo;s tip and your own past note sit under it, then what you need, then the nested steps as a Meanwhile list. <a href="Cook.dc.html">open alone</a></figcaption>
+    <figcaption>One step, large. No tab bar here &mdash; cooking needs the bottom of the screen for a bar you can hit with a knuckle. <a href="Cook.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="image">
-    <div class="label"><span class="num">14</span><span class="name">How it should look</span></div>
+    <div class="label"><span class="num">17</span><span class="name">How it should look</span></div>
     <div class="frame"><iframe src="StepImage.dc.html" title="How it should look" loading="lazy"></iframe></div>
-    <figcaption>Behind a button, never inline &mdash; an inline photo pushes the instruction off a screen that needs big text. One big tap in, one big tap out. <a href="StepImage.dc.html">open alone</a></figcaption>
+    <figcaption>Behind a button, never inline. One big tap in, one big tap out. <a href="StepImage.dc.html">open alone</a></figcaption>
   </figure>
 
   <figure id="settings">
-    <div class="label"><span class="num">15</span><span class="name">Settings</span></div>
-    <div class="frame"><iframe src="Settings.dc.html" title="Settings" loading="lazy"></iframe></div>
-    <figcaption>Device is a real choice, not a blank, and shows what it currently resolves to. Sign out lives here. <a href="Settings.dc.html">open alone</a></figcaption>
+    <div class="label"><span class="num">18</span><span class="name">Language and units</span></div>
+    <div class="frame"><iframe src="Settings.dc.html" title="Language and units" loading="lazy"></iframe></div>
+    <figcaption>Reached from the You tab. Device is a real choice, not a blank, and shows what it currently resolves to. <a href="Settings.dc.html">open alone</a></figcaption>
   </figure>
 
 </main>

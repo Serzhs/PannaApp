@@ -24,7 +24,7 @@ A developer can clone the repo, run three commands, and have a linted, typecheck
 
 Create every table listed in `CLAUDE.md` in the initial migration: `users`, `identities`, `refresh_tokens`, `recipes`, `ingredients`, `equipment`, `steps`, `step_ingredients`, `step_equipment`, `cooks`, `cook_notes`. Later specs add endpoints on top of them and never alter a table that already holds data.
 
-Also created here: the `unit`, `unit_system`, `auth_provider` and `recipe_status` Postgres enums, and the `citext` extension so email uniqueness is case insensitive.
+Also created here: the `unit`, `unit_system`, `auth_provider`, `recipe_status` and `recipe_visibility` Postgres enums, the `pg_trgm` extension for searching recipe titles, and the `citext` extension so email uniqueness is case insensitive.
 
 `steps.parentStepId` is a nullable self-reference, which is how a step records that it happens during another one. The schema can express the foreign key and nothing else: that a parent belongs to the same recipe, and that nesting never goes more than one level deep, are enforced in application code from 0008 onward.
 

@@ -1,3 +1,21 @@
+`visibility` has three states and they are not the same thing:
+
+- **private** - only the author. The default, and where every recipe starts.
+- **unlisted** - anyone holding the link. `shareToken` is set; nothing lists it anywhere.
+- **public** - listed in Featured and on the author's profile. Reachable by id; no token needed.
+
+`shareToken` is null until the recipe is shared by link, and null again the moment that is revoked.
+**A revoked link is gone for good**: sharing again generates a new token and a new URL, and anything
+already sent stops working.
+
+**The column is back, and this is the case that brought it.** It was removed when shared meant exactly
+`shareToken IS NOT NULL`, with the note that a third state such as publicly listed would bring it back.
+Public is that third state: a public recipe is discoverable without any token, so the two facts are no
+longer the same fact.
+
+**Only a `ready` recipe can be public.** Publishing a draft would put half-written recipes in front of
+strangers, so the transition is refused and the app offers to mark it ready first.
+
 # CLAUDE.md
 
 **Panna** is a cooking assistant app. Users write recipes as steps, nesting the ones that can be done
@@ -60,6 +78,23 @@ just say it simply.
 | Format | Prettier, with `eslint-config-prettier` disabling all conflicting rules |
 
 Explicitly **not** used: CSS Modules (does not work in React Native), NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL, Moti (Reanimated directly is enough for what this app does), `react-native-skia` (revisit only if the cooking view in 0011 genuinely outgrows Reanimated).
+
+## Choosing a dependency
+
+Prefer packages that are widely used and actively maintained. A package with millions of weekly
+downloads and recent commits has had far more eyes on it than a clever one with four hundred.
+
+Before adding anything not already named in the Stack table, check: weekly downloads, when it was last
+published, whether the repository is active, and how many dependencies it drags in. A name that merely
+looks plausible is not enough - typosquatting and abandoned-then-sold packages are how supply chain
+attacks reach a project like this one.
+
+Prefer a few well-known packages over many small ones, and prefer doing it yourself over adding a
+dependency for something short. Every package is code you did not read running with your project's
+permissions.
+
+`pnpm audit` runs as part of `pnpm test` and fails on a high severity advisory, but that only catches
+what has already been reported. The judgement above is the part that catches the rest.
 
 ## TypeScript strictness
 
@@ -179,7 +214,7 @@ wrong language.
 
 Tables live in `apps/api/src/db/schema/`. All ids are `uuid` with `defaultRandom()`. **Every table has `createdAt` and `updatedAt` as `timestamptz`**, join tables included - a uniform rule is cheaper to keep than an exception nobody remembers.
 
-**users**: id, email (unique, citext), displayName, locale (varchar 5, nullable), unitSystem (enum: `metric` | `imperial`, nullable), createdAt, updatedAt
+**users**: id, email (unique, citext), displayName, avatarImageKey (varchar 255, nullable), locale (varchar 5, nullable), unitSystem (enum: `metric` | `imperial`, nullable), createdAt, updatedAt
 
 There is no password column. The app has no passwords at all, so it stores nothing that can be
 cracked, reused or reset.
@@ -203,7 +238,7 @@ last resort, for when the device asks for a language the app does not ship. Coll
 
 **refresh_tokens**: id, userId (fk users, cascade), tokenHash, expiresAt, revokedAt (nullable)
 
-**recipes**: id, authorId (fk users, cascade), sourceRecipeId (fk recipes, set null, nullable), title, description (nullable), status (enum: `draft` | `ready`, default `draft`), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
+**recipes**: id, authorId (fk users, cascade), sourceRecipeId (fk recipes, set null, nullable), title, description (nullable), status (enum: `draft` | `ready`, default `draft`), visibility (enum: `private` | `unlisted` | `public`, default `private`), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
 
 **ingredients**: id, recipeId (fk recipes, cascade), position (int), name, note (text, nullable), amount (numeric 10,2, nullable), unit (enum, nullable)
 
@@ -336,8 +371,8 @@ cannot edit it under them, revoking the share cannot take it away, and they can 
 disagree with - which is the whole point of keeping a recipe.
 
 What is copied: the recipe, its ingredients, its equipment, its steps, and both join tables. What is
-not: `cooks` and `cook_notes`, which are the author's own history and nobody else's; and `shareToken`,
-so the copy starts unshared.
+not: `cooks` and `cook_notes`, which are the author's own history and nobody else's; and `shareToken`
+and `visibility`, so the copy starts private and unshared.
 
 The fiddly part is that steps reference each other through `parentStepId`, and both join tables
 reference step, ingredient and equipment ids. A copy has to build a map from old id to new and rewrite
@@ -595,27 +630,31 @@ picking one for both.
 
 ## App structure
 
-Six screens. Anything that feels like a seventh should be a state of one of these instead - the four
-create pages are states, not screens.
+Three tabs, and screens that stack inside them.
+
+| Tab | Screen | What it is for |
+| --- | --- | --- |
+| Recipes | `(app)/(tabs)/index` | Yours. In progress at the top, then everything else, drafts chipped. |
+| Featured | `(app)/(tabs)/featured` | Other people's public recipes: search, most copied, latest. |
+| You | `(app)/(tabs)/you` | Your avatar and name, your public recipes, language, units, sign out. |
+
+Stacked on top of whichever tab you are in:
 
 | Screen | What it is for |
 | --- | --- |
 | `(auth)/index` | Sign in with Google or Apple. The only screen when signed out. |
-| `(app)/index` | Home. Recipes in progress at the top, then everything else, drafts chipped. |
-| `(app)/recipes/[id]` | Read a recipe: ingredients, steps, total time, your notes. Has the Cook button. |
+| `(app)/recipes/[id]` | Read a recipe: ingredients, equipment, steps, history. |
 | `(app)/recipes/new` | Create: four pages, or paste one from your AI. |
 | `(app)/recipes/[id]/edit` | Edit: the whole recipe on one screen. |
-| `(app)/recipes/[id]/cook` | The guide. Opens on a check of what you have, then one step at a time, showing what can be done meanwhile. |
-| `(app)/settings` | Language, units, sign out. |
+| `(app)/recipes/[id]/cook` | The guide. Opens on a check of what you have, then one step at a time. |
+| `(app)/users/[id]` | Somebody else's profile: their avatar, name, and public recipes. |
 
-The check of what you have is the first state of cooking, not a seventh screen. Tapping Cook lands
-there: tick off the ingredients, mark anything you are going without, then start. Choosing to cook
-without something is part of that session and never changes the recipe.
+**The tab bar is hidden in cook mode.** Cooking needs the bottom of the screen for a bar big enough to
+hit with a knuckle, and there is nowhere to go from it but out. Every other screen keeps it.
 
-**Creating a recipe is four pages; editing one is not.** New recipes go through basics, what you need,
-the steps, then a review before they stop being a draft - each page saving as it goes, so stopping
-halfway loses nothing. Editing an existing recipe is the whole thing on one screen: someone fixing a
-single wrong quantity should not be walked through four pages to reach it.
+The check of what you have is the first state of cooking, not a screen. Tapping Cook lands there: tick
+off the ingredients, mark anything you are going without, then start. Choosing to cook without
+something is part of that session and never changes the recipe.
 
 Reading and cooking are deliberately separate. Reading happens before shopping and while deciding what
 to make; cooking happens with wet hands at a stove. The same screen cannot be good at both.

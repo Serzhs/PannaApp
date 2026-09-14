@@ -18,13 +18,10 @@
     .rule { height: 0; border-top: 1.5px dashed #cfcfcf; }
   </style>
 </helmet>
-<div class="paper" style="width: 390px; height: 844px; box-sizing: border-box; padding: 26px 20px 0; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+<div class="paper" style="width: 390px; height: 844px; box-sizing: border-box; padding: 26px 20px 88px; display: flex; flex-direction: column; overflow: hidden; position: relative;">
 
   <div style="display: flex; align-items: center; justify-content: space-between;">
     <div style="font-size: 30px; transform: rotate(-1deg);">Panna</div>
-    <div class="sk" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.8"><circle cx="12" cy="12" r="3.2" /><path d="M12 3v2.4M12 18.6V21M21 12h-2.4M5.4 12H3M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7M18.4 18.4l-1.7-1.7M7.3 7.3L5.6 5.6" stroke-linecap="round" /></svg>
-    </div>
   </div>
 
   <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; padding: 0 18px 60px; text-align: center;">
@@ -55,6 +52,17 @@
 
   </div>
 
+  <div style="position:absolute;left:0;right:0;bottom:0;height:76px;border-top:1.5px solid #cfcfcf;background:#fbfaf7;display:flex;align-items:flex-start;padding-top:11px;">
+    <div style="flex-grow:1;display:flex;flex-direction:column;align-items:center;gap:5px;color:#2b2b2b;">
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5h16v14H4z" /><path d="M4 9h16" stroke-linecap="round" /></svg>
+      <div style="font-size:11.5px;">Recipes</div></div>
+    <div style="flex-grow:1;display:flex;flex-direction:column;align-items:center;gap:5px;color:#b0aca6;">
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#b0aca6" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="M16.2 16.2L21 21" /></svg>
+      <div style="font-size:11.5px;">Featured</div></div>
+    <div style="flex-grow:1;display:flex;flex-direction:column;align-items:center;gap:5px;color:#b0aca6;">
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#b0aca6" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8" /><path d="M5 20c0-3.6 3.1-5.5 7-5.5s7 1.9 7 5.5" /></svg>
+      <div style="font-size:11.5px;">You</div></div>
+  </div>
 </div>
 </x-dc>
 </body>
