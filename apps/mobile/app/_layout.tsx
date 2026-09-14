@@ -2,6 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { createQueryClient, wireQueryToDevice } from '@/query/client';
@@ -14,9 +15,11 @@ export default function RootLayout() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <StatusBar style="dark" />
-        {/* 0003 replaces this with the (auth) and (app) groups. */}
-        <Stack screenOptions={{ headerShown: false }} />
+        <KeyboardProvider>
+          <StatusBar style="dark" />
+          {/* 0003 replaces this with the (auth) and (app) groups. */}
+          <Stack screenOptions={{ headerShown: false }} />
+        </KeyboardProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );

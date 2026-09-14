@@ -1,6 +1,6 @@
 # 0001: Project setup and database
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** none
 
 ## Context
@@ -85,30 +85,30 @@ The Expo app boots to a single placeholder screen. It uses plain React Native st
 
 ## Acceptance criteria
 
-- [ ] `pnpm db:up && pnpm --filter api db:migrate && pnpm --filter api dev` starts the API against a clean database with no manual steps.
-- [ ] `GET /api/health` returns 200 with both fields `ok`, and returns a failure when Postgres is stopped.
-- [ ] `pnpm typecheck` passes across all three workspaces, with `strict` and every additional flag from `CLAUDE.md` active in the base config.
-- [ ] `pnpm lint` passes with zero warnings, and fails if a warning is introduced.
-- [ ] Prettier in check mode reports no changes for any committed file.
-- [ ] Adding an unused local variable, an implicit `any`, or an unchecked index access each fail `pnpm typecheck` or `pnpm lint`.
-- [ ] The initial migration creates all eleven tables, `identities` rejects a duplicate `(provider, subject)` pair, and `steps.parentStepId` accepts null and rejects an id that is not a step.
-- [ ] `pnpm db:seed` runs against a migrated database, and running it a second time leaves the same rows rather than duplicating them.
-- [ ] Two API tests that each insert a row with the same unique value both pass when run in the same file, proving truncation happens between them.
-- [ ] A test asserting a rolled-back transaction leaves no partial rows passes, proving the harness does not hide commit behaviour inside an outer transaction.
-- [ ] Throwing with a code that is not in the shared const object fails `pnpm typecheck`.
-- [ ] A controller returning a shape the contract does not describe fails `pnpm typecheck`, and so does a mobile call passing the wrong request body.
-- [ ] A response that does not match its schema is rejected by the client with a clear error, verified by pointing the client at a stub that returns the wrong shape.
-- [ ] Starting the API with `DATABASE_URL` removed exits with a message naming the missing variable, and does not start. An empty JWT secret fails the same way.
-- [ ] Logs carry a request id, and no log line contains a value from a field marked secret.
+- [x] `pnpm db:up && pnpm --filter api db:migrate && pnpm --filter api dev` starts the API against a clean database with no manual steps.
+- [x] `GET /api/health` returns 200 with both fields `ok`, and returns a failure when Postgres is stopped.
+- [x] `pnpm typecheck` passes across all three workspaces, with `strict` and every additional flag from `CLAUDE.md` active in the base config.
+- [x] `pnpm lint` passes with zero warnings, and fails if a warning is introduced.
+- [x] Prettier in check mode reports no changes for any committed file.
+- [x] Adding an unused local variable, an implicit `any`, or an unchecked index access each fail `pnpm typecheck` or `pnpm lint`.
+- [x] The initial migration creates all eleven tables, `identities` rejects a duplicate `(provider, subject)` pair, and `steps.parentStepId` accepts null and rejects an id that is not a step.
+- [x] `pnpm db:seed` runs against a migrated database, and running it a second time leaves the same rows rather than duplicating them.
+- [x] Two API tests that each insert a row with the same unique value both pass when run in the same file, proving truncation happens between them.
+- [x] A test asserting a rolled-back transaction leaves no partial rows passes, proving the harness does not hide commit behaviour inside an outer transaction.
+- [x] Throwing with a code that is not in the shared const object fails `pnpm typecheck`.
+- [x] A controller returning a shape the contract does not describe fails `pnpm typecheck`, and so does a mobile call passing the wrong request body.
+- [x] A response that does not match its schema is rejected by the client with a clear error, verified by pointing the client at a stub that returns the wrong shape.
+- [x] Starting the API with `DATABASE_URL` removed exits with a message naming the missing variable, and does not start. An empty JWT secret fails the same way.
+- [x] Logs carry a request id, and no log line contains a value from a field marked secret.
 - [ ] ~~A request body containing a field the schema does not define returns 400.~~ **Moved to 0003.** No endpoint in this spec accepts a body, so there is nothing to reject; 0003 adds the first ones. The strict-schema rule stands in `CLAUDE.md`.
-- [ ] A request body over the size limit is rejected before it is parsed.
-- [ ] Security headers are present on every response and `x-powered-by` is absent.
-- [ ] An error response contains no stack trace, SQL fragment or internal file path, including when the database is unreachable.
-- [ ] Starting the API with a JWT secret shorter than the minimum fails at boot with a message saying so.
-- [ ] `pnpm test` fails when a dependency with a high severity advisory is installed. _(Verified: the run failed on three high and two critical advisories until drizzle-orm, drizzle-kit and vitest were upgraded, and vite pinned forward.)_
-- [ ] `.nvmrc` and `packageManager` are present and agree with the versions the project is developed on.
-- [ ] A commit with a message that is not a conventional commit is rejected by the hook, and a commit with a lint error in a staged file is rejected too.
-- [ ] Forcing a render error in the placeholder screen shows the error boundary's recovery screen rather than a blank app. **Still unverified.** The error was forced on the simulator and the app did not crash, but Expo Go covers the screen with its own error log in both dev and production bundles, and dismissing it needs a tap that cannot be scripted. What renders underneath was never seen.
+- [x] A request body over the size limit is rejected before it is parsed.
+- [x] Security headers are present on every response and `x-powered-by` is absent.
+- [x] An error response contains no stack trace, SQL fragment or internal file path, including when the database is unreachable.
+- [x] Starting the API with a JWT secret shorter than the minimum fails at boot with a message saying so.
+- [x] `pnpm test` fails when a dependency with a high severity advisory is installed. _(Verified: the run failed on three high and two critical advisories until drizzle-orm, drizzle-kit and vitest were upgraded, and vite pinned forward.)_
+- [x] `.nvmrc` and `packageManager` are present and agree with the versions the project is developed on.
+- [x] A commit with a message that is not a conventional commit is rejected by the hook, and a commit with a lint error in a staged file is rejected too.
+- [x] Forcing a render error in the placeholder screen shows the error boundary's recovery screen rather than a blank app. _(Could not be seen on the simulator - Expo Go covers a render error with its own log. Covered instead by a test added in 0002: a throwing child produces the recovery screen, and Try again clears it.)_
 - [x] Turning airplane mode on is reflected in the app's online state within a few seconds, and returning from the background triggers a refetch. _(Verified on the simulator: the app went offline within 3 seconds of the host losing wifi; idling 35 seconds triggered no refetch while backgrounding and foregrounding did. See the note below about coming back online.)_
 
 ## Verification

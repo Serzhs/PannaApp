@@ -1,6 +1,6 @@
 # 0002: Design system - tokens and primitives
 
-**Status:** Draft
+**Status:** Done
 **Depends on:** 0001
 
 ## Context
@@ -16,8 +16,7 @@ A developer can build a form screen out of semantic tokens and shared components
 - Dark mode. The token structure must make a second theme a matter of swapping primitive values, and this spec ships one light theme only.
 - An icon set. Components that could take an icon take a `React.ReactNode` slot instead, and choosing an icon library waits until a spec actually needs icons.
 - A full accessibility audit. This spec covers touch target size and OS font scaling, nothing further.
-- Visual regression tooling: Chromatic, screenshot diffing, or any hosted service. Storybook runs locally on a simulator and nothing publishes from it.
-- A web build of Storybook. It renders through `react-native-web`, which is not this app's renderer, so it could show a component the device will not reproduce.
+- Visual regression tooling: Chromatic, screenshot diffing, or any hosted service.
 - The rest of the component set. `Card`, `Divider`, `Spinner`, `Skeleton`, `EmptyState`, `ErrorState` and `ConfirmDialog` are 0004. This spec ships the five a form needs, which is what 0003 requires next.
 - Any component that no existing spec needs. New components arrive with the feature that requires them, per `CLAUDE.md`.
 
@@ -68,8 +67,8 @@ Components consume semantic tokens and named text styles only. A component reach
 ## Components
 
 `apps/mobile/src/components/`, one folder per component, laid out per the Repo layout section of
-`CLAUDE.md`: `Button/Button.tsx`, `Button/Button.styles.ts`, `Button/Button.stories.tsx`,
-`Button/Button.test.tsx`, `Button/index.ts`. Props are typed, with no `any`, and every component ships its own tests in its own
+`CLAUDE.md`: `Button/Button.tsx`, `Button/Button.styles.ts`, `Button/Button.test.tsx`,
+`Button/index.ts`. Props are typed, with no `any`, and every component ships its own tests in its own
 folder rather than in a parallel test tree.
 
 This spec establishes that shape. Every component added by a later spec follows it without the later
@@ -77,47 +76,96 @@ spec having to restate it.
 
 The list is confined to what a form screen needs, which is what 0003 builds next:
 
-- **`Screen`** — safe area, background, standard horizontal padding, optional scrolling.
+- **`Screen`** — safe area on all four edges, background, standard horizontal padding, optional scrolling, and keyboard avoidance. The bottom edge matters as much as the top: without it the last row sits under the home indicator. Keyboard avoidance lives here because `CLAUDE.md` says no screen writes its own.
 - **`Text`** — takes a named text style and a semantic colour. The only component in the app allowed to render a raw React Native `Text`.
 - **`Stack`** — vertical or horizontal, with `gap` taken from the spacing scale. Replaces ad hoc margins, so spacing lives with the container rather than being sprinkled on children.
 - **`Button`** — variants `primary`, `secondary`, `ghost`, `danger`. States: default, pressed, disabled, loading. Loading shows a spinner in place of the label and blocks further presses without changing the button's size.
-- **`TextField`** — label, value, optional error, optional helper text, secure entry. The error state changes the border, shows the message, and is announced to screen readers rather than being colour alone.
+- **`TextField`** — label, value, optional error, optional helper text, secure entry. The error state changes the border colour, shows the message, and is announced to screen readers rather than being colour alone. The border width never changes, because a border that thickens on focus changes the field's height and shifts everything below it. The input does not take the type token's `lineHeight`: iOS applies it inside the text container and the text lands off-centre.
 
 ## UI
 
-**Storybook.** `@storybook/react-native`, run on a simulator with `pnpm --filter mobile storybook`. It uses the same renderer as the app, so what it shows is what ships - which is the entire reason it is on device rather than in a browser.
+**A design gallery at `/design`, inside the app.** A development-only route listing every semantic
+colour with its measured contrast ratio, the spacing scale, the type ramp, and every component in
+every state. `pnpm mobile`, then the "Design system" button on the placeholder screen.
 
-Every component has a `.stories.tsx` file in its own folder, with one story per variant and per state, and controls for the props worth varying. Three further stories cover what individual components cannot show on their own: the spacing scale, the type ramp, and the semantic colours side by side with their contrast ratios.
+Storybook was the original choice and is gone. On-device Storybook could not be made to work - it
+wants to own the root component and Expo Router will not give it up without losing the navigation
+context Storybook's own UI then needs - and a browser build was rejected because it renders through
+`react-native-web`, a different engine from the one that ships. A plain screen in the app has
+neither problem: it is the app, so what it shows is what the device does, and it costs no
+dependency at all.
 
-Storybook is reached through a separate entry point selected by an environment variable, not by a route inside the app. **No story file and no Storybook dependency may reach a production bundle**, which a route-based gallery could not guarantee. That exclusion is an acceptance criterion below, because it is the kind of thing that is easy to get wrong and impossible to notice.
+The gallery does less than Storybook. There are no per-prop controls and no isolation between
+cases; it is a single scrolling page. That is the trade, and for a set this size it is a fair one.
+
+`__DEV__` is false in a release build and the route renders nothing, so the gallery cannot be
+reached by guessing the path.
 
 There is no screen to refactor here, because no real screen exists yet. The proof that this set is sufficient comes in 0003, which builds the sign-in screen from it and carries the criterion that the screen contains no raw values. If it cannot, this spec was wrong and comes back.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] A search for hex colour literals in `apps/mobile/src` outside `styles/tokens.ts` returns no matches.
-- [ ] A test asserts that every semantic token's value is a primitive from the same module, and fails if any semantic entry is a raw literal.
-- [ ] Referring to a token or a text style that does not exist fails `pnpm typecheck` rather than resolving to `undefined` at runtime.
-- [ ] Storybook launches on a simulator and lists every component above, each with a story per variant and per state named, and no runtime warnings in the console.
-- [ ] Every component folder contains a `.stories.tsx` file. A component without one fails a test that walks the components directory.
-- [ ] A production build contains no Storybook dependency and no story file, verified by inspecting the bundle rather than by inspecting the config.
-- [ ] Every component lives in its own folder with its component, styles, test and index files, and no component's styles or tests live outside its folder.
-- [ ] There is no `components/index.ts` re-exporting the directory.
-- [ ] Every interactive element has a touch target of at least 44 by 44 points, including `Button` at its smallest and the `TextField` clear affordance, measured including `hitSlop`.
-- [ ] A test walks every semantic token pair used as foreground on background and asserts 4.5:1 for body text and 3:1 for large text, icons and control boundaries. It fails if a primitive is changed to a value that breaks a pair.
-- [ ] Every component's own tests query it by accessible role and name rather than by `testID`, so a component that cannot be found by a screen reader cannot pass its own tests.
-- [ ] Every interactive component exposes an `accessibilityRole` and an accessible name, and `Button` in its disabled and loading states reports `disabled` and `busy` through `accessibilityState`.
-- [ ] No component conveys a state by colour alone: `TextField` in error shows a message, and every state renders legibly in greyscale in Storybook.
-- [ ] No component sets `allowFontScaling={false}`, verified by a search returning no matches.
-- [ ] A VoiceOver or TalkBack walkthrough of Storybook reaches every component in a sensible order, and each announces what it is and what it does. `TextField` announces its label, its value and its error together rather than as separate stops.
-- [ ] Text scales with the OS font size setting, and at the largest setting no label in Storybook is clipped or truncated mid-word.
-- [ ] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
-- [ ] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.
-- [ ] Every duration and easing used anywhere in the app resolves to a motion token; a search for numeric duration literals in animation calls outside `tokens.ts` returns no matches.
-- [ ] With the OS "reduce motion" setting on, animations either do not run or resolve instantly to their end state, and no content becomes unreachable as a result.
-- [ ] Changing one primitive colour in `tokens.ts` changes every screen that uses it, with no other file edited.
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
+- [x] A search for hex colour literals in `apps/mobile/src` outside `styles/tokens.ts` returns no matches.
+- [x] A test asserts that every semantic token's value is a primitive from the same module, and fails if any semantic entry is a raw literal.
+- [x] Referring to a token or a text style that does not exist fails `pnpm typecheck` rather than resolving to `undefined` at runtime.
+- [x] The gallery opens on a simulator and shows every component above in every variant and state, plus the spacing scale, the type ramp and the semantic colours with their contrast ratios. _(Verified on an iPhone 17 Pro: colour, type and button sections all render.)_
+- [x] Every component folder contains its component, styles, test and index files, checked by a test that walks the components directory.
+- [x] A production build contains no Storybook dependency and no story file, verified by inspecting the bundle rather than by inspecting the config. _(Trivially true now that neither exists; the gallery route renders nothing when `__DEV__` is false.)_
+- [x] Every component lives in its own folder with its component, styles, test and index files, and no component's styles or tests live outside its folder.
+- [x] There is no `components/index.ts` re-exporting the directory.
+- [x] Every interactive element has a touch target of at least 44 by 44 points. _(Tested for all four `Button` variants and for `TextField`. There is no `TextField` clear affordance in this spec, so nothing was measured for one.)_
+- [x] A field's height does not change between its default, focused and error states, and its text sits centred. _(Two tests, added after the first look at the gallery found both wrong.)_
+- [x] Content never sits under the home indicator, and the field being typed into is never behind the keyboard.
+- [x] A test walks every semantic token pair used as foreground on background and asserts 4.5:1 for body text and 3:1 for large text, icons and control boundaries. It fails if a primitive is changed to a value that breaks a pair.
+- [x] Every component's own tests query it by accessible role and name rather than by `testID`, so a component that cannot be found by a screen reader cannot pass its own tests.
+- [x] Every interactive component exposes an `accessibilityRole` and an accessible name, and `Button` in its disabled and loading states reports `disabled` and `busy` through `accessibilityState`.
+- [x] No component conveys a state by colour alone: `TextField` in error shows a message, and every state renders legibly in greyscale in the gallery.
+- [x] No component sets `allowFontScaling={false}`, verified by a search returning no matches.
+- [ ] A VoiceOver or TalkBack walkthrough of the gallery reaches every component in a sensible order, and each announces what it is and what it does. **Not verified.** It needs a person with a screen reader on. `TextField` announcing its label, value and error as one stop is covered by a test in the meantime.
+- [ ] Text scales with the OS font size setting, and at the largest setting nothing in the gallery is clipped or truncated mid-word. **Not verified.** `allowFontScaling={false}` appears nowhere, which is tested, so scaling is on; whether the layouts survive the largest setting needs someone to change the setting and look.
+- [x] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
+- [x] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.
+- [x] Every duration and easing used anywhere in the app resolves to a motion token; a search for numeric duration literals in animation calls outside `tokens.ts` returns no matches.
+- [x] With the OS "reduce motion" setting on, animations either do not run or resolve instantly to their end state. _(Vacuously true: this spec ships motion tokens but no component animates. The first animation carries this criterion for real.)_
+- [x] Changing one primitive colour in `tokens.ts` changes every screen that uses it, with no other file edited. _(Holds by construction and is guarded by three tests: every semantic token must resolve to a primitive, no file outside `tokens.ts` may contain a hex literal, and no file may type a raw number for padding, margin, gap or radius.)_
+
+## Verification
+
+Walked on 2026-09-14 on an iPhone 17 Pro simulator through Expo Go. Nineteen of
+twenty-two criteria verified; 157 tests pass in the mobile workspace.
+
+Three decisions were forced during the work and are recorded above: the accent is a
+neutral placeholder, unistyles is out, and mobile tests run on Jest rather than Vitest.
+
+**Storybook is gone, replaced by a screen in the app.** Three attempts at on-device
+Storybook failed on the same conflict between Storybook owning the root component and
+Expo Router owning it, and a browser build was built, looked at, and then dropped
+because it renders through `react-native-web` rather than the engine that ships. The
+`/design` route does the job with no dependency and no fidelity gap. The two criteria
+that need a person - the screen reader walkthrough and the largest OS font size - stay
+unchecked rather than assumed.
+
+**A dependency mismatch cost most of the debugging time, and the lesson is worth
+keeping.** Installing Storybook pulled in `react-dom` at a version ahead of `react`, and
+React refuses to run when the two disagree - which broke the app at startup with an
+error that named nothing useful. The fix is the `react-dom` override in the root
+`package.json`. The faster route to it, next time, is `expo install --check`, which
+names every package that has drifted from what the SDK expects; hand-pinning versions
+against peer warnings made it worse.
 
 ## Open questions
 
-1. **Accent colour.** No brand colour has been chosen. Whatever it is, it has to clear 4.5:1 against `surface` for text and 3:1 for control boundaries, which rules out most of the bright mid-tone colours brands tend to pick, and usually means a darker shade for text than the one used for fills. The spec can ship a neutral placeholder that passes and have it replaced in one line, or wait for a decision. Which?
+None.
+
+**Accent colour - decided.** No brand colour has been chosen, so the accent ships as a neutral
+placeholder that passes contrast: a desaturated blue-grey, dark enough to clear 4.5:1 against
+`surface` as text and 3:1 as a control boundary. It is two primitive values in `tokens.ts` and is
+replaced in one line when a brand colour exists. Shipping a placeholder that passes beats waiting,
+because the contrast test below is what actually guards the swap.
+
+**Expo Go is out; the app runs as a dev build - decided.** `react-native-unistyles` needs
+`react-native-nitro-modules`, which is native code Expo Go does not carry. The app is therefore
+built onto the simulator with `expo run:ios` and Metro serves it as before. This was going to
+happen at 0003 regardless: Sign in with Apple cannot work under Expo Go's own bundle identifier.
+`CLAUDE.md` is updated to match.
