@@ -22,8 +22,8 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | 0014 | Cook's notes | Not written | Record what you learned, and see it next time you cook. |
 | 0015 | JSON recipe import | Not written | Paste AI-generated JSON and get a working recipe. |
 | 0016 | Sharing | Not written | Share a recipe read-only by private link, and revoke it. |
-| 0017 | Profiles and avatars | Not written | An avatar, an editable public name, and a tab bar to reach it. |
-| 0018 | Public recipes and Featured | Not written | Publish a recipe, and find other people's by search, copies or date. |
+| 0017 | Avatars and the tab bar | Not written | An avatar, an editable name, and three tabs to reach things by. |
+| 0018 | Featured recipes | Not written | A searchable set of recipes we wrote, to start from. |
 
 Numbers run in build order, and each spec depends only on lower-numbered ones. That holds today because
 nothing below 0007 is written yet and the order has been kept tidy; it will stop being true the first
@@ -204,29 +204,26 @@ domain and two files hosted on it; a `panna://` link cannot do it, and most mess
 even make it tappable. The alternative that stays local is exporting a recipe as a file the reader
 imports with 0015, without the cook's notes, which never travel, which is a copy rather than a link and cannot be revoked. Deferred deliberately.
 
-**0017 Profiles and avatars - the tab bar arrives here.** An avatar on `users.avatarImageKey`, stored
-and resized like every other image, and `displayName` becomes editable through the `PATCH /api/me` that
-0006 already added. This is also where the app stops being one stack off a home screen and gains three
-tabs, which means every screen's layout is revisited. The tab bar is hidden in cook mode, because that
-screen needs the bottom of the display for a bar big enough to hit with a knuckle.
+**0017 Avatars and the tab bar.** An avatar on `users.avatarImageKey`, stored and resized like every
+other image, and `displayName` becomes editable through the `PATCH /api/me` that 0006 already added.
+This is also where the app stops being one stack off a home screen and gains three tabs, which means
+every screen's layout is revisited. The tab bar is hidden in cook mode, because that screen needs the
+bottom of the display for a bar big enough to hit with a knuckle.
 
-**0018 Public recipes and Featured - the third visibility state.** A recipe can be `public`, which
-lists it in Featured and on its author's profile. **Only a `ready` recipe can be published**: a draft in
-front of strangers is half a recipe.
+**0018 Featured recipes - nothing here is user-generated.** `recipes.featured` marks a recipe that
+belongs in the Featured tab. It is set directly in the database and the app has no way to set it; the
+recipes carrying it are ones we wrote so a new account has somewhere to start rather than an empty
+screen. Saving one copies it, exactly like saving a recipe from a link.
 
-Three ways to find things, and each is a different query. **Latest** is an ordered read. **Most copied**
-counts rows whose `sourceRecipeId` points at a recipe, which needs an index on that column and no new
-one; a denormalised counter is the fix if counting ever gets slow, not before. **Search** uses `pg_trgm`
-on the title - trigram matching is language-agnostic and forgiving of typos, which matters because
-Postgres ships no Latvian text-search dictionary. That is also why removing `recipes.language` still
-holds: this search never needed it.
+**That choice is what removes the spam problem rather than managing it.** Because no user can list a
+recipe publicly, there is nothing to moderate, no report button to build, and no reason to cap how many
+recipes somebody keeps - a cap that would have broken Add to my recipes anyway, since every save
+creates a row.
 
-**There is no moderation, and that is a gap rather than a decision.** Anyone can publish anything into
-Featured, and the only remedy is the author deleting their own recipe. That is workable while the users
-are you and people you know. It stops being workable the first day a stranger publishes something, and
-whoever writes this spec should decide then whether that day has arrived.
-
-Profiles are reached by user id. No handles, so nothing to claim, validate, or be upset about losing.
+Search is `pg_trgm` on the title: trigram matching is language-agnostic and forgiving of typos, which
+matters because Postgres ships no Latvian dictionary. It is also why removing `recipes.language` still
+holds. There is no "most copied" or "latest" - both were rankings over a stream of user posts that no
+longer exists.
 
 ## Workflow
 

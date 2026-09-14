@@ -1,21 +1,3 @@
-`visibility` has three states and they are not the same thing:
-
-- **private** - only the author. The default, and where every recipe starts.
-- **unlisted** - anyone holding the link. `shareToken` is set; nothing lists it anywhere.
-- **public** - listed in Featured and on the author's profile. Reachable by id; no token needed.
-
-`shareToken` is null until the recipe is shared by link, and null again the moment that is revoked.
-**A revoked link is gone for good**: sharing again generates a new token and a new URL, and anything
-already sent stops working.
-
-**The column is back, and this is the case that brought it.** It was removed when shared meant exactly
-`shareToken IS NOT NULL`, with the note that a third state such as publicly listed would bring it back.
-Public is that third state: a public recipe is discoverable without any token, so the two facts are no
-longer the same fact.
-
-**Only a `ready` recipe can be public.** Publishing a draft would put half-written recipes in front of
-strangers, so the transition is refused and the app offers to mark it ready first.
-
 # CLAUDE.md
 
 **Panna** is a cooking assistant app. Users write recipes as steps, nesting the ones that can be done
@@ -238,7 +220,7 @@ last resort, for when the device asks for a language the app does not ship. Coll
 
 **refresh_tokens**: id, userId (fk users, cascade), tokenHash, expiresAt, revokedAt (nullable)
 
-**recipes**: id, authorId (fk users, cascade), sourceRecipeId (fk recipes, set null, nullable), title, description (nullable), status (enum: `draft` | `ready`, default `draft`), visibility (enum: `private` | `unlisted` | `public`, default `private`), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
+**recipes**: id, authorId (fk users, cascade), sourceRecipeId (fk recipes, set null, nullable), title, description (nullable), status (enum: `draft` | `ready`, default `draft`), featured (boolean, default false), servings (int), totalTimeMinutes (int, nullable), coverImageKey (nullable), shareToken (varchar 12, unique, nullable), createdAt, updatedAt
 
 **ingredients**: id, recipeId (fk recipes, cascade), position (int), name, note (text, nullable), amount (numeric 10,2, nullable), unit (enum, nullable)
 
@@ -372,7 +354,7 @@ disagree with - which is the whole point of keeping a recipe.
 
 What is copied: the recipe, its ingredients, its equipment, its steps, and both join tables. What is
 not: `cooks` and `cook_notes`, which are the author's own history and nobody else's; and `shareToken`
-and `visibility`, so the copy starts private and unshared.
+and `featured`, so the copy starts unshared and unfeatured.
 
 The fiddly part is that steps reference each other through `parentStepId`, and both join tables
 reference step, ingredient and equipment ids. A copy has to build a map from old id to new and rewrite
@@ -388,10 +370,19 @@ it looks complete. Drafts are visible to their author with a chip, and are other
 revoked link is gone for good**: sharing again generates a new token and a new URL, and anything
 already sent stops working. Revoked means revoked, with nothing to explain.
 
+**Nothing a user writes is ever publicly listed.** A recipe is theirs, and the only way anyone else
+sees it is a link they send. That is why there is no moderation, no report button, and no cap on how
+many recipes somebody may keep: there is no public surface to spam.
+
+`featured` marks a recipe that belongs in the Featured tab. It is set directly in the database, never
+by the app, and the recipes carrying it are ones we wrote so people have somewhere to start. A featured
+recipe is readable by anyone signed in; saving one copies it like any other.
+
 **There is no `visibility` column.** Shared is exactly `shareToken IS NOT NULL`, so a second column
-could only ever repeat it or contradict it. One would be needed if a token could exist while switched
-off - which is what keeping a link alive across a revoke would require - or if a third state such as
-publicly listed ever arrives. Neither is true.
+could only repeat that or contradict it, and `featured` is a separate fact only we can set. One would
+be needed if a token could exist while switched off - what reviving a link across a revoke requires -
+or the day a user can list a recipe publicly, when `featured` and "the author published this" stop
+being the same thing.
 
 ## API conventions
 
@@ -635,8 +626,8 @@ Three tabs, and screens that stack inside them.
 | Tab | Screen | What it is for |
 | --- | --- | --- |
 | Recipes | `(app)/(tabs)/index` | Yours. In progress at the top, then everything else, drafts chipped. |
-| Featured | `(app)/(tabs)/featured` | Other people's public recipes: search, most copied, latest. |
-| You | `(app)/(tabs)/you` | Your avatar and name, your public recipes, language, units, sign out. |
+| Featured | `(app)/(tabs)/featured` | Recipes we wrote, to start from. Searchable; nothing user-generated. |
+| You | `(app)/(tabs)/you` | Your avatar and name, language, units, sign out. |
 
 Stacked on top of whichever tab you are in:
 
@@ -647,7 +638,6 @@ Stacked on top of whichever tab you are in:
 | `(app)/recipes/new` | Create: four pages, or paste one from your AI. |
 | `(app)/recipes/[id]/edit` | Edit: the whole recipe on one screen. |
 | `(app)/recipes/[id]/cook` | The guide. Opens on a check of what you have, then one step at a time. |
-| `(app)/users/[id]` | Somebody else's profile: their avatar, name, and public recipes. |
 
 **The tab bar is hidden in cook mode.** Cooking needs the bottom of the screen for a bar big enough to
 hit with a knuckle, and there is nowhere to go from it but out. Every other screen keeps it.

@@ -46,120 +46,111 @@
       "page": "page-1"
     },
     {
-      "file": "PublicProfile.dc.html",
+      "file": "CreateBasics.dc.html",
       "x": 940,
       "y": 964,
       "w": 390,
       "h": 844,
-      "title": "06 Somebody's profile",
-      "page": "page-1"
-    },
-    {
-      "file": "CreateBasics.dc.html",
-      "x": 0,
-      "y": 1928,
-      "w": 390,
-      "h": 960,
-      "title": "07 Create 1 - basics",
+      "title": "06 Create 1 - basics",
       "page": "page-1"
     },
     {
       "file": "CreateNeed.dc.html",
-      "x": 470,
+      "x": 0,
       "y": 1928,
       "w": 390,
       "h": 844,
-      "title": "08 Create 2 - what you need",
+      "title": "07 Create 2 - what you need",
       "page": "page-1"
     },
     {
       "file": "CreateSteps.dc.html",
-      "x": 940,
+      "x": 470,
       "y": 1928,
       "w": 390,
       "h": 844,
-      "title": "09 Create 3 - steps",
+      "title": "08 Create 3 - steps",
       "page": "page-1"
     },
     {
       "file": "CreateReview.dc.html",
-      "x": 0,
-      "y": 3008,
+      "x": 940,
+      "y": 1928,
       "w": 390,
       "h": 844,
-      "title": "10 Create 4 - review",
+      "title": "09 Create 4 - review",
       "page": "page-1"
     },
     {
       "file": "Paste.dc.html",
-      "x": 470,
-      "y": 3008,
+      "x": 0,
+      "y": 2892,
       "w": 390,
       "h": 844,
-      "title": "11 Paste a recipe",
+      "title": "10 Paste a recipe",
       "page": "page-1"
     },
     {
       "file": "ReadRecipe.dc.html",
-      "x": 940,
-      "y": 3008,
+      "x": 470,
+      "y": 2892,
       "w": 390,
-      "h": 1390,
-      "title": "12 Read a recipe",
+      "h": 1290,
+      "title": "11 Read a recipe",
       "page": "page-1"
     },
     {
       "file": "WriteRecipe.dc.html",
-      "x": 0,
-      "y": 4518,
+      "x": 940,
+      "y": 2892,
       "w": 390,
       "h": 1200,
-      "title": "13 Edit a recipe",
+      "title": "12 Edit a recipe",
       "page": "page-1"
     },
     {
       "file": "Checklist.dc.html",
-      "x": 470,
-      "y": 4518,
+      "x": 0,
+      "y": 4302,
       "w": 390,
       "h": 844,
-      "title": "14 Before you start",
+      "title": "13 Before you start",
       "page": "page-1"
     },
     {
       "file": "KnuckleHint.dc.html",
-      "x": 940,
-      "y": 4518,
+      "x": 470,
+      "y": 4302,
       "w": 390,
       "h": 844,
-      "title": "15 First open",
+      "title": "14 First open",
       "page": "page-1"
     },
     {
       "file": "Cook.dc.html",
-      "x": 0,
-      "y": 5838,
+      "x": 940,
+      "y": 4302,
       "w": 390,
       "h": 844,
-      "title": "16 Cook",
+      "title": "15 Cook",
       "page": "page-1"
     },
     {
       "file": "StepImage.dc.html",
-      "x": 470,
-      "y": 5838,
+      "x": 0,
+      "y": 5266,
       "w": 390,
       "h": 844,
-      "title": "17 How it should look",
+      "title": "16 How it should look",
       "page": "page-1"
     },
     {
       "file": "Settings.dc.html",
-      "x": 940,
-      "y": 5838,
+      "x": 470,
+      "y": 5266,
       "w": 390,
       "h": 844,
-      "title": "18 Language and units",
+      "title": "17 Language and units",
       "page": "page-1"
     },
     {
@@ -176,7 +167,7 @@
     {
       "id": "note-create",
       "x": 1370,
-      "y": 1160,
+      "y": 1080,
       "w": 260,
       "text": "Creating is four pages so nothing is\noverwhelming, and each saves the draft\nas you go.\n\nEditing is NOT. Fixing one wrong\nquantity should not walk you through\nfour pages.",
       "page": "page-1"
@@ -184,7 +175,7 @@
     {
       "id": "note-hands",
       "x": -300,
-      "y": 3900,
+      "y": 3200,
       "w": 250,
       "text": "Cook mode is used with wet hands,\nfrom arm's length, knife in the other\nhand.\n\nTargets far above the 44pt minimum,\nno audio in either direction, and none\nof it is a mode -- nobody switches on\n\"dirty hands\" once their hands are\ndirty.",
       "page": "page-1"
@@ -192,7 +183,7 @@
     {
       "id": "note-image",
       "x": 1370,
-      "y": 3900,
+      "y": 3200,
       "w": 260,
       "text": "The photo is behind a button, never\ninline.\n\nAn inline picture pushes the instruction\noff a screen that needs big text. One\nbig tap to see it, one big tap to close.",
       "page": "page-1"
@@ -209,7 +200,7 @@
       "id": "note-public",
       "page": "page-1",
       "x": -300,
-      "y": 1040,
+      "y": 140,
       "w": 250,
       "text": "Three tabs, and everything stacks\ninside one of them.\n\nThe tab bar is hidden in cook mode --\nthat screen needs the bottom of the\ndisplay for a bar big enough to hit\nwith a knuckle."
     },
@@ -217,9 +208,9 @@
       "id": "note-featured",
       "page": "page-1",
       "x": 1370,
-      "y": 100,
+      "y": 140,
       "w": 260,
-      "text": "Three ways to find a recipe, three\ndifferent queries.\n\nLatest is an ordered read. Most copied\ncounts rows whose sourceRecipeId\npoints here. Search is trigram matching\non the title -- language-agnostic, which\nis why removing recipes.language still\nholds.\n\nThere is no moderation yet. That is a\ngap, not a decision."
+      "text": "Featured holds recipes we wrote, not\nanything a user published.\n\nThat is what removes the spam problem\nrather than managing it: no public\nsurface means no moderation, no report\nbutton, and no cap on how many\nrecipes anyone may keep."
     }
   ],
   "launch": {

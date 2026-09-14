@@ -15,15 +15,14 @@ One file per screen, each a self-contained HTML document.
 | `SignIn.dc.html` | Google and Apple sign-in |
 | `EmptyHome.dc.html` | Recipes tab with nothing in it yet |
 | `Main.dc.html` | Recipes tab: cooking now, then yours |
-| `Featured.dc.html` | Featured tab: search, most copied, latest |
-| `You.dc.html` | You tab: avatar, public name, your published recipes, settings |
-| `PublicProfile.dc.html` | Somebody else's profile and their public recipes |
-| `CreateBasics.dc.html` | Create 1: cover, title, description, servings, who can see it |
+| `Featured.dc.html` | Featured tab: recipes we wrote, searchable |
+| `You.dc.html` | You tab: avatar, name, settings |
+| `CreateBasics.dc.html` | Create 1: cover, title, description, servings |
 | `CreateNeed.dc.html` | Create 2: ingredients and equipment, each with a note |
 | `CreateSteps.dc.html` | Create 3: steps and nesting |
 | `CreateReview.dc.html` | Create 4: the whole recipe before it stops being a draft |
 | `Paste.dc.html` | Import: copy the prompt, paste the JSON back |
-| `ReadRecipe.dc.html` | Read a recipe, with Add to my recipes on somebody else's |
+| `ReadRecipe.dc.html` | Read a recipe, with Add to my recipes on a featured or shared one |
 | `WriteRecipe.dc.html` | Edit a recipe, all on one screen |
 | `Checklist.dc.html` | Before you start: tick what you have, go without |
 | `KnuckleHint.dc.html` | The once-only hint about tapping with a knuckle |
@@ -32,14 +31,14 @@ One file per screen, each a self-contained HTML document.
 | `Settings.dc.html` | Language and units, reached from the You tab |
 | `Schema.dc.html` | Every table, column, type and nullability &mdash; generated, see below |
 
-Eighteen drawings. Three tabs &mdash; Recipes, Featured, You &mdash; with everything else stacking
+Seventeen drawings. Three tabs &mdash; Recipes, Featured, You &mdash; with everything else stacking
 inside one of them. The tab bar is hidden in cook mode, which needs the bottom of the screen for a bar
 big enough to hit with a knuckle.
 
 Creating is four pages and editing is one, on purpose: someone fixing a single wrong quantity should
 not be walked through a wizard to reach it.
 
-`ReadRecipe`, `WriteRecipe` and `CreateBasics` are drawn taller than the others because they show the
+`ReadRecipe` and `WriteRecipe` are drawn taller than the others because they show the
 whole scrolling page rather than one phone screen's worth.
 
 `index.html` shows them all side by side with notes on each. Open it in a browser and start there.
