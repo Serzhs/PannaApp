@@ -108,12 +108,13 @@ The Expo app boots to a single placeholder screen. It uses plain React Native st
 - [ ] `pnpm test` fails when a dependency with a high severity advisory is installed. _(Verified: the run failed on three high and two critical advisories until drizzle-orm, drizzle-kit and vitest were upgraded, and vite pinned forward.)_
 - [ ] `.nvmrc` and `packageManager` are present and agree with the versions the project is developed on.
 - [ ] A commit with a message that is not a conventional commit is rejected by the hook, and a commit with a lint error in a staged file is rejected too.
-- [ ] Forcing a render error in the placeholder screen shows the error boundary's recovery screen rather than a blank app. **Needs a simulator; not verified from the command line.**
-- [ ] Turning airplane mode on is reflected in the app's online state within a few seconds, and returning from the background triggers a refetch. **Needs a device or simulator; not verified from the command line.**
+- [ ] Forcing a render error in the placeholder screen shows the error boundary's recovery screen rather than a blank app. **Still unverified.** The error was forced on the simulator and the app did not crash, but Expo Go covers the screen with its own error log in both dev and production bundles, and dismissing it needs a tap that cannot be scripted. What renders underneath was never seen.
+- [x] Turning airplane mode on is reflected in the app's online state within a few seconds, and returning from the background triggers a refetch. _(Verified on the simulator: the app went offline within 3 seconds of the host losing wifi; idling 35 seconds triggered no refetch while backgrounding and foregrounding did. See the note below about coming back online.)_
 
 ## Verification
 
-Walked on 2026-09-14. Twenty-two of twenty-five criteria verified by running them.
+Walked on 2026-09-14, first from the command line and then on an iPhone 17 Pro simulator.
+Twenty-three of twenty-five criteria verified by running them.
 
 Three found real defects, all fixed and covered by regression tests:
 
@@ -125,8 +126,23 @@ Three found real defects, all fixed and covered by regression tests:
 One criterion could not be checked as written and moved to 0003: nothing in this spec accepts a
 request body, so "an unknown field returns 400" has nothing to reject.
 
-Two remain unverified and need a simulator: the error boundary's recovery screen, and airplane mode
-reaching the app's online state. Both are marked above rather than assumed.
+**The simulator does not come back online, and it is the simulator.** Dropping the host's wifi put
+the app offline in under three seconds, correctly. Restoring it left the app stuck offline for as
+long as it was watched. Rendering a live `fetch` next to the raw NetInfo state settled where the
+fault is: the fetch returned HTTP 204 from the open internet while NetInfo still reported
+`type: none` and `isConnected: false`. The stale value comes from the iOS Simulator's reachability
+API, which does not re-fire after the host interface returns; the wiring in `src/query/client.ts`
+reads it correctly. Real airplane mode on a real device does not have this problem.
+
+Worth recording rather than fixing: if that state ever did stick on a real device, `onlineManager`
+would stay false and TanStack Query would never fetch again. Nothing in this spec asks for a
+fallback, so none was added.
+
+One criterion remains unverified: the error boundary's recovery screen. Expo Go puts its own error
+log over the whole screen whenever a render throws, in dev and in a `--no-dev --minify` bundle
+alike, and clearing it needs a tap on the simulator that macOS will not let a script send. The
+boundary catches the error - the app did not go white or die - but the recovery screen itself was
+never seen. It is marked unchecked rather than assumed.
 
 ## Open questions
 
