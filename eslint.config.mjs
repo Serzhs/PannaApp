@@ -50,7 +50,7 @@ export default tseslint.config(
   },
   {
     // Config files Metro and friends load with require(), not as modules.
-    files: ['**/metro.config.js', '**/*.cjs'],
+    files: ['**/metro.config.js', '**/jest.config.js', 'apps/mobile/index.js', '**/*.cjs'],
     languageOptions: {
       sourceType: 'commonjs',
       globals: {

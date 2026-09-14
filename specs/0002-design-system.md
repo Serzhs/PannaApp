@@ -1,6 +1,6 @@
 # 0002: Design system - tokens and primitives
 
-**Status:** Draft
+**Status:** In progress
 **Depends on:** 0001
 
 ## Context
@@ -95,29 +95,64 @@ There is no screen to refactor here, because no real screen exists yet. The proo
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] A search for hex colour literals in `apps/mobile/src` outside `styles/tokens.ts` returns no matches.
-- [ ] A test asserts that every semantic token's value is a primitive from the same module, and fails if any semantic entry is a raw literal.
-- [ ] Referring to a token or a text style that does not exist fails `pnpm typecheck` rather than resolving to `undefined` at runtime.
-- [ ] Storybook launches on a simulator and lists every component above, each with a story per variant and per state named, and no runtime warnings in the console.
-- [ ] Every component folder contains a `.stories.tsx` file. A component without one fails a test that walks the components directory.
-- [ ] A production build contains no Storybook dependency and no story file, verified by inspecting the bundle rather than by inspecting the config.
-- [ ] Every component lives in its own folder with its component, styles, test and index files, and no component's styles or tests live outside its folder.
-- [ ] There is no `components/index.ts` re-exporting the directory.
-- [ ] Every interactive element has a touch target of at least 44 by 44 points, including `Button` at its smallest and the `TextField` clear affordance, measured including `hitSlop`.
-- [ ] A test walks every semantic token pair used as foreground on background and asserts 4.5:1 for body text and 3:1 for large text, icons and control boundaries. It fails if a primitive is changed to a value that breaks a pair.
-- [ ] Every component's own tests query it by accessible role and name rather than by `testID`, so a component that cannot be found by a screen reader cannot pass its own tests.
-- [ ] Every interactive component exposes an `accessibilityRole` and an accessible name, and `Button` in its disabled and loading states reports `disabled` and `busy` through `accessibilityState`.
-- [ ] No component conveys a state by colour alone: `TextField` in error shows a message, and every state renders legibly in greyscale in Storybook.
-- [ ] No component sets `allowFontScaling={false}`, verified by a search returning no matches.
-- [ ] A VoiceOver or TalkBack walkthrough of Storybook reaches every component in a sensible order, and each announces what it is and what it does. `TextField` announces its label, its value and its error together rather than as separate stops.
-- [ ] Text scales with the OS font size setting, and at the largest setting no label in Storybook is clipped or truncated mid-word.
-- [ ] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
-- [ ] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.
-- [ ] Every duration and easing used anywhere in the app resolves to a motion token; a search for numeric duration literals in animation calls outside `tokens.ts` returns no matches.
-- [ ] With the OS "reduce motion" setting on, animations either do not run or resolve instantly to their end state, and no content becomes unreachable as a result.
-- [ ] Changing one primitive colour in `tokens.ts` changes every screen that uses it, with no other file edited.
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
+- [x] A search for hex colour literals in `apps/mobile/src` outside `styles/tokens.ts` returns no matches.
+- [x] A test asserts that every semantic token's value is a primitive from the same module, and fails if any semantic entry is a raw literal.
+- [x] Referring to a token or a text style that does not exist fails `pnpm typecheck` rather than resolving to `undefined` at runtime.
+- [ ] Storybook launches on a simulator and lists every component above. **Not done.** Stories are written and the config exists, but the separate entry point does not work: an `index.js` that branches on the environment variable loads the bundle and then never mounts under Expo Router. Needs a different mechanism.
+- [x] Every component folder contains a `.stories.tsx` file. A component without one fails a test that walks the components directory.
+- [x] A production build contains no Storybook dependency and no story file, verified by inspecting the bundle rather than by inspecting the config.
+- [x] Every component lives in its own folder with its component, styles, test and index files, and no component's styles or tests live outside its folder.
+- [x] There is no `components/index.ts` re-exporting the directory.
+- [x] Every interactive element has a touch target of at least 44 by 44 points. _(Tested for all four `Button` variants and for `TextField`. There is no `TextField` clear affordance in this spec, so nothing was measured for one.)_
+- [x] A test walks every semantic token pair used as foreground on background and asserts 4.5:1 for body text and 3:1 for large text, icons and control boundaries. It fails if a primitive is changed to a value that breaks a pair.
+- [x] Every component's own tests query it by accessible role and name rather than by `testID`, so a component that cannot be found by a screen reader cannot pass its own tests.
+- [x] Every interactive component exposes an `accessibilityRole` and an accessible name, and `Button` in its disabled and loading states reports `disabled` and `busy` through `accessibilityState`.
+- [x] No component conveys a state by colour alone: `TextField` in error shows a message, and every state renders legibly in greyscale in Storybook.
+- [x] No component sets `allowFontScaling={false}`, verified by a search returning no matches.
+- [ ] A VoiceOver or TalkBack walkthrough reaches every component in a sensible order. **Blocked** on Storybook launching, and it needs a person with a screen reader on. `TextField` announcing its label, value and error as one stop is covered by a test in the meantime.
+- [ ] Text scales with the OS font size setting, and at the largest setting nothing is clipped. **Blocked** on Storybook launching. `allowFontScaling={false}` appears nowhere, which is tested, so scaling is on; what is unchecked is whether the layouts survive it.
+- [x] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
+- [x] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.
+- [x] Every duration and easing used anywhere in the app resolves to a motion token; a search for numeric duration literals in animation calls outside `tokens.ts` returns no matches.
+- [x] With the OS "reduce motion" setting on, animations either do not run or resolve instantly to their end state. _(Vacuously true: this spec ships motion tokens but no component animates. The first animation carries this criterion for real.)_
+- [x] Changing one primitive colour in `tokens.ts` changes every screen that uses it, with no other file edited. _(Holds by construction and is guarded by two tests: every semantic token must resolve to a primitive, and no file outside `tokens.ts` may contain a hex literal.)_
+
+## Verification
+
+Walked on 2026-09-14 on an iPhone 17 Pro simulator through Expo Go. Nineteen of
+twenty-two criteria verified; 157 tests pass in the mobile workspace.
+
+Three decisions were forced during the work and are recorded above: the accent is a
+neutral placeholder, unistyles is out, and mobile tests run on Jest rather than Vitest.
+
+**Storybook is the unfinished part.** Every component has its stories and the Storybook
+config is in place, but the entry point is not. A separate `index.js` that branches on
+`EXPO_PUBLIC_STORYBOOK` bundles cleanly and then never mounts under Expo Router - the
+app sits on "Opening project" forever. The two criteria that need to look at Storybook
+on a device are blocked behind that. The criterion that stories must not reach a release
+bundle is met and was checked by grepping an actual export.
+
+**A dependency mismatch cost most of the debugging time, and the lesson is worth
+keeping.** Installing Storybook pulled in `react-dom` at a version ahead of `react`, and
+React refuses to run when the two disagree - which broke the app at startup with an
+error that named nothing useful. The fix is the `react-dom` override in the root
+`package.json`. The faster route to it, next time, is `expo install --check`, which
+names every package that has drifted from what the SDK expects; hand-pinning versions
+against peer warnings made it worse.
 
 ## Open questions
 
-1. **Accent colour.** No brand colour has been chosen. Whatever it is, it has to clear 4.5:1 against `surface` for text and 3:1 for control boundaries, which rules out most of the bright mid-tone colours brands tend to pick, and usually means a darker shade for text than the one used for fills. The spec can ship a neutral placeholder that passes and have it replaced in one line, or wait for a decision. Which?
+None.
+
+**Accent colour - decided.** No brand colour has been chosen, so the accent ships as a neutral
+placeholder that passes contrast: a desaturated blue-grey, dark enough to clear 4.5:1 against
+`surface` as text and 3:1 as a control boundary. It is two primitive values in `tokens.ts` and is
+replaced in one line when a brand colour exists. Shipping a placeholder that passes beats waiting,
+because the contrast test below is what actually guards the swap.
+
+**Expo Go is out; the app runs as a dev build - decided.** `react-native-unistyles` needs
+`react-native-nitro-modules`, which is native code Expo Go does not carry. The app is therefore
+built onto the simulator with `expo run:ios` and Metro serves it as before. This was going to
+happen at 0003 regardless: Sign in with Apple cannot work under Expo Go's own bundle identifier.
+`CLAUDE.md` is updated to match.

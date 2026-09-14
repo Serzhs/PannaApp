@@ -7,9 +7,17 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "ios": { "supportsTablet": false, "bundleIdentifier": "app.panna.mobile" },
-    "android": { "package": "app.panna.mobile", "edgeToEdgeEnabled": true },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.panna.mobile"
+    },
+    "android": {
+      "package": "app.panna.mobile",
+      "edgeToEdgeEnabled": true
+    },
     "plugins": ["expo-router"],
-    "experiments": { "typedRoutes": true }
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }
