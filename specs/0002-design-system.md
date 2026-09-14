@@ -17,7 +17,6 @@ A developer can build a form screen out of semantic tokens and shared components
 - An icon set. Components that could take an icon take a `React.ReactNode` slot instead, and choosing an icon library waits until a spec actually needs icons.
 - A full accessibility audit. This spec covers touch target size and OS font scaling, nothing further.
 - Visual regression tooling: Chromatic, screenshot diffing, or any hosted service. Storybook runs locally on a simulator and nothing publishes from it.
-- A web build of Storybook. It renders through `react-native-web`, which is not this app's renderer, so it could show a component the device will not reproduce.
 - The rest of the component set. `Card`, `Divider`, `Spinner`, `Skeleton`, `EmptyState`, `ErrorState` and `ConfirmDialog` are 0004. This spec ships the five a form needs, which is what 0003 requires next.
 - Any component that no existing spec needs. New components arrive with the feature that requires them, per `CLAUDE.md`.
 
@@ -85,7 +84,20 @@ The list is confined to what a form screen needs, which is what 0003 builds next
 
 ## UI
 
-**Storybook.** `@storybook/react-native`, run on a simulator with `pnpm --filter mobile storybook`. It uses the same renderer as the app, so what it shows is what ships - which is the entire reason it is on device rather than in a browser.
+**Storybook.** `@storybook/react-native-web-vite`, run with `pnpm --filter @panna/mobile storybook`
+and opened at `http://localhost:6006`.
+
+This is not what the spec originally called for. On-device Storybook was the choice precisely because
+it uses the app's own renderer, and three attempts at it failed: a custom `main` entry, an entry that
+branches on an environment variable, and a switch at the root layout. All three run into the same
+wall - Storybook wants to own the root component, and Expo Router will not give up the root without
+losing the navigation context Storybook's own UI then needs.
+
+The browser gallery is therefore a compromise, taken deliberately so the design system can be looked
+at at all. It goes through `react-native-web`, so it is evidence about spacing, type, colour and
+component states, and it is **not** evidence about touch targets, gestures, platform behaviour or
+anything native. Those are judged on a simulator. Revisit on-device Storybook if Expo Router grows a
+supported way to replace the root.
 
 Every component has a `.stories.tsx` file in its own folder, with one story per variant and per state, and controls for the props worth varying. Three further stories cover what individual components cannot show on their own: the spacing scale, the type ramp, and the semantic colours side by side with their contrast ratios.
 
@@ -99,7 +111,7 @@ There is no screen to refactor here, because no real screen exists yet. The proo
 - [x] A search for hex colour literals in `apps/mobile/src` outside `styles/tokens.ts` returns no matches.
 - [x] A test asserts that every semantic token's value is a primitive from the same module, and fails if any semantic entry is a raw literal.
 - [x] Referring to a token or a text style that does not exist fails `pnpm typecheck` rather than resolving to `undefined` at runtime.
-- [ ] Storybook launches on a simulator and lists every component above. **Not done.** Stories are written and the config exists, but the separate entry point does not work: an `index.js` that branches on the environment variable loads the bundle and then never mounts under Expo Router. Needs a different mechanism.
+- [x] Storybook launches and lists every component above, each with a story per variant and per state named. _(In a browser rather than on a simulator, for the reason recorded above. 27 stories across 6 components; Button, TextField and Stack spot-checked rendering correctly.)_
 - [x] Every component folder contains a `.stories.tsx` file. A component without one fails a test that walks the components directory.
 - [x] A production build contains no Storybook dependency and no story file, verified by inspecting the bundle rather than by inspecting the config.
 - [x] Every component lives in its own folder with its component, styles, test and index files, and no component's styles or tests live outside its folder.
@@ -110,8 +122,8 @@ There is no screen to refactor here, because no real screen exists yet. The proo
 - [x] Every interactive component exposes an `accessibilityRole` and an accessible name, and `Button` in its disabled and loading states reports `disabled` and `busy` through `accessibilityState`.
 - [x] No component conveys a state by colour alone: `TextField` in error shows a message, and every state renders legibly in greyscale in Storybook.
 - [x] No component sets `allowFontScaling={false}`, verified by a search returning no matches.
-- [ ] A VoiceOver or TalkBack walkthrough reaches every component in a sensible order. **Blocked** on Storybook launching, and it needs a person with a screen reader on. `TextField` announcing its label, value and error as one stop is covered by a test in the meantime.
-- [ ] Text scales with the OS font size setting, and at the largest setting nothing is clipped. **Blocked** on Storybook launching. `allowFontScaling={false}` appears nowhere, which is tested, so scaling is on; what is unchecked is whether the layouts survive it.
+- [ ] A VoiceOver or TalkBack walkthrough reaches every component in a sensible order. **Not verified.** It needs a person with a screen reader on a device; the browser gallery uses a different accessibility layer and would not prove anything. `TextField` announcing its label, value and error as one stop is covered by a test in the meantime.
+- [ ] Text scales with the OS font size setting, and at the largest setting nothing is clipped. **Not verified.** `allowFontScaling={false}` appears nowhere, which is tested, so scaling is on; whether the layouts survive the largest setting needs a device, because the browser gallery does not honour the OS font size.
 - [x] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
 - [x] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.
 - [x] Every duration and easing used anywhere in the app resolves to a motion token; a search for numeric duration literals in animation calls outside `tokens.ts` returns no matches.
@@ -126,12 +138,13 @@ twenty-two criteria verified; 157 tests pass in the mobile workspace.
 Three decisions were forced during the work and are recorded above: the accent is a
 neutral placeholder, unistyles is out, and mobile tests run on Jest rather than Vitest.
 
-**Storybook is the unfinished part.** Every component has its stories and the Storybook
-config is in place, but the entry point is not. A separate `index.js` that branches on
-`EXPO_PUBLIC_STORYBOOK` bundles cleanly and then never mounts under Expo Router - the
-app sits on "Opening project" forever. The two criteria that need to look at Storybook
-on a device are blocked behind that. The criterion that stories must not reach a release
-bundle is met and was checked by grepping an actual export.
+**Storybook ships in a browser rather than on the device.** Three attempts at on-device
+Storybook failed, all on the same conflict between Storybook owning the root component
+and Expo Router owning it; the reasoning and the trade-off are under UI above. The two
+criteria that need a real device - the screen reader walkthrough and OS font scaling -
+stay unchecked rather than being claimed from a browser that cannot show either. The
+criterion that stories must not reach a release bundle is met and was checked by
+grepping an actual export.
 
 **A dependency mismatch cost most of the debugging time, and the lesson is worth
 keeping.** Installing Storybook pulled in `react-dom` at a version ahead of `react`, and

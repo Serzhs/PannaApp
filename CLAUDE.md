@@ -53,7 +53,7 @@ just say it simply.
 | Haptics           | expo-haptics                                                                                    |
 | i18n              | `i18next` + `react-i18next`, locale detection via `expo-localization`                           |
 | Offline           | TanStack Query cache persisted to `expo-sqlite/kv-store`                                        |
-| Component browser | `@storybook/react-native`, on device only                                                       |
+| Component browser | `@storybook/react-native-web-vite`, in a browser. See the caveat below                          |
 | Rate limiting     | `@nestjs/throttler`                                                                             |
 | Language          | TypeScript everywhere, strict (see below), no `any`                                             |
 | Lint              | ESLint 9 flat config, `typescript-eslint` strict-type-checked                                   |
@@ -437,6 +437,14 @@ CSS syntax, and with type checking that CSS variables do not have.
 
 Shared components live in `apps/mobile/src/components/`. A component earns a place there once a
 second feature needs it, not in anticipation of one.
+
+**Storybook runs in a browser, and that is a compromise.** It renders through
+`react-native-web`, which is not what ships, so it is good for looking at spacing, type,
+colour and component states and is not evidence about touch behaviour, platform
+differences, or anything native. Three ways of running it on the device were tried and
+all failed: Storybook needs to own the root component, and Expo Router will not give up
+the root without losing its own navigation context. Judge anything that matters on the
+simulator or a phone, not in the gallery.
 
 ## Security
 

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-native';
+import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
 import { Screen } from './Screen';
 
