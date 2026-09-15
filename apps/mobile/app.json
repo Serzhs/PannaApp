@@ -9,7 +9,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.panna.mobile"
+      "bundleIdentifier": "app.panna.mobile",
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "app.panna.mobile",

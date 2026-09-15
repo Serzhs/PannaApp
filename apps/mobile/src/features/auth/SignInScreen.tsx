@@ -60,6 +60,8 @@ export function SignInScreen() {
             </Text>
           </Stack>
 
+          {/* One stack, one gap: the three buttons are the same size and the same
+              distance apart, so the screen reads as one set rather than three. */}
           <Stack gap="space3">
             {/* Apple's guidance puts their button first on iOS. */}
             {Platform.OS === 'ios' ? (
@@ -77,6 +79,15 @@ export function SignInScreen() {
                 notConfigured('Sign in with Google');
               }}
             />
+
+            {DEV_EMAIL === null ? null : (
+              <Button
+                label="Development sign-in"
+                variant="secondary"
+                loading={busy}
+                onPress={signInAsDeveloper}
+              />
+            )}
           </Stack>
 
           {error === null ? null : (
@@ -86,17 +97,9 @@ export function SignInScreen() {
           )}
 
           {DEV_EMAIL === null ? null : (
-            <Stack gap="space2">
-              <Button
-                label="Development sign-in"
-                variant="secondary"
-                loading={busy}
-                onPress={signInAsDeveloper}
-              />
-              <Text variant="caption" color="textSecondary" style={styles.devNote}>
-                Signs in as {DEV_EMAIL} from the seed. Development builds only.
-              </Text>
-            </Stack>
+            <Text variant="caption" color="textSecondary" style={styles.devNote}>
+              Signs in as {DEV_EMAIL} from the seed. Development builds only.
+            </Text>
           )}
         </Stack>
       </View>

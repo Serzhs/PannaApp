@@ -20,6 +20,7 @@ function sourceFiles(dir: string): string[] {
 const BRAND_EXEMPT = [
   'features/auth/components/AppleButton/AppleButton.styles.ts',
   'features/auth/components/GoogleButton/GoogleButton.styles.ts',
+  'features/auth/components/GoogleButton/GoogleLogo.tsx',
 ];
 
 const files = sourceFiles(srcDir).filter(

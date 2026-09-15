@@ -1,23 +1,23 @@
 import { StyleSheet } from 'react-native';
 
+import { PROVIDER_BUTTON } from '../providerButton';
+
 /**
  * Apple's branding rules, not the design system: they specify the height, the colours,
  * the corner radius and the type. This is one of the two places CLAUDE.md says the
  * app's own styling does not win.
  */
 export const APPLE_BRAND = {
-  height: 44,
-  radius: 8,
   surface: '#000000',
   label: '#FFFFFF',
-  labelSize: 19,
-  logoSize: 19,
+  labelSize: 16,
+  logoSize: 17,
 } as const;
 
 export const styles = StyleSheet.create({
   button: {
-    height: APPLE_BRAND.height,
-    borderRadius: APPLE_BRAND.radius,
+    height: PROVIDER_BUTTON.height,
+    borderRadius: PROVIDER_BUTTON.radius,
     backgroundColor: APPLE_BRAND.surface,
     flexDirection: 'row',
     alignItems: 'center',

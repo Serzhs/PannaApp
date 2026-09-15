@@ -2,7 +2,9 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { Pressable, Text } from 'react-native';
 
-import { APPLE_BRAND, styles } from './AppleButton.styles';
+import { PROVIDER_BUTTON } from '../providerButton';
+
+import { styles } from './AppleButton.styles';
 
 /**
  * Expo Go ships no expo-apple-authentication at all - it was dropped from the iOS
@@ -28,7 +30,7 @@ export function AppleButton({ onPress, disabled = false }: AppleButtonProps) {
       <AppleAuthentication.AppleAuthenticationButton
         buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
         buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-        cornerRadius={APPLE_BRAND.radius}
+        cornerRadius={PROVIDER_BUTTON.radius}
         style={styles.button}
         onPress={onPress}
       />
