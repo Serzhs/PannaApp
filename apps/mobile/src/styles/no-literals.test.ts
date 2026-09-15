@@ -17,7 +17,10 @@ function sourceFiles(dir: string): string[] {
  * CLAUDE.md names that as the one place the design system does not win, so those files
  * are exempt by name - a narrow list, so every other file still fails on a literal.
  */
-const BRAND_EXEMPT = ['features/auth/components/GoogleButton/GoogleButton.styles.ts'];
+const BRAND_EXEMPT = [
+  'features/auth/components/AppleButton/AppleButton.styles.ts',
+  'features/auth/components/GoogleButton/GoogleButton.styles.ts',
+];
 
 const files = sourceFiles(srcDir).filter(
   (file) => file !== tokensFile && !BRAND_EXEMPT.some((exempt) => file.endsWith(exempt)),

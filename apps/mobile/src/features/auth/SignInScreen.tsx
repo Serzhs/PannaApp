@@ -1,10 +1,9 @@
-import * as AppleAuthentication from 'expo-apple-authentication';
-import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { useState } from 'react';
 import { Platform, View } from 'react-native';
 
 import { devSignIn } from './auth.api';
 import { useAuth } from './AuthProvider';
+import { AppleButton } from './components/AppleButton';
 import { GoogleButton } from './components/GoogleButton';
 import { styles } from './SignInScreen.styles';
 
@@ -19,16 +18,6 @@ import { Text } from '@/components/Text';
  * design gallery uses, and checked the same way, by grepping an export.
  */
 const DEV_EMAIL = __DEV__ ? 'janis@example.com' : null;
-
-/**
- * Expo Go lists expo-apple-authentication but does not register its native view, so
- * rendering Apple's button there produces a red "unimplemented component" box. Apple
- * sign-in needs a development build regardless - Expo Go's bundle identifier would make
- * the token's audience wrong - so the button is replaced with a note rather than shown
- * broken.
- */
-const APPLE_BUTTON_AVAILABLE =
-  Platform.OS === 'ios' && Constants.executionEnvironment !== ExecutionEnvironment.StoreClient;
 
 export function SignInScreen() {
   const { signIn } = useAuth();
@@ -73,20 +62,13 @@ export function SignInScreen() {
 
           <Stack gap="space3">
             {/* Apple's guidance puts their button first on iOS. */}
-            {APPLE_BUTTON_AVAILABLE ? (
-              <AppleAuthentication.AppleAuthenticationButton
-                buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-                cornerRadius={4}
-                style={styles.appleButton}
+            {Platform.OS === 'ios' ? (
+              <AppleButton
+                disabled={busy}
                 onPress={() => {
                   notConfigured('Sign in with Apple');
                 }}
               />
-            ) : Platform.OS === 'ios' ? (
-              <Text variant="caption" color="textSecondary" style={styles.intro}>
-                Sign in with Apple needs a development build; Expo Go cannot show it.
-              </Text>
             ) : null}
 
             <GoogleButton

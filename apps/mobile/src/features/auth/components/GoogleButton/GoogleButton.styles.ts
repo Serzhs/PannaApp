@@ -14,6 +14,8 @@ export const GOOGLE_BRAND = {
   surface: '#FFFFFF',
   label: '#1F1F1F',
   logo: 20,
+  /** Google Blue, used only for the stand-in letter below. */
+  standIn: '#4285F4',
 } as const;
 
 export const styles = StyleSheet.create({
@@ -34,10 +36,18 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  /** Holds the space Google's mark will occupy, so adding the asset changes nothing else. */
+  /** Holds the space Google's mark occupies, so dropping in the asset changes nothing else. */
   logoSlot: {
     width: GOOGLE_BRAND.logo,
     height: GOOGLE_BRAND.logo,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  /** A stand-in letter, not Google's mark. Replaced by their file, never redrawn. */
+  logoStandIn: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: GOOGLE_BRAND.standIn,
   },
   pressed: {
     opacity: 0.85,

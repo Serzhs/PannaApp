@@ -13,10 +13,11 @@ export interface GoogleButtonProps {
  * own Text rather than the app's - the app's Text carries semantic colours by design,
  * and this label's colour is Google's to choose.
  *
- * The mark is a trademark and must be Google's own file from their branding guidelines,
- * never a redrawing. Until that asset is added the slot below is deliberately blank
- * rather than approximated, because an approximated mark is a branding violation that
- * looks finished.
+ * The mark is a trademark and must be Google's own file from their branding guidelines.
+ * Their four-colour G is not reproduced here: a redrawn mark that is subtly wrong is a
+ * branding violation that looks finished, which is worse than an obvious stand-in. So
+ * the slot holds a plain letter until the real asset is dropped in, and swapping it is
+ * one element.
  */
 export function GoogleButton({ onPress, disabled = false }: GoogleButtonProps) {
   return (
@@ -28,7 +29,9 @@ export function GoogleButton({ onPress, disabled = false }: GoogleButtonProps) {
       onPress={onPress}
       style={({ pressed }) => [styles.button, pressed && !disabled ? styles.pressed : null]}
     >
-      <View style={styles.logoSlot} accessibilityElementsHidden importantForAccessibility="no" />
+      <View style={styles.logoSlot} accessibilityElementsHidden importantForAccessibility="no">
+        <Text style={styles.logoStandIn}>G</Text>
+      </View>
       <Text style={styles.label}>Continue with Google</Text>
     </Pressable>
   );
