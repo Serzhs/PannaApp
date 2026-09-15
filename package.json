@@ -6,8 +6,8 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "docker compose up -d --wait database && pnpm --filter api db:migrate && pnpm --filter api dev",
-    "mobile": "pnpm --filter @panna/mobile start",
+    "dev": "node scripts/free-port.mjs 3000 && docker compose up -d --wait database && pnpm --filter api db:migrate && pnpm --filter api dev",
+    "mobile": "node scripts/free-port.mjs 8081 && pnpm --filter @panna/mobile start",
     "check": "pnpm lint && pnpm typecheck && pnpm test",
     "lint": "eslint . --max-warnings 0 && prettier --check .",
     "typecheck": "pnpm -r typecheck",

@@ -775,6 +775,12 @@ Every one of these is a root script, so it has a run button beside it in an edit
 shows them. `pnpm dev` starts the database and applies migrations first, so it works from
 a cold machine rather than assuming something is already up.
 
+**`pnpm dev` and `pnpm mobile` free their port before they start.** Metro and `nest start`
+both spawn children that outlive the terminal they were started from, so a stale listener
+is the normal case, and `EADDRINUSE` names a port rather than a thing to do about it.
+`scripts/free-port.mjs` kills only the process _listening_ on the port, never one merely
+connected to it - a simulator holding an open socket is not what is in the way.
+
 ## Testing
 
 - API: Vitest. Service-level tests for business rules (ownership, ordering, share token lifecycle). One e2e test per endpoint group against a real Postgres in docker.
