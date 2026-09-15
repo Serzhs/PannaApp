@@ -756,7 +756,7 @@ and nothing else.
 ## Commands
 
 ```bash
-pnpm dev              # database, migrations, then the API. The one you press most.
+pnpm dev              # database, migrations, then the API. Enables the development sign-in.
 pnpm mobile           # Expo. Scan the QR code with Expo Go.
 
 pnpm check            # lint, typecheck and test. Run before committing.
