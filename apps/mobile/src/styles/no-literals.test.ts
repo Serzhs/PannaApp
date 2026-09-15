@@ -12,7 +12,16 @@ function sourceFiles(dir: string): string[] {
   });
 }
 
-const files = sourceFiles(srcDir).filter((file) => file !== tokensFile);
+/**
+ * Google and Apple require their own button: their mark, their colours, their type.
+ * CLAUDE.md names that as the one place the design system does not win, so those files
+ * are exempt by name - a narrow list, so every other file still fails on a literal.
+ */
+const BRAND_EXEMPT = ['features/auth/components/GoogleButton/GoogleButton.styles.ts'];
+
+const files = sourceFiles(srcDir).filter(
+  (file) => file !== tokensFile && !BRAND_EXEMPT.some((exempt) => file.endsWith(exempt)),
+);
 
 describe('raw values', () => {
   it.each(files.map((f) => [f.slice(srcDir.length), f]))(
