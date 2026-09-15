@@ -10,4 +10,16 @@ export {
   API_PREFIX,
   nestPath,
 } from './contract.js';
+export {
+  authProviderSchema,
+  devSignInBodySchema,
+  refreshBodySchema,
+  sessionSchema,
+  sessionUserSchema,
+  signInBodySchema,
+  tokenPairSchema,
+  type AuthProvider,
+  type Session,
+  type SessionUser,
+} from './auth.js';
 export { ApiError, request, type RequestOptions } from './client.js';
