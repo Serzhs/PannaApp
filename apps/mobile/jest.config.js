@@ -11,6 +11,8 @@ module.exports = {
   resolver: 'react-native-worklets/jest/resolver.js',
   // Components translate through i18next, which must be started before they render.
   setupFilesAfterEnv: ['<rootDir>/src/i18n/setupTests.ts'],
+  // Gesture handler's own mock, so gestures exist in tests without a native side.
+  setupFiles: ['react-native-gesture-handler/jestSetup'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     // Native modules, so tests get the mocks the libraries ship instead.

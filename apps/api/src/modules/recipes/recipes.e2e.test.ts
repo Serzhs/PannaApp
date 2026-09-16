@@ -5,7 +5,10 @@ import { Test } from '@nestjs/testing';
 import {
   API_PREFIX,
   ERROR_CODES,
+  MAX_EQUIPMENT,
+  MAX_INGREDIENTS,
   errorBodySchema,
+  recipeDetailSchema,
   recipeListSchema,
   recipeSchema,
   sessionSchema,
@@ -17,7 +20,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { ErrorFilter } from '../../common/error.filter.js';
 import { validateEnv } from '../../config/env.js';
 import { DatabaseModule } from '../../db/database.module.js';
-import { recipes, users } from '../../db/schema/index.js';
+import { equipment, ingredients, recipes, users } from '../../db/schema/index.js';
 import { db } from '../../test/db.js';
 import { AuthModule } from '../auth/auth.module.js';
 
@@ -267,5 +270,216 @@ describe('recipes, end to end', () => {
       expect(second.status).toBe(404);
       expect(asList(await server().get('/api/recipes').set(as(alice)))).toEqual([]);
     });
+  });
+});
+
+describe('what a recipe needs, end to end', () => {
+  let app: NestExpressApplication;
+  let alice: string;
+  let bob: string;
+
+  beforeAll(async () => {
+    const env = validateEnv({ ...process.env, ALLOW_DEV_SIGN_IN: 'true' });
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true, load: [() => env] }),
+        DatabaseModule,
+        AuthModule.register(env),
+        RecipesModule,
+      ],
+    }).compile();
+    app = moduleRef.createNestApplication<NestExpressApplication>();
+    app.setGlobalPrefix(API_PREFIX);
+    app.useGlobalFilters(new ErrorFilter());
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  const server = () => request(app.getHttpServer());
+  const as = (token: string) => ({ Authorization: `Bearer ${token}` });
+  const asDetail = (res: request.Response) => recipeDetailSchema.parse(res.body);
+
+  async function tokenFor(email: string): Promise<string> {
+    const res = await server().post('/api/auth/dev-session').send({ email });
+    return sessionSchema.parse(res.body).accessToken;
+  }
+
+  async function freshRecipe(token: string): Promise<string> {
+    const res = await server().post('/api/recipes').set(as(token)).send(VALID);
+    return recipeSchema.parse(res.body).id;
+  }
+
+  const patch = (token: string, id: string, body: object) =>
+    server().patch(`/api/recipes/${id}`).set(as(token)).send(body);
+
+  const THREE = [
+    { name: 'Beetroot', amount: 500, unit: 'g' },
+    { name: 'Kefir', amount: 1, unit: 'l', note: 'cold' },
+    { name: 'Dill', note: 'to taste' },
+  ];
+  const TWO = [{ name: 'Large bowl' }, { name: 'Grater', optional: true }];
+
+  beforeEach(async () => {
+    await db.insert(users).values([ALICE, BOB]);
+    alice = await tokenFor(ALICE.email);
+    bob = await tokenFor(BOB.email);
+  });
+
+  it('starts empty, and the list endpoint never carries the lists', async () => {
+    const id = await freshRecipe(alice);
+    const detail = asDetail(await server().get(`/api/recipes/${id}`).set(as(alice)));
+    expect(detail.ingredients).toEqual([]);
+    expect(detail.equipment).toEqual([]);
+
+    const list = await server().get('/api/recipes').set(as(alice));
+    expect(JSON.stringify(list.body)).not.toContain('ingredients');
+  });
+
+  it('stores both lists in order, numbered from zero', async () => {
+    const id = await freshRecipe(alice);
+    const res = await patch(alice, id, { ingredients: THREE, equipment: TWO });
+    expect(res.status).toBe(200);
+    const detail = asDetail(res);
+    expect(detail.ingredients.map((i) => [i.position, i.name, i.amount, i.unit, i.note])).toEqual([
+      [0, 'Beetroot', 500, 'g', null],
+      [1, 'Kefir', 1, 'l', 'cold'],
+      [2, 'Dill', null, null, 'to taste'],
+    ]);
+    expect(detail.equipment.map((e) => [e.position, e.name, e.optional])).toEqual([
+      [0, 'Large bowl', false],
+      [1, 'Grater', true],
+    ]);
+
+    const again = asDetail(await server().get(`/api/recipes/${id}`).set(as(alice)));
+    expect(again).toEqual(detail);
+  });
+
+  it('reorders in place, keeping every id', async () => {
+    const id = await freshRecipe(alice);
+    const first = asDetail(await patch(alice, id, { ingredients: THREE }));
+    const reversed = [...first.ingredients]
+      .reverse()
+      .map(({ id: lineId, name, amount, unit, note }) => ({
+        id: lineId,
+        name,
+        amount,
+        unit,
+        note,
+      }));
+    const second = asDetail(await patch(alice, id, { ingredients: reversed }));
+    expect(second.ingredients.map((i) => i.id)).toEqual(
+      first.ingredients.map((i) => i.id).reverse(),
+    );
+    expect(second.ingredients.map((i) => i.position)).toEqual([0, 1, 2]);
+  });
+
+  it('deletes a row left out and inserts a row with no id', async () => {
+    const id = await freshRecipe(alice);
+    const first = asDetail(await patch(alice, id, { ingredients: THREE }));
+    const [keep] = first.ingredients;
+    if (keep === undefined) throw new Error('nothing stored');
+    const second = asDetail(
+      await patch(alice, id, {
+        ingredients: [
+          { id: keep.id, name: keep.name, amount: keep.amount, unit: keep.unit },
+          { name: 'Sour cream', amount: 2, unit: 'tbsp' },
+        ],
+      }),
+    );
+    expect(second.ingredients).toHaveLength(2);
+    expect(second.ingredients[0]?.id).toBe(keep.id);
+    expect(second.ingredients[1]?.name).toBe('Sour cream');
+    expect(await db.select().from(ingredients).where(eq(ingredients.recipeId, id))).toHaveLength(2);
+  });
+
+  it('leaves what the body does not mention alone, and bumps updatedAt either way', async () => {
+    const id = await freshRecipe(alice);
+    const withLists = asDetail(await patch(alice, id, { ingredients: THREE, equipment: TWO }));
+    const metaOnly = asDetail(await patch(alice, id, { title: 'Aukstā zupa' }));
+    expect(metaOnly.ingredients).toEqual(withLists.ingredients);
+    expect(metaOnly.equipment).toEqual(withLists.equipment);
+    expect(new Date(metaOnly.updatedAt).getTime()).toBeGreaterThan(
+      new Date(withLists.updatedAt).getTime(),
+    );
+
+    const listOnly = asDetail(await patch(alice, id, { ingredients: [{ name: 'Only this' }] }));
+    expect(listOnly.title).toBe('Aukstā zupa');
+    expect(listOnly.equipment).toEqual(withLists.equipment);
+    expect(listOnly.ingredients.map((i) => i.name)).toEqual(['Only this']);
+  });
+
+  it('writes nothing when one line is bad, and names the line', async () => {
+    const id = await freshRecipe(alice);
+    const res = await patch(alice, id, { ingredients: [...THREE, { name: '   ' }] });
+    expect(res.status).toBe(400);
+    expect(asError(res).fields).toHaveProperty('ingredients.3.name');
+    expect(await db.select().from(ingredients).where(eq(ingredients.recipeId, id))).toHaveLength(0);
+  });
+
+  it.each([
+    ['a unit with no amount', { name: 'Salt', unit: 'g' }],
+    ['an amount of 0', { name: 'Salt', amount: 0, unit: 'g' }],
+    ['an amount of -1', { name: 'Salt', amount: -1, unit: 'g' }],
+    ['three decimals', { name: 'Salt', amount: 1.005, unit: 'g' }],
+    ['an amount of 100000', { name: 'Salt', amount: 100000, unit: 'g' }],
+    ['a note over 200 characters', { name: 'Salt', note: 'x'.repeat(201) }],
+    ['an unknown unit', { name: 'Salt', amount: 1, unit: 'handful' }],
+  ])('rejects %s', async (_label, line) => {
+    const id = await freshRecipe(alice);
+    expect((await patch(alice, id, { ingredients: [line] })).status).toBe(400);
+  });
+
+  it('caps the lists, and writes nothing past the cap', async () => {
+    const id = await freshRecipe(alice);
+    const many = Array.from({ length: MAX_INGREDIENTS + 1 }, (_, i) => ({
+      name: `Item ${String(i)}`,
+    }));
+    expect((await patch(alice, id, { ingredients: many })).status).toBe(400);
+    const tools = Array.from({ length: MAX_EQUIPMENT + 1 }, (_, i) => ({
+      name: `Tool ${String(i)}`,
+    }));
+    expect((await patch(alice, id, { equipment: tools })).status).toBe(400);
+    expect(await db.select().from(ingredients).where(eq(ingredients.recipeId, id))).toHaveLength(0);
+    expect(await db.select().from(equipment).where(eq(equipment.recipeId, id))).toHaveLength(0);
+  });
+
+  it("refuses an id from someone else's recipe, and changes neither", async () => {
+    const mine = await freshRecipe(alice);
+    const theirs = await freshRecipe(bob);
+    const bobs = asDetail(await patch(bob, theirs, { ingredients: THREE }));
+    const stolen = bobs.ingredients[0];
+    if (stolen === undefined) throw new Error('nothing stored');
+
+    const res = await patch(alice, mine, { ingredients: [{ id: stolen.id, name: 'Mine now' }] });
+    expect(res.status).toBe(400);
+    expect(asError(res).fields).toHaveProperty('ingredients.0.id');
+    const bobsAgain = asDetail(await server().get(`/api/recipes/${theirs}`).set(as(bob)));
+    expect(bobsAgain.ingredients).toEqual(bobs.ingredients);
+    expect(asDetail(await server().get(`/api/recipes/${mine}`).set(as(alice))).ingredients).toEqual(
+      [],
+    );
+
+    const notMine = await patch(alice, theirs, { ingredients: THREE });
+    const missing = await server().get(`/api/recipes/${NOBODY}`).set(as(alice));
+    expect(notMine.status).toBe(404);
+    expect(notMine.body).toEqual(missing.body);
+  });
+
+  it('refuses the same id twice', async () => {
+    const id = await freshRecipe(alice);
+    const first = asDetail(await patch(alice, id, { ingredients: THREE }));
+    const line = first.ingredients[0];
+    if (line === undefined) throw new Error('nothing stored');
+    const res = await patch(alice, id, {
+      ingredients: [
+        { id: line.id, name: 'One' },
+        { id: line.id, name: 'Two' },
+      ],
+    });
+    expect(res.status).toBe(400);
+    expect(asError(res).fields).toHaveProperty('ingredients.1.id');
   });
 });

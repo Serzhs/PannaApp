@@ -7,8 +7,8 @@ import { useCreateRecipe } from './queries';
 import { Screen } from '@/components/Screen';
 
 /**
- * The first page of what becomes a four-page create flow. Until 0007 and 0008 add the
- * others, it saves a draft and lands on the recipe.
+ * The first page of the create flow. It saves a draft, then goes on to what the recipe
+ * needs; 0008 adds the steps after that.
  */
 export function NewRecipeScreen(): React.JSX.Element {
   const create = useCreateRecipe();
@@ -24,8 +24,8 @@ export function NewRecipeScreen(): React.JSX.Element {
         onSubmit={(body) => {
           create.mutate(body, {
             onSuccess: (recipe) => {
-              // Replace, so back from the recipe goes to the list rather than to this form.
-              router.replace({ pathname: '/recipes/[id]', params: { id: recipe.id } });
+              // Replace, so back from the next page goes to the list rather than to this form.
+              router.replace({ pathname: '/recipes/[id]/needs', params: { id: recipe.id } });
             },
           });
         }}

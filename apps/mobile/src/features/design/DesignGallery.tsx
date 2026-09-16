@@ -9,12 +9,18 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Divider } from '@/components/Divider';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorState } from '@/components/ErrorState';
+import { ReorderableList } from '@/components/ReorderableList';
 import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
 import { Spinner } from '@/components/Spinner';
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
+import { EquipmentLine } from '@/features/recipes/components/EquipmentLine';
+import { IngredientLine } from '@/features/recipes/components/IngredientLine';
+import { NeedsSection } from '@/features/recipes/components/NeedsSection';
+import { UnitPicker } from '@/features/recipes/components/UnitPicker';
+import { move, type EquipmentDraft, type IngredientDraft } from '@/features/recipes/needs';
 import { contrast } from '@/styles/contrast';
 import { textStyles, theme } from '@/styles/theme';
 import { primitives, type SemanticColor, type SpaceName } from '@/styles/tokens';
@@ -374,6 +380,99 @@ function Dialogs(): React.JSX.Element {
   );
 }
 
+function Reorderables(): React.JSX.Element {
+  const [items, setItems] = useState(['Beetroot', 'Kefir', 'Dill', 'Sour cream']);
+  return (
+    <Section title="ReorderableList">
+      <Text variant="caption" color="textSecondary">
+        Drag the handle, or use the buttons. The first has no up, the last no down.
+      </Text>
+      <ReorderableList
+        items={items}
+        keyOf={(item) => item}
+        renderItem={(item) => (
+          <Card>
+            <Text>{item}</Text>
+          </Card>
+        )}
+        onMove={(from, to) => {
+          setItems(move(items, from, to));
+        }}
+        labels={{
+          moveUp: (item) => `Move ${item} up`,
+          moveDown: (item) => `Move ${item} down`,
+          drag: (item) => `Drag to reorder ${item}`,
+        }}
+      />
+    </Section>
+  );
+}
+
+function NeedsLines(): React.JSX.Element {
+  const [ingredient, setIngredient] = useState<IngredientDraft>({
+    key: 'g1',
+    name: 'Beetroot',
+    amount: '500',
+    unit: 'g',
+    note: '',
+  });
+  const [equipment, setEquipment] = useState<EquipmentDraft>({
+    key: 'g2',
+    name: 'Grater',
+    note: '',
+    optional: true,
+  });
+  const [unit, setUnit] = useState<IngredientDraft['unit']>('cup');
+  return (
+    <>
+      <Section title="IngredientLine">
+        <Stack gap="space4">
+          <IngredientLine line={ingredient} onChange={setIngredient} />
+          <Text variant="caption" color="textSecondary">
+            with every error
+          </Text>
+          <IngredientLine
+            line={{ key: 'g3', name: '', amount: '1/2', unit: 'cup', note: '' }}
+            errors={{ name: true, amount: true, unit: true }}
+            onChange={() => undefined}
+          />
+        </Stack>
+      </Section>
+      <Section title="EquipmentLine">
+        <Stack gap="space4">
+          <EquipmentLine line={equipment} onChange={setEquipment} />
+          <EquipmentLine
+            line={{ key: 'g4', name: '', note: '', optional: false }}
+            errors={{ name: true }}
+            onChange={() => undefined}
+          />
+        </Stack>
+      </Section>
+      <Section title="UnitPicker">
+        <UnitPicker value={unit} onChange={setUnit} />
+      </Section>
+      <Section title="NeedsSection">
+        <Card>
+          <NeedsSection
+            ingredients={[
+              { id: 'n1', position: 0, name: 'kefir', amount: 250, unit: 'ml', note: 'cold' },
+              { id: 'n2', position: 1, name: 'eggs', amount: 2, unit: null, note: null },
+              { id: 'n3', position: 2, name: 'salt', amount: null, unit: null, note: 'to taste' },
+            ]}
+            equipment={[
+              { id: 'e1', position: 0, name: 'Large bowl', note: null, optional: false },
+              { id: 'e2', position: 1, name: 'Grater', note: 'the fine side', optional: true },
+            ]}
+          />
+        </Card>
+        <Card>
+          <NeedsSection ingredients={[]} equipment={[]} />
+        </Card>
+      </Section>
+    </>
+  );
+}
+
 /**
  * Every token and component on one scrolling screen, rendered by the app's own engine,
  * so what it shows is what ships. Reached at /design in development only.
@@ -400,6 +499,8 @@ export function DesignGallery(): React.JSX.Element {
         <EmptyStates />
         <ErrorStates />
         <Dialogs />
+        <Reorderables />
+        <NeedsLines />
       </Stack>
     </Screen>
   );

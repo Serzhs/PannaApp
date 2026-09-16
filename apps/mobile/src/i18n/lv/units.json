@@ -25,5 +25,10 @@
   "slice_one": "šķēle",
   "slice_other": "šķēles",
   "celsius": "{{degrees, number}}°C",
-  "fahrenheit": "{{degrees, number}}°F"
+  "fahrenheit": "{{degrees, number}}°F",
+  "dimension": {
+    "mass": "Svars",
+    "volume": "Tilpums",
+    "count": "Skaits"
+  }
 }

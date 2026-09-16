@@ -26,6 +26,10 @@ export interface RecipeFormProps {
   /** The failure of the last submit, if any. Field errors from it land on their fields. */
   readonly error: unknown;
   readonly onSubmit: (body: RecipeFormOutput) => void;
+  /** Rendered between the fields and the submit button: the lists, from 0007 on. */
+  readonly children?: React.ReactNode;
+  /** A last check of whatever the children hold. Returning false keeps the submit from sending. */
+  readonly beforeSubmit?: () => boolean;
 }
 
 function formLevelMessageKey(error: unknown): string | null {
@@ -43,6 +47,8 @@ export function RecipeForm({
   submitting,
   error,
   onSubmit,
+  children,
+  beforeSubmit,
 }: RecipeFormProps): React.JSX.Element {
   const { t } = useTranslation();
   const online = useIsOnline();
@@ -69,6 +75,7 @@ export function RecipeForm({
   const submit = handleSubmit((body) => {
     // Nothing is sent offline: the input stays, the message says why, per CLAUDE.md.
     if (!online) return;
+    if (beforeSubmit !== undefined && !beforeSubmit()) return;
     onSubmit(body);
   });
 
@@ -131,6 +138,7 @@ export function RecipeForm({
           />
         )}
       />
+      {children}
       {offlineBlock ? (
         <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
           {t('common:offline.save')}

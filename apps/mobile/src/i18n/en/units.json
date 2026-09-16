@@ -20,5 +20,10 @@
   "slice_one": "slice",
   "slice_other": "slices",
   "celsius": "{{degrees, number}}°C",
-  "fahrenheit": "{{degrees, number}}°F"
+  "fahrenheit": "{{degrees, number}}°F",
+  "dimension": {
+    "mass": "Weight",
+    "volume": "Volume",
+    "count": "Count"
+  }
 }

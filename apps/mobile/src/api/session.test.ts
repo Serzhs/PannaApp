@@ -16,6 +16,8 @@ const RECIPE = {
   totalTimeMinutes: null,
   createdAt: '2026-09-16T12:00:00.000Z',
   updatedAt: '2026-09-16T12:00:00.000Z',
+  ingredients: [],
+  equipment: [],
 };
 
 const EXPIRED: Stub = {

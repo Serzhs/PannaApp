@@ -38,13 +38,25 @@ export {
 } from './units.js';
 export { ApiError, fillPath, request, type RequestOptions } from './client.js';
 export {
+  MAX_EQUIPMENT,
+  MAX_INGREDIENTS,
   createRecipeBodySchema,
+  equipmentInputSchema,
+  equipmentSchema,
+  ingredientInputSchema,
+  ingredientSchema,
+  recipeDetailSchema,
   recipeListSchema,
   recipeSchema,
   recipeStatusSchema,
   updateRecipeBodySchema,
   type CreateRecipeBody,
+  type Equipment,
+  type EquipmentInput,
+  type Ingredient,
+  type IngredientInput,
   type Recipe,
+  type RecipeDetail,
   type RecipeStatus,
   type UpdateRecipeBody,
 } from './recipes.js';

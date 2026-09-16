@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { unitSchema } from './units.js';
+
 export const recipeStatusSchema = z.enum(['draft', 'ready']);
 export type RecipeStatus = z.infer<typeof recipeStatusSchema>;
 
@@ -27,6 +29,66 @@ export const recipeSchema = z.object({
 
 export const recipeListSchema = z.array(recipeSchema);
 
+/** 0007. Field rules for what a recipe needs, shared by the API and the editor. */
+const lineName = z.string().trim().min(1).max(120);
+const lineNote = z.string().trim().max(200);
+/** Two decimal places at most: the column is numeric(10,2), and nobody weighs finer. */
+const amount = z
+  .number()
+  .gt(0)
+  .max(99999.99)
+  .refine((value) => Number.isInteger(value * 100), { message: 'At most two decimals' });
+
+export const MAX_INGREDIENTS = 100;
+export const MAX_EQUIPMENT = 50;
+
+export const ingredientSchema = z.object({
+  id: z.string().uuid(),
+  position: z.number().int().min(0),
+  name: lineName,
+  note: lineNote.nullable(),
+  amount: amount.nullable(),
+  unit: unitSchema.nullable(),
+});
+
+export const equipmentSchema = z.object({
+  id: z.string().uuid(),
+  position: z.number().int().min(0),
+  name: lineName,
+  note: lineNote.nullable(),
+  optional: z.boolean(),
+});
+
+/** A row in a write: an id says update this one, none says insert. Position is the index. */
+export const ingredientInputSchema = z
+  .object({
+    id: z.string().uuid().optional(),
+    name: lineName,
+    note: lineNote.nullable().optional(),
+    amount: amount.nullable().optional(),
+    unit: unitSchema.nullable().optional(),
+  })
+  .strict()
+  .refine((line) => !(line.unit != null && line.amount == null), {
+    message: 'A unit needs an amount',
+    path: ['unit'],
+  });
+
+export const equipmentInputSchema = z
+  .object({
+    id: z.string().uuid().optional(),
+    name: lineName,
+    note: lineNote.nullable().optional(),
+    optional: z.boolean().optional(),
+  })
+  .strict();
+
+/** A recipe with what it needs. The list endpoint carries the summary only. */
+export const recipeDetailSchema = recipeSchema.extend({
+  ingredients: z.array(ingredientSchema),
+  equipment: z.array(equipmentSchema),
+});
+
 /** Strict: `status` is not accepted here, because every new recipe starts as a draft. */
 export const createRecipeBodySchema = z
   .object({
@@ -48,11 +110,18 @@ export const updateRecipeBodySchema = z
     status: recipeStatusSchema,
     servings,
     totalTimeMinutes: totalTimeMinutes.nullable(),
+    ingredients: z.array(ingredientInputSchema).max(MAX_INGREDIENTS),
+    equipment: z.array(equipmentInputSchema).max(MAX_EQUIPMENT),
   })
   .partial()
   .strict()
   .refine((body) => Object.keys(body).length > 0, { message: 'Nothing to update' });
 
 export type Recipe = z.infer<typeof recipeSchema>;
+export type RecipeDetail = z.infer<typeof recipeDetailSchema>;
+export type Ingredient = z.infer<typeof ingredientSchema>;
+export type Equipment = z.infer<typeof equipmentSchema>;
+export type IngredientInput = z.infer<typeof ingredientInputSchema>;
+export type EquipmentInput = z.infer<typeof equipmentInputSchema>;
 export type CreateRecipeBody = z.infer<typeof createRecipeBodySchema>;
 export type UpdateRecipeBody = z.infer<typeof updateRecipeBodySchema>;
