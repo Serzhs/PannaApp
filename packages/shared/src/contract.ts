@@ -1,5 +1,14 @@
 import { z } from 'zod';
 
+import {
+  devSignInBodySchema,
+  refreshBodySchema,
+  sessionSchema,
+  sessionUserSchema,
+  signInBodySchema,
+  tokenPairSchema,
+} from './auth.js';
+
 export const healthResponseSchema = z.object({
   status: z.literal('ok'),
   database: z.literal('ok'),
@@ -29,6 +38,42 @@ export const api = {
     method: 'GET',
     path: '/api/health',
     response: healthResponseSchema,
+  }),
+  signIn: endpoint({
+    method: 'POST',
+    path: '/api/auth/session',
+    response: sessionSchema,
+    body: signInBodySchema,
+  }),
+  /**
+   * Development only. The server does not register this route unless NODE_ENV is not
+   * production and ALLOW_DEV_SIGN_IN is true, so in a real deployment it is a 404 with
+   * no handler behind it. It stays in the contract because the client is typed from
+   * here either way, and a route that exists in one build and not another would
+   * otherwise be described twice.
+   */
+  devSignIn: endpoint({
+    method: 'POST',
+    path: '/api/auth/dev-session',
+    response: sessionSchema,
+    body: devSignInBodySchema,
+  }),
+  refresh: endpoint({
+    method: 'POST',
+    path: '/api/auth/refresh',
+    response: tokenPairSchema,
+    body: refreshBodySchema,
+  }),
+  logout: endpoint({
+    method: 'POST',
+    path: '/api/auth/logout',
+    response: z.void(),
+    body: refreshBodySchema,
+  }),
+  me: endpoint({
+    method: 'GET',
+    path: '/api/me',
+    response: sessionUserSchema,
   }),
 } as const;
 

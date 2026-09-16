@@ -1,0 +1,60 @@
+import type { Session, SessionUser } from '@panna/shared';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+
+import { logout as logoutRequest } from './auth.api';
+import { clearSession, loadSession, saveSession, type StoredSession } from './session.store';
+
+interface AuthState {
+  /** Null once the check has run and found nothing; undefined while it is still running. */
+  readonly session: StoredSession | null | undefined;
+  readonly user: SessionUser | null;
+  readonly signIn: (session: Session) => Promise<void>;
+  readonly signOut: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthState | null>(null);
+
+export function AuthProvider({ children }: { readonly children: React.ReactNode }) {
+  const [session, setSession] = useState<StoredSession | null | undefined>(undefined);
+
+  // Reading the keychain is async, so the app starts in "not known yet" rather than in
+  // "signed out" - otherwise every cold start flashes the sign-in screen.
+  useEffect(() => {
+    let cancelled = false;
+    void loadSession().then((stored) => {
+      if (!cancelled) setSession(stored);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const signIn = useCallback(async (next: Session) => {
+    await saveSession(next);
+    setSession({ accessToken: next.accessToken, refreshToken: next.refreshToken, user: next.user });
+  }, []);
+
+  const signOut = useCallback(async () => {
+    const current = session;
+    setSession(null);
+    await clearSession();
+    // Best effort: the local session is already gone, so a failure here must not strand
+    // the user on a screen they cannot leave.
+    if (current) {
+      await logoutRequest(current.accessToken, current.refreshToken).catch(() => undefined);
+    }
+  }, [session]);
+
+  const value = useMemo<AuthState>(
+    () => ({ session, user: session?.user ?? null, signIn, signOut }),
+    [session, signIn, signOut],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthState {
+  const value = useContext(AuthContext);
+  if (value === null) throw new Error('useAuth must be used inside AuthProvider');
+  return value;
+}

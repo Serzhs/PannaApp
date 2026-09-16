@@ -43,7 +43,7 @@ just say it simply.
 | Logging        | `nestjs-pino`, structured, one request id per request                                           |
 | Git hooks      | husky + lint-staged + commitlint                                                                |
 | Auth           | Sign in with Google and Apple only. Our own JWT access token (15 min) + refresh token (30 days) |
-| Mobile         | Expo (managed workflow, Expo Go on device; prebuild only when required)                         |
+| Mobile         | Expo, built locally with Xcode because sign-in needs it; `ios/` is generated, never committed   |
 | Routing        | Expo Router (file based)                                                                        |
 | Data fetching  | TanStack Query v5                                                                               |
 | Forms          | `react-hook-form` with its Zod resolver                                                         |
@@ -62,9 +62,9 @@ just say it simply.
 Explicitly **not** used: CSS Modules (does not work in React Native), **react-native-unistyles**, NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL, Moti (Reanimated directly is enough for what this app does), `react-native-skia` (revisit only if the cooking view in 0011 genuinely outgrows Reanimated).
 
 **Why unistyles is out.** It was the original choice and it needs `react-native-nitro-modules`,
-which is native code Expo Go does not carry. Running it means building the app locally, and Expo
-SDK 57 does not compile under Xcode 26.3: there are two separate upstream failures in
-`expo-modules-jsi`, one of which has no released fix. A typed theme module reached through
+which is native code Expo Go does not carry. Running it meant building the app locally, which at
+the time did not compile under Xcode 26.3. It now does, through two local patches described under
+Building for iOS, but the reason below still stands on its own. A typed theme module reached through
 `StyleSheet` gives the same guarantee - one place to change a value, no literals in components,
 checked by the compiler - with no native code at all. Revisit if a dev build becomes necessary for
 another reason and Expo has shipped the fix.
@@ -756,8 +756,8 @@ and nothing else.
 ## Commands
 
 ```bash
-pnpm dev              # database, migrations, then the API. The one you press most.
-pnpm mobile           # Expo. Scan the QR code with Expo Go.
+pnpm dev              # database, migrations, then the API. Enables the development sign-in.
+pnpm mobile           # Metro. Serves the JavaScript to the Xcode build (or to Expo Go).
 
 pnpm check            # lint, typecheck and test. Run before committing.
 pnpm build
@@ -774,6 +774,31 @@ pnpm db:seed
 Every one of these is a root script, so it has a run button beside it in an editor that
 shows them. `pnpm dev` starts the database and applies migrations first, so it works from
 a cold machine rather than assuming something is already up.
+
+**Every script that starts a dev server frees its port first**, in the workspace that owns
+the server rather than in the root wrapper, so it happens however the server is started -
+`pnpm dev`, `pnpm mobile`, `npm run ios` inside `apps/mobile`, or an editor's run button. Metro and `nest start`
+both spawn children that outlive the terminal they were started from, so a stale listener
+is the normal case, and `EADDRINUSE` names a port rather than a thing to do about it.
+`scripts/free-port.mjs` kills only the process _listening_ on the port, never one merely
+connected to it - a simulator holding an open socket is not what is in the way.
+
+## Building for iOS
+
+Google and Apple sign-in do not work in Expo Go, so the app runs as its own build.
+`cd apps/mobile && npx expo prebuild -p ios` generates `ios/`, then open `ios/Panna.xcworkspace`
+in Xcode and press Run with `pnpm mobile` already going. Rerun prebuild after changing
+`app.config.ts`, `app.json`, a native package, or `GOOGLE_CLIENT_ID_IOS` in `.env`, which is
+built into the app.
+
+`npx expo run:ios` refuses until an Apple Developer team is set on the project, because the Sign in
+with Apple entitlement needs a signing certificate. Xcode does not ask for one on the simulator.
+
+**Expo SDK 57 needs two patches under Xcode 26.3**, in `patches/`. `expo-modules-jsi` is built in
+Swift 5 mode, and `expo-modules-core` gets a small `EventEmitter` change the newer compiler accepts.
+Because of the first, Expo's precompiled modules no longer link against it - the app dies at launch
+on a missing symbol - so `app.config.ts` compiles every module from source. Builds are slower for
+it. Drop both patches and that setting together once Expo ships a release that builds cleanly.
 
 ## Testing
 

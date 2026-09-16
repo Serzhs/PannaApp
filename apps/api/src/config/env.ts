@@ -16,12 +16,48 @@ export const envSchema = z.object({
   GOOGLE_CLIENT_ID_IOS: z.string().default(''),
   GOOGLE_CLIENT_ID_ANDROID: z.string().default(''),
   APPLE_CLIENT_ID: z.string().default(''),
+
+  ACCESS_TOKEN_TTL_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(15 * 60),
+  REFRESH_TOKEN_TTL_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(30 * 24 * 60 * 60),
+
+  /**
+   * Gate two of three on the development sign-in. Gate one is that the module is only
+   * registered when this is true, gate three is that the client's button is compiled
+   * out of a release bundle. See the refinement below: production plus this is a
+   * configuration the API refuses to start on.
+   */
+  ALLOW_DEV_SIGN_IN: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
 });
+
+/**
+ * A production API with the development sign-in enabled does not start. Refusing to
+ * boot is the only gate that cannot be forgotten at deploy time, which is why the
+ * unsafe combination is an error here rather than a warning in a log nobody reads.
+ */
+const validatedEnvSchema = envSchema.refine(
+  (env) => !(env.ALLOW_DEV_SIGN_IN && env.NODE_ENV === 'production'),
+  {
+    path: ['ALLOW_DEV_SIGN_IN'],
+    message:
+      'must not be true when NODE_ENV is production: it would expose a sign-in with no provider',
+  },
+);
 
 export type Env = z.infer<typeof envSchema>;
 
 export function validateEnv(raw: Record<string, unknown>): Env {
-  const parsed = envSchema.safeParse(raw);
+  const parsed = validatedEnvSchema.safeParse(raw);
   if (parsed.success) return parsed.data;
 
   const lines = parsed.error.issues.map((i) => `  ${i.path.join('.') || '(root)'}: ${i.message}`);

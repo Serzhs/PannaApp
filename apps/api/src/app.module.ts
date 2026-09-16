@@ -1,18 +1,31 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { config as loadDotenv } from 'dotenv';
 import { LoggerModule } from 'nestjs-pino';
 
 import type { Env } from './config/env.js';
 import { validateEnv } from './config/env.js';
 import { DatabaseModule } from './db/database.module.js';
+import { AuthModule } from './modules/auth/auth.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+
+const ENV_FILE = '../../.env';
+
+/**
+ * Nest builds the module list before ConfigModule has read the .env file, and whether
+ * the development sign-in route exists is a build-the-module-list decision rather than
+ * a runtime one. So the environment is loaded and validated once here, and the same
+ * validation runs again through ConfigModule for everything injected later.
+ */
+loadDotenv({ path: ENV_FILE, quiet: true });
+const env = validateEnv(process.env);
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       // One .env at the repo root, so the API and drizzle-kit read the same file.
-      envFilePath: '../../.env',
+      envFilePath: ENV_FILE,
       validate: validateEnv,
     }),
     LoggerModule.forRootAsync({
@@ -40,6 +53,7 @@ import { HealthModule } from './modules/health/health.module.js';
     }),
     DatabaseModule,
     HealthModule,
+    AuthModule.register(env),
   ],
 })
 export class AppModule {}

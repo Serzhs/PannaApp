@@ -51,6 +51,7 @@ export default tseslint.config(
   {
     // Config files Metro and friends load with require(), not as modules.
     files: ['**/metro.config.js', '**/jest.config.js', 'apps/mobile/index.js', '**/*.cjs'],
+    // scripts/*.mjs are Node programs run by pnpm, not part of either app.
     languageOptions: {
       sourceType: 'commonjs',
       globals: {
@@ -59,6 +60,14 @@ export default tseslint.config(
         __dirname: 'readonly',
         process: 'readonly',
       },
+    },
+  },
+  {
+    // Node scripts run by pnpm: ESM, with the Node globals available.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      sourceType: 'module',
+      globals: { process: 'readonly', console: 'readonly' },
     },
   },
   {
