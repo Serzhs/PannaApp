@@ -2,7 +2,15 @@ import type { Session, SessionUser } from '@panna/shared';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { logout as logoutRequest } from './auth.api';
-import { clearSession, loadSession, saveSession, type StoredSession } from './session.store';
+import {
+  clearSession,
+  loadSession,
+  saveSession,
+  saveTokens,
+  type StoredSession,
+} from './session.store';
+
+import { onTokensChanged, setTokens } from '@/api/session';
 
 interface AuthState {
   /** Null once the check has run and found nothing; undefined while it is still running. */
@@ -22,20 +30,48 @@ export function AuthProvider({ children }: { readonly children: React.ReactNode 
   useEffect(() => {
     let cancelled = false;
     void loadSession().then((stored) => {
-      if (!cancelled) setSession(stored);
+      if (cancelled) return;
+      setTokens(stored);
+      setSession(stored);
     });
     return () => {
       cancelled = true;
     };
   }, []);
 
+  // The API layer refreshes tokens on its own; this is where the outcome lands. New
+  // tokens go to the keychain, and a failed refresh ends the session, which sends the
+  // router back to sign-in.
+  useEffect(
+    () =>
+      onTokensChanged((tokens) => {
+        if (tokens === null) {
+          setSession(null);
+          void clearSession();
+          return;
+        }
+        void saveTokens(tokens);
+        setSession((previous) =>
+          previous === null || previous === undefined ? previous : { ...previous, ...tokens },
+        );
+      }),
+    [],
+  );
+
   const signIn = useCallback(async (next: Session) => {
     await saveSession(next);
-    setSession({ accessToken: next.accessToken, refreshToken: next.refreshToken, user: next.user });
+    const stored = {
+      accessToken: next.accessToken,
+      refreshToken: next.refreshToken,
+      user: next.user,
+    };
+    setTokens(stored);
+    setSession(stored);
   }, []);
 
   const signOut = useCallback(async () => {
     const current = session;
+    setTokens(null);
     setSession(null);
     await clearSession();
     // Best effort: the local session is already gone, so a failure here must not strand
