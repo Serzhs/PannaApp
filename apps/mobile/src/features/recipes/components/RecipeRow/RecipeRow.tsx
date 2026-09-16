@@ -1,7 +1,8 @@
 import type { Recipe } from '@panna/shared';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { describeRecipe, describeServings, describeTime } from '../../format';
+import { describeMeta, describeRecipe } from '../../format';
 
 import { styles } from './RecipeRow.styles';
 
@@ -17,12 +18,11 @@ export interface RecipeRowProps {
 
 /** One stop for a screen reader: title, servings, time and status in one label. */
 export function RecipeRow({ recipe, onPress }: RecipeRowProps): React.JSX.Element {
-  const meta = [describeServings(recipe.servings)];
-  if (recipe.totalTimeMinutes !== null) meta.push(describeTime(recipe.totalTimeMinutes));
+  const { t } = useTranslation();
 
   return (
     <Card
-      accessibilityLabel={describeRecipe(recipe)}
+      accessibilityLabel={describeRecipe(recipe, t)}
       onPress={() => {
         onPress(recipe);
       }}
@@ -35,13 +35,13 @@ export function RecipeRow({ recipe, onPress }: RecipeRowProps): React.JSX.Elemen
           {recipe.status === 'draft' ? (
             <View style={styles.chip}>
               <Text variant="label" color="textSecondary">
-                Draft
+                {t('recipes:status.draft')}
               </Text>
             </View>
           ) : null}
         </Stack>
         <Text variant="caption" color="textSecondary">
-          {meta.join(' · ')}
+          {describeMeta(recipe, t)}
         </Text>
       </Stack>
     </Card>

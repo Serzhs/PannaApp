@@ -1,5 +1,6 @@
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
+import i18next from 'eslint-plugin-i18next';
 import importPlugin from 'eslint-plugin-import';
 import tseslint from 'typescript-eslint';
 
@@ -68,6 +69,37 @@ export default tseslint.config(
     languageOptions: {
       sourceType: 'module',
       globals: { process: 'readonly', console: 'readonly' },
+    },
+  },
+  {
+    // 0006: a user-visible string in a component is a string the second language never
+    // sees. JSX text and the props that carry words are checked; tests and the
+    // development-only gallery are not, since neither reaches a user.
+    files: ['apps/mobile/src/**/*.tsx', 'apps/mobile/app/**/*.tsx'],
+    ignores: ['**/*.test.tsx', 'apps/mobile/src/features/design/**'],
+    plugins: { i18next },
+    rules: {
+      'i18next/no-literal-string': [
+        'error',
+        {
+          mode: 'jsx-only',
+          'jsx-attributes': {
+            include: [
+              'label',
+              'title',
+              'body',
+              'helper',
+              'placeholder',
+              'accessibilityLabel',
+              'accessibilityHint',
+              'submitLabel',
+              'confirmLabel',
+              'cancelLabel',
+              'message',
+            ],
+          },
+        },
+      ],
     },
   },
   {

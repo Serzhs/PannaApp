@@ -11,6 +11,15 @@ import { TokensService } from './tokens.service.js';
 
 const DISPLAY_NAME_MAX = 80;
 
+/** The columns a session user is made of, in one place so no query can forget one. */
+export const SESSION_USER_COLUMNS = {
+  id: users.id,
+  email: users.email,
+  displayName: users.displayName,
+  locale: users.locale,
+  unitSystem: users.unitSystem,
+} as const;
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -22,7 +31,7 @@ export class AuthService {
 
   async findUserById(id: string): Promise<SessionUser | undefined> {
     const [row] = await this.database.db
-      .select({ id: users.id, email: users.email, displayName: users.displayName })
+      .select(SESSION_USER_COLUMNS)
       .from(users)
       .where(eq(users.id, id))
       .limit(1);
@@ -31,7 +40,7 @@ export class AuthService {
 
   async findUserByEmail(email: string): Promise<SessionUser | undefined> {
     const [row] = await this.database.db
-      .select({ id: users.id, email: users.email, displayName: users.displayName })
+      .select(SESSION_USER_COLUMNS)
       .from(users)
       .where(eq(users.email, email))
       .limit(1);
@@ -51,7 +60,7 @@ export class AuthService {
   ): Promise<Session> {
     const user = await this.database.db.transaction(async (tx) => {
       const [linked] = await tx
-        .select({ id: users.id, email: users.email, displayName: users.displayName })
+        .select(SESSION_USER_COLUMNS)
         .from(identities)
         .innerJoin(users, eq(identities.userId, users.id))
         .where(and(eq(identities.provider, provider), eq(identities.subject, identity.subject)))
@@ -70,7 +79,7 @@ export class AuthService {
       }
 
       let [owner] = await tx
-        .select({ id: users.id, email: users.email, displayName: users.displayName })
+        .select(SESSION_USER_COLUMNS)
         .from(users)
         .where(eq(users.email, identity.email))
         .limit(1);
@@ -84,7 +93,7 @@ export class AuthService {
             email: identity.email,
             displayName: (displayName ?? identity.name ?? '').slice(0, DISPLAY_NAME_MAX),
           })
-          .returning({ id: users.id, email: users.email, displayName: users.displayName })
+          .returning(SESSION_USER_COLUMNS)
       )[0];
       if (owner === undefined) throw new Error('Insert returned no user');
 

@@ -1,0 +1,17 @@
+{
+  "screen": "Settings",
+  "language": {
+    "title": "Language",
+    "device": "Device ({{resolved}})",
+    "en": "English",
+    "lv": "Latviešu"
+  },
+  "units": {
+    "title": "Units",
+    "device": "Device ({{resolved}})",
+    "metric": "Metric",
+    "imperial": "Imperial"
+  },
+  "saveFailed": "Could not save the setting. Try again.",
+  "signOut": "Sign out"
+}

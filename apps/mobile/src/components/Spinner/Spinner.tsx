@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AccessibilityInfo, ActivityIndicator } from 'react-native';
 
 import { styles } from './Spinner.styles';
@@ -12,7 +13,10 @@ export interface SpinnerProps {
  * announces itself on appearance because a spinner is a change the user did not cause
  * and would otherwise have to look at to notice.
  */
-export function Spinner({ label = 'Loading' }: SpinnerProps): React.JSX.Element {
+export function Spinner({ label: given }: SpinnerProps): React.JSX.Element {
+  const { t } = useTranslation();
+  const label = given ?? t('common:loading');
+
   useEffect(() => {
     AccessibilityInfo.announceForAccessibility(label);
   }, [label]);

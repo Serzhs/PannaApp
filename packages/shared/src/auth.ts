@@ -1,14 +1,38 @@
 import { z } from 'zod';
 
+import { unitSystemSchema } from './units.js';
+
 export const authProviderSchema = z.enum(['google', 'apple']);
 export type AuthProvider = z.infer<typeof authProviderSchema>;
 
-/** Never carries an email or a display name: a JWT is signed, not encrypted. */
+/** The languages the app ships. Adding one is a translation file and an entry here. */
+export const localeSchema = z.enum(['en', 'lv']);
+export type Locale = z.infer<typeof localeSchema>;
+
+/**
+ * What the app knows about the signed-in person. `locale` and `unitSystem` are null
+ * until chosen, which means "follow the device" and is not the same as any value.
+ */
 export const sessionUserSchema = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
   displayName: z.string(),
+  locale: localeSchema.nullable(),
+  unitSystem: unitSystemSchema.nullable(),
 });
+
+/** Any subset, never nothing. Null on the two preferences restores "follow the device". */
+export const updateMeBodySchema = z
+  .object({
+    displayName: z.string().trim().min(1).max(80),
+    locale: localeSchema.nullable(),
+    unitSystem: unitSystemSchema.nullable(),
+  })
+  .partial()
+  .strict()
+  .refine((body) => Object.keys(body).length > 0, { message: 'Nothing to update' });
+
+export type UpdateMeBody = z.infer<typeof updateMeBodySchema>;
 
 export const sessionSchema = z.object({
   user: sessionUserSchema,

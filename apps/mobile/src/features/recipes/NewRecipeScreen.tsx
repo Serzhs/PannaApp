@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 import { RecipeForm } from './components/RecipeForm';
 import { useCreateRecipe } from './queries';
@@ -12,11 +13,12 @@ import { Screen } from '@/components/Screen';
 export function NewRecipeScreen(): React.JSX.Element {
   const create = useCreateRecipe();
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <Screen scroll withHeader>
       <RecipeForm
-        submitLabel="Save draft"
+        submitLabel={t('recipes:form.saveDraft')}
         submitting={create.isPending}
         error={create.error}
         onSubmit={(body) => {

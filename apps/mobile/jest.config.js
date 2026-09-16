@@ -9,6 +9,8 @@ module.exports = {
   // Worklets picks its JavaScript build over the native one under Jest, so Reanimated
   // runs for real in tests instead of through a stand-in that lacks half its hooks.
   resolver: 'react-native-worklets/jest/resolver.js',
+  // Components translate through i18next, which must be started before they render.
+  setupFilesAfterEnv: ['<rootDir>/src/i18n/setupTests.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     // A native module, so tests get the mock the library ships instead.

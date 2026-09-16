@@ -5,6 +5,7 @@ import { styles } from './ErrorBoundary.styles';
 
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
+import { i18n } from '@/i18n';
 
 interface Props {
   readonly children: ReactNode;
@@ -33,13 +34,13 @@ export class ErrorBoundary extends Component<Props, State> {
     return (
       <View style={styles.screen} accessibilityRole="alert">
         <Text variant="title" accessibilityRole="header">
-          Something went wrong
+          {i18n.t('common:errorBoundary.title')}
         </Text>
         <Text variant="body" color="textSecondary" style={styles.message}>
           {error.message}
         </Text>
         <Button
-          label="Try again"
+          label={i18n.t('common:errorBoundary.action')}
           variant="secondary"
           onPress={() => {
             this.setState({ error: null });

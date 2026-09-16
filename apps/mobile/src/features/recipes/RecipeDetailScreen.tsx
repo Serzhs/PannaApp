@@ -1,9 +1,10 @@
 import { ApiError } from '@panna/shared';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { describeServings, describeTime } from './format';
+import { describeMeta } from './format';
 import { useDeleteRecipe, useRecipe } from './queries';
 import { styles } from './RecipeDetailScreen.styles';
 
@@ -26,6 +27,7 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   const remove = useDeleteRecipe(recipeId);
   const online = useIsOnline();
   const router = useRouter();
+  const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
 
   const backToList = () => {
@@ -36,7 +38,12 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   if (recipe.isPending) {
     return (
       <Screen withHeader>
-        <Stack gap="space4" style={styles.body} accessibilityLabel="Loading recipe" accessible>
+        <Stack
+          gap="space4"
+          style={styles.body}
+          accessibilityLabel={t('recipes:detail.loading')}
+          accessible
+        >
           <Skeleton.Text variant="title" lines={1} lastLineWidth="70%" />
           <Skeleton.Text variant="body" lines={3} />
           <Skeleton.Text variant="caption" lines={2} lastLineWidth="50%" />
@@ -51,9 +58,15 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
       <Screen withHeader>
         {missing ? (
           <EmptyState
-            title="Recipe not found"
-            body="It may have been deleted."
-            action={<Button label="Back to recipes" variant="secondary" onPress={backToList} />}
+            title={t('recipes:detail.notFound.title')}
+            body={t('recipes:detail.notFound.body')}
+            action={
+              <Button
+                label={t('recipes:detail.notFound.action')}
+                variant="secondary"
+                onPress={backToList}
+              />
+            }
           />
         ) : (
           <ErrorState
@@ -66,9 +79,8 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   }
 
   const data = recipe.data;
-
-  const meta = [describeServings(data.servings)];
-  if (data.totalTimeMinutes !== null) meta.push(describeTime(data.totalTimeMinutes));
+  const meta = [describeMeta(data, t)];
+  if (data.status === 'draft') meta.push(t('recipes:status.draft'));
 
   return (
     <Screen scroll withHeader>
@@ -79,21 +91,20 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
           </Text>
           <Text variant="caption" color="textSecondary">
             {meta.join(' · ')}
-            {data.status === 'draft' ? ' · Draft' : ''}
           </Text>
         </Stack>
         {data.description === null ? null : <Text variant="body">{data.description}</Text>}
         <View style={styles.actions}>
           <Stack gap="space3">
             <Button
-              label="Edit"
+              label={t('recipes:detail.edit')}
               variant="secondary"
               onPress={() => {
                 router.push({ pathname: '/recipes/[id]/edit', params: { id: recipeId } });
               }}
             />
             <Button
-              label="Delete"
+              label={t('recipes:detail.delete')}
               variant="danger"
               loading={remove.isPending}
               onPress={() => {
@@ -104,18 +115,16 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
         </View>
         {remove.isError ? (
           <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
-            {online
-              ? 'Could not delete the recipe. Try again.'
-              : 'You are offline. Connect to the internet to delete.'}
+            {online ? t('recipes:detail.deleteFailed') : t('common:offline.delete')}
           </Text>
         ) : null}
       </Stack>
       <ConfirmDialog
         visible={confirming}
-        title="Delete this recipe?"
-        body="This cannot be undone."
-        confirmLabel="Delete"
-        cancelLabel="Keep"
+        title={t('recipes:detail.confirmDelete.title')}
+        body={t('recipes:detail.confirmDelete.body')}
+        confirmLabel={t('recipes:detail.confirmDelete.confirm')}
+        cancelLabel={t('recipes:detail.confirmDelete.cancel')}
         destructive
         onCancel={() => {
           setConfirming(false);

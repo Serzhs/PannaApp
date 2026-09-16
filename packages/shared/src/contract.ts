@@ -7,6 +7,7 @@ import {
   sessionUserSchema,
   signInBodySchema,
   tokenPairSchema,
+  updateMeBodySchema,
 } from './auth.js';
 import {
   createRecipeBodySchema,
@@ -81,6 +82,12 @@ export const api = {
     method: 'GET',
     path: '/api/me',
     response: sessionUserSchema,
+  }),
+  updateMe: endpoint({
+    method: 'PATCH',
+    path: '/api/me',
+    response: sessionUserSchema,
+    body: updateMeBodySchema,
   }),
   listRecipes: endpoint({
     method: 'GET',

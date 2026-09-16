@@ -1,4 +1,5 @@
 import type { Recipe } from '@panna/shared';
+import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
 
 import { RecipeRow, RecipeRowSkeleton } from '../RecipeRow';
@@ -32,9 +33,11 @@ export function RecipeList({
   onOpen,
   onCreate,
 }: RecipeListProps): React.JSX.Element {
+  const { t } = useTranslation();
+
   if (state === 'loading') {
     return (
-      <View style={styles.rows} accessibilityLabel="Loading recipes" accessible>
+      <View style={styles.rows} accessibilityLabel={t('recipes:list.loading')} accessible>
         {SKELETON_ROWS.map((row) => (
           <RecipeRowSkeleton key={row} />
         ))}
@@ -49,9 +52,9 @@ export function RecipeList({
   if (recipes.length === 0) {
     return (
       <EmptyState
-        title="No recipes yet"
-        body="Write one down, and it is here the next time you cook."
-        action={<Button label="New recipe" onPress={onCreate} />}
+        title={t('recipes:list.empty.title')}
+        body={t('recipes:list.empty.body')}
+        action={<Button label={t('recipes:list.empty.action')} onPress={onCreate} />}
       />
     );
   }

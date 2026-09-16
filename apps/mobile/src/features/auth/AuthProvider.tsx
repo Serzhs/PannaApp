@@ -7,6 +7,7 @@ import {
   loadSession,
   saveSession,
   saveTokens,
+  saveUser,
   type StoredSession,
 } from './session.store';
 
@@ -18,6 +19,8 @@ interface AuthState {
   readonly user: SessionUser | null;
   readonly signIn: (session: Session) => Promise<void>;
   readonly signOut: () => Promise<void>;
+  /** After PATCH /api/me: what the server now holds for this person. */
+  readonly updateUser: (user: SessionUser) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -81,9 +84,16 @@ export function AuthProvider({ children }: { readonly children: React.ReactNode 
     }
   }, [session]);
 
+  const updateUser = useCallback(async (user: SessionUser) => {
+    setSession((previous) =>
+      previous === null || previous === undefined ? previous : { ...previous, user },
+    );
+    await saveUser(user);
+  }, []);
+
   const value = useMemo<AuthState>(
-    () => ({ session, user: session?.user ?? null, signIn, signOut }),
-    [session, signIn, signOut],
+    () => ({ session, user: session?.user ?? null, signIn, signOut, updateUser }),
+    [session, signIn, signOut, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

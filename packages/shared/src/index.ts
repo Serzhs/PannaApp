@@ -18,11 +18,24 @@ export {
   sessionUserSchema,
   signInBodySchema,
   tokenPairSchema,
+  localeSchema,
+  updateMeBodySchema,
   type AuthProvider,
+  type Locale,
   type Session,
   type SessionUser,
   type SignInBody,
+  type UpdateMeBody,
 } from './auth.js';
+export {
+  COUNT_UNITS,
+  MASS_UNITS,
+  VOLUME_UNITS,
+  unitSchema,
+  unitSystemSchema,
+  type Unit,
+  type UnitSystem,
+} from './units.js';
 export { ApiError, fillPath, request, type RequestOptions } from './client.js';
 export {
   createRecipeBodySchema,

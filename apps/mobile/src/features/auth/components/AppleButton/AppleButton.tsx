@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text } from 'react-native';
 
 import { styles } from './AppleButton.styles';
@@ -19,10 +20,12 @@ export interface AppleButtonProps {
  * two marks sit at the same size with the same gap to their labels.
  */
 export function AppleButton({ onPress, disabled = false }: AppleButtonProps) {
+  const { t } = useTranslation();
+  const label = t('auth:continueWithApple');
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Continue with Apple"
+      accessibilityLabel={label}
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
@@ -31,7 +34,7 @@ export function AppleButton({ onPress, disabled = false }: AppleButtonProps) {
       <Text style={styles.logo} accessibilityElementsHidden importantForAccessibility="no">
         {APPLE_LOGO}
       </Text>
-      <Text style={styles.label}>Continue with Apple</Text>
+      <Text style={styles.label}>{label}</Text>
     </Pressable>
   );
 }
