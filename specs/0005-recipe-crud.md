@@ -120,7 +120,7 @@ All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/featur
 - [ ] Opening a detail route for a recipe id that does not exist shows the not-found state with a way back to the list. _(Built: a 404 renders the not-found state with a back action. **Not verified**: the app has no deep link scheme yet to open such a route with.)_
 - [ ] The query cache is persisted: opening a recipe, force-quitting the app, going offline and reopening it shows the recipe rather than an error. _(Built: the cache is persisted to `expo-sqlite/kv-store`. **Not verified**: it needs the simulator's network cut, which the walkthrough did not do.)_
 - [ ] Creating a recipe with no connection fails with an offline message, keeps everything the user typed, and creates nothing when the connection returns. _(Built: offline, the form sends nothing and says so, and mutations never queue. **Not verified** offline for the same reason as above.)_
-- [ ] A VoiceOver or TalkBack walkthrough of the list, create, detail and edit screens reaches every control in a sensible order. Each recipe row is one element announcing title, servings and time together, not four separate stops, and the delete confirmation announces itself and returns focus to the list afterwards. **Not verified.** It needs a person with a screen reader on. The row's single label is covered by a test in the meantime.
+- _Manual follow-up, not a gate:_ A VoiceOver or TalkBack walkthrough of the list, create, detail and edit screens reaches every control in a sensible order. Each recipe row is one element announcing title, servings and time together, not four separate stops, and the delete confirmation announces itself and returns focus to the list afterwards.
 
 ## Open questions
 

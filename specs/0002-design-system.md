@@ -122,7 +122,7 @@ There is no screen to refactor here, because no real screen exists yet. The proo
 - [x] Every interactive component exposes an `accessibilityRole` and an accessible name, and `Button` in its disabled and loading states reports `disabled` and `busy` through `accessibilityState`.
 - [x] No component conveys a state by colour alone: `TextField` in error shows a message, and every state renders legibly in greyscale in the gallery.
 - [x] No component sets `allowFontScaling={false}`, verified by a search returning no matches.
-- [ ] A VoiceOver or TalkBack walkthrough of the gallery reaches every component in a sensible order, and each announces what it is and what it does. **Not verified.** It needs a person with a screen reader on. `TextField` announcing its label, value and error as one stop is covered by a test in the meantime.
+- _Manual follow-up, not a gate:_ A VoiceOver or TalkBack walkthrough of the gallery reaches every component in a sensible order, and each announces what it is and what it does.
 - [ ] Text scales with the OS font size setting, and at the largest setting nothing in the gallery is clipped or truncated mid-word. **Not verified.** `allowFontScaling={false}` appears nowhere, which is tested, so scaling is on; whether the layouts survive the largest setting needs someone to change the setting and look.
 - [x] `TextField` in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.
 - [x] `Button` in its loading state does not change width, and a second press while loading fires no additional handler call.

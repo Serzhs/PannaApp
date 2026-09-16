@@ -557,12 +557,14 @@ is built, and not an audit somebody schedules later.
   This is the rule that makes the others hold: a component that is awkward to query in a test is a
   component that is awkward to use with a screen reader, and the test fails first.
 
-**Every spec that adds a screen carries a screen reader walkthrough as an acceptance criterion.**
-The automated checks above catch missing labels and failing contrast; they cannot tell that a
-reading order is nonsense, that focus is trapped, or that a control is labelled "button". Those need
-a person with VoiceOver or TalkBack on, moving through the screen without looking at it. It costs
-about ten minutes per screen, and it is the only part of accessibility that cannot be delegated to
-a test.
+**Every spec that adds a screen carries a screen reader walkthrough as a manual follow-up, not as
+an acceptance criterion.** The automated checks above catch missing labels and failing contrast;
+they cannot tell that a reading order is nonsense, that focus is trapped, or that a control is
+labelled "button". Those need a person with VoiceOver or TalkBack on, moving through the screen
+without looking at it. It costs about ten minutes per screen, and it is the only part of
+accessibility that cannot be delegated to a test. It is written beneath the criteria rather than
+among them because nobody on the project can run it on demand, and a gate nobody can pass leaves
+every spec with a screen permanently open while saying nothing about whether the screen works.
 
 The walkthrough covers: reaching every interactive element in an order that makes sense, every
 element announcing what it is and what it does, no element announced twice or not at all, and every

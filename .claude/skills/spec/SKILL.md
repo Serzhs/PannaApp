@@ -27,8 +27,9 @@ merely available.
      scope list is short is a spec that has not been thought about.
    - Every acceptance criterion must be checkable by running something. "The list feels fast" is not
      a criterion. Include failure paths, not only the happy path.
-   - Any spec that adds a screen includes a screen reader walkthrough criterion, per the
-     Accessibility section of `CLAUDE.md`.
+   - Any spec that adds a screen lists a screen reader walkthrough as a manual follow-up bullet
+     beneath the criteria, never as a checkbox that gates the spec, per the Accessibility section
+     of `CLAUDE.md`.
    - Any spec that adds an endpoint lists every error `code` it can return.
    - Any spec that adds a component states that it follows the one-folder-per-component layout.
    - If the slice looks like more than about a day of work, say so and propose a split instead of

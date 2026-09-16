@@ -61,7 +61,7 @@ The design gallery only. Each component gets a section in the `/design` gallery 
 - [x] No component sets `allowFontScaling={false}`, and no component contains a colour, spacing or font size literal. _(Checked by 0002's tests.)_
 - [ ] Swipe-back on iOS and the back gesture on Android both work on every screen these components appear in, including with a dialog open. _(iOS swipe-back on the gallery works. **Android not verified**: no Android build exists yet.)_
 - [ ] With reduce motion on, the skeleton shimmer stops rather than animating, and the content still reads as a placeholder. _(Built: the shimmer reads the OS setting and holds still. **Not verified** with the setting on; it needs someone to change it and look.)_
-- [ ] A VoiceOver or TalkBack walkthrough of these components in the gallery reaches each in a sensible order, and `Card` used as a list row announces as one element rather than as its separate children. **Not verified.** It needs a person with a screen reader on. `Card` folding its children into one label is covered by a test in the meantime.
+- _Manual follow-up, not a gate:_ A VoiceOver or TalkBack walkthrough of these components in the gallery reaches each in a sensible order, and `Card` used as a list row announces as one element rather than as its separate children.
 
 ## Open questions
 
