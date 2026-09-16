@@ -26,11 +26,7 @@ export const styles = StyleSheet.create({
   ratio: {
     minWidth: theme.space.space12,
   },
-  card: {
-    padding: theme.space.space4,
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.radiusMd,
-    borderWidth: 1,
-    borderColor: theme.colors.borderSubtle,
+  half: {
+    flex: 1,
   },
 });
