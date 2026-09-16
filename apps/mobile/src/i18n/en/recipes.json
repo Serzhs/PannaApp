@@ -3,7 +3,8 @@
     "list": "Recipes",
     "new": "New recipe",
     "detail": "Recipe",
-    "edit": "Edit recipe"
+    "edit": "Edit recipe",
+    "needs": "What you need"
   },
   "header": {
     "settings": "Settings",
@@ -56,5 +57,37 @@
       "servings": "Servings is a whole number from 1 to 100.",
       "totalTimeMinutes": "Time is a whole number of minutes, up to 1440."
     }
+  },
+  "needs": {
+    "title": "What you need",
+    "ingredients": "Ingredients",
+    "equipment": "Equipment",
+    "noIngredients": "No ingredients yet.",
+    "noEquipment": "No equipment listed.",
+    "optional": "optional",
+    "addIngredient": "Add ingredient",
+    "addEquipment": "Add equipment",
+    "remove": "Remove {{name}}",
+    "removeUnnamed": "Remove line",
+    "moveUp": "Move {{name}} up",
+    "moveDown": "Move {{name}} down",
+    "drag": "Drag to reorder {{name}}",
+    "unnamed": "unnamed line",
+    "name": "Name",
+    "amount": "Amount",
+    "unit": "Unit",
+    "note": "Note",
+    "noteHelper": "Anything that is not the name: plain, not self-raising.",
+    "unitNone": "None",
+    "unitPicker": "Unit",
+    "optionalSwitch": "Optional",
+    "errors": {
+      "name": "Give the line a name.",
+      "amount": "Amount is a number with up to two decimals, like 1.5.",
+      "unit": "A unit needs an amount."
+    },
+    "done": "Done",
+    "skip": "Skip for now",
+    "screen": "What you need"
   }
 }

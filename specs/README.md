@@ -12,7 +12,7 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0004](0004-design-system-components.md)  | Design system: display and feedback  | Approved    | Build a list screen's loading, empty and error states.                    |
 | [0005](0005-recipe-crud.md)               | Recipe CRUD                          | Approved    | Create, view, edit and delete your own recipes, with a draft state.       |
 | [0006](0006-i18n.md)                      | Internationalisation                 | Approved    | Run the app in another language, with correct plurals, formats and units. |
-| [0007](0007-ingredients-and-equipment.md) | Ingredients and equipment            | Draft       | Add, edit, remove and reorder what a recipe needs.                        |
+| [0007](0007-ingredients-and-equipment.md) | Ingredients and equipment            | In progress | Add, edit, remove and reorder what a recipe needs.                        |
 | 0008                                      | Steps and nesting                    | Not written | Write steps, and nest the ones that happen during a wait.                 |
 | 0009                                      | Step links                           | Not written | Attach ingredients and equipment to the step that uses them.              |
 | 0010                                      | Images                               | Not written | A cover photo, and a picture of how each step should look.                |

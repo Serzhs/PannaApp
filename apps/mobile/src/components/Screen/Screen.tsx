@@ -1,8 +1,10 @@
+import { useMemo, useState } from 'react';
 import { View, type ViewProps } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { styles } from './Screen.styles';
+import { ScrollLockContext, type ScrollLock } from './ScrollLock';
 
 export interface ScreenProps extends ViewProps {
   readonly scroll?: boolean;
@@ -28,6 +30,19 @@ export function Screen({
   ...rest
 }: ScreenProps): React.JSX.Element {
   const padding = padded ? styles.padded : undefined;
+  // A row being dragged must not also scroll the screen: the drag locks it, then lets go.
+  const [locked, setLocked] = useState(false);
+  const scrollLock = useMemo<ScrollLock>(
+    () => ({
+      lock: () => {
+        setLocked(true);
+      },
+      unlock: () => {
+        setLocked(false);
+      },
+    }),
+    [],
+  );
   // Taking the top inset twice leaves a visible gap under the header.
   const edges = withHeader
     ? (['bottom', 'left', 'right'] as const)
@@ -36,15 +51,18 @@ export function Screen({
   return (
     <SafeAreaView style={styles.safeArea} edges={edges}>
       {scroll ? (
-        <KeyboardAwareScrollView
-          contentContainerStyle={[styles.scrollContent, padding]}
-          keyboardShouldPersistTaps="handled"
-          bottomOffset={styles.keyboardOffset.marginBottom}
-        >
-          <View {...rest} style={style}>
-            {children}
-          </View>
-        </KeyboardAwareScrollView>
+        <ScrollLockContext.Provider value={scrollLock}>
+          <KeyboardAwareScrollView
+            contentContainerStyle={[styles.scrollContent, padding]}
+            keyboardShouldPersistTaps="handled"
+            bottomOffset={styles.keyboardOffset.marginBottom}
+            scrollEnabled={!locked}
+          >
+            <View {...rest} style={style}>
+              {children}
+            </View>
+          </KeyboardAwareScrollView>
+        </ScrollLockContext.Provider>
       ) : (
         <View {...rest} style={[styles.content, padding, style]}>
           {children}

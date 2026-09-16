@@ -3,6 +3,8 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -22,6 +24,9 @@ import {
  * exactly this.
  */
 export const unstable_settings = { initialRouteName: '(app)' };
+
+/** Gesture handling needs to own the root, and it needs the root to fill the screen. */
+const styles = StyleSheet.create({ root: { flex: 1 } });
 
 /**
  * Sends the user to the group that matches their session, and does nothing at all while
@@ -58,18 +63,20 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <PersistQueryClientProvider
-        client={queryClient}
-        persistOptions={{ persister, ...persistOptions }}
-      >
-        <KeyboardProvider>
-          <AuthProvider>
-            <LocaleSync />
-            <StatusBar style="dark" />
-            <SessionRouter />
-          </AuthProvider>
-        </KeyboardProvider>
-      </PersistQueryClientProvider>
+      <GestureHandlerRootView style={styles.root}>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{ persister, ...persistOptions }}
+        >
+          <KeyboardProvider>
+            <AuthProvider>
+              <LocaleSync />
+              <StatusBar style="dark" />
+              <SessionRouter />
+            </AuthProvider>
+          </KeyboardProvider>
+        </PersistQueryClientProvider>
+      </GestureHandlerRootView>
     </ErrorBoundary>
   );
 }

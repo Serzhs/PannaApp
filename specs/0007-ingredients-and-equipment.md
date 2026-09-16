@@ -1,6 +1,6 @@
 # 0007: Ingredients and equipment
 
-**Status:** Draft
+**Status:** In progress
 **Depends on:** 0005, 0006
 
 ## Context
@@ -23,7 +23,6 @@ An author lists what a recipe needs - ingredients with amounts, and the pans and
 - Converting a volume into a mass, or a mass into a volume. 0006 settled this: it needs the ingredient's density, and a guess is a confidently wrong recipe.
 - Images of ingredients or equipment.
 - The JSON import shape. 0015 defines the document; it will reuse the field rules below, but the document itself is not designed here.
-- Drag-to-reorder gestures, unless the open question below is answered that way.
 
 ## Data model
 
@@ -82,41 +81,55 @@ Error codes this spec can return: `AUTH_TOKEN_INVALID`, `AUTH_TOKEN_EXPIRED`, `R
 
 To a screen reader an ingredient row is one element: amount, unit, name and note read together.
 
-**Edit screen, `(app)/recipes/[id]/edit`.** The whole recipe on one screen, as 0005 established. Below the four fields, two editable lists. Each ingredient line has name, amount, unit and note; each equipment line has name, note and an optional switch. A line can be added at the end, removed, and moved. Amount takes a decimal keyboard. Unit is chosen from a list of the fourteen units grouped by dimension, in the reader's language, with "none" for a bare count. The author edits in whatever units they type; conversion is for reading, never for editing.
+**Edit screen, `(app)/recipes/[id]/edit`.** The whole recipe on one screen, as 0005 established. Below the four fields, two editable lists. Each ingredient line has name, amount, unit and note; each equipment line has name, note and an optional switch. A line can be added at the end, removed, and moved, either by dragging its handle or with move up and move down buttons, which are also what a screen reader user has. Amount takes a decimal keyboard and decimals only: `1.5` is accepted and `1/2` is not, and the unit list offers the spoon and cup sizes that make halves rare. Unit is chosen from a list of the fourteen units grouped by dimension, in the reader's language, with "none" for a bare count. The author edits in whatever units they type; conversion is for reading, never for editing.
 
 Save sends one `PATCH` with the fields and both lists. Field-level errors from the server land on the line and field they name; a failure that is not about a field shows once. Offline, nothing is sent, the message says so, and everything typed stays, per the Offline section of `CLAUDE.md`. On success the app returns to the recipe screen showing the new lists.
 
-**Create flow, `(app)/recipes/new`.** 0005 built the first page and said the flow grows into a wizard. This spec adds the second page, "What you need": after the basics are saved as a draft, the app goes on to the same two editors for that draft, with Done saving them and landing on the recipe. Skip is offered, because a recipe can be written down before its shopping is known. Whether this page ships here or waits is the first open question.
+**Create flow, `(app)/recipes/new`.** 0005 built the first page and said the flow grows into a wizard. This spec adds the second page, "What you need": after the basics are saved as a draft, the app goes on to the same two editors for that draft, with Done saving them and landing on the recipe. Skip is offered, because a recipe can be written down before its shopping is known.
 
-**Components** added, each in its own folder with its styles, test and index, per the Repo layout section of `CLAUDE.md`: an ingredient line editor, an equipment line editor, and the unit picker. Each gets an entry in the design gallery.
+**Components** added, each in its own folder with its styles, test and index, per the Repo layout section of `CLAUDE.md`: an ingredient line editor, an equipment line editor, the unit picker, and a reorderable list that carries the drag handle and the move buttons. Each gets an entry in the design gallery.
 
 All new strings go through `t()`, in English and Latvian, and the lint rule from 0006 holds.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] `GET /api/recipes/:recipeId` returns `ingredients` and `equipment` as `[]` for a recipe with none, and `GET /api/recipes` carries neither array.
-- [ ] A `PATCH` with three ingredients and two pieces of equipment stores them with positions 0, 1, 2 and 0, 1, and `GET` returns them in that order regardless of the order they were inserted.
-- [ ] A `PATCH` that reorders the lists rewrites every position, and the rows keep their ids.
-- [ ] A `PATCH` that omits a row that was in the recipe deletes it, and a `PATCH` with a row carrying no `id` inserts it.
-- [ ] A `PATCH` with only metadata leaves both lists untouched, and a `PATCH` with only `ingredients` leaves the metadata and `equipment` untouched, and both refresh `updatedAt`.
-- [ ] A `PATCH` whose fourth ingredient has a blank name returns 400 with `fields` naming `ingredients.3.name`, and writes nothing: the first three are not stored either.
-- [ ] A `PATCH` with a `unit` and no `amount`, with an amount of `0`, of `-1`, of `1.005`, and of `100000`, each return 400.
-- [ ] A `PATCH` with 101 ingredients, and one with 51 pieces of equipment, each return 400 and write nothing.
-- [ ] A `PATCH` carrying an ingredient `id` from another user's recipe returns 400 and changes neither recipe; a `PATCH` on another user's recipe returns 404 with the same body as an unknown id.
-- [ ] A `PATCH` with the same `id` twice returns 400.
-- [ ] Every new endpoint behaviour returns 401 with no token and with an expired one.
-- [ ] The recipe screen shows `250 ml` as "about 1 cup" to an imperial reader and as "250 ml" to a metric reader, and shows "2 eggs" and "salt" for a bare count and an unmeasured ingredient, asserted in a component test.
-- [ ] The recipe screen reads each ingredient as one element to a screen reader, carrying amount, unit, name and note, asserted by querying the accessible name.
-- [ ] Optional equipment shows the word, not only a style, asserted in a test.
-- [ ] In the app, adding, removing and moving lines on the edit screen and saving shows the new lists on the recipe screen without a manual refresh.
-- [ ] Saving with a blank ingredient name marks that line and sends nothing, and saving offline keeps every line typed and shows the offline message.
-- [ ] Every new component appears in the design gallery in every state, and the unit picker lists all fourteen units grouped by dimension in both languages.
-- [ ] The Latvian file lists every new key, and switching language changes the section headings, the unit names and the word "optional".
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(Passes.)_
+- [x] `GET /api/recipes/:recipeId` returns `ingredients` and `equipment` as `[]` for a recipe with none, and `GET /api/recipes` carries neither array. _(Tested.)_
+- [x] A `PATCH` with three ingredients and two pieces of equipment stores them with positions 0, 1, 2 and 0, 1, and `GET` returns them in that order regardless of the order they were inserted. _(Tested.)_
+- [x] A `PATCH` that reorders the lists rewrites every position, and the rows keep their ids. _(Tested.)_
+- [x] A `PATCH` that omits a row that was in the recipe deletes it, and a `PATCH` with a row carrying no `id` inserts it. _(Tested.)_
+- [x] A `PATCH` with only metadata leaves both lists untouched, and a `PATCH` with only `ingredients` leaves the metadata and `equipment` untouched, and both refresh `updatedAt`. _(Tested.)_
+- [x] A `PATCH` whose fourth ingredient has a blank name returns 400 with `fields` naming `ingredients.3.name`, and writes nothing: the first three are not stored either. _(Tested.)_
+- [x] A `PATCH` with a `unit` and no `amount`, with an amount of `0`, of `-1`, of `1.005`, and of `100000`, each return 400. _(Tested, along with a note over 200 characters and an unknown unit.)_
+- [x] A `PATCH` with 101 ingredients, and one with 51 pieces of equipment, each return 400 and write nothing. _(Tested.)_
+- [x] A `PATCH` carrying an ingredient `id` from another user's recipe returns 400 and changes neither recipe; a `PATCH` on another user's recipe returns 404 with the same body as an unknown id. _(Tested.)_
+- [x] A `PATCH` with the same `id` twice returns 400. _(Tested.)_
+- [x] Every new endpoint behaviour returns 401 with no token and with an expired one. _(The lists ride on the endpoints 0005 already tests for both cases; no new route was added.)_
+- [x] The recipe screen shows `250 ml` as "about 1 cup" to an imperial reader and as "250 ml" to a metric reader, and shows "2 eggs" and "salt" for a bare count and an unmeasured ingredient, asserted in a component test. _(Tested.)_
+- [x] The recipe screen reads each ingredient as one element to a screen reader, carrying amount, unit, name and note, asserted by querying the accessible name. _(Tested.)_
+- [x] Optional equipment shows the word, not only a style, asserted in a test. _(Tested.)_
+- [x] In the app, adding, removing and moving lines on the edit screen and saving shows the new lists on the recipe screen without a manual refresh. _(Verified on an iPhone 17 Pro simulator.)_
+- [x] A line moves with the move up and move down buttons, asserted in a test, and by dragging its handle, seen on the simulator. The first line has no move up and the last no move down. _(Buttons tested; the drag seen on the simulator, and the first and last lines lack their button in both.)_
+- [x] After the basics of a new recipe are saved, the app continues to "What you need" for that draft; Done saves the lists and lands on the recipe, and Skip lands on the recipe with both lists empty. _(Verified on the simulator.)_
+- [x] Typing `1/2` as an amount marks the line rather than saving, and `1.5` saves as 1.5. _(Tested at the validator, which the screens run before sending.)_
+- [ ] Saving with a blank ingredient name marks that line and sends nothing, and saving offline keeps every line typed and shows the offline message. _(The blank name is tested at the validator. **Offline not verified**: it needs the simulator's network cut.)_
+- [x] Every new component appears in the design gallery in every state, and the unit picker lists all fourteen units grouped by dimension in both languages. _(Entries added; the picker's fourteen units and three groups are tested.)_
+- [x] The Latvian file lists every new key, and switching language changes the section headings, the unit names and the word "optional". _(The key test passes; the Latvian words are a draft for the owner to correct, as 0006 decided.)_
 - _Manual follow-up, not a gate:_ A VoiceOver or TalkBack walkthrough of the recipe screen's new section and of the edit screen's lists, checking that each line reads as one element and that moving a line is announced.
 
 ## Open questions
 
-1. **Does the second create page ship here?** Building the editors once and reusing them on the create flow is a few hours on top of the edit screen. Shipping it makes the wizard real one page earlier; leaving it out keeps this spec to about a day and means a new recipe still lands on its screen straight after the basics, with ingredients added through Edit. Either is coherent; the cost is the day.
-2. **How does a line move?** Move up and move down buttons on each line are simple, work with a screen reader as they are, and need no library. Drag handles feel better with twenty ingredients and are what people expect, but need a gesture-driven list on top of reanimated and gesture-handler, and their accessibility has to be built by hand. Buttons now and drag later is possible, since the contract does not care.
-3. **How is an amount typed?** A decimal keyboard accepts `1.5`; it does not accept `1/2`, which is how people write half a cup. Accepting fractions means parsing text and deciding what `1 1/2` and `1,5` mean. The simplest rule is decimals only, with the unit picker offering the spoon and cup sizes that make halves rare; the friendlier one costs a small parser and a test per form.
+None.
+
+## Decided
+
+**The second create page ships here.** The editors are built once for the edit screen and reused on
+the create flow, so the wizard 0005 promised becomes real one page earlier at the cost of a few hours.
+
+**Lines move by drag and by buttons.** Dragging a handle is what people expect with twenty
+ingredients; move up and move down buttons are what a screen reader user has, and they are also how
+the behaviour is tested. Both reorder the same list, and the API only ever sees the final order.
+
+**Amounts are decimals only.** `1.5` is accepted and `1/2` is not. The unit picker offers teaspoons,
+tablespoons and cups, which is where halves come from, so the parser a fraction would need is not
+worth its edge cases.

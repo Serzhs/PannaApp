@@ -3,7 +3,8 @@
     "list": "Receptes",
     "new": "Jauna recepte",
     "detail": "Recepte",
-    "edit": "Rediģēt recepti"
+    "edit": "Rediģēt recepti",
+    "needs": "Kas vajadzīgs"
   },
   "header": {
     "settings": "Iestatījumi",
@@ -57,5 +58,37 @@
       "servings": "Porcijas ir vesels skaitlis no 1 līdz 100.",
       "totalTimeMinutes": "Laiks ir vesels minūšu skaits, līdz 1440."
     }
+  },
+  "needs": {
+    "title": "Kas vajadzīgs",
+    "ingredients": "Sastāvdaļas",
+    "equipment": "Piederumi",
+    "noIngredients": "Vēl nav sastāvdaļu.",
+    "noEquipment": "Piederumi nav norādīti.",
+    "optional": "pēc izvēles",
+    "addIngredient": "Pievienot sastāvdaļu",
+    "addEquipment": "Pievienot piederumu",
+    "remove": "Noņemt {{name}}",
+    "removeUnnamed": "Noņemt rindu",
+    "moveUp": "Pārvietot {{name}} augšup",
+    "moveDown": "Pārvietot {{name}} lejup",
+    "drag": "Velc, lai pārkārtotu {{name}}",
+    "unnamed": "rinda bez nosaukuma",
+    "name": "Nosaukums",
+    "amount": "Daudzums",
+    "unit": "Mērvienība",
+    "note": "Piezīme",
+    "noteHelper": "Viss, kas nav nosaukums: parastie, ne pašuzrūgstošie.",
+    "unitNone": "Nav",
+    "unitPicker": "Mērvienība",
+    "optionalSwitch": "Pēc izvēles",
+    "errors": {
+      "name": "Ieraksti rindas nosaukumu.",
+      "amount": "Daudzums ir skaitlis ar ne vairāk kā divām decimāldaļām, piemēram, 1.5.",
+      "unit": "Mērvienībai vajadzīgs daudzums."
+    },
+    "done": "Gatavs",
+    "skip": "Izlaist pagaidām",
+    "screen": "Kas vajadzīgs"
   }
 }

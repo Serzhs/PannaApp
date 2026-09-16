@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
+import { NeedsSection } from './components/NeedsSection';
 import { describeMeta } from './format';
 import { useDeleteRecipe, useRecipe } from './queries';
 import { styles } from './RecipeDetailScreen.styles';
@@ -94,6 +95,7 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
           </Text>
         </Stack>
         {data.description === null ? null : <Text variant="body">{data.description}</Text>}
+        <NeedsSection ingredients={data.ingredients} equipment={data.equipment} />
         <View style={styles.actions}>
           <Stack gap="space3">
             <Button

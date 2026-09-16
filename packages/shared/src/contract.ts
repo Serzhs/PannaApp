@@ -11,6 +11,7 @@ import {
 } from './auth.js';
 import {
   createRecipeBodySchema,
+  recipeDetailSchema,
   recipeListSchema,
   recipeSchema,
   updateRecipeBodySchema,
@@ -103,12 +104,12 @@ export const api = {
   getRecipe: endpoint({
     method: 'GET',
     path: '/api/recipes/:recipeId',
-    response: recipeSchema,
+    response: recipeDetailSchema,
   }),
   updateRecipe: endpoint({
     method: 'PATCH',
     path: '/api/recipes/:recipeId',
-    response: recipeSchema,
+    response: recipeDetailSchema,
     body: updateRecipeBodySchema,
   }),
   deleteRecipe: endpoint({

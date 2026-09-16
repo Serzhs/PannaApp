@@ -23,7 +23,7 @@ import { ZodBody } from '../../common/zod-body.pipe.js';
 import { AuthGuard, type AuthedRequest } from '../auth/auth.guard.js';
 
 import { RecipeOwnerGuard, recipeNotFound, type RecipeRequest } from './recipe-owner.guard.js';
-import { RecipesService, toRecipe } from './recipes.service.js';
+import { RecipesService } from './recipes.service.js';
 
 function caller(request: AuthedRequest): string {
   if (request.userId === undefined) {
@@ -58,8 +58,8 @@ export class RecipesController {
 
   @Get(nestPath('getRecipe'))
   @UseGuards(RecipeOwnerGuard)
-  get(@Req() request: RecipeRequest): ResponseOf<'getRecipe'> {
-    return toRecipe(owned(request));
+  async get(@Req() request: RecipeRequest): Promise<ResponseOf<'getRecipe'>> {
+    return this.recipes.detail(owned(request));
   }
 
   @Patch(nestPath('updateRecipe'))
