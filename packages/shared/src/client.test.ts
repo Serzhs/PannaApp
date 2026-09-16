@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ApiError, request } from './client.js';
+import { ApiError, fillPath, request } from './client.js';
 import { ERROR_CODES } from './error-codes.js';
 
 function respondWith(body: unknown, status = 200): void {
@@ -69,5 +69,19 @@ describe('the shared client', () => {
     respondWith({ status: 'ok', database: 'ok' });
     await request('health', { baseUrl: 'http://api.test' });
     expect(fetch).toHaveBeenCalledWith('http://api.test/api/health', expect.anything());
+  });
+});
+
+describe('fillPath', () => {
+  it('fills every named segment, encoded', () => {
+    expect(fillPath('/api/recipes/:recipeId', { recipeId: 'a/b' })).toBe('/api/recipes/a%2Fb');
+  });
+
+  it('leaves a path with no segments alone', () => {
+    expect(fillPath('/api/recipes')).toBe('/api/recipes');
+  });
+
+  it('throws on a missing value rather than sending a literal colon', () => {
+    expect(() => fillPath('/api/recipes/:recipeId')).toThrow(':recipeId');
   });
 });

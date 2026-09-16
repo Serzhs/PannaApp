@@ -8,6 +8,12 @@ import {
   signInBodySchema,
   tokenPairSchema,
 } from './auth.js';
+import {
+  createRecipeBodySchema,
+  recipeListSchema,
+  recipeSchema,
+  updateRecipeBodySchema,
+} from './recipes.js';
 
 export const healthResponseSchema = z.object({
   status: z.literal('ok'),
@@ -16,6 +22,7 @@ export const healthResponseSchema = z.object({
 
 export interface Endpoint<TResponse extends z.ZodTypeAny, TBody extends z.ZodTypeAny = z.ZodNever> {
   readonly method: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  /** May carry `:name` segments, filled from `params` by the client and read by Nest. */
   readonly path: string;
   readonly response: TResponse;
   readonly body?: TBody;
@@ -74,6 +81,33 @@ export const api = {
     method: 'GET',
     path: '/api/me',
     response: sessionUserSchema,
+  }),
+  listRecipes: endpoint({
+    method: 'GET',
+    path: '/api/recipes',
+    response: recipeListSchema,
+  }),
+  createRecipe: endpoint({
+    method: 'POST',
+    path: '/api/recipes',
+    response: recipeSchema,
+    body: createRecipeBodySchema,
+  }),
+  getRecipe: endpoint({
+    method: 'GET',
+    path: '/api/recipes/:recipeId',
+    response: recipeSchema,
+  }),
+  updateRecipe: endpoint({
+    method: 'PATCH',
+    path: '/api/recipes/:recipeId',
+    response: recipeSchema,
+    body: updateRecipeBodySchema,
+  }),
+  deleteRecipe: endpoint({
+    method: 'DELETE',
+    path: '/api/recipes/:recipeId',
+    response: z.void(),
   }),
 } as const;
 

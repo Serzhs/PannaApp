@@ -1,6 +1,23 @@
 import NetInfo from '@react-native-community/netinfo';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { focusManager, onlineManager, QueryClient } from '@tanstack/react-query';
+import type { Persister } from '@tanstack/react-query-persist-client';
+import Storage from 'expo-sqlite/kv-store';
 import { AppState, type AppStateStatus } from 'react-native';
+
+/** Anything cached longer ago than this is dropped on restore rather than shown. */
+const CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * The cache survives a restart, so a recipe already opened stays readable with no
+ * network, per the Offline section of CLAUDE.md. Queries must keep their data at least
+ * as long as the persister keeps the file, or a restore has nothing to restore.
+ */
+export function createPersister(): Persister {
+  return createAsyncStoragePersister({ storage: Storage, key: 'panna.queries' });
+}
+
+export const persistOptions = { maxAge: CACHE_MAX_AGE_MS };
 
 /**
  * TanStack Query decides what is stale by watching the browser's online and focus
@@ -33,9 +50,13 @@ export function createQueryClient(): QueryClient {
         // delays telling the user something is wrong.
         retry: 1,
         staleTime: 30_000,
+        gcTime: CACHE_MAX_AGE_MS,
         refetchOnReconnect: true,
       },
-      mutations: { retry: 0 },
+      // Offline, a mutation would otherwise pause and fire when the connection returns.
+      // CLAUDE.md wants a write attempted offline to fail at once and keep the input,
+      // with nothing silently pending, so it goes ahead and fails like any fetch.
+      mutations: { retry: 0, networkMode: 'always' },
     },
   });
 }

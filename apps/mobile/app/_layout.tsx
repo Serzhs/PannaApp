@@ -1,4 +1,4 @@
-import { QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
@@ -6,7 +6,12 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
-import { createQueryClient, wireQueryToDevice } from '@/query/client';
+import {
+  createPersister,
+  createQueryClient,
+  persistOptions,
+  wireQueryToDevice,
+} from '@/query/client';
 
 /**
  * Anchors every deep link on the group's first screen, so opening a link straight into
@@ -43,19 +48,23 @@ function SessionRouter() {
 
 export default function RootLayout() {
   const [queryClient] = useState(createQueryClient);
+  const [persister] = useState(createPersister);
 
   useEffect(() => wireQueryToDevice(), []);
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister, ...persistOptions }}
+      >
         <KeyboardProvider>
           <AuthProvider>
             <StatusBar style="dark" />
             <SessionRouter />
           </AuthProvider>
         </KeyboardProvider>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </ErrorBoundary>
   );
 }

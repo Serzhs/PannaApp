@@ -32,6 +32,9 @@ export function devSignInEnabled(env: Pick<Env, 'NODE_ENV' | 'ALLOW_DEV_SIGN_IN'
 export class AuthModule {
   static register(env: Pick<Env, 'NODE_ENV' | 'ALLOW_DEV_SIGN_IN'>): DynamicModule {
     return {
+      // Every other module guards its routes with AuthGuard, so it is available everywhere
+      // rather than imported, with the environment repeated, by each of them.
+      global: true,
       module: AuthModule,
       imports: [
         DatabaseModule,

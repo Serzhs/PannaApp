@@ -18,6 +18,17 @@ export interface RequestOptions {
   readonly signal?: AbortSignal;
   readonly headers?: Record<string, string>;
   readonly body?: unknown;
+  /** Values for the `:name` segments of the endpoint's path. */
+  readonly params?: Record<string, string>;
+}
+
+/** Every `:name` in the path is replaced, and a missing value is a bug rather than a 404. */
+export function fillPath(path: string, params: Record<string, string> = {}): string {
+  return path.replace(/:([A-Za-z]+)/g, (_match, name: string) => {
+    const value = params[name];
+    if (value === undefined) throw new Error(`Path ${path} needs a value for :${name}`);
+    return encodeURIComponent(value);
+  });
 }
 
 /**
@@ -30,7 +41,7 @@ export async function request<K extends EndpointName>(
   options: RequestOptions,
 ): Promise<ResponseOf<K>> {
   const endpoint = api[name];
-  const response = await fetch(`${options.baseUrl}${endpoint.path}`, {
+  const response = await fetch(`${options.baseUrl}${fillPath(endpoint.path, options.params)}`, {
     method: endpoint.method,
     headers: {
       ...(options.body === undefined ? {} : { 'content-type': 'application/json' }),
