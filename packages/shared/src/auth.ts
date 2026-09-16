@@ -40,5 +40,6 @@ export const refreshBodySchema = z.object({ refreshToken: z.string().min(1) }).s
  */
 export const devSignInBodySchema = z.object({ email: z.string().email() }).strict();
 
+export type SignInBody = z.infer<typeof signInBodySchema>;
 export type Session = z.infer<typeof sessionSchema>;
 export type SessionUser = z.infer<typeof sessionUserSchema>;

@@ -1,10 +1,18 @@
+import type { SignInBody } from '@panna/shared';
+import NetInfo from '@react-native-community/netinfo';
 import { useState } from 'react';
 import { Platform, View } from 'react-native';
 
-import { devSignIn } from './auth.api';
+import { devSignIn, startSession } from './auth.api';
 import { useAuth } from './AuthProvider';
 import { AppleButton } from './components/AppleButton';
 import { GoogleButton } from './components/GoogleButton';
+import {
+  ProviderNotConfigured,
+  SignInCancelled,
+  signInWithApple,
+  signInWithGoogle,
+} from './providerSignIn';
 import { styles } from './SignInScreen.styles';
 
 import { Button } from '@/components/Button';
@@ -24,9 +32,29 @@ export function SignInScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const notConfigured = (provider: string) => {
-    // 0003's next stage. Saying so beats a button that silently does nothing.
-    setError(`${provider} is not configured yet. Use the development sign-in below.`);
+  const signInWith = (provider: () => Promise<SignInBody>) => {
+    setError(null);
+    setBusy(true);
+    void (async () => {
+      // Sign-in is the one thing that cannot work offline, so it says that rather than
+      // failing with something generic halfway through the provider's sheet.
+      if ((await NetInfo.fetch()).isConnected === false) {
+        setError('You are offline. Connect to the internet to sign in.');
+        return;
+      }
+      await signIn(await startSession(await provider()));
+    })()
+      .catch((cause: unknown) => {
+        if (cause instanceof SignInCancelled) return;
+        if (cause instanceof ProviderNotConfigured) {
+          setError('Google sign-in is not set up in this build.');
+          return;
+        }
+        setError('Sign-in did not work. Try again, or use the other option.');
+      })
+      .finally(() => {
+        setBusy(false);
+      });
   };
 
   const signInAsDeveloper = () => {
@@ -68,7 +96,7 @@ export function SignInScreen() {
               <AppleButton
                 disabled={busy}
                 onPress={() => {
-                  notConfigured('Sign in with Apple');
+                  signInWith(signInWithApple);
                 }}
               />
             ) : null}
@@ -76,7 +104,7 @@ export function SignInScreen() {
             <GoogleButton
               disabled={busy}
               onPress={() => {
-                notConfigured('Sign in with Google');
+                signInWith(signInWithGoogle);
               }}
             />
 

@@ -6,8 +6,8 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "node scripts/free-port.mjs 3000 && docker compose up -d --wait database && pnpm --filter api db:migrate && ALLOW_DEV_SIGN_IN=true pnpm --filter api dev",
-    "mobile": "node scripts/free-port.mjs 8081 && pnpm --filter @panna/mobile start",
+    "dev": "docker compose up -d --wait database && pnpm --filter api db:migrate && ALLOW_DEV_SIGN_IN=true pnpm --filter api dev",
+    "mobile": "pnpm --filter @panna/mobile start",
     "check": "pnpm lint && pnpm typecheck && pnpm test",
     "lint": "eslint . --max-warnings 0 && prettier --check .",
     "typecheck": "pnpm -r typecheck",
@@ -49,6 +49,10 @@
     "overrides": {
       "multer": ">=2.3.0",
       "react-dom": "19.2.3"
+    },
+    "patchedDependencies": {
+      "expo-modules-jsi@57.1.0": "patches/expo-modules-jsi@57.1.0.patch",
+      "expo-modules-core@57.0.18": "patches/expo-modules-core@57.0.18.patch"
     }
   }
 }

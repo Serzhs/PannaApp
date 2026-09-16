@@ -9,6 +9,11 @@ import { AuthController } from './auth.controller.js';
 import { AuthGuard } from './auth.guard.js';
 import { AuthService } from './auth.service.js';
 import { DevAuthController } from './dev-auth.controller.js';
+import {
+  PROVIDER_KEY_SETS,
+  ProviderTokenVerifier,
+  remoteKeySets,
+} from './provider-token.verifier.js';
 import { TokensService } from './tokens.service.js';
 
 /**
@@ -41,7 +46,13 @@ export class AuthModule {
         }),
       ],
       controllers: devSignInEnabled(env) ? [AuthController, DevAuthController] : [AuthController],
-      providers: [AuthService, TokensService, AuthGuard],
+      providers: [
+        AuthService,
+        TokensService,
+        AuthGuard,
+        ProviderTokenVerifier,
+        { provide: PROVIDER_KEY_SETS, useFactory: remoteKeySets },
+      ],
       exports: [AuthService, TokensService, AuthGuard],
     };
   }

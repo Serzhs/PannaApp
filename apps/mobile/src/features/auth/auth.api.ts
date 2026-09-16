@@ -1,6 +1,10 @@
-import type { Session } from '@panna/shared';
+import type { Session, SignInBody } from '@panna/shared';
 
 import { authorized, call } from '@/api/client';
+
+export async function startSession(body: SignInBody): Promise<Session> {
+  return call('signIn', { body });
+}
 
 export async function devSignIn(email: string): Promise<Session> {
   return call('devSignIn', { body: { email } });

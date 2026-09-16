@@ -1,0 +1,58 @@
+diff --git a/apple/Package.swift b/apple/Package.swift
+index 77b0525ad0b34e5bda544da8fe965043d638f333..2260b0f64540391e07df42ac106be31a4bedd071 100644
+--- a/apple/Package.swift
++++ b/apple/Package.swift
+@@ -91,6 +91,8 @@ let package = Package(
+         .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+         // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0470-isolated-conformances.md
+         .enableUpcomingFeature("InferIsolatedConformances"),
++        // On by default in Swift 6 mode, which this package no longer builds in.
++        .enableUpcomingFeature("BareSlashRegexLiterals"),
+ 
+         .unsafeFlags([
+           "-enable-library-evolution",
+@@ -150,7 +152,7 @@ let package = Package(
+       path: "Benchmarks",
+     ),
+   ] + testFrameworks.binaryTargets,
+-  swiftLanguageModes: [.v6],
++  swiftLanguageModes: [.v5],
+   cxxLanguageStandard: .cxx20
+ )
+ 
+diff --git a/apple/Sources/ExpoModulesJSI/Runtime/Values/JavaScriptPromise.swift b/apple/Sources/ExpoModulesJSI/Runtime/Values/JavaScriptPromise.swift
+index 434c379e575ac5310b7a97fe86fad12c41134a54..6f86a96a39acf80a5a6e9dfbd88ad0e4dcb3f847 100644
+--- a/apple/Sources/ExpoModulesJSI/Runtime/Values/JavaScriptPromise.swift
++++ b/apple/Sources/ExpoModulesJSI/Runtime/Values/JavaScriptPromise.swift
+@@ -36,6 +36,9 @@ public struct JavaScriptPromise: JavaScriptType, ~Copyable {
+     let resolveFunction = JavaScriptValue.Ref()
+     let rejectFunction = JavaScriptValue.Ref()
+ 
++    // Swift 6 mode infers this; Swift 5 mode does not, and the owning struct is nonisolated.
++    nonisolated init() {}
++
+     func allowRelease() {
+       object.release()
+       resolveFunction.release()
+diff --git a/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h b/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h
+index 6115e87a6e430f55570fbf759283dca0cca1ee80..957527c85379285d9ee5fc7974ad01e94ee12bc5 100644
+--- a/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h
++++ b/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h
+@@ -50,7 +50,7 @@ public:
+    `scheduleTask` dispatches through `fn`, which the host implements against
+    the real react::RuntimeScheduler.
+    */
+-  SWIFT_RETURNS_RETAINED RuntimeScheduler(void *scheduler, ScheduleFn fn) noexcept
++  RuntimeScheduler(void *scheduler, ScheduleFn fn) noexcept
+       : nativeScheduler(scheduler), scheduleFn(fn) {}
+ 
+   /**
+@@ -58,7 +58,7 @@ public:
+    caller's thread — intended for standalone runtimes (e.g. tests) that have
+    no React scheduler.
+    */
+-  SWIFT_RETURNS_RETAINED RuntimeScheduler() {}
++  RuntimeScheduler() {}
+ 
+   RuntimeScheduler(const RuntimeScheduler &) = delete;
+ 

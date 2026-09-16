@@ -3,8 +3,10 @@ import {
   ERROR_CODES,
   nestPath,
   refreshBodySchema,
+  signInBodySchema,
   type ResponseOf,
   type SessionUser,
+  type SignInBody,
 } from '@panna/shared';
 
 import { AppException } from '../../common/app-exception.js';
@@ -12,10 +14,23 @@ import { ZodBody } from '../../common/zod-body.pipe.js';
 
 import { AuthGuard, type AuthedRequest } from './auth.guard.js';
 import { AuthService } from './auth.service.js';
+import { ProviderTokenVerifier } from './provider-token.verifier.js';
 
 @Controller()
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly verifier: ProviderTokenVerifier,
+  ) {}
+
+  @Post(nestPath('signIn'))
+  @HttpCode(200)
+  async signIn(
+    @Body(new ZodBody(signInBodySchema)) body: SignInBody,
+  ): Promise<ResponseOf<'signIn'>> {
+    const identity = await this.verifier.verify(body.provider, body.idToken, body.nonce);
+    return this.auth.signInWithProvider(body.provider, identity, body.displayName);
+  }
 
   @Post(nestPath('refresh'))
   @HttpCode(200)

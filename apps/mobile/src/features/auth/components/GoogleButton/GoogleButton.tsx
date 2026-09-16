@@ -1,6 +1,8 @@
-import { Pressable, Text } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
-import { GOOGLE_BRAND, styles } from './GoogleButton.styles';
+import { PROVIDER_BUTTON } from '../providerButton';
+
+import { styles } from './GoogleButton.styles';
 import { GoogleLogo } from './GoogleLogo';
 
 export interface GoogleButtonProps {
@@ -24,7 +26,9 @@ export function GoogleButton({ onPress, disabled = false }: GoogleButtonProps) {
       onPress={onPress}
       style={({ pressed }) => [styles.button, pressed && !disabled ? styles.pressed : null]}
     >
-      <GoogleLogo size={GOOGLE_BRAND.logo} />
+      <View style={styles.logo}>
+        <GoogleLogo size={PROVIDER_BUTTON.logo} />
+      </View>
       <Text style={styles.label}>Continue with Google</Text>
     </Pressable>
   );

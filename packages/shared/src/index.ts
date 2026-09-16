@@ -21,5 +21,6 @@ export {
   type AuthProvider,
   type Session,
   type SessionUser,
+  type SignInBody,
 } from './auth.js';
 export { ApiError, request, type RequestOptions } from './client.js';

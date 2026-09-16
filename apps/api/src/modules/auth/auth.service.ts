@@ -1,12 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ERROR_CODES, type Session, type SessionUser } from '@panna/shared';
-import { eq } from 'drizzle-orm';
+import { ERROR_CODES, type AuthProvider, type Session, type SessionUser } from '@panna/shared';
+import { and, eq } from 'drizzle-orm';
 
 import { AppException } from '../../common/app-exception.js';
 import { DatabaseService } from '../../db/database.service.js';
-import { users } from '../../db/schema/index.js';
+import { identities, users } from '../../db/schema/index.js';
 
+import type { ProviderIdentity } from './provider-token.verifier.js';
 import { TokensService } from './tokens.service.js';
+
+const DISPLAY_NAME_MAX = 80;
 
 @Injectable()
 export class AuthService {
@@ -33,6 +36,69 @@ export class AuthService {
       .where(eq(users.email, email))
       .limit(1);
     return row;
+  }
+
+  /**
+   * Matches on (provider, subject) first, the only stable key. Otherwise the identity
+   * joins the user holding its email, which is safe only because an unverified email
+   * never gets this far: linking on one would hand the account to anyone a provider
+   * lets claim that address.
+   */
+  async signInWithProvider(
+    provider: AuthProvider,
+    identity: ProviderIdentity,
+    displayName: string | undefined,
+  ): Promise<Session> {
+    const user = await this.database.db.transaction(async (tx) => {
+      const [linked] = await tx
+        .select({ id: users.id, email: users.email, displayName: users.displayName })
+        .from(identities)
+        .innerJoin(users, eq(identities.userId, users.id))
+        .where(and(eq(identities.provider, provider), eq(identities.subject, identity.subject)))
+        .limit(1);
+      if (linked !== undefined) return linked;
+
+      // Every account is keyed by a unique email, so one nobody vouches for cannot
+      // start an account either. Google and Apple verify addresses, so this is rare.
+      if (identity.email === null || !identity.emailVerified) {
+        this.logger.warn({ provider, event: 'unverified_email' }, 'Sign-in without verified email');
+        throw new AppException(
+          401,
+          ERROR_CODES.AUTH_PROVIDER_TOKEN_INVALID,
+          'Provider did not vouch for an email',
+        );
+      }
+
+      let [owner] = await tx
+        .select({ id: users.id, email: users.email, displayName: users.displayName })
+        .from(users)
+        .where(eq(users.email, identity.email))
+        .limit(1);
+
+      // A name is taken only when the account is created. Apple sends one on the very
+      // first authorisation and never again, so a later sign-in must not blank it.
+      owner ??= (
+        await tx
+          .insert(users)
+          .values({
+            email: identity.email,
+            displayName: (displayName ?? identity.name ?? '').slice(0, DISPLAY_NAME_MAX),
+          })
+          .returning({ id: users.id, email: users.email, displayName: users.displayName })
+      )[0];
+      if (owner === undefined) throw new Error('Insert returned no user');
+
+      await tx.insert(identities).values({
+        userId: owner.id,
+        provider,
+        subject: identity.subject,
+        email: identity.email,
+        emailVerified: identity.emailVerified,
+      });
+      return owner;
+    });
+
+    return this.startSession(user);
   }
 
   async startSession(user: SessionUser): Promise<Session> {
