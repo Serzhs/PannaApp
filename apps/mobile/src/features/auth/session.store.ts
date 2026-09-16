@@ -23,6 +23,17 @@ export async function saveSession(session: Session): Promise<void> {
   ]);
 }
 
+/** After a refresh: the user is unchanged, only the pair of tokens moves on. */
+export async function saveTokens(tokens: {
+  readonly accessToken: string;
+  readonly refreshToken: string;
+}): Promise<void> {
+  await Promise.all([
+    SecureStore.setItemAsync(ACCESS_KEY, tokens.accessToken),
+    SecureStore.setItemAsync(REFRESH_KEY, tokens.refreshToken),
+  ]);
+}
+
 export async function clearSession(): Promise<void> {
   await Promise.all([
     SecureStore.deleteItemAsync(ACCESS_KEY),

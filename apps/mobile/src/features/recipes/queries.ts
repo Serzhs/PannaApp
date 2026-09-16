@@ -12,37 +12,34 @@ export const recipeKeys = {
 };
 
 /**
- * Empty for the one render between signing out and leaving the group; the queries are
- * disabled then rather than fired with no token.
+ * False for the one render between signing out and leaving the group, so the queries
+ * are paused then rather than fired with no session behind them.
  */
-function useAccessToken(): string {
+function useSignedIn(): boolean {
   const { session } = useAuth();
-  return session?.accessToken ?? '';
+  return session !== null && session !== undefined;
 }
 
 export function useRecipes() {
-  const token = useAccessToken();
   return useQuery({
     queryKey: recipeKeys.list(),
-    queryFn: () => listRecipes(token),
-    enabled: token.length > 0,
+    queryFn: listRecipes,
+    enabled: useSignedIn(),
   });
 }
 
 export function useRecipe(recipeId: string) {
-  const token = useAccessToken();
   return useQuery({
     queryKey: recipeKeys.detail(recipeId),
-    queryFn: () => getRecipe(token, recipeId),
-    enabled: token.length > 0,
+    queryFn: () => getRecipe(recipeId),
+    enabled: useSignedIn(),
   });
 }
 
 export function useCreateRecipe() {
-  const token = useAccessToken();
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (body: CreateRecipeBody) => createRecipe(token, body),
+    mutationFn: (body: CreateRecipeBody) => createRecipe(body),
     onSuccess: async (recipe: Recipe) => {
       client.setQueryData(recipeKeys.detail(recipe.id), recipe);
       await client.invalidateQueries({ queryKey: recipeKeys.list() });
@@ -51,10 +48,9 @@ export function useCreateRecipe() {
 }
 
 export function useUpdateRecipe(recipeId: string) {
-  const token = useAccessToken();
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (body: UpdateRecipeBody) => updateRecipe(token, recipeId, body),
+    mutationFn: (body: UpdateRecipeBody) => updateRecipe(recipeId, body),
     onSuccess: async (recipe: Recipe) => {
       client.setQueryData(recipeKeys.detail(recipe.id), recipe);
       await client.invalidateQueries({ queryKey: recipeKeys.list() });
@@ -63,10 +59,9 @@ export function useUpdateRecipe(recipeId: string) {
 }
 
 export function useDeleteRecipe(recipeId: string) {
-  const token = useAccessToken();
   const client = useQueryClient();
   return useMutation({
-    mutationFn: () => deleteRecipe(token, recipeId),
+    mutationFn: () => deleteRecipe(recipeId),
     onSuccess: async () => {
       client.removeQueries({ queryKey: recipeKeys.detail(recipeId) });
       await client.invalidateQueries({ queryKey: recipeKeys.list() });

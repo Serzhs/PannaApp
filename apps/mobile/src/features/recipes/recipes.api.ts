@@ -1,27 +1,23 @@
 import type { CreateRecipeBody, Recipe, UpdateRecipeBody } from '@panna/shared';
 
-import { authorized, call } from '@/api/client';
+import { authorizedCall } from '@/api/session';
 
-export async function listRecipes(accessToken: string): Promise<Recipe[]> {
-  return call('listRecipes', { headers: authorized(accessToken) });
+export async function listRecipes(): Promise<Recipe[]> {
+  return authorizedCall('listRecipes');
 }
 
-export async function getRecipe(accessToken: string, recipeId: string): Promise<Recipe> {
-  return call('getRecipe', { params: { recipeId }, headers: authorized(accessToken) });
+export async function getRecipe(recipeId: string): Promise<Recipe> {
+  return authorizedCall('getRecipe', { params: { recipeId } });
 }
 
-export async function createRecipe(accessToken: string, body: CreateRecipeBody): Promise<Recipe> {
-  return call('createRecipe', { body, headers: authorized(accessToken) });
+export async function createRecipe(body: CreateRecipeBody): Promise<Recipe> {
+  return authorizedCall('createRecipe', { body });
 }
 
-export async function updateRecipe(
-  accessToken: string,
-  recipeId: string,
-  body: UpdateRecipeBody,
-): Promise<Recipe> {
-  return call('updateRecipe', { params: { recipeId }, body, headers: authorized(accessToken) });
+export async function updateRecipe(recipeId: string, body: UpdateRecipeBody): Promise<Recipe> {
+  return authorizedCall('updateRecipe', { params: { recipeId }, body });
 }
 
-export async function deleteRecipe(accessToken: string, recipeId: string): Promise<void> {
-  await call('deleteRecipe', { params: { recipeId }, headers: authorized(accessToken) });
+export async function deleteRecipe(recipeId: string): Promise<void> {
+  await authorizedCall('deleteRecipe', { params: { recipeId } });
 }
