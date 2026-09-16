@@ -37,8 +37,8 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">85 of 132 acceptance criteria verified across 6 written specs.</p>
-<div class="bar"><div style="width: 64%"></div></div>
+<p class="summary">113 of 132 acceptance criteria verified across 6 written specs.</p>
+<div class="bar"><div style="width: 86%"></div></div>
 
 <h2>All specs</h2>
 <table>
@@ -46,7 +46,7 @@
 <tbody>
 <tr><td><a href="#spec-0001">0001</a></td><td>Project setup and database</td><td><span class="status done">Done</span></td><td>24 / 25</td><td>Clone, run three commands, get a linted API on a migrated database.</td></tr>
 <tr><td><a href="#spec-0002">0002</a></td><td>Design system: tokens and primitives</td><td><span class="status done">Done</span></td><td>22 / 24</td><td>Build a form screen from tokens and components, with no raw values.</td></tr>
-<tr><td><a href="#spec-0003">0003</a></td><td>Sign in with Google and Apple</td><td><span class="status in-progress">In progress</span></td><td>2 / 31</td><td>Sign in with one tap, no passwords, and stay signed in.</td></tr>
+<tr><td><a href="#spec-0003">0003</a></td><td>Sign in with Google and Apple</td><td><span class="status in-progress">In progress</span></td><td>30 / 31</td><td>Sign in with one tap, no passwords, and stay signed in.</td></tr>
 <tr><td><a href="#spec-0004">0004</a></td><td>Design system: display and feedback</td><td><span class="status approved">Approved</span></td><td>10 / 14</td><td>Build a list screen's loading, empty and error states.</td></tr>
 <tr><td><a href="#spec-0005">0005</a></td><td>Recipe CRUD</td><td><span class="status approved">Approved</span></td><td>17 / 22</td><td>Create, view, edit and delete your own recipes, with a draft state.</td></tr>
 <tr><td><a href="#spec-0006">0006</a></td><td>Internationalisation</td><td><span class="status approved">Approved</span></td><td>10 / 16</td><td>Run the app in another language, with correct plurals, formats and units.</td></tr>
@@ -200,42 +200,42 @@
 <section id="spec-0003">
 <h2>0003: Sign in with Google and Apple <span class="status in-progress">In progress</span></h2>
 <p class="goal">A user signs in with Google or Apple in one tap, and stays signed in after restarting the app.</p>
-<p class="summary">2 of 31 acceptance criteria verified.</p>
-<div class="bar"><div style="width: 6%"></div></div>
+<p class="summary">30 of 31 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 97%"></div></div>
 
 <h3>Acceptance criteria</h3>
 <ul class="criteria">
-<li class="todo"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces.</li>
-<li class="todo"><code>POST /api/auth/dev-session</code> returns 404 when <code>ALLOW<em>DEV</em>SIGN_IN</code> is unset, proving the route is not registered rather than merely guarded.</li>
-<li class="todo">The API refuses to start when <code>ALLOW<em>DEV</em>SIGN<em>IN</code> is <code>true</code> and <code>NODE</em>ENV</code> is <code>production</code>, with a message naming the variable.</li>
-<li class="todo"><code>POST /api/auth/dev-session</code> with an email no user holds returns 404 and creates nothing.</li>
-<li class="todo">A session from the development route is indistinguishable from a real one: the same response shape, and <code>GET /api/me</code> accepts its access token.</li>
-<li class="todo">A release bundle contains no development sign-in affordance, verified by grepping an export rather than by inspecting the config.</li>
-<li class="todo">A token with a valid signature but the wrong audience is rejected with 401.</li>
-<li class="todo">A token with a valid signature but an expired <code>exp</code> is rejected.</li>
-<li class="todo">A token whose <code>nonce</code> does not match the attempt is rejected, so a captured token cannot be replayed.</li>
-<li class="todo">A provider access token sent where an ID token is expected is rejected.</li>
-<li class="todo">A token signed by a key that is not the provider's is rejected, verified with a self-signed token.</li>
-<li class="todo">Signing in twice with the same provider account produces one user row and one identity row, not two.</li>
-<li class="todo">Signing in with Google, then Apple, with the same verified email produces one user with two identities.</li>
-<li class="todo">Signing in with a provider whose email is not marked verified is refused with 401, creates no user and joins no existing one.</li>
-<li class="todo">A sign-in with no name from the token or the client creates a user with a blank display name.</li>
-<li class="todo">Apple's display name is stored on first sign-in and is not overwritten by a later sign-in that omits it.</li>
-<li class="todo"><code>displayName</code> sent on a sign-in for an existing user changes nothing.</li>
-<li class="todo">Using a refresh token twice fails the second time with 401, and the token issued by the first use is also revoked.</li>
-<li class="todo">Refresh token reuse writes a log line identifying the user and the event.</li>
-<li class="todo"><code>GET /api/me</code> returns 401 without a token and with an expired one.</li>
-<li class="todo">No response anywhere contains <code>tokenHash</code>, a provider token, or a <code>subject</code>.</li>
-<li class="todo">No auth endpoint accepts a body containing a field its schema does not define.</li>
-<li class="todo">A JWT payload contains no email, no display name and nothing beyond what identifies the session.</li>
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces.</li>
+<li class="done"><code>POST /api/auth/dev-session</code> returns 404 when <code>ALLOW<em>DEV</em>SIGN<em>IN</code> is unset, proving the route is not registered rather than merely guarded. </em>(Tested with the module built without the flag: the route is absent, the real routes remain.)_</li>
+<li class="done">The API refuses to start when <code>ALLOW<em>DEV</em>SIGN<em>IN</code> is <code>true</code> and <code>NODE</em>ENV</code> is <code>production</code>, with a message naming the variable. <em>(Tested at the environment schema, which is what stops the boot.)</em></li>
+<li class="done"><code>POST /api/auth/dev-session</code> with an email no user holds returns 404 and creates nothing. <em>(Tested.)</em></li>
+<li class="done">A session from the development route is indistinguishable from a real one: the same response shape, and <code>GET /api/me</code> accepts its access token. <em>(Tested: the body parses with the session schema and <code>/api/me</code> answers 200.)</em></li>
+<li class="done">A release bundle contains no development sign-in affordance, verified by grepping an export rather than by inspecting the config. <em>(Verified: <code>npx expo export --platform ios --no-bytecode</code> in <code>apps/mobile</code>, then grepping the output for "Development sign-in" finds nothing, while "Continue with Google" is found once as the control. Without <code>--no-bytecode</code> the export is Hermes bytecode and the grep proves nothing either way.)</em></li>
+<li class="done">A token with a valid signature but the wrong audience is rejected with 401. <em>(Tested against a key set generated in the test, so the signature is genuine.)</em></li>
+<li class="done">A token with a valid signature but an expired <code>exp</code> is rejected. <em>(Tested, along with one issued too long ago.)</em></li>
+<li class="done">A token whose <code>nonce</code> does not match the attempt is rejected, so a captured token cannot be replayed. <em>(Tested, including presenting the hash in place of the nonce.)</em></li>
+<li class="done">A provider access token sent where an ID token is expected is rejected. <em>(Tested.)</em></li>
+<li class="done">A token signed by a key that is not the provider's is rejected, verified with a self-signed token. <em>(Tested.)</em></li>
+<li class="done">Signing in twice with the same provider account produces one user row and one identity row, not two. <em>(Tested.)</em></li>
+<li class="done">Signing in with Google, then Apple, with the same verified email produces one user with two identities. <em>(Tested.)</em></li>
+<li class="done">Signing in with a provider whose email is not marked verified is refused with 401, creates no user and joins no existing one. <em>(Tested, for both a new address and one a user already holds.)</em></li>
+<li class="done">A sign-in with no name from the token or the client creates a user with a blank display name. <em>(Tested.)</em></li>
+<li class="done">Apple's display name is stored on first sign-in and is not overwritten by a later sign-in that omits it. <em>(Tested.)</em></li>
+<li class="done"><code>displayName</code> sent on a sign-in for an existing user changes nothing. <em>(Tested.)</em></li>
+<li class="done">Using a refresh token twice fails the second time with 401, and the token issued by the first use is also revoked. <em>(Tested.)</em></li>
+<li class="done">Refresh token reuse writes a log line identifying the user and the event. <em>(Tested: the warning carries the user id and <code>refresh</em>token<em>reuse</code>.)</em></li>
+<li class="done"><code>GET /api/me</code> returns 401 without a token and with an expired one. <em>(Tested; the expired case answers <code>AUTH</em>TOKEN<em>EXPIRED</code>.)</em></li>
+<li class="done">No response anywhere contains <code>tokenHash</code>, a provider token, or a <code>subject</code>. <em>(Tested on the session, refresh and provider sign-in responses.)</em></li>
+<li class="done">No auth endpoint accepts a body containing a field its schema does not define. <em>(Tested on sign-in, the development sign-in, refresh and logout.)</em></li>
+<li class="done">A JWT payload contains no email, no display name and nothing beyond what identifies the session. <em>(Tested: the payload is exactly <code>sub</code>, <code>iat</code> and <code>exp</code>.)</em></li>
 <li class="done">The app restores the session after a full restart without showing the sign-in screen. <em>(Verified on an iPhone 17 Pro simulator: relaunching the built app lands on the recipe list. The router does nothing until the keychain has been read, so nothing flashes.)</em></li>
 <li class="done">Two requests firing together with an expired access token cause exactly one call to <code>/api/auth/refresh</code>. <em>(Tested against a stubbed server: one refresh, both requests retried with the new token, and a refused refresh ends the session.)</em></li>
-<li class="todo">Cancelling the provider sheet returns to idle with no error shown.</li>
-<li class="todo">On Android the screen shows only Continue with Google, and on iOS it shows Apple first and then Google.</li>
-<li class="todo">Attempting sign-in with no connection shows an offline message rather than a generic failure.</li>
-<li class="todo">The sign-in screen contains no colour value, no spacing number and no font size outside the two provider buttons. This is the proof that 0002's component set is sufficient for a real screen.</li>
-<li class="todo">No user-visible string on the sign-in screen is a literal; every one resolves through <code>t()</code>.</li>
-<li class="todo">A VoiceOver or TalkBack walkthrough of the sign-in screen reaches both buttons, each announcing which provider it uses, and the loading state is announced rather than only shown.</li>
+<li class="done">Cancelling the provider sheet returns to idle with no error shown. <em>(Tested with the provider call rejecting as cancelled.)</em></li>
+<li class="done">On Android the screen shows only Continue with Google, and on iOS it shows Apple first and then Google. <em>(Tested with the platform swapped in the test.)</em></li>
+<li class="done">Attempting sign-in with no connection shows an offline message rather than a generic failure. <em>(Tested; the provider is never called.)</em></li>
+<li class="done">The sign-in screen contains no colour value, no spacing number and no font size outside the two provider buttons. This is the proof that 0002's component set is sufficient for a real screen. <em>(Checked by 0002's literal test over every file, with the two provider button style files exempt by name.)</em></li>
+<li class="done">No user-visible string on the sign-in screen is a literal; every one resolves through <code>t()</code>. <em>(Enforced by the lint rule 0006 added. The development sign-in copy is the one deliberate exception, kept out of the translation files so the release bundle cannot carry it.)</em></li>
+<li class="todo">A VoiceOver or TalkBack walkthrough of the sign-in screen reaches both buttons, each announcing which provider it uses, and the loading state is announced rather than only shown. <strong>Not verified.</strong> It needs a person with a screen reader on. Both buttons carry their provider as an accessible name, and the busy state travels through <code>accessibilityState</code>, which tests cover in the meantime.</li>
 </ul>
 
 <details><summary>Requirements, as written in the spec</summary>

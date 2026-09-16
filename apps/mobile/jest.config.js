@@ -13,7 +13,8 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/src/i18n/setupTests.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    // A native module, so tests get the mock the library ships instead.
+    // Native modules, so tests get the mocks the libraries ship instead.
     '^react-native-keyboard-controller$': 'react-native-keyboard-controller/jest',
+    '^@react-native-community/netinfo$': '@react-native-community/netinfo/jest/netinfo-mock.js',
   },
 };
