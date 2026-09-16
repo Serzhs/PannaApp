@@ -37,8 +37,8 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">134 of 170 acceptance criteria verified across 8 written specs.</p>
-<div class="bar"><div style="width: 79%"></div></div>
+<p class="summary">154 of 170 acceptance criteria verified across 8 written specs.</p>
+<div class="bar"><div style="width: 91%"></div></div>
 
 <h2>All specs</h2>
 <table>
@@ -51,7 +51,7 @@
 <tr><td><a href="#spec-0005">0005</a></td><td>Recipe CRUD</td><td><span class="status approved">Approved</span></td><td>17 / 21</td><td>Create, view, edit and delete your own recipes, with a draft state.</td></tr>
 <tr><td><a href="#spec-0006">0006</a></td><td>Internationalisation</td><td><span class="status approved">Approved</span></td><td>10 / 15</td><td>Run the app in another language, with correct plurals, formats and units.</td></tr>
 <tr><td><a href="#spec-0007">0007</a></td><td>Ingredients and equipment</td><td><span class="status in-progress">In progress</span></td><td>21 / 22</td><td>Add, edit, remove and reorder what a recipe needs.</td></tr>
-<tr><td><a href="#spec-0008">0008</a></td><td>Steps and nesting</td><td><span class="status draft">Draft</span></td><td>0 / 21</td><td>Write steps, and nest the ones that happen during a wait.</td></tr>
+<tr><td><a href="#spec-0008">0008</a></td><td>Steps and nesting</td><td><span class="status in-progress">In progress</span></td><td>20 / 21</td><td>Write steps, and nest the ones that happen during a wait.</td></tr>
 <tr><td>0009</td><td>Step links</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Attach ingredients and equipment to the step that uses them.</td></tr>
 <tr><td>0010</td><td>Images</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A cover photo, and a picture of how each step should look.</td></tr>
 <tr><td>0011</td><td>Cooking mode</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Cook a recipe, seeing what else you could do during each wait.</td></tr>
@@ -567,36 +567,36 @@
 </section>
 
 <section id="spec-0008">
-<h2>0008: Steps and nesting <span class="status draft">Draft</span></h2>
+<h2>0008: Steps and nesting <span class="status in-progress">In progress</span></h2>
 <p class="goal">An author writes a recipe's steps in order, nesting under a step whatever can be done during it, and a reader sees the steps numbered with the nested ones marked as things to do meanwhile.</p>
-<p class="summary">0 of 21 acceptance criteria verified.</p>
-<div class="bar"><div style="width: 0%"></div></div>
+<p class="summary">20 of 21 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 95%"></div></div>
 
 <h3>Acceptance criteria</h3>
 <ul class="criteria">
-<li class="todo"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces.</li>
-<li class="todo"><code>GET /api/recipes/:recipeId</code> returns <code>steps</code> as <code>[]</code> for a recipe with none, and <code>GET /api/recipes</code> carries no steps.</li>
-<li class="todo">A <code>PATCH</code> with three main steps, the second with two nested, stores main positions 0, 1, 2 and nested positions 0, 1 under the second, and <code>GET</code> returns the same nesting and order.</li>
-<li class="todo">A <code>PATCH</code> that reorders the main steps and the nested steps rewrites every position and keeps every id.</li>
-<li class="todo">A <code>PATCH</code> that lists a nested step as a main step, and one that lists a main step under another, each move the same id rather than creating a new row.</li>
-<li class="todo">A <code>PATCH</code> that omits a main step and lists its former children as main steps keeps those children with their ids: the delete promoted rather than cascaded.</li>
-<li class="todo">A <code>PATCH</code> that omits a main step and its children deletes all of them.</li>
-<li class="todo">A body with a nested step that itself carries <code>children</code> returns 400 and writes nothing.</li>
-<li class="todo">A <code>PATCH</code> whose third step's nested second step has a blank body returns 400 with <code>fields</code> naming <code>steps.2.children.1.body</code>, and writes nothing.</li>
-<li class="todo"><code>durationSeconds</code> of <code>0</code>, of <code>90000</code> and of <code>1.5</code>, and <code>temperatureCelsius</code> of <code>501</code>, each return 400.</li>
-<li class="todo">A <code>PATCH</code> with 61 main steps, and one with 21 nested steps under one main step, each return 400 and write nothing.</li>
-<li class="todo"><code>totalTimeMinutes</code> is the sum of the main steps' durations rounded up to a minute after a <code>PATCH</code>, is null when no main step is timed, ignores nested steps' durations, and updates when a step's duration changes.</li>
-<li class="todo"><code>POST /api/recipes</code> and <code>PATCH /api/recipes/:recipeId</code> with <code>totalTimeMinutes</code> in the body return 400.</li>
-<li class="todo">A <code>PATCH</code> carrying a step <code>id</code> from another user's recipe returns 400 and changes neither recipe; a <code>PATCH</code> on another user's recipe returns 404 with the same body as an unknown id.</li>
-<li class="todo">The recipe screen numbers main steps from 1, shows nested steps indented and labelled as meanwhile with 2a-style numbers, and shows 180 as 356°F to an imperial reader, asserted in a component test.</li>
-<li class="todo">The recipe screen reads each step as one element carrying its number, body, timing and note, asserted by querying the accessible name.</li>
-<li class="todo">The total time field is absent from the create and edit forms, asserted in a test, and the recipe screen's total is the derived one.</li>
-<li class="todo">In the app, adding a main step, nesting a step under it, promoting it back, moving steps within a level and removing a main step with nested steps all behave as the UI section says, and saving shows the result on the recipe screen without a manual refresh.</li>
-<li class="todo">After "What you need" in the create flow, the app continues to "Steps"; Done saves and lands on the recipe; Skip lands on the recipe with no steps.</li>
-<li class="todo">Every new component appears in the design gallery in every state.</li>
-<li class="todo">The Latvian file lists every new key, and switching language changes the section headings and the meanwhile label.</li>
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. <em>(Passes.)</em></li>
+<li class="done"><code>GET /api/recipes/:recipeId</code> returns <code>steps</code> as <code>[]</code> for a recipe with none, and <code>GET /api/recipes</code> carries no steps. <em>(Tested.)</em></li>
+<li class="done">A <code>PATCH</code> with three main steps, the second with two nested, stores main positions 0, 1, 2 and nested positions 0, 1 under the second, and <code>GET</code> returns the same nesting and order. <em>(Tested.)</em></li>
+<li class="done">A <code>PATCH</code> that reorders the main steps and the nested steps rewrites every position and keeps every id. <em>(Tested.)</em></li>
+<li class="done">A <code>PATCH</code> that lists a nested step as a main step, and one that lists a main step under another, each move the same id rather than creating a new row. <em>(Tested.)</em></li>
+<li class="done">A <code>PATCH</code> that omits a main step and lists its former children as main steps keeps those children with their ids: the delete promoted rather than cascaded. <em>(Tested. The first run of this test caught the delete cascading before the children were detached, which is now done first.)</em></li>
+<li class="done">A <code>PATCH</code> that omits a main step and its children deletes all of them. <em>(Tested.)</em></li>
+<li class="done">A body with a nested step that itself carries <code>children</code> returns 400 and writes nothing. <em>(Tested.)</em></li>
+<li class="done">A <code>PATCH</code> whose third step's nested second step has a blank body returns 400 with <code>fields</code> naming <code>steps.2.children.1.body</code>, and writes nothing. <em>(Tested.)</em></li>
+<li class="done"><code>durationSeconds</code> of <code>0</code>, of <code>90000</code> and of <code>1.5</code>, and <code>temperatureCelsius</code> of <code>501</code>, each return 400. <em>(Tested.)</em></li>
+<li class="done">A <code>PATCH</code> with 61 main steps, and one with 21 nested steps under one main step, each return 400 and write nothing. <em>(Tested.)</em></li>
+<li class="done"><code>totalTimeMinutes</code> is the sum of the main steps' durations rounded up to a minute after a <code>PATCH</code>, is null when no main step is timed, ignores nested steps' durations, and updates when a step's duration changes. <em>(Tested, and seen in the recipe header on the simulator.)</em></li>
+<li class="done"><code>POST /api/recipes</code> and <code>PATCH /api/recipes/:recipeId</code> with <code>totalTimeMinutes</code> in the body return 400. <em>(Tested.)</em></li>
+<li class="done">A <code>PATCH</code> carrying a step <code>id</code> from another user's recipe returns 400 and changes neither recipe; a <code>PATCH</code> on another user's recipe returns 404 with the same body as an unknown id. <em>(Tested.)</em></li>
+<li class="done">The recipe screen numbers main steps from 1, shows nested steps indented and labelled as meanwhile with 2a-style numbers, and shows 180 as 356°F to an imperial reader, asserted in a component test. <em>(Tested, and seen on an iPhone 17 Pro simulator.)</em></li>
+<li class="done">The recipe screen reads each step as one element carrying its number, body, timing and note, asserted by querying the accessible name. <em>(Tested.)</em></li>
+<li class="done">The total time field is absent from the create and edit forms, asserted in a test, and the recipe screen's total is the derived one. <em>(Tested, and seen on the simulator.)</em></li>
+<li class="done">In the app, adding a main step, nesting a step under it, promoting it back, moving steps within a level and removing a main step with nested steps all behave as the UI section says, and saving shows the result on the recipe screen without a manual refresh. <em>(Adding, nesting, removing and saving seen on the simulator; nesting, promoting, moving and removing with promotion are tested in the editor. A blank step is marked in place, also seen.)</em></li>
+<li class="todo">After "What you need" in the create flow, the app continues to "Steps"; Done saves and lands on the recipe; Skip lands on the recipe with no steps. <em>(Built and wired; <strong>not walked on the simulator</strong> in this pass, the edit screen was.)</em></li>
+<li class="done">Every new component appears in the design gallery in every state. <em>(Entries added.)</em></li>
+<li class="done">The Latvian file lists every new key, and switching language changes the section headings and the meanwhile label. <em>(The key test passes; the Latvian is a draft for the owner to correct, as 0006 decided.)</em></li>
 </ul>
-<h3>Open questions</h3><ol class="open"><li><strong>Is this one spec or two?</strong> The whole of this is two days: the contract, the transactional write with promotion, the derived total, the read view, an editor with two levels, a native duration picker, and a third create page. A clean split is 0008 for the contract, the API, the derived total and the read view, and a following spec for the editor and the create page; the read view would show steps that only the import in 0015 or the database could create until the editor lands. One spec means nothing ships until all of it does.</li><li><strong>What does the temperature field take?</strong> Storing Celsius is settled. An author on imperial units could type Fahrenheit into a field labelled °F, converted to Celsius on save and back on read - 350 becomes 177 becomes 351, a degree of drift every round trip - or every author types Celsius and the field says so, which is simpler and honest but asks a US author to convert in their head.</li><li><strong>Where does "mark as ready" live?</strong> <code>status</code> has had an API since 0005 and no control in the app. The create flow's fourth page, a review, was always the intended place; it could be a small addition to the create page here, a checkbox on the edit screen, or its own spec after this one.</li></ol>
+
 <details><summary>Requirements, as written in the spec</summary>
 <h3>Goal</h3><p>An author writes a recipe's steps in order, nesting under a step whatever can be done during it, and a reader sees the steps numbered with the nested ones marked as things to do meanwhile.</p>
 <h3>Out of scope</h3><li>Linking a step to the ingredients and equipment it uses. That is 0009, and it is why steps keep their ids across an edit.</li>
@@ -608,7 +608,7 @@
 <li>Moving a step by dragging it into or out of a parent. A step moves within its level by drag or buttons; changing its level is a button, because a drag that can also re-parent is two gestures pretending to be one.</li>
 <li>Reading steps aloud, voice input, or any audio. Ruled out for the whole app in <code>CLAUDE.md</code>.</li>
 <li>Scaling durations or amounts by servings.</li>
-<li>The review page of the create flow and marking a recipe ready. See the open questions.</li>
+<li>The review page of the create flow and marking a recipe ready. That is the next spec, a short one, before step links.</li>
 <h3>Data model</h3><p>No new tables and no new columns. <code>steps</code> from 0001 is used as it is, so there is no migration.</p>
 <p>A step with a null <code>parentStepId</code> is a main step, done in sequence. A step with a <code>parentStepId</code> happens <em>during</em> that step. The author decides this by nesting, and nothing else: two steps that merely have nothing to do with each other are not parallel.</p>
 <p><code>position</code> is a zero-based integer, unique among siblings: among the main steps, and among the children of one parent. Reordering rewrites every position in one transaction. Nothing relies on insertion order.</p>
@@ -641,7 +641,7 @@
 <p>Error codes this spec can return: <code>AUTH<em>TOKEN</em>INVALID</code>, <code>AUTH<em>TOKEN</em>EXPIRED</code>, <code>RECIPE<em>NOT</em>FOUND</code>, <code>VALIDATION_FAILED</code>.</p>
 <h3>UI</h3><p><strong>Recipe screen, <code>(app)/recipes/[id]</code>.</strong> Below "What you need", a section "Steps". Main steps are numbered from 1. Each shows its body, then its duration and temperature on one line when set - the temperature through 0006's converter, so an imperial reader sees 356°F for 180 - then the note in secondary text. Nested steps sit indented under their parent with a label saying they can be done meanwhile, numbered within the parent as 2a, 2b. A recipe with no steps says so in one line. The total time in the header is now the derived one.</p>
 <p>To a screen reader a step is one element: its number, body, timing and note read together, and a nested step announces that it belongs to its parent.</p>
-<p><strong>Edit screen, <code>(app)/recipes/[id]/edit</code>.</strong> Below the lists from 0007, the steps. A main step is a card with body, note, duration and temperature, and under it its nested steps as smaller cards. The duration is picked with the platform's own duration picker, per the Platform behaviour section of <code>CLAUDE.md</code>, never a text field of seconds. The temperature field is labelled with the author's unit system; see the open questions for what it stores. The total time field from 0005 is gone from this screen and from the create flow.</p>
+<p><strong>Edit screen, <code>(app)/recipes/[id]/edit</code>.</strong> Below the lists from 0007, the steps. A main step is a card with body, note, duration and temperature, and under it its nested steps as smaller cards. The duration is picked with the platform's own time picker, reading hours and minutes, per the Platform behaviour section of <code>CLAUDE.md</code>, never a text field of seconds. iOS also has a countdown picker made for durations, but it ignores the value it is handed, so an existing time would always reopen at one minute; the time picker honours it. The temperature field is labelled with the author's unit system and takes that unit: an imperial author types 350 into a field marked °F, it is stored as 177 °C, and it reads back as 351 °F. A degree of drift per round trip is accepted; see Decided. The total time field from 0005 is gone from this screen and from the create flow.</p>
 <p>Lines move within their level by drag handle or by move up and move down buttons, using the reorderable list 0007 built. A main step has "Add a step to do meanwhile", which adds a nested step under it. A nested step has "Make this a main step", which moves it to the main list just after its parent. A main step with nothing nested and a main step before it has "Do this during the previous step", which nests it. Removing a main step that has nested steps promotes them in place, mirroring the server rule, so the editor never shows a state the server would refuse.</p>
 <p>Save sends one <code>PATCH</code> with the fields, both lists and the steps. Field errors from the server land on the step and field they name. Offline, nothing is sent and everything typed stays.</p>
 <p><strong>Create flow.</strong> After "What you need", a third page, "Steps", with the same editor, Done and Skip. Done saves and lands on the recipe. 0007's Done now continues here instead of landing on the recipe.</p>

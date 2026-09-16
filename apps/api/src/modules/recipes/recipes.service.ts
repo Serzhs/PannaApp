@@ -6,20 +6,24 @@ import {
   type EquipmentInput,
   type Ingredient,
   type IngredientInput,
+  type NestedStep,
   type Recipe,
   type RecipeDetail,
+  type Step,
+  type StepInput,
   type UpdateRecipeBody,
 } from '@panna/shared';
-import { and, asc, desc, eq, notInArray } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, notInArray } from 'drizzle-orm';
 
 import { AppException } from '../../common/app-exception.js';
 import type { Database } from '../../db/client.js';
 import { DatabaseService } from '../../db/database.service.js';
-import { equipment, ingredients, recipes } from '../../db/schema/index.js';
+import { equipment, ingredients, recipes, steps } from '../../db/schema/index.js';
 
 export type RecipeRow = typeof recipes.$inferSelect;
 type IngredientRow = typeof ingredients.$inferSelect;
 type EquipmentRow = typeof equipment.$inferSelect;
+type StepRow = typeof steps.$inferSelect;
 type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];
 
 /**
@@ -61,6 +65,43 @@ function toEquipment(row: EquipmentRow): Equipment {
   };
 }
 
+function toNestedStep(row: StepRow): NestedStep {
+  return {
+    id: row.id,
+    position: row.position,
+    body: row.body,
+    note: row.note,
+    durationSeconds: row.durationSeconds,
+    temperatureCelsius: row.temperatureCelsius,
+  };
+}
+
+/** Main steps in order, each with its children in order. One level, as the table is used. */
+function toSteps(rows: readonly StepRow[]): Step[] {
+  const byPosition = (a: StepRow, b: StepRow) => a.position - b.position;
+  return rows
+    .filter((row) => row.parentStepId === null)
+    .sort(byPosition)
+    .map((main) => ({
+      ...toNestedStep(main),
+      children: rows
+        .filter((row) => row.parentStepId === main.id)
+        .sort(byPosition)
+        .map(toNestedStep),
+    }));
+}
+
+/**
+ * The sum of the main steps' durations, rounded up to a minute; nested steps happen
+ * inside their parent's time and add nothing. Null when nothing is timed.
+ */
+export function totalMinutes(rows: readonly StepRow[]): number | null {
+  const seconds = rows
+    .filter((row) => row.parentStepId === null && row.durationSeconds !== null)
+    .reduce((sum, row) => sum + (row.durationSeconds ?? 0), 0);
+  return seconds === 0 ? null : Math.ceil(seconds / 60);
+}
+
 /**
  * Rows are kept far apart from their final positions while the list is rewritten,
  * because (recipeId, position) is unique and swapping two rows in place would collide.
@@ -95,7 +136,7 @@ export class RecipesService {
   }
 
   private async readDetail(db: Database | Tx, row: RecipeRow): Promise<RecipeDetail> {
-    const [ingredientRows, equipmentRows] = await Promise.all([
+    const [ingredientRows, equipmentRows, stepRows] = await Promise.all([
       db
         .select()
         .from(ingredients)
@@ -106,11 +147,13 @@ export class RecipesService {
         .from(equipment)
         .where(eq(equipment.recipeId, row.id))
         .orderBy(asc(equipment.position)),
+      db.select().from(steps).where(eq(steps.recipeId, row.id)),
     ]);
     return {
       ...toRecipe(row),
       ingredients: ingredientRows.map(toIngredient),
       equipment: equipmentRows.map(toEquipment),
+      steps: toSteps(stepRows),
     };
   }
 
@@ -122,7 +165,6 @@ export class RecipesService {
         title: body.title,
         description: body.description ?? null,
         servings: body.servings,
-        totalTimeMinutes: body.totalTimeMinutes ?? null,
       })
       .returning();
     if (row === undefined) throw new Error('insert returned nothing');
@@ -134,7 +176,12 @@ export class RecipesService {
    * CLAUDE.md: a bad fourth ingredient leaves the first three unwritten as well.
    */
   async update(id: string, body: UpdateRecipeBody): Promise<RecipeDetail | undefined> {
-    const { ingredients: ingredientLines, equipment: equipmentLines, ...meta } = body;
+    const {
+      ingredients: ingredientLines,
+      equipment: equipmentLines,
+      steps: stepLines,
+      ...meta
+    } = body;
     return this.database.db.transaction(async (tx) => {
       const [row] = await tx
         .update(recipes)
@@ -146,7 +193,18 @@ export class RecipesService {
 
       if (ingredientLines !== undefined) await this.writeIngredients(tx, id, ingredientLines);
       if (equipmentLines !== undefined) await this.writeEquipment(tx, id, equipmentLines);
-      return this.readDetail(tx, row);
+      if (stepLines === undefined) return this.readDetail(tx, row);
+
+      await this.writeSteps(tx, id, stepLines);
+      // Total time is derived from the main steps, per 0008, and stored so the list
+      // can show it without a join.
+      const stepRows = await tx.select().from(steps).where(eq(steps.recipeId, id));
+      const [timed] = await tx
+        .update(recipes)
+        .set({ totalTimeMinutes: totalMinutes(stepRows) })
+        .where(eq(recipes.id, id))
+        .returning();
+      return this.readDetail(tx, timed ?? row);
     });
   }
 
@@ -266,6 +324,93 @@ export class RecipesService {
       if (line.id === undefined) await tx.insert(equipment).values({ recipeId, ...values });
       else await tx.update(equipment).set(values).where(eq(equipment.id, line.id));
     }
+  }
+
+  /**
+   * Same rules as the lists: an id is updated in place wherever it now sits, so a step
+   * moved under another parent, or promoted to main, stays the same row. A row the body
+   * no longer names is deleted; deleting a main step cascades to children the body did
+   * not keep, and children the body lists elsewhere survive - which is the promotion
+   * rule, expressed by the client listing them and the server never deleting a named row.
+   */
+  private async writeSteps(tx: Tx, recipeId: string, lines: readonly StepInput[]): Promise<void> {
+    const existing = new Set(
+      (await tx.select({ id: steps.id }).from(steps).where(eq(steps.recipeId, recipeId))).map(
+        (r) => r.id,
+      ),
+    );
+    const seen = new Set<string>();
+    const fields: Record<string, string> = {};
+    const check = (path: string, lineId: string | undefined) => {
+      if (lineId === undefined) return;
+      if (seen.has(lineId)) fields[`${path}.id`] = 'DUPLICATE_ID';
+      else if (!existing.has(lineId)) fields[`${path}.id`] = 'UNKNOWN_ID';
+      seen.add(lineId);
+    };
+    lines.forEach((main, i) => {
+      check(`steps.${String(i)}`, main.id);
+      (main.children ?? []).forEach((child, j) => {
+        check(`steps.${String(i)}.children.${String(j)}`, child.id);
+      });
+    });
+    if (Object.keys(fields).length > 0) {
+      throw new AppException(
+        400,
+        ERROR_CODES.VALIDATION_FAILED,
+        'A step names a row this recipe does not have',
+        fields,
+      );
+    }
+
+    const kept = [...seen];
+    // Deleting a parent cascades to its children, so every kept row is detached before
+    // anything is deleted, and re-attached below with its new parent.
+    if (kept.length > 0) {
+      await tx.update(steps).set({ parentStepId: null }).where(inArray(steps.id, kept));
+    }
+
+    await tx
+      .delete(steps)
+      .where(
+        kept.length > 0
+          ? and(eq(steps.recipeId, recipeId), notInArray(steps.id, kept))
+          : eq(steps.recipeId, recipeId),
+      );
+
+    for (const [position, main] of lines.entries()) {
+      const mainId = await this.writeStep(tx, recipeId, main, null, position);
+      for (const [childPosition, child] of (main.children ?? []).entries()) {
+        await this.writeStep(tx, recipeId, child, mainId, childPosition);
+      }
+    }
+  }
+
+  private async writeStep(
+    tx: Tx,
+    recipeId: string,
+    line: StepInput | NonNullable<StepInput['children']>[number],
+    parentStepId: string | null,
+    position: number,
+  ): Promise<string> {
+    const values = {
+      parentStepId,
+      position,
+      body: line.body,
+      note: line.note ?? null,
+      durationSeconds: line.durationSeconds ?? null,
+      temperatureCelsius: line.temperatureCelsius ?? null,
+      updatedAt: new Date(),
+    };
+    if (line.id === undefined) {
+      const [inserted] = await tx
+        .insert(steps)
+        .values({ recipeId, ...values })
+        .returning({ id: steps.id });
+      if (inserted === undefined) throw new Error('insert returned nothing');
+      return inserted.id;
+    }
+    await tx.update(steps).set(values).where(eq(steps.id, line.id));
+    return line.id;
   }
 
   async remove(id: string): Promise<boolean> {

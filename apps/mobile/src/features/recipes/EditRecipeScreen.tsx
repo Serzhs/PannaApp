@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { NeedsEditor } from './components/NeedsEditor';
 import { RecipeForm, type RecipeFormValues } from './components/RecipeForm';
+import { StepsEditor } from './components/StepsEditor';
 import {
   draftFrom,
   errorsFromServer,
@@ -13,10 +14,18 @@ import {
   type NeedsErrors,
 } from './needs';
 import { useRecipe, useUpdateRecipe } from './queries';
+import {
+  draftFromSteps,
+  stepErrorsFromServer,
+  validateSteps,
+  type MainStepDraft,
+  type StepErrors,
+} from './steps';
 
 import { ErrorState } from '@/components/ErrorState';
 import { Screen } from '@/components/Screen';
 import { Spinner } from '@/components/Spinner';
+import { useUnitSystem } from '@/features/units/useUnitSystem';
 import { useIsOnline } from '@/query/useIsOnline';
 
 export interface EditRecipeScreenProps {
@@ -59,19 +68,22 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
     draftFrom(recipe.ingredients, recipe.equipment),
   );
   const [needsErrors, setNeedsErrors] = useState<NeedsErrors>({});
+  const system = useUnitSystem();
+  const [steps, setSteps] = useState<MainStepDraft[]>(() => draftFromSteps(recipe.steps, system));
+  const [stepErrors, setStepErrors] = useState<StepErrors>({});
 
   useEffect(() => {
     if (update.error instanceof ApiError && update.error.body.fields !== undefined) {
       setNeedsErrors(errorsFromServer(update.error.body.fields, needs));
+      setStepErrors(stepErrorsFromServer(update.error.body.fields, steps));
     }
-    // The draft is deliberately not a dependency: errors map onto the draft that was sent.
+    // The drafts are deliberately not dependencies: errors map onto what was sent.
   }, [update.error]);
 
   const defaults: RecipeFormValues = {
     title: recipe.title,
     description: recipe.description ?? '',
     servings: String(recipe.servings),
-    totalTimeMinutes: recipe.totalTimeMinutes === null ? '' : String(recipe.totalTimeMinutes),
   };
 
   return (
@@ -82,22 +94,25 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
         submitting={update.isPending}
         error={update.error}
         beforeSubmit={() => {
-          const outcome = validateNeeds(needs);
-          setNeedsErrors(outcome.ok ? {} : outcome.errors);
-          return outcome.ok;
+          const lists = validateNeeds(needs);
+          const stepsOutcome = validateSteps(steps, system);
+          setNeedsErrors(lists.ok ? {} : lists.errors);
+          setStepErrors(stepsOutcome.ok ? {} : stepsOutcome.errors);
+          return lists.ok && stepsOutcome.ok;
         }}
         onSubmit={(body) => {
-          const outcome = validateNeeds(needs);
-          if (!outcome.ok) return;
+          const lists = validateNeeds(needs);
+          const stepsOutcome = validateSteps(steps, system);
+          if (!lists.ok || !stepsOutcome.ok) return;
           update.mutate(
             // An emptied field clears the value; the create body leaves it out instead.
             {
               title: body.title,
               description: body.description ?? null,
               servings: body.servings,
-              totalTimeMinutes: body.totalTimeMinutes ?? null,
-              ingredients: outcome.ingredients,
-              equipment: outcome.equipment,
+              ingredients: lists.ingredients,
+              equipment: lists.equipment,
+              steps: stepsOutcome.steps,
             },
             {
               onSuccess: () => {
@@ -108,6 +123,7 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
         }}
       >
         <NeedsEditor value={needs} errors={needsErrors} onChange={setNeeds} />
+        <StepsEditor value={steps} errors={stepErrors} onChange={setSteps} />
       </RecipeForm>
     </Screen>
   );

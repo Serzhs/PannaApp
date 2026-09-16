@@ -39,7 +39,7 @@ function formLevelMessageKey(error: unknown): string | null {
   return 'recipes:form.failed';
 }
 
-const FIELDS = ['title', 'description', 'servings', 'totalTimeMinutes'] as const;
+const FIELDS = ['title', 'description', 'servings'] as const;
 
 export function RecipeForm({
   defaultValues = EMPTY_VALUES,
@@ -120,21 +120,6 @@ export function RecipeForm({
             onBlur={field.onBlur}
             keyboardType="number-pad"
             {...fieldError('servings', fieldState.error !== undefined)}
-          />
-        )}
-      />
-      <Controller
-        control={control}
-        name="totalTimeMinutes"
-        render={({ field, fieldState }) => (
-          <TextField
-            label={t('recipes:form.totalTime')}
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            keyboardType="number-pad"
-            helper={t('recipes:form.totalTimeHelper')}
-            {...fieldError('totalTimeMinutes', fieldState.error !== undefined)}
           />
         )}
       />

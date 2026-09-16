@@ -40,6 +40,12 @@ export { ApiError, fillPath, request, type RequestOptions } from './client.js';
 export {
   MAX_EQUIPMENT,
   MAX_INGREDIENTS,
+  MAX_MAIN_STEPS,
+  MAX_NESTED_STEPS,
+  nestedStepInputSchema,
+  nestedStepSchema,
+  stepInputSchema,
+  stepSchema,
   createRecipeBodySchema,
   equipmentInputSchema,
   equipmentSchema,
@@ -58,5 +64,9 @@ export {
   type Recipe,
   type RecipeDetail,
   type RecipeStatus,
+  type NestedStep,
+  type NestedStepInput,
+  type Step,
+  type StepInput,
   type UpdateRecipeBody,
 } from './recipes.js';

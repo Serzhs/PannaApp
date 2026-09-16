@@ -7,6 +7,8 @@ import {
   ERROR_CODES,
   MAX_EQUIPMENT,
   MAX_INGREDIENTS,
+  MAX_MAIN_STEPS,
+  MAX_NESTED_STEPS,
   errorBodySchema,
   recipeDetailSchema,
   recipeListSchema,
@@ -20,7 +22,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { ErrorFilter } from '../../common/error.filter.js';
 import { validateEnv } from '../../config/env.js';
 import { DatabaseModule } from '../../db/database.module.js';
-import { equipment, ingredients, recipes, users } from '../../db/schema/index.js';
+import { equipment, ingredients, recipes, steps, users } from '../../db/schema/index.js';
 import { db } from '../../test/db.js';
 import { AuthModule } from '../auth/auth.module.js';
 
@@ -481,5 +483,251 @@ describe('what a recipe needs, end to end', () => {
     });
     expect(res.status).toBe(400);
     expect(asError(res).fields).toHaveProperty('ingredients.1.id');
+  });
+});
+
+describe('steps and nesting, end to end', () => {
+  let app: NestExpressApplication;
+  let alice: string;
+  let bob: string;
+
+  beforeAll(async () => {
+    const env = validateEnv({ ...process.env, ALLOW_DEV_SIGN_IN: 'true' });
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true, load: [() => env] }),
+        DatabaseModule,
+        AuthModule.register(env),
+        RecipesModule,
+      ],
+    }).compile();
+    app = moduleRef.createNestApplication<NestExpressApplication>();
+    app.setGlobalPrefix(API_PREFIX);
+    app.useGlobalFilters(new ErrorFilter());
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  const server = () => request(app.getHttpServer());
+  const as = (token: string) => ({ Authorization: `Bearer ${token}` });
+  const asDetail = (res: request.Response) => recipeDetailSchema.parse(res.body);
+
+  async function tokenFor(email: string): Promise<string> {
+    const res = await server().post('/api/auth/dev-session').send({ email });
+    return sessionSchema.parse(res.body).accessToken;
+  }
+
+  async function freshRecipe(token: string): Promise<string> {
+    const res = await server().post('/api/recipes').set(as(token)).send(VALID);
+    return recipeSchema.parse(res.body).id;
+  }
+
+  const patch = (token: string, id: string, body: object) =>
+    server().patch(`/api/recipes/${id}`).set(as(token)).send(body);
+
+  const THREE = [
+    { body: 'Heat the oven', durationSeconds: 600, temperatureCelsius: 180 },
+    {
+      body: 'Roast the beetroot',
+      durationSeconds: 3600,
+      children: [
+        { body: 'Chop the dill', durationSeconds: 120 },
+        { body: 'Boil the eggs', durationSeconds: 540 },
+      ],
+    },
+    { body: 'Blend and chill', note: 'Overnight is best' },
+  ];
+
+  beforeEach(async () => {
+    await db.insert(users).values([ALICE, BOB]);
+    alice = await tokenFor(ALICE.email);
+    bob = await tokenFor(BOB.email);
+  });
+
+  it('starts empty, and the list endpoint never carries steps', async () => {
+    const id = await freshRecipe(alice);
+    expect(asDetail(await server().get(`/api/recipes/${id}`).set(as(alice))).steps).toEqual([]);
+    const list = await server().get('/api/recipes').set(as(alice));
+    expect(JSON.stringify(list.body)).not.toContain('"steps"');
+  });
+
+  it('stores main and nested steps in order, numbered from zero at each level', async () => {
+    const id = await freshRecipe(alice);
+    const detail = asDetail(await patch(alice, id, { steps: THREE }));
+    expect(detail.steps.map((s) => [s.position, s.body, s.children.length])).toEqual([
+      [0, 'Heat the oven', 0],
+      [1, 'Roast the beetroot', 2],
+      [2, 'Blend and chill', 0],
+    ]);
+    expect(detail.steps[1]?.children.map((c) => [c.position, c.body])).toEqual([
+      [0, 'Chop the dill'],
+      [1, 'Boil the eggs'],
+    ]);
+    const again = asDetail(await server().get(`/api/recipes/${id}`).set(as(alice)));
+    expect(again.steps).toEqual(detail.steps);
+  });
+
+  /** Nested steps happen inside their parent's time: 10 + 60 minutes, not 10 + 60 + 2 + 9. */
+  it('derives the total time from the main steps only, rounded up, and null when nothing is timed', async () => {
+    const id = await freshRecipe(alice);
+    expect(asDetail(await patch(alice, id, { steps: THREE })).totalTimeMinutes).toBe(70);
+    const shortened = asDetail(
+      await patch(alice, id, { steps: [{ body: 'Quick', durationSeconds: 61 }] }),
+    );
+    expect(shortened.totalTimeMinutes).toBe(2);
+    expect(
+      asDetail(await patch(alice, id, { steps: [{ body: 'Untimed' }] })).totalTimeMinutes,
+    ).toBeNull();
+    const listed = recipeListSchema.parse((await server().get('/api/recipes').set(as(alice))).body);
+    expect(listed[0]?.totalTimeMinutes).toBeNull();
+  });
+
+  it('refuses totalTimeMinutes in a body now that it is derived', async () => {
+    const id = await freshRecipe(alice);
+    expect((await patch(alice, id, { totalTimeMinutes: 30 })).status).toBe(400);
+    const created = await server()
+      .post('/api/recipes')
+      .set(as(alice))
+      .send({ ...VALID, totalTimeMinutes: 30 });
+    expect(created.status).toBe(400);
+  });
+
+  it('reorders at both levels, keeping every id', async () => {
+    const id = await freshRecipe(alice);
+    const first = asDetail(await patch(alice, id, { steps: THREE }));
+    const strip = (s: { id: string; body: string }) => ({ id: s.id, body: s.body });
+    const [a, b, c] = first.steps;
+    if (a === undefined || b === undefined || c === undefined) throw new Error('nothing stored');
+    const second = asDetail(
+      await patch(alice, id, {
+        steps: [
+          strip(c),
+          { ...strip(b), children: [...b.children].reverse().map(strip) },
+          strip(a),
+        ],
+      }),
+    );
+    expect(second.steps.map((s) => s.id)).toEqual([c.id, b.id, a.id]);
+    expect(second.steps.map((s) => s.position)).toEqual([0, 1, 2]);
+    expect(second.steps[1]?.children.map((s) => s.id)).toEqual(
+      b.children.map((s) => s.id).reverse(),
+    );
+    expect(second.steps[1]?.children.map((s) => s.position)).toEqual([0, 1]);
+  });
+
+  it('moves a step between levels as the same row', async () => {
+    const id = await freshRecipe(alice);
+    const first = asDetail(await patch(alice, id, { steps: THREE }));
+    const [a, b] = first.steps;
+    const child = b?.children[0];
+    if (a === undefined || b === undefined || child === undefined)
+      throw new Error('nothing stored');
+
+    const promoted = asDetail(
+      await patch(alice, id, {
+        steps: [
+          { id: a.id, body: a.body, children: [{ id: b.id, body: b.body }] },
+          { id: child.id, body: child.body },
+        ],
+      }),
+    );
+    expect(promoted.steps.map((s) => s.id)).toEqual([a.id, child.id]);
+    expect(promoted.steps[0]?.children.map((s) => s.id)).toEqual([b.id]);
+    expect(await db.select().from(steps).where(eq(steps.recipeId, id))).toHaveLength(3);
+  });
+
+  /** The promotion rule: omit the parent, list its children as main steps, nothing is lost. */
+  it('keeps children listed as main steps when their parent is omitted, and drops them when they are not', async () => {
+    const id = await freshRecipe(alice);
+    const first = asDetail(await patch(alice, id, { steps: THREE }));
+    const [a, b, c] = first.steps;
+    if (a === undefined || b === undefined || c === undefined) throw new Error('nothing stored');
+
+    const promoted = asDetail(
+      await patch(alice, id, {
+        steps: [
+          { id: a.id, body: a.body },
+          ...b.children.map((s) => ({ id: s.id, body: s.body })),
+          { id: c.id, body: c.body },
+        ],
+      }),
+    );
+    expect(promoted.steps.map((s) => s.id)).toEqual([a.id, ...b.children.map((s) => s.id), c.id]);
+
+    const dropped = asDetail(await patch(alice, id, { steps: [{ id: a.id, body: a.body }] }));
+    expect(dropped.steps.map((s) => s.id)).toEqual([a.id]);
+    expect(await db.select().from(steps).where(eq(steps.recipeId, id))).toHaveLength(1);
+  });
+
+  it('has no second level: a nested step carrying children is refused', async () => {
+    const id = await freshRecipe(alice);
+    const res = await patch(alice, id, {
+      steps: [{ body: 'Main', children: [{ body: 'Child', children: [{ body: 'Grandchild' }] }] }],
+    });
+    expect(res.status).toBe(400);
+    expect(await db.select().from(steps).where(eq(steps.recipeId, id))).toHaveLength(0);
+  });
+
+  it('names a bad nested step by its path, and writes nothing', async () => {
+    const id = await freshRecipe(alice);
+    const res = await patch(alice, id, {
+      steps: [
+        { body: 'One' },
+        { body: 'Two' },
+        { body: 'Three', children: [{ body: 'Fine' }, { body: '   ' }] },
+      ],
+    });
+    expect(res.status).toBe(400);
+    expect(asError(res).fields).toHaveProperty('steps.2.children.1.body');
+    expect(await db.select().from(steps).where(eq(steps.recipeId, id))).toHaveLength(0);
+  });
+
+  it.each([
+    ['a duration of 0', { body: 'x', durationSeconds: 0 }],
+    ['a duration over a day', { body: 'x', durationSeconds: 90000 }],
+    ['a fractional duration', { body: 'x', durationSeconds: 1.5 }],
+    ['a temperature of 501', { body: 'x', temperatureCelsius: 501 }],
+  ])('rejects %s', async (_label, step) => {
+    const id = await freshRecipe(alice);
+    expect((await patch(alice, id, { steps: [step] })).status).toBe(400);
+  });
+
+  it('caps the steps at both levels, and writes nothing past the cap', async () => {
+    const id = await freshRecipe(alice);
+    const many = Array.from({ length: MAX_MAIN_STEPS + 1 }, (_, i) => ({
+      body: `Step ${String(i)}`,
+    }));
+    expect((await patch(alice, id, { steps: many })).status).toBe(400);
+    const nested = Array.from({ length: MAX_NESTED_STEPS + 1 }, (_, i) => ({
+      body: `Meanwhile ${String(i)}`,
+    }));
+    expect((await patch(alice, id, { steps: [{ body: 'Main', children: nested }] })).status).toBe(
+      400,
+    );
+    expect(await db.select().from(steps).where(eq(steps.recipeId, id))).toHaveLength(0);
+  });
+
+  it("refuses a step id from someone else's recipe, and changes neither", async () => {
+    const mine = await freshRecipe(alice);
+    const theirs = await freshRecipe(bob);
+    const bobs = asDetail(await patch(bob, theirs, { steps: THREE }));
+    const stolen = bobs.steps[0];
+    if (stolen === undefined) throw new Error('nothing stored');
+
+    const res = await patch(alice, mine, { steps: [{ id: stolen.id, body: 'Mine now' }] });
+    expect(res.status).toBe(400);
+    expect(asError(res).fields).toHaveProperty('steps.0.id');
+    expect(asDetail(await server().get(`/api/recipes/${theirs}`).set(as(bob))).steps).toEqual(
+      bobs.steps,
+    );
+    expect(asDetail(await server().get(`/api/recipes/${mine}`).set(as(alice))).steps).toEqual([]);
+
+    const notMine = await patch(alice, theirs, { steps: THREE });
+    const missing = await server().get(`/api/recipes/${NOBODY}`).set(as(alice));
+    expect(notMine.status).toBe(404);
+    expect(notMine.body).toEqual(missing.body);
   });
 });
