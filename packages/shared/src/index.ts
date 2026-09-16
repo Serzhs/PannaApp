@@ -23,4 +23,15 @@ export {
   type SessionUser,
   type SignInBody,
 } from './auth.js';
-export { ApiError, request, type RequestOptions } from './client.js';
+export { ApiError, fillPath, request, type RequestOptions } from './client.js';
+export {
+  createRecipeBodySchema,
+  recipeListSchema,
+  recipeSchema,
+  recipeStatusSchema,
+  updateRecipeBodySchema,
+  type CreateRecipeBody,
+  type Recipe,
+  type RecipeStatus,
+  type UpdateRecipeBody,
+} from './recipes.js';

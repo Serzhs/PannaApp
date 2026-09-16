@@ -21,6 +21,11 @@ export class ZodBody<T> implements PipeTransform<unknown, T> {
     // Keyed by field so a form can say which input is wrong, in the user's language.
     const fields: Record<string, string> = {};
     for (const issue of parsed.error.issues) {
+      // An unknown field is reported against its own name, not against the whole body.
+      if (issue.code === 'unrecognized_keys') {
+        for (const key of issue.keys) fields[key] ??= 'UNRECOGNIZED_KEY';
+        continue;
+      }
       const key = issue.path.join('.') || '(body)';
       fields[key] ??= issue.code.toUpperCase();
     }

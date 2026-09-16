@@ -86,6 +86,12 @@ permissions.
 `pnpm audit` runs as part of `pnpm test` and fails on a high severity advisory, but that only catches
 what has already been reported. The judgement above is the part that catches the rest.
 
+**Metro only sees packages the mobile workspace names.** pnpm keeps a package's own dependencies out
+of the top-level `node_modules`, and Metro does not follow the links pnpm leaves behind, so a library
+that imports a sibling package it depends on fails at launch with "unable to resolve module". Jest
+follows the links and passes. When that happens, add the sibling as a direct dependency of
+`apps/mobile` at the same version, and restart Metro, which caches its module map.
+
 ## TypeScript strictness
 
 One `tsconfig.base.json` at the root, extended by every workspace. Beyond `strict: true`:
@@ -774,6 +780,11 @@ pnpm db:seed
 Every one of these is a root script, so it has a run button beside it in an editor that
 shows them. `pnpm dev` starts the database and applies migrations first, so it works from
 a cold machine rather than assuming something is already up.
+
+**`pnpm check` and `pnpm test` empty the development database.** The API's end-to-end tests run
+against the same Postgres the dev server uses and truncate every table between tests, seeded users
+included. Run `pnpm db:seed` afterwards, and sign in again in the app: the session it kept names a
+user that no longer exists, so the first request answers 401 and the list shows an error.
 
 **Every script that starts a dev server frees its port first**, in the workspace that owns
 the server rather than in the root wrapper, so it happens however the server is started -

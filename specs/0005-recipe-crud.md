@@ -1,6 +1,6 @@
 # 0005: Recipe CRUD
 
-**Status:** Draft
+**Status:** Approved
 **Depends on:** 0003, 0004
 
 ## Context
@@ -89,44 +89,48 @@ Three new routes in the `(app)` group, plus a change to the existing home screen
 
 A form for the four fields. Submit is disabled while the request is in flight. On success the app navigates to the new recipe's detail screen, and the list reflects it on return without a manual refresh. Field-level errors render against the field; a failure that is not field-specific renders once at form level.
 
-**`(app)/recipes/[recipeId]`**: detail view showing title, description, servings and total time, with actions to edit and to delete. Metadata only. There are no placeholder sections for ingredients or steps, because those are not part of this slice. Loading, error and populated states as above; a 404 renders a "recipe not found" state with a way back to the list, not a crash.
+**`(app)/recipes/[id]`**: detail view showing title, description, servings and total time, with actions to edit and to delete. Metadata only. There are no placeholder sections for ingredients or steps, because those are not part of this slice. Loading, error and populated states as above; a 404 renders a "recipe not found" state with a way back to the list, not a crash.
 
-**`(app)/recipes/[recipeId]/edit`**: the whole recipe on one screen, prefilled, submitting a PATCH. Editing never uses the create flow's pages - someone fixing one wrong quantity should not be walked through a wizard to reach it. On success it returns to the detail screen showing the new values.
+**`(app)/recipes/[id]/edit`**: the whole recipe on one screen, prefilled, submitting a PATCH. Editing never uses the create flow's pages - someone fixing one wrong quantity should not be walked through a wizard to reach it. On success it returns to the detail screen showing the new values.
 
 Deleting asks for confirmation first. On confirmation the app returns to the list and the deleted recipe is gone from it without a manual refresh.
 
-All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/features/recipes`, routes carrying routing and layout only, all colours and spacing from the unistyles theme.
+All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/features/recipes`, routes carrying routing and layout only, all colours and spacing from the typed theme module.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] Every one of the five endpoints returns 401 when called with no access token, and with an expired one.
-- [ ] Creating a recipe returns 201 and a body whose keys are exactly the eight in the recipe response shape, with no `authorId`, `coverImageKey` or `shareToken`.
-- [ ] `GET /api/recipes` for a user returns only that user's recipes: with two users each owning recipes, neither sees any of the other's.
-- [ ] `GET /api/recipes` returns `[]` with status 200 for a freshly registered user.
-- [ ] `GET`, `PATCH` and `DELETE` on a recipe owned by another user each return 404 with the same body as a `GET` for a random non-existent uuid.
-- [ ] A `PATCH` rejected as 404 leaves the target row byte-identical, including `updatedAt`.
-- [ ] `POST` with `title` of `"   "` returns 400 and creates no row.
-- [ ] `POST` with `servings` of `0`, and with `servings` of `1.5`, each return 400.
-- [ ] `PATCH` with an empty body returns 400.
-- [ ] A newly created recipe has `status` of `draft`, and a `POST` body containing `status` is rejected as an unknown field.
-- [ ] `PATCH` moves a recipe from `draft` to `ready` and back again.
-- [ ] A draft recipe shows a chip in the list that reads as text, not colour alone, and a screen reader announces it as part of the row.
-- [ ] `PATCH` with `{ "description": null }` clears the description, and `PATCH` with `{ "title": null }` returns 400.
-- [ ] `PATCH` updates `updatedAt`, and a recipe updated after another sorts ahead of it in `GET /api/recipes`.
-- [ ] `DELETE` returns 204, and a second `DELETE` of the same id returns 404.
-- [ ] In the app, creating a recipe and navigating back to the list shows it without a manual refresh, and deleting one removes it from the list the same way.
-- [ ] A fresh account opening the app sees the empty state, and never sees the empty state flash before the loading state resolves.
-- [ ] Opening a detail route for a recipe id that does not exist shows the not-found state with a way back to the list.
-- [ ] The query cache is persisted: opening a recipe, force-quitting the app, going offline and reopening it shows the recipe rather than an error.
-- [ ] Creating a recipe with no connection fails with an offline message, keeps everything the user typed, and creates nothing when the connection returns.
-- [ ] A VoiceOver or TalkBack walkthrough of the list, create, detail and edit screens reaches every control in a sensible order. Each recipe row is one element announcing title, servings and time together, not four separate stops, and the delete confirmation announces itself and returns focus to the list afterwards.
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
+- [x] Every one of the five endpoints returns 401 when called with no access token, and with an expired one. _(Tested.)_
+- [x] Creating a recipe returns 201 and a body whose keys are exactly the eight in the recipe response shape, with no `authorId`, `coverImageKey` or `shareToken`. _(Tested.)_
+- [x] `GET /api/recipes` for a user returns only that user's recipes: with two users each owning recipes, neither sees any of the other's. _(Tested.)_
+- [x] `GET /api/recipes` returns `[]` with status 200 for a freshly registered user. _(Tested.)_
+- [x] `GET`, `PATCH` and `DELETE` on a recipe owned by another user each return 404 with the same body as a `GET` for a random non-existent uuid. _(Tested. A malformed id is a 404 too, not a 500.)_
+- [x] A `PATCH` rejected as 404 leaves the target row byte-identical, including `updatedAt`. _(Tested.)_
+- [x] `POST` with `title` of `"   "` returns 400 and creates no row. _(Tested.)_
+- [x] `POST` with `servings` of `0`, and with `servings` of `1.5`, each return 400. _(Tested.)_
+- [x] `PATCH` with an empty body returns 400. _(Tested.)_
+- [x] A newly created recipe has `status` of `draft`, and a `POST` body containing `status` is rejected as an unknown field. _(Tested. The 400 names `status` in `fields`.)_
+- [x] `PATCH` moves a recipe from `draft` to `ready` and back again. _(Tested. No screen in this spec offers the change; the UI section names none, so it waits for the review page of the create flow.)_
+- [x] A draft recipe shows a chip in the list that reads as text, not colour alone, and a screen reader announces it as part of the row. _(Tested: the row's one accessible name ends in "draft". Seen on the simulator.)_
+- [x] `PATCH` with `{ "description": null }` clears the description, and `PATCH` with `{ "title": null }` returns 400. _(Tested.)_
+- [x] `PATCH` updates `updatedAt`, and a recipe updated after another sorts ahead of it in `GET /api/recipes`. _(Tested.)_
+- [x] `DELETE` returns 204, and a second `DELETE` of the same id returns 404. _(Tested.)_
+- [x] In the app, creating a recipe and navigating back to the list shows it without a manual refresh, and deleting one removes it from the list the same way. _(Verified on an iPhone 17 Pro simulator, along with edit.)_
+- [ ] A fresh account opening the app sees the empty state, and never sees the empty state flash before the loading state resolves. _(The list renders placeholders while pending and the empty state only once data has arrived, which a test checks. **Not verified by eye** on a fresh account; the seed gives every account a recipe.)_
+- [ ] Opening a detail route for a recipe id that does not exist shows the not-found state with a way back to the list. _(Built: a 404 renders the not-found state with a back action. **Not verified**: the app has no deep link scheme yet to open such a route with.)_
+- [ ] The query cache is persisted: opening a recipe, force-quitting the app, going offline and reopening it shows the recipe rather than an error. _(Built: the cache is persisted to `expo-sqlite/kv-store`. **Not verified**: it needs the simulator's network cut, which the walkthrough did not do.)_
+- [ ] Creating a recipe with no connection fails with an offline message, keeps everything the user typed, and creates nothing when the connection returns. _(Built: offline, the form sends nothing and says so, and mutations never queue. **Not verified** offline for the same reason as above.)_
+- [ ] A VoiceOver or TalkBack walkthrough of the list, create, detail and edit screens reaches every control in a sensible order. Each recipe row is one element announcing title, servings and time together, not four separate stops, and the delete confirmation announces itself and returns focus to the list afterwards. **Not verified.** It needs a person with a screen reader on. The row's single label is covered by a test in the meantime.
 
 ## Open questions
 
-1. **List ordering.** This spec orders by `updatedAt` descending, so the recipe most recently worked on is first. The alternative is alphabetical by title, which is more predictable for a large collection but pushes an in-progress recipe out of sight. Which one is intended?
+None.
 
 ## Decided
+
+**Most recently edited first.** The list orders by `updatedAt` descending, so the recipe being worked
+on stays at the top. Alphabetical is more predictable for a large collection but pushes an in-progress
+recipe out of sight, and nobody has a large collection yet. Sorting controls are a later spec.
 
 **`totalTimeMinutes` is author-entered here and derived from 0008.** Until steps exist there is nothing
 to sum, so this spec keeps it a number the author types. Once 0008 lands it becomes the sum of the main

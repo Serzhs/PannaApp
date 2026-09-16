@@ -8,6 +8,7 @@ import { validateEnv } from './config/env.js';
 import { DatabaseModule } from './db/database.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { RecipesModule } from './modules/recipes/recipes.module.js';
 
 const ENV_FILE = '../../.env';
 
@@ -54,6 +55,7 @@ const env = validateEnv(process.env);
     DatabaseModule,
     HealthModule,
     AuthModule.register(env),
+    RecipesModule,
   ],
 })
 export class AppModule {}

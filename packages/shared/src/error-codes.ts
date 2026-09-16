@@ -20,6 +20,9 @@ export const ERROR_CODES = {
   AUTH_TOKEN_REVOKED: 'AUTH_TOKEN_REVOKED',
   /** The development sign-in was given an email no user holds. It never creates one. */
   AUTH_DEV_USER_NOT_FOUND: 'AUTH_DEV_USER_NOT_FOUND',
+
+  /** 0005. Also answers for a recipe that exists but belongs to someone else. */
+  RECIPE_NOT_FOUND: 'RECIPE_NOT_FOUND',
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
