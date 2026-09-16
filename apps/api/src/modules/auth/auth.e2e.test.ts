@@ -1,4 +1,6 @@
+import { Logger } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
 import {
@@ -10,7 +12,7 @@ import {
   tokenPairSchema,
 } from '@panna/shared';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ErrorFilter } from '../../common/error.filter.js';
 import { validateEnv } from '../../config/env.js';
@@ -101,6 +103,49 @@ describe('auth, end to end', () => {
     expect((await server().get('/api/me').set('Authorization', 'Bearer nope')).status).toBe(401);
   });
 
+  it('refuses /api/me with an expired token, and says that it expired', async () => {
+    const [user] = await db.select().from(users);
+    if (user === undefined) throw new Error('no user');
+    const expired = app
+      .get(JwtService, { strict: false })
+      .sign({ sub: user.id }, { expiresIn: -10 });
+    const res = await server().get('/api/me').set('Authorization', `Bearer ${expired}`);
+    expect(res.status).toBe(401);
+    expect(asError(res).code).toBe(ERROR_CODES.AUTH_TOKEN_EXPIRED);
+  });
+
+  /** A JWT is signed, not encrypted: anyone holding it can read it, so it carries nothing private. */
+  it('puts nothing in the access token beyond what identifies the session', async () => {
+    const session = asSession(
+      await server().post('/api/auth/dev-session').send({ email: SEEDED.email }),
+    );
+    const payload = app
+      .get(JwtService, { strict: false })
+      .decode<Record<string, unknown>>(session.accessToken);
+    expect(Object.keys(payload).sort()).toEqual(['exp', 'iat', 'sub']);
+    expect(payload.sub).toBe(session.user.id);
+    expect(JSON.stringify(payload)).not.toContain(SEEDED.email);
+    expect(JSON.stringify(payload)).not.toContain(SEEDED.displayName);
+  });
+
+  it('rejects an unknown field on refresh and on logout, not only on sign-in', async () => {
+    const session = asSession(
+      await server().post('/api/auth/dev-session').send({ email: SEEDED.email }),
+    );
+    const refresh = await server()
+      .post('/api/auth/refresh')
+      .send({ refreshToken: session.refreshToken, role: 'admin' });
+    expect(refresh.status).toBe(400);
+    expect(asError(refresh).code).toBe(ERROR_CODES.VALIDATION_FAILED);
+
+    const logout = await server()
+      .post('/api/auth/logout')
+      .set('Authorization', `Bearer ${session.accessToken}`)
+      .send({ refreshToken: session.refreshToken, everywhere: true });
+    expect(logout.status).toBe(400);
+    expect(asError(logout).code).toBe(ERROR_CODES.VALIDATION_FAILED);
+  });
+
   it('rotates a refresh token, and the old one stops working', async () => {
     const first = asSession(
       await server().post('/api/auth/dev-session').send({ email: SEEDED.email }),
@@ -129,6 +174,22 @@ describe('auth, end to end', () => {
     const afterReuse = await server().post('/api/auth/refresh').send({ refreshToken: second });
     expect(afterReuse.status).toBe(401);
     expect(asError(afterReuse).code).toBe(ERROR_CODES.AUTH_TOKEN_REVOKED);
+  });
+
+  /** Reuse is the only evidence of a stolen token, so it has to reach the log with the user named. */
+  it('logs a reuse with the user and the event named', async () => {
+    const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    const session = asSession(
+      await server().post('/api/auth/dev-session').send({ email: SEEDED.email }),
+    );
+    await server().post('/api/auth/refresh').send({ refreshToken: session.refreshToken });
+    await server().post('/api/auth/refresh').send({ refreshToken: session.refreshToken });
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: session.user.id, event: 'refresh_token_reuse' }),
+      expect.stringContaining('reused'),
+    );
+    warn.mockRestore();
   });
 
   it('never returns a token hash or a provider subject', async () => {

@@ -28,6 +28,18 @@ import { Text } from '@/components/Text';
  */
 const DEV_EMAIL = __DEV__ ? 'janis@example.com' : null;
 
+/**
+ * Deliberately not in the translation files: those ship in every build, and this text
+ * must not. Being here, behind the same fold, it leaves the release bundle with the
+ * button - which is what the grep in the acceptance criteria checks for.
+ */
+const DEV_COPY = __DEV__
+  ? {
+      label: 'Development sign-in',
+      note: (email: string) => `Signs in as ${email} from the seed. Development builds only.`,
+    }
+  : null;
+
 export function SignInScreen() {
   const { signIn } = useAuth();
   const { t } = useTranslation();
@@ -110,9 +122,9 @@ export function SignInScreen() {
               }}
             />
 
-            {DEV_EMAIL === null ? null : (
+            {DEV_EMAIL === null || DEV_COPY === null ? null : (
               <Button
-                label={t('auth:devSignIn.label')}
+                label={DEV_COPY.label}
                 variant="secondary"
                 loading={busy}
                 onPress={signInAsDeveloper}
@@ -126,9 +138,9 @@ export function SignInScreen() {
             </Text>
           )}
 
-          {DEV_EMAIL === null ? null : (
+          {DEV_EMAIL === null || DEV_COPY === null ? null : (
             <Text variant="caption" color="textSecondary" style={styles.devNote}>
-              {t('auth:devSignIn.note', { email: DEV_EMAIL })}
+              {DEV_COPY.note(DEV_EMAIL)}
             </Text>
           )}
         </Stack>
