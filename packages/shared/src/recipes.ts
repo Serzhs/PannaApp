@@ -41,6 +41,9 @@ const amount = z
 
 export const MAX_INGREDIENTS = 100;
 export const MAX_EQUIPMENT = 50;
+/** 0008. A recipe holds at most this many main steps, and a main step this many nested ones. */
+export const MAX_MAIN_STEPS = 60;
+export const MAX_NESTED_STEPS = 20;
 
 export const ingredientSchema = z.object({
   id: z.string().uuid(),
@@ -83,19 +86,60 @@ export const equipmentInputSchema = z
   })
   .strict();
 
-/** A recipe with what it needs. The list endpoint carries the summary only. */
+/** 0008. Field rules for a step. The instruction stays short; the note carries the rest. */
+const stepBody = z.string().trim().min(1).max(2000);
+const stepNote = z.string().trim().max(500);
+const durationSeconds = z.number().int().min(1).max(86400);
+/** Stored in Celsius whatever the author typed; -50 covers a freezer, 500 a pizza oven. */
+const temperatureCelsius = z.number().int().min(-50).max(500);
+
+const stepFields = {
+  id: z.string().uuid(),
+  position: z.number().int().min(0),
+  body: stepBody,
+  note: stepNote.nullable(),
+  durationSeconds: durationSeconds.nullable(),
+  temperatureCelsius: temperatureCelsius.nullable(),
+};
+
+/** A nested step: the same fields, and nothing under it. One level, by shape. */
+export const nestedStepSchema = z.object(stepFields);
+export const stepSchema = z.object({ ...stepFields, children: z.array(nestedStepSchema) });
+
+const stepInputFields = {
+  id: z.string().uuid().optional(),
+  body: stepBody,
+  note: stepNote.nullable().optional(),
+  durationSeconds: durationSeconds.nullable().optional(),
+  temperatureCelsius: temperatureCelsius.nullable().optional(),
+};
+
+/** Strict, so a nested step carrying `children` is refused rather than silently flattened. */
+export const nestedStepInputSchema = z.object(stepInputFields).strict();
+export const stepInputSchema = z
+  .object({
+    ...stepInputFields,
+    children: z.array(nestedStepInputSchema).max(MAX_NESTED_STEPS).optional(),
+  })
+  .strict();
+
+/** A recipe with what it needs and what to do. The list endpoint carries the summary only. */
 export const recipeDetailSchema = recipeSchema.extend({
   ingredients: z.array(ingredientSchema),
   equipment: z.array(equipmentSchema),
+  steps: z.array(stepSchema),
 });
 
 /** Strict: `status` is not accepted here, because every new recipe starts as a draft. */
+/**
+ * Strict: `status` is not accepted here, because every new recipe starts as a draft, and
+ * neither is `totalTimeMinutes`, which 0008 derives from the steps.
+ */
 export const createRecipeBodySchema = z
   .object({
     title,
     description: description.optional(),
     servings,
-    totalTimeMinutes: totalTimeMinutes.optional(),
   })
   .strict();
 
@@ -109,9 +153,9 @@ export const updateRecipeBodySchema = z
     description: description.nullable(),
     status: recipeStatusSchema,
     servings,
-    totalTimeMinutes: totalTimeMinutes.nullable(),
     ingredients: z.array(ingredientInputSchema).max(MAX_INGREDIENTS),
     equipment: z.array(equipmentInputSchema).max(MAX_EQUIPMENT),
+    steps: z.array(stepInputSchema).max(MAX_MAIN_STEPS),
   })
   .partial()
   .strict()
@@ -123,5 +167,9 @@ export type Ingredient = z.infer<typeof ingredientSchema>;
 export type Equipment = z.infer<typeof equipmentSchema>;
 export type IngredientInput = z.infer<typeof ingredientInputSchema>;
 export type EquipmentInput = z.infer<typeof equipmentInputSchema>;
+export type Step = z.infer<typeof stepSchema>;
+export type NestedStep = z.infer<typeof nestedStepSchema>;
+export type StepInput = z.infer<typeof stepInputSchema>;
+export type NestedStepInput = z.infer<typeof nestedStepInputSchema>;
 export type CreateRecipeBody = z.infer<typeof createRecipeBodySchema>;
 export type UpdateRecipeBody = z.infer<typeof updateRecipeBodySchema>;

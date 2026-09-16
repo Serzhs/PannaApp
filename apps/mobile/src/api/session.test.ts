@@ -18,6 +18,7 @@ const RECIPE = {
   updatedAt: '2026-09-16T12:00:00.000Z',
   ingredients: [],
   equipment: [],
+  steps: [],
 };
 
 const EXPIRED: Stub = {

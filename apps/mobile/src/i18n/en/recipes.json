@@ -4,7 +4,8 @@
     "new": "New recipe",
     "detail": "Recipe",
     "edit": "Edit recipe",
-    "needs": "What you need"
+    "needs": "What you need",
+    "steps": "Steps"
   },
   "header": {
     "settings": "Settings",
@@ -89,5 +90,36 @@
     "done": "Done",
     "skip": "Skip for now",
     "screen": "What you need"
+  },
+  "steps": {
+    "title": "Steps",
+    "empty": "No steps yet.",
+    "meanwhile": "Meanwhile",
+    "number": "Step {{number}}",
+    "nestedNumber": "Step {{number}}{{letter}}, during step {{number}}",
+    "body": "Instruction",
+    "note": "Note",
+    "noteHelper": "A tip for while you do it: do not let the garlic brown.",
+    "duration": "Time",
+    "untimed": "Not timed",
+    "clearTime": "Clear",
+    "setTime": "Set",
+    "temperature": "Temperature ({{unit}})",
+    "addMain": "Add step",
+    "addNested": "Add a step to do meanwhile",
+    "nest": "Do this during the previous step",
+    "promote": "Make this a main step",
+    "remove": "Remove step",
+    "errors": {
+      "body": "Write what to do.",
+      "temperature": "Temperature is a whole number.",
+      "duration": "Time is between one minute and a day."
+    },
+    "done": "Done",
+    "skip": "Skip for now",
+    "screen": "Steps",
+    "minutes": "{{count, number}} min",
+    "hours": "{{count, number}} h",
+    "hoursMinutes": "{{hours, number}} h {{minutes, number}} min"
   }
 }

@@ -16,11 +16,17 @@ import { Spinner } from '@/components/Spinner';
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
+import { DurationField } from '@/features/recipes/components/DurationField';
 import { EquipmentLine } from '@/features/recipes/components/EquipmentLine';
 import { IngredientLine } from '@/features/recipes/components/IngredientLine';
 import { NeedsSection } from '@/features/recipes/components/NeedsSection';
+import { StepLine } from '@/features/recipes/components/StepLine';
+import { StepsEditor } from '@/features/recipes/components/StepsEditor';
+import { StepsSection } from '@/features/recipes/components/StepsSection';
+import { TemperatureField } from '@/features/recipes/components/TemperatureField';
 import { UnitPicker } from '@/features/recipes/components/UnitPicker';
 import { move, type EquipmentDraft, type IngredientDraft } from '@/features/recipes/needs';
+import type { MainStepDraft, StepDraft } from '@/features/recipes/steps';
 import { contrast } from '@/styles/contrast';
 import { textStyles, theme } from '@/styles/theme';
 import { primitives, type SemanticColor, type SpaceName } from '@/styles/tokens';
@@ -473,6 +479,116 @@ function NeedsLines(): React.JSX.Element {
   );
 }
 
+function StepPieces(): React.JSX.Element {
+  const [duration, setDuration] = useState<number | null>(5400);
+  const [temperature, setTemperature] = useState('180');
+  const [line, setLine] = useState<StepDraft>({
+    key: 's1',
+    body: 'Roast the beetroot until a knife slides in',
+    note: 'Turn once',
+    durationSeconds: 3600,
+    temperature: '200',
+  });
+  const [drafts, setDrafts] = useState<MainStepDraft[]>([
+    {
+      key: 'm1',
+      body: 'Heat the oven',
+      note: '',
+      durationSeconds: 600,
+      temperature: '180',
+      children: [],
+    },
+    {
+      key: 'm2',
+      body: 'Roast the beetroot',
+      note: '',
+      durationSeconds: 3600,
+      temperature: '',
+      children: [
+        { key: 'c1', body: 'Chop the dill', note: '', durationSeconds: 120, temperature: '' },
+      ],
+    },
+  ]);
+  return (
+    <>
+      <Section title="DurationField">
+        <Stack gap="space4">
+          <DurationField value={duration} onChange={setDuration} />
+          <DurationField
+            value={null}
+            onChange={() => undefined}
+            error="Time is between one minute and a day."
+          />
+        </Stack>
+      </Section>
+      <Section title="TemperatureField">
+        <Stack gap="space4">
+          <TemperatureField value={temperature} onChangeText={setTemperature} />
+          <TemperatureField
+            value="hot"
+            onChangeText={() => undefined}
+            error="Temperature is a whole number."
+          />
+        </Stack>
+      </Section>
+      <Section title="StepLine">
+        <Card>
+          <StepLine line={line} onChange={setLine} />
+        </Card>
+      </Section>
+      <Section title="StepsEditor">
+        <StepsEditor value={drafts} errors={{}} onChange={setDrafts} />
+      </Section>
+      <Section title="StepsSection">
+        <Card>
+          <StepsSection
+            steps={[
+              {
+                id: 'r1',
+                position: 0,
+                body: 'Heat the oven',
+                note: 'Fan off',
+                durationSeconds: 600,
+                temperatureCelsius: 180,
+                children: [],
+              },
+              {
+                id: 'r2',
+                position: 1,
+                body: 'Roast the beetroot',
+                note: null,
+                durationSeconds: 3600,
+                temperatureCelsius: null,
+                children: [
+                  {
+                    id: 'r3',
+                    position: 0,
+                    body: 'Chop the dill',
+                    note: null,
+                    durationSeconds: 120,
+                    temperatureCelsius: null,
+                  },
+                  {
+                    id: 'r4',
+                    position: 1,
+                    body: 'Boil the eggs',
+                    note: 'Nine minutes, then cold water',
+                    durationSeconds: 540,
+                    temperatureCelsius: null,
+                  },
+                ],
+              },
+            ]}
+          />
+        </Card>
+        <Card>
+          <StepsSection steps={[]} />
+        </Card>
+      </Section>
+    </>
+  );
+}
+
 /**
  * Every token and component on one scrolling screen, rendered by the app's own engine,
  * so what it shows is what ships. Reached at /design in development only.
@@ -501,6 +617,7 @@ export function DesignGallery(): React.JSX.Element {
         <Dialogs />
         <Reorderables />
         <NeedsLines />
+        <StepPieces />
       </Stack>
     </Screen>
   );

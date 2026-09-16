@@ -6,14 +6,12 @@ export interface RecipeFormValues {
   readonly title: string;
   readonly description: string;
   readonly servings: string;
-  readonly totalTimeMinutes: string;
 }
 
 export const EMPTY_VALUES: RecipeFormValues = {
   title: '',
   description: '',
   servings: '',
-  totalTimeMinutes: '',
 };
 
 function asNumber(text: string): number | undefined {
@@ -31,15 +29,12 @@ export const recipeFormSchema = z
     title: z.string(),
     description: z.string(),
     servings: z.string(),
-    totalTimeMinutes: z.string(),
   })
+  // Total time is not here: 0008 derives it from the steps.
   .transform((values) => ({
     title: values.title,
     ...(values.description.trim() === '' ? {} : { description: values.description }),
     servings: asNumber(values.servings) ?? Number.NaN,
-    ...(asNumber(values.totalTimeMinutes) === undefined
-      ? {}
-      : { totalTimeMinutes: asNumber(values.totalTimeMinutes) }),
   }))
   .pipe(createRecipeBodySchema);
 
@@ -50,5 +45,4 @@ export const FIELD_MESSAGE_KEYS: Record<keyof RecipeFormValues, string> = {
   title: 'recipes:form.errors.title',
   description: 'recipes:form.errors.description',
   servings: 'recipes:form.errors.servings',
-  totalTimeMinutes: 'recipes:form.errors.totalTimeMinutes',
 };

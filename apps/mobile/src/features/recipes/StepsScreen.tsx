@@ -3,50 +3,42 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { NeedsEditor } from './components/NeedsEditor';
-import {
-  EMPTY_NEEDS,
-  errorsFromServer,
-  validateNeeds,
-  type NeedsDraft,
-  type NeedsErrors,
-} from './needs';
-import { styles } from './NeedsScreen.styles';
+import { StepsEditor } from './components/StepsEditor';
 import { useUpdateRecipe } from './queries';
+import { stepErrorsFromServer, validateSteps, type MainStepDraft, type StepErrors } from './steps';
+import { styles } from './StepsScreen.styles';
 
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
+import { useUnitSystem } from '@/features/units/useUnitSystem';
 import { useIsOnline } from '@/query/useIsOnline';
 
-export interface NeedsScreenProps {
+export interface StepsScreenProps {
   readonly recipeId: string;
 }
 
-/**
- * The second page of the create flow, before the steps. Skip is a real option: a recipe
- * can be written down before its shopping is known, and the lists are a tap away later.
- */
-export function NeedsScreen({ recipeId }: NeedsScreenProps): React.JSX.Element {
+/** The third page of the create flow. Done saves the steps and lands on the recipe. */
+export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
   const online = useIsOnline();
+  const system = useUnitSystem();
   const update = useUpdateRecipe(recipeId);
-  const [draft, setDraft] = useState<NeedsDraft>(EMPTY_NEEDS);
-  const [errors, setErrors] = useState<NeedsErrors>({});
+  const [draft, setDraft] = useState<MainStepDraft[]>([]);
+  const [errors, setErrors] = useState<StepErrors>({});
   const [triedOffline, setTriedOffline] = useState(false);
 
   useEffect(() => {
     if (update.error instanceof ApiError && update.error.body.fields !== undefined) {
-      setErrors(errorsFromServer(update.error.body.fields, draft));
+      setErrors(stepErrorsFromServer(update.error.body.fields, draft));
     }
     // The draft is deliberately not a dependency: errors map onto the draft that was sent.
   }, [update.error]);
 
-  // The next page of the create flow is the steps; back from there goes to the list.
-  const continueToSteps = () => {
-    router.replace({ pathname: '/recipes/[id]/steps', params: { id: recipeId } });
+  const landOnRecipe = () => {
+    router.replace({ pathname: '/recipes/[id]', params: { id: recipeId } });
   };
 
   const done = () => {
@@ -54,16 +46,13 @@ export function NeedsScreen({ recipeId }: NeedsScreenProps): React.JSX.Element {
       setTriedOffline(true);
       return;
     }
-    const outcome = validateNeeds(draft);
+    const outcome = validateSteps(draft, system);
     if (!outcome.ok) {
       setErrors(outcome.errors);
       return;
     }
     setErrors({});
-    update.mutate(
-      { ingredients: outcome.ingredients, equipment: outcome.equipment },
-      { onSuccess: continueToSteps },
-    );
+    update.mutate({ steps: outcome.steps }, { onSuccess: landOnRecipe });
   };
 
   const failed =
@@ -73,7 +62,7 @@ export function NeedsScreen({ recipeId }: NeedsScreenProps): React.JSX.Element {
   return (
     <Screen scroll withHeader>
       <Stack gap="space6" style={styles.body}>
-        <NeedsEditor
+        <StepsEditor
           value={draft}
           errors={errors}
           onChange={(next) => {
@@ -91,8 +80,8 @@ export function NeedsScreen({ recipeId }: NeedsScreenProps): React.JSX.Element {
           </Text>
         ) : null}
         <Stack gap="space3">
-          <Button label={t('recipes:needs.done')} loading={update.isPending} onPress={done} />
-          <Button label={t('recipes:needs.skip')} variant="ghost" onPress={continueToSteps} />
+          <Button label={t('recipes:steps.done')} loading={update.isPending} onPress={done} />
+          <Button label={t('recipes:steps.skip')} variant="ghost" onPress={landOnRecipe} />
         </Stack>
       </Stack>
     </Screen>

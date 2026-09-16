@@ -10,24 +10,29 @@ describe('recipeFormSchema', () => {
       title: '  Cold beetroot soup ',
       description: '',
       servings: '4',
-      totalTimeMinutes: '',
     });
     expect(body).toEqual({ title: 'Cold beetroot soup', servings: 4 });
   });
 
-  it('keeps a description and a time when given', () => {
+  it('keeps a description when given', () => {
     const body = recipeFormSchema.parse({
       title: 'Soup',
       description: 'Chilled, pink.',
       servings: '2',
-      totalTimeMinutes: '25',
     });
     expect(body).toEqual({
       title: 'Soup',
       description: 'Chilled, pink.',
       servings: 2,
-      totalTimeMinutes: 25,
     });
+  });
+
+  /** 0008: total time is derived from the steps, so the form has no field for it. */
+  it('has no total time field', async () => {
+    await render(
+      <RecipeForm submitLabel="Save draft" submitting={false} error={null} onSubmit={jest.fn()} />,
+    );
+    expect(screen.queryByLabelText(/Total time/)).toBeNull();
   });
 
   it.each([
@@ -35,15 +40,9 @@ describe('recipeFormSchema', () => {
     ['servings of 0', { title: 'Soup', servings: '0' }, 'servings'],
     ['servings of 1.5', { title: 'Soup', servings: '1.5' }, 'servings'],
     ['servings that are not a number', { title: 'Soup', servings: 'four' }, 'servings'],
-    [
-      'a time over a day',
-      { title: 'Soup', servings: '4', totalTimeMinutes: '2000' },
-      'totalTimeMinutes',
-    ],
   ])('rejects %s on the field it came from', (_name, values, field) => {
     const result = recipeFormSchema.safeParse({
       description: '',
-      totalTimeMinutes: '',
       ...values,
     });
     expect(result.success).toBe(false);

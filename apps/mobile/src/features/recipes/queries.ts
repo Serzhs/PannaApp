@@ -42,7 +42,7 @@ export function useCreateRecipe() {
     mutationFn: (body: CreateRecipeBody) => createRecipe(body),
     onSuccess: async (recipe: Recipe) => {
       // A new recipe has nothing in it yet, and the detail screen expects the lists.
-      const detail: RecipeDetail = { ...recipe, ingredients: [], equipment: [] };
+      const detail: RecipeDetail = { ...recipe, ingredients: [], equipment: [], steps: [] };
       client.setQueryData(recipeKeys.detail(recipe.id), detail);
       await client.invalidateQueries({ queryKey: recipeKeys.list() });
     },

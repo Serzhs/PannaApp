@@ -4,7 +4,8 @@
     "new": "Jauna recepte",
     "detail": "Recepte",
     "edit": "Rediģēt recepti",
-    "needs": "Kas vajadzīgs"
+    "needs": "Kas vajadzīgs",
+    "steps": "Soļi"
   },
   "header": {
     "settings": "Iestatījumi",
@@ -90,5 +91,36 @@
     "done": "Gatavs",
     "skip": "Izlaist pagaidām",
     "screen": "Kas vajadzīgs"
+  },
+  "steps": {
+    "title": "Soļi",
+    "empty": "Vēl nav soļu.",
+    "meanwhile": "Pa to laiku",
+    "number": "{{number}}. solis",
+    "nestedNumber": "{{number}}{{letter}}. solis, {{number}}. soļa laikā",
+    "body": "Norādījums",
+    "note": "Piezīme",
+    "noteHelper": "Padoms, kamēr to dari: neļauj ķiplokiem apbrūnēt.",
+    "duration": "Laiks",
+    "untimed": "Bez laika",
+    "clearTime": "Notīrīt",
+    "setTime": "Iestatīt",
+    "temperature": "Temperatūra ({{unit}})",
+    "addMain": "Pievienot soli",
+    "addNested": "Pievienot soli, ko darīt pa to laiku",
+    "nest": "Darīt to iepriekšējā soļa laikā",
+    "promote": "Padarīt par galveno soli",
+    "remove": "Noņemt soli",
+    "errors": {
+      "body": "Uzraksti, kas jādara.",
+      "temperature": "Temperatūra ir vesels skaitlis.",
+      "duration": "Laiks ir no vienas minūtes līdz dienai."
+    },
+    "done": "Gatavs",
+    "skip": "Izlaist pagaidām",
+    "screen": "Soļi",
+    "minutes": "{{count, number}} min",
+    "hours": "{{count, number}} h",
+    "hoursMinutes": "{{hours, number}} h {{minutes, number}} min"
   }
 }

@@ -24,6 +24,7 @@ export default function AppLayout() {
       <Stack.Screen name="recipes/[id]/index" options={{ title: t('recipes:screens.detail') }} />
       <Stack.Screen name="recipes/[id]/edit" options={{ title: t('recipes:screens.edit') }} />
       <Stack.Screen name="recipes/[id]/needs" options={{ title: t('recipes:screens.needs') }} />
+      <Stack.Screen name="recipes/[id]/steps" options={{ title: t('recipes:screens.steps') }} />
       <Stack.Screen name="settings" options={{ title: t('settings:screen') }} />
       <Stack.Screen name="design" options={{ title: 'Design system' }} />
     </Stack>

@@ -13,7 +13,7 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0005](0005-recipe-crud.md)               | Recipe CRUD                          | Approved    | Create, view, edit and delete your own recipes, with a draft state.       |
 | [0006](0006-i18n.md)                      | Internationalisation                 | Approved    | Run the app in another language, with correct plurals, formats and units. |
 | [0007](0007-ingredients-and-equipment.md) | Ingredients and equipment            | In progress | Add, edit, remove and reorder what a recipe needs.                        |
-| 0008                                      | Steps and nesting                    | Not written | Write steps, and nest the ones that happen during a wait.                 |
+| [0008](0008-steps-and-nesting.md)         | Steps and nesting                    | In progress | Write steps, and nest the ones that happen during a wait.                 |
 | 0009                                      | Step links                           | Not written | Attach ingredients and equipment to the step that uses them.              |
 | 0010                                      | Images                               | Not written | A cover photo, and a picture of how each step should look.                |
 | 0011                                      | Cooking mode                         | Not written | Cook a recipe, seeing what else you could do during each wait.            |
@@ -48,6 +48,11 @@ ingredients do. It is a separate table because equipment has no amount and no un
 
 Equipment belongs in the check before cooking at least as much as ingredients do: a missing herb can be
 improvised, a stand mixer cannot, and finding out halfway through is worse.
+
+**A review page and "mark as ready", before step links.** `status` has had an API since 0005 and
+no control in the app; the create flow's fourth page, a review with the ready switch, is where it
+goes. Decided while approving 0008: it is its own short spec, drafted next, and step links move one
+number along.
 
 **0010 Images - files on disk, keys in the database.** A step can carry a picture of what it should look
 like when done, and a recipe a cover photo. Cooking mode shows the step photo behind a large button
