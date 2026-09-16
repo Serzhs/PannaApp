@@ -1,0 +1,61 @@
+{
+  "screens": {
+    "list": "Receptes",
+    "new": "Jauna recepte",
+    "detail": "Recepte",
+    "edit": "Rediģēt recepti"
+  },
+  "header": {
+    "settings": "Iestatījumi",
+    "new": "Jauna",
+    "newRecipe": "Jauna recepte"
+  },
+  "servings_zero": "{{count, number}} porciju",
+  "servings_one": "{{count, number}} porcija",
+  "servings_other": "{{count, number}} porcijas",
+  "minutes": "{{count, number}} min",
+  "status": {
+    "draft": "Melnraksts"
+  },
+  "list": {
+    "loading": "Ielādē receptes",
+    "empty": {
+      "title": "Vēl nav recepšu",
+      "body": "Pieraksti kādu, un tā būs šeit, kad nākamreiz gatavosi.",
+      "action": "Jauna recepte"
+    }
+  },
+  "detail": {
+    "loading": "Ielādē recepti",
+    "edit": "Rediģēt",
+    "delete": "Dzēst",
+    "deleteFailed": "Neizdevās dzēst recepti. Mēģini vēlreiz.",
+    "notFound": {
+      "title": "Recepte nav atrasta",
+      "body": "Iespējams, tā ir dzēsta.",
+      "action": "Atpakaļ uz receptēm"
+    },
+    "confirmDelete": {
+      "title": "Dzēst šo recepti?",
+      "body": "To nevarēs atsaukt.",
+      "confirm": "Dzēst",
+      "cancel": "Paturēt"
+    }
+  },
+  "form": {
+    "title": "Nosaukums",
+    "description": "Apraksts",
+    "servings": "Porcijas",
+    "totalTime": "Kopējais laiks, minūtēs",
+    "totalTimeHelper": "Atstāj tukšu, ja vēl neesi drošs.",
+    "saveDraft": "Saglabāt melnrakstu",
+    "saveChanges": "Saglabāt izmaiņas",
+    "failed": "Neizdevās saglabāt recepti. Mēģini vēlreiz.",
+    "errors": {
+      "title": "Ievadi nosaukumu, līdz 120 rakstzīmēm.",
+      "description": "Apraksts nedrīkst pārsniegt 2000 rakstzīmes.",
+      "servings": "Porcijas ir vesels skaitlis no 1 līdz 100.",
+      "totalTimeMinutes": "Laiks ir vesels minūšu skaits, līdz 1440."
+    }
+  }
+}

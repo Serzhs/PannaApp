@@ -2,11 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ApiError, ERROR_CODES } from '@panna/shared';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { styles } from './RecipeForm.styles';
 import {
   EMPTY_VALUES,
-  FIELD_MESSAGES,
+  FIELD_MESSAGE_KEYS,
   recipeFormSchema,
   type RecipeFormOutput,
   type RecipeFormValues,
@@ -27,13 +28,11 @@ export interface RecipeFormProps {
   readonly onSubmit: (body: RecipeFormOutput) => void;
 }
 
-const OFFLINE_MESSAGE = 'You are offline. Connect to the internet to save.';
-
-function formLevelMessage(error: unknown): string | null {
+function formLevelMessageKey(error: unknown): string | null {
   if (error === null || error === undefined) return null;
   if (error instanceof ApiError && error.body.code === ERROR_CODES.VALIDATION_FAILED) return null;
-  if (error instanceof TypeError) return OFFLINE_MESSAGE;
-  return 'Could not save the recipe. Try again.';
+  if (error instanceof TypeError) return 'common:offline.save';
+  return 'recipes:form.failed';
 }
 
 const FIELDS = ['title', 'description', 'servings', 'totalTimeMinutes'] as const;
@@ -45,6 +44,7 @@ export function RecipeForm({
   error,
   onSubmit,
 }: RecipeFormProps): React.JSX.Element {
+  const { t } = useTranslation();
   const online = useIsOnline();
   const form = useForm<RecipeFormValues, unknown, RecipeFormOutput>({
     defaultValues,
@@ -61,8 +61,10 @@ export function RecipeForm({
     }
   }, [error, setError]);
 
-  const message = online ? formLevelMessage(error) : null;
+  const messageKey = online ? formLevelMessageKey(error) : null;
   const offlineBlock = !online && formState.submitCount > 0;
+  const fieldError = (field: keyof RecipeFormValues, failed: boolean) =>
+    failed ? { error: t(FIELD_MESSAGE_KEYS[field]) } : {};
 
   const submit = handleSubmit((body) => {
     // Nothing is sent offline: the input stays, the message says why, per CLAUDE.md.
@@ -77,12 +79,12 @@ export function RecipeForm({
         name="title"
         render={({ field, fieldState }) => (
           <TextField
-            label="Title"
+            label={t('recipes:form.title')}
             value={field.value}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
             autoFocus
-            {...(fieldState.error ? { error: FIELD_MESSAGES.title } : {})}
+            {...fieldError('title', fieldState.error !== undefined)}
           />
         )}
       />
@@ -91,12 +93,12 @@ export function RecipeForm({
         name="description"
         render={({ field, fieldState }) => (
           <TextField
-            label="Description"
+            label={t('recipes:form.description')}
             value={field.value}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
             multiline
-            {...(fieldState.error ? { error: FIELD_MESSAGES.description } : {})}
+            {...fieldError('description', fieldState.error !== undefined)}
           />
         )}
       />
@@ -105,12 +107,12 @@ export function RecipeForm({
         name="servings"
         render={({ field, fieldState }) => (
           <TextField
-            label="Servings"
+            label={t('recipes:form.servings')}
             value={field.value}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
             keyboardType="number-pad"
-            {...(fieldState.error ? { error: FIELD_MESSAGES.servings } : {})}
+            {...fieldError('servings', fieldState.error !== undefined)}
           />
         )}
       />
@@ -119,23 +121,23 @@ export function RecipeForm({
         name="totalTimeMinutes"
         render={({ field, fieldState }) => (
           <TextField
-            label="Total time, minutes"
+            label={t('recipes:form.totalTime')}
             value={field.value}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
             keyboardType="number-pad"
-            helper="Leave empty if you are not sure yet."
-            {...(fieldState.error ? { error: FIELD_MESSAGES.totalTimeMinutes } : {})}
+            helper={t('recipes:form.totalTimeHelper')}
+            {...fieldError('totalTimeMinutes', fieldState.error !== undefined)}
           />
         )}
       />
       {offlineBlock ? (
         <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
-          {OFFLINE_MESSAGE}
+          {t('common:offline.save')}
         </Text>
-      ) : message === null ? null : (
+      ) : messageKey === null ? null : (
         <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
-          {message}
+          {t(messageKey)}
         </Text>
       )}
       <Button label={submitLabel} loading={submitting} onPress={() => void submit()} />

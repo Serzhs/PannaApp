@@ -768,6 +768,7 @@ pnpm mobile           # Metro. Serves the JavaScript to the Xcode build (or to E
 pnpm check            # lint, typecheck and test. Run before committing.
 pnpm build
 
+pnpm specs:status     # renders specs/status.html: every spec's criteria, done and not
 pnpm db:studio        # browse the data in a browser
 pnpm db:reset         # wipe, migrate and seed from nothing
 pnpm db:up            # waits for the healthcheck, so nothing races it

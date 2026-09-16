@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 import { styles } from './ListHeader.styles';
 
@@ -10,10 +11,11 @@ import { useAuth } from '@/features/auth/AuthProvider';
 /** The screen's name and whose recipes these are, in the header 0005 moves them to. */
 export function ListHeaderTitle(): React.JSX.Element {
   const { user } = useAuth();
+  const { t } = useTranslation();
   return (
     <Stack gap="space0" align="center" style={styles.title}>
       <Text variant="bodyStrong" accessibilityRole="header">
-        Recipes
+        {t('recipes:screens.list')}
       </Text>
       {user === null ? null : (
         <Text variant="caption" color="textSecondary">
@@ -24,18 +26,29 @@ export function ListHeaderTitle(): React.JSX.Element {
   );
 }
 
-export function SignOutButton(): React.JSX.Element {
-  const { signOut } = useAuth();
-  return <Button label="Sign out" variant="ghost" onPress={() => void signOut()} />;
+/** Sign out lives in settings from 0006, so the header offers the way there. */
+export function SettingsButton(): React.JSX.Element {
+  const router = useRouter();
+  const { t } = useTranslation();
+  return (
+    <Button
+      label={t('recipes:header.settings')}
+      variant="ghost"
+      onPress={() => {
+        router.push('/settings');
+      }}
+    />
+  );
 }
 
 export function NewRecipeButton(): React.JSX.Element {
   const router = useRouter();
+  const { t } = useTranslation();
   return (
     <Button
-      label="New"
+      label={t('recipes:header.new')}
       variant="ghost"
-      accessibilityLabel="New recipe"
+      accessibilityLabel={t('recipes:header.newRecipe')}
       onPress={() => {
         router.push('/recipes/new');
       }}

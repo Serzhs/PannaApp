@@ -1,0 +1,24 @@
+{
+  "appName": "Panna",
+  "loading": "Ielādē",
+  "errorState": {
+    "failure": {
+      "title": "Kaut kas nogāja greizi",
+      "body": "Tas neizdevās. Pamēģini vēlreiz pēc brīža.",
+      "action": "Mēģināt vēlreiz"
+    },
+    "offline": {
+      "title": "Nav interneta savienojuma",
+      "body": "Pieslēdzies internetam un mēģini vēlreiz.",
+      "action": "Mēģināt vēlreiz"
+    }
+  },
+  "errorBoundary": {
+    "title": "Kaut kas nogāja greizi",
+    "action": "Mēģināt vēlreiz"
+  },
+  "offline": {
+    "save": "Nav interneta savienojuma. Pieslēdzies, lai saglabātu.",
+    "delete": "Nav interneta savienojuma. Pieslēdzies, lai dzēstu."
+  }
+}

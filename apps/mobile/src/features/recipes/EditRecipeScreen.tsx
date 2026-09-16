@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 import { RecipeForm, type RecipeFormValues } from './components/RecipeForm';
 import { useRecipe, useUpdateRecipe } from './queries';
@@ -21,6 +22,7 @@ export function EditRecipeScreen({ recipeId }: EditRecipeScreenProps): React.JSX
   const update = useUpdateRecipe(recipeId);
   const online = useIsOnline();
   const router = useRouter();
+  const { t } = useTranslation();
 
   if (recipe.data === undefined) {
     return (
@@ -31,7 +33,7 @@ export function EditRecipeScreen({ recipeId }: EditRecipeScreenProps): React.JSX
             onRetry={() => void recipe.refetch()}
           />
         ) : (
-          <Spinner label="Loading recipe" />
+          <Spinner label={t('recipes:detail.loading')} />
         )}
       </Screen>
     );
@@ -49,7 +51,7 @@ export function EditRecipeScreen({ recipeId }: EditRecipeScreenProps): React.JSX
     <Screen scroll withHeader>
       <RecipeForm
         defaultValues={defaults}
-        submitLabel="Save changes"
+        submitLabel={t('recipes:form.saveChanges')}
         submitting={update.isPending}
         error={update.error}
         onSubmit={(body) => {

@@ -26,7 +26,7 @@ export const users = pgTable('users', {
    * the device happens to report. Resolution is: this choice, then the device, then
    * English. Never collapse null into a language.
    */
-  locale: varchar({ length: 5 }),
+  locale: varchar({ length: 5, enum: ['en', 'lv'] }),
   unitSystem: unitSystem(),
   ...timestamps,
 });

@@ -11,7 +11,7 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0003](0003-auth.md)                     | Sign in with Google and Apple        | In progress | Sign in with one tap, no passwords, and stay signed in.                   |
 | [0004](0004-design-system-components.md) | Design system: display and feedback  | Approved    | Build a list screen's loading, empty and error states.                    |
 | [0005](0005-recipe-crud.md)              | Recipe CRUD                          | Approved    | Create, view, edit and delete your own recipes, with a draft state.       |
-| [0006](0006-i18n.md)                     | Internationalisation                 | Draft       | Run the app in another language, with correct plurals, formats and units. |
+| [0006](0006-i18n.md)                     | Internationalisation                 | Approved    | Run the app in another language, with correct plurals, formats and units. |
 | 0007                                     | Ingredients and equipment            | Not written | Add, edit, remove and reorder what a recipe needs.                        |
 | 0008                                     | Steps and nesting                    | Not written | Write steps, and nest the ones that happen during a wait.                 |
 | 0009                                     | Step links                           | Not written | Attach ingredients and equipment to the step that uses them.              |

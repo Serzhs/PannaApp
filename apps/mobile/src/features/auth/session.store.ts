@@ -34,6 +34,11 @@ export async function saveTokens(tokens: {
   ]);
 }
 
+/** After a settings change: the tokens are unchanged, only the person's details move on. */
+export async function saveUser(user: Session['user']): Promise<void> {
+  await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
+}
+
 export async function clearSession(): Promise<void> {
   await Promise.all([
     SecureStore.deleteItemAsync(ACCESS_KEY),

@@ -45,10 +45,10 @@ export const recipeFormSchema = z
 
 export type RecipeFormOutput = CreateRecipeBody;
 
-/** Short and in plain words, one per field. Whatever the rule broken, the fix is the same. */
-export const FIELD_MESSAGES: Record<keyof RecipeFormValues, string> = {
-  title: 'Give it a title, up to 120 characters.',
-  description: 'Keep the description under 2000 characters.',
-  servings: 'Servings is a whole number from 1 to 100.',
-  totalTimeMinutes: 'Time is a whole number of minutes, up to 1440.',
+/** One message per field, whatever the rule broken: the fix is the same either way. */
+export const FIELD_MESSAGE_KEYS: Record<keyof RecipeFormValues, string> = {
+  title: 'recipes:form.errors.title',
+  description: 'recipes:form.errors.description',
+  servings: 'recipes:form.errors.servings',
+  totalTimeMinutes: 'recipes:form.errors.totalTimeMinutes',
 };

@@ -1,6 +1,7 @@
 import type { SignInBody } from '@panna/shared';
 import NetInfo from '@react-native-community/netinfo';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, View } from 'react-native';
 
 import { devSignIn, startSession } from './auth.api';
@@ -29,6 +30,7 @@ const DEV_EMAIL = __DEV__ ? 'janis@example.com' : null;
 
 export function SignInScreen() {
   const { signIn } = useAuth();
+  const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +41,7 @@ export function SignInScreen() {
       // Sign-in is the one thing that cannot work offline, so it says that rather than
       // failing with something generic halfway through the provider's sheet.
       if ((await NetInfo.fetch()).isConnected === false) {
-        setError('You are offline. Connect to the internet to sign in.');
+        setError(t('auth:errors.offline'));
         return;
       }
       await signIn(await startSession(await provider()));
@@ -47,10 +49,10 @@ export function SignInScreen() {
       .catch((cause: unknown) => {
         if (cause instanceof SignInCancelled) return;
         if (cause instanceof ProviderNotConfigured) {
-          setError('Google sign-in is not set up in this build.');
+          setError(t('auth:errors.notConfigured'));
           return;
         }
-        setError('Sign-in did not work. Try again, or use the other option.');
+        setError(t('auth:errors.failed'));
       })
       .finally(() => {
         setBusy(false);
@@ -66,8 +68,8 @@ export function SignInScreen() {
       .catch((cause: unknown) => {
         setError(
           cause instanceof Error
-            ? `${cause.message} - is the API running with ALLOW_DEV_SIGN_IN=true?`
-            : 'Could not sign in',
+            ? t('auth:errors.devFailed', { message: cause.message })
+            : t('auth:errors.unknown'),
         );
       })
       .finally(() => {
@@ -81,10 +83,10 @@ export function SignInScreen() {
         <Stack gap="space6">
           <Stack gap="space2">
             <Text variant="display" style={styles.intro} accessibilityRole="header">
-              Panna
+              {t('common:appName')}
             </Text>
             <Text variant="body" color="textSecondary" style={styles.intro}>
-              Your recipes, step by step, so you never forget them.
+              {t('auth:tagline')}
             </Text>
           </Stack>
 
@@ -110,7 +112,7 @@ export function SignInScreen() {
 
             {DEV_EMAIL === null ? null : (
               <Button
-                label="Development sign-in"
+                label={t('auth:devSignIn.label')}
                 variant="secondary"
                 loading={busy}
                 onPress={signInAsDeveloper}
@@ -126,7 +128,7 @@ export function SignInScreen() {
 
           {DEV_EMAIL === null ? null : (
             <Text variant="caption" color="textSecondary" style={styles.devNote}>
-              Signs in as {DEV_EMAIL} from the seed. Development builds only.
+              {t('auth:devSignIn.note', { email: DEV_EMAIL })}
             </Text>
           )}
         </Stack>

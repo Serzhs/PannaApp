@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panna spec status</title>
+<style>
+  :root { --ink: #1c1917; --muted: #57534e; --line: #e7e5e4; --paper: #fafaf9; --ok: #24654a; --todo: #b03027; --accent: #4a6d8c; }
+  body { margin: 0; font: 16px/1.5 -apple-system, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+  main { max-width: 900px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 28px; margin: 0 0 4px; }
+  h2 { font-size: 22px; margin: 40px 0 8px; }
+  h3 { font-size: 16px; margin: 24px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .summary { color: var(--muted); margin: 0 0 24px; }
+  .bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; margin: 8px 0 16px; }
+  .bar > div { height: 100%; background: var(--ok); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .status { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1px solid var(--line); }
+  .status.done { color: var(--ok); border-color: var(--ok); }
+  .status.approved, .status.in-progress { color: var(--accent); border-color: var(--accent); }
+  .status.draft, .status.not-written { color: var(--muted); }
+  ul.criteria { list-style: none; padding: 0; margin: 0; }
+  ul.criteria li { padding: 8px 0 8px 32px; border-bottom: 1px solid var(--line); position: relative; }
+  ul.criteria li::before { content: "○"; position: absolute; left: 6px; color: var(--todo); font-weight: 700; }
+  ul.criteria li.done::before { content: "✓"; color: var(--ok); }
+  ul.criteria li em { color: var(--muted); }
+  code { font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: #f0efed; padding: 1px 4px; border-radius: 3px; }
+  .goal { margin: 0 0 8px; }
+  .open { padding-left: 20px; }
+  details { margin: 8px 0; }
+  summary { cursor: pointer; color: var(--accent); }
+  .generated { color: var(--muted); font-size: 13px; margin-top: 48px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Panna spec status</h1>
+<p class="summary">85 of 132 acceptance criteria verified across 6 written specs.</p>
+<div class="bar"><div style="width: 64%"></div></div>
+
+<h2>All specs</h2>
+<table>
+<thead><tr><th>#</th><th>Title</th><th>Status</th><th>Criteria</th><th>Goal</th></tr></thead>
+<tbody>
+<tr><td><a href="#spec-0001">0001</a></td><td>Project setup and database</td><td><span class="status done">Done</span></td><td>24 / 25</td><td>Clone, run three commands, get a linted API on a migrated database.</td></tr>
+<tr><td><a href="#spec-0002">0002</a></td><td>Design system: tokens and primitives</td><td><span class="status done">Done</span></td><td>22 / 24</td><td>Build a form screen from tokens and components, with no raw values.</td></tr>
+<tr><td><a href="#spec-0003">0003</a></td><td>Sign in with Google and Apple</td><td><span class="status in-progress">In progress</span></td><td>2 / 31</td><td>Sign in with one tap, no passwords, and stay signed in.</td></tr>
+<tr><td><a href="#spec-0004">0004</a></td><td>Design system: display and feedback</td><td><span class="status approved">Approved</span></td><td>10 / 14</td><td>Build a list screen's loading, empty and error states.</td></tr>
+<tr><td><a href="#spec-0005">0005</a></td><td>Recipe CRUD</td><td><span class="status approved">Approved</span></td><td>17 / 22</td><td>Create, view, edit and delete your own recipes, with a draft state.</td></tr>
+<tr><td><a href="#spec-0006">0006</a></td><td>Internationalisation</td><td><span class="status approved">Approved</span></td><td>10 / 16</td><td>Run the app in another language, with correct plurals, formats and units.</td></tr>
+<tr><td>0007</td><td>Ingredients and equipment</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Add, edit, remove and reorder what a recipe needs.</td></tr>
+<tr><td>0008</td><td>Steps and nesting</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Write steps, and nest the ones that happen during a wait.</td></tr>
+<tr><td>0009</td><td>Step links</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Attach ingredients and equipment to the step that uses them.</td></tr>
+<tr><td>0010</td><td>Images</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A cover photo, and a picture of how each step should look.</td></tr>
+<tr><td>0011</td><td>Cooking mode</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Cook a recipe, seeing what else you could do during each wait.</td></tr>
+<tr><td>0012</td><td>Cooking without an ingredient</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Check off what you have, and cook it without the carrots.</td></tr>
+<tr><td>0013</td><td>Recipe history</td><td><span class="status not-written">Not written</span></td><td>–</td><td>See when you cooked something, and what you changed each time.</td></tr>
+<tr><td>0014</td><td>Cook's notes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Record what you learned, and see it next time you cook.</td></tr>
+<tr><td>0015</td><td>JSON recipe import</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Paste AI-generated JSON and get a working recipe.</td></tr>
+<tr><td>0016</td><td>Sharing</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Share a recipe read-only by private link, and revoke it.</td></tr>
+<tr><td>0017</td><td>Avatars and the tab bar</td><td><span class="status not-written">Not written</span></td><td>–</td><td>An avatar, an editable name, and three tabs to reach things by.</td></tr>
+<tr><td>0018</td><td>Featured recipes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A searchable set of recipes we wrote, to start from.</td></tr>
+</tbody>
+</table>
+
+
+<section id="spec-0001">
+<h2>0001: Project setup and database <span class="status done">Done</span></h2>
+<p class="goal">A developer can clone the repo, run three commands, and have a linted, typechecked API running against a migrated database, with the Expo app booting on a simulator.</p>
+<p class="summary">24 of 25 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 96%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm db:up &amp;&amp; pnpm --filter api db:migrate &amp;&amp; pnpm --filter api dev</code> starts the API against a clean database with no manual steps.</li>
+<li class="done"><code>GET /api/health</code> returns 200 with both fields <code>ok</code>, and returns a failure when Postgres is stopped.</li>
+<li class="done"><code>pnpm typecheck</code> passes across all three workspaces, with <code>strict</code> and every additional flag from <code>CLAUDE.md</code> active in the base config.</li>
+<li class="done"><code>pnpm lint</code> passes with zero warnings, and fails if a warning is introduced.</li>
+<li class="done">Prettier in check mode reports no changes for any committed file.</li>
+<li class="done">Adding an unused local variable, an implicit <code>any</code>, or an unchecked index access each fail <code>pnpm typecheck</code> or <code>pnpm lint</code>.</li>
+<li class="done">The initial migration creates all eleven tables, <code>identities</code> rejects a duplicate <code>(provider, subject)</code> pair, and <code>steps.parentStepId</code> accepts null and rejects an id that is not a step.</li>
+<li class="done"><code>pnpm db:seed</code> runs against a migrated database, and running it a second time leaves the same rows rather than duplicating them.</li>
+<li class="done">Two API tests that each insert a row with the same unique value both pass when run in the same file, proving truncation happens between them.</li>
+<li class="done">A test asserting a rolled-back transaction leaves no partial rows passes, proving the harness does not hide commit behaviour inside an outer transaction.</li>
+<li class="done">Throwing with a code that is not in the shared const object fails <code>pnpm typecheck</code>.</li>
+<li class="done">A controller returning a shape the contract does not describe fails <code>pnpm typecheck</code>, and so does a mobile call passing the wrong request body.</li>
+<li class="done">A response that does not match its schema is rejected by the client with a clear error, verified by pointing the client at a stub that returns the wrong shape.</li>
+<li class="done">Starting the API with <code>DATABASE_URL</code> removed exits with a message naming the missing variable, and does not start. An empty JWT secret fails the same way.</li>
+<li class="done">Logs carry a request id, and no log line contains a value from a field marked secret.</li>
+<li class="todo">~~A request body containing a field the schema does not define returns 400.~~ <strong>Moved to 0003.</strong> No endpoint in this spec accepts a body, so there is nothing to reject; 0003 adds the first ones. The strict-schema rule stands in <code>CLAUDE.md</code>.</li>
+<li class="done">A request body over the size limit is rejected before it is parsed.</li>
+<li class="done">Security headers are present on every response and <code>x-powered-by</code> is absent.</li>
+<li class="done">An error response contains no stack trace, SQL fragment or internal file path, including when the database is unreachable.</li>
+<li class="done">Starting the API with a JWT secret shorter than the minimum fails at boot with a message saying so.</li>
+<li class="done"><code>pnpm test</code> fails when a dependency with a high severity advisory is installed. <em>(Verified: the run failed on three high and two critical advisories until drizzle-orm, drizzle-kit and vitest were upgraded, and vite pinned forward.)</em></li>
+<li class="done"><code>.nvmrc</code> and <code>packageManager</code> are present and agree with the versions the project is developed on.</li>
+<li class="done">A commit with a message that is not a conventional commit is rejected by the hook, and a commit with a lint error in a staged file is rejected too.</li>
+<li class="done">Forcing a render error in the placeholder screen shows the error boundary's recovery screen rather than a blank app. <em>(Could not be seen on the simulator - Expo Go covers a render error with its own log. Covered instead by a test added in 0002: a throwing child produces the recovery screen, and Try again clears it.)</em></li>
+<li class="done">Turning airplane mode on is reflected in the app's online state within a few seconds, and returning from the background triggers a refetch. <em>(Verified on the simulator: the app went offline within 3 seconds of the host losing wifi; idling 35 seconds triggered no refetch while backgrounding and foregrounding did. See the note below about coming back online.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>A developer can clone the repo, run three commands, and have a linted, typechecked API running against a migrated database, with the Expo app booting on a simulator.</p>
+<h3>Out of scope</h3><li>Authentication. 0003 owns every auth endpoint and the sign-in screen. This spec creates the <code>users</code>, <code>identities</code> and <code>refresh_tokens</code> tables and writes nothing to them.</li>
+<li>The design system. 0002 owns tokens and components. The placeholder screen here uses plain React Native styles and is replaced.</li>
+<li>Recipes, ingredients, steps, sharing, images. Tables are created, and nothing reads or writes them.</li>
+<li>Any real screen. One placeholder proves the app boots.</li>
+<li>Deployment, CI, EAS Build, OTA updates.</li>
+<li>Dark mode. 0002 defines the theme structure that would carry it.</li>
+<h3>Data model</h3><p>Create every table listed in <code>CLAUDE.md</code> in the initial migration: <code>users</code>, <code>identities</code>, <code>refresh<em>tokens</code>, <code>recipes</code>, <code>ingredients</code>, <code>equipment</code>, <code>steps</code>, <code>step</em>ingredients</code>, <code>step<em>equipment</code>, <code>cooks</code>, <code>cook</em>notes</code>. Later specs add endpoints on top of them and never alter a table that already holds data.</p>
+<p>Also created here: the <code>unit</code>, <code>unit<em>system</code>, <code>auth</em>provider</code>, <code>recipe<em>status</code> Postgres enums, the <code>pg</em>trgm</code> extension for searching recipe titles, and the <code>citext</code> extension so email uniqueness is case insensitive.</p>
+<p><code>steps.parentStepId</code> is a nullable self-reference, which is how a step records that it happens during another one. The schema can express the foreign key and nothing else: that a parent belongs to the same recipe, and that nesting never goes more than one level deep, are enforced in application code from 0008 onward.</p>
+<p><code>docker-compose.yml</code> runs one service, <code>database</code>, on Postgres 16 and port 5433 to avoid clashing with a local install. Credentials come from <code>.env</code>, and <code>.env.example</code> is committed.</p>
+<h3>API contract</h3><p><code>packages/shared</code> holds the contract and the error code const object. A controller's return type is derived from the contract and the mobile client parses against the same schema, so neither side can drift. The mobile client parses each response against its schema before handing it to the caller, so a mismatch surfaces at the boundary rather than as a strange bug three screens later.</p>
+<p>This spec defines one endpoint, so that "it works" is something that can be checked rather than assumed.</p>
+<p><strong>GET /api/health</strong></p>
+<p>Unauthenticated. 200: <code>{ status: 'ok', database: 'ok' }</code>. It runs a trivial query, so a database that is unreachable produces a failure here rather than on the first real request.</p>
+<p>Error codes introduced: <code>VALIDATION<em>FAILED</code>, <code>RATE</em>LIMITED</code>.</p>
+<h3>UI</h3><p>The Expo app boots to a single placeholder screen. It uses plain React Native styles, because 0002 has not happened yet, and it is deleted once real screens exist.</p>
+<p><strong>Error boundary.</strong> The app is wrapped in an error boundary, and so is each route group. A render error shows a screen with a way to recover, never a blank app.</p>
+<p><strong>Query wiring.</strong> The TanStack Query client is connected to React Native's <code>AppState</code> and to the network state, so it knows when the app is backgrounded and when the phone loses its connection. Without this the offline behaviour in <code>CLAUDE.md</code> does not work, and the failure is silent.</p>
+</details>
+</section>
+
+<section id="spec-0002">
+<h2>0002: Design system - tokens and primitives <span class="status done">Done</span></h2>
+<p class="goal">A developer can build a form screen out of semantic tokens and shared components without writing a single raw value, and can see every component in isolation on a simulator.</p>
+<p class="summary">22 of 24 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 92%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces.</li>
+<li class="done">A search for hex colour literals in <code>apps/mobile/src</code> outside <code>styles/tokens.ts</code> returns no matches.</li>
+<li class="done">A test asserts that every semantic token's value is a primitive from the same module, and fails if any semantic entry is a raw literal.</li>
+<li class="done">Referring to a token or a text style that does not exist fails <code>pnpm typecheck</code> rather than resolving to <code>undefined</code> at runtime.</li>
+<li class="done">The gallery opens on a simulator and shows every component above in every variant and state, plus the spacing scale, the type ramp and the semantic colours with their contrast ratios. <em>(Verified on an iPhone 17 Pro: colour, type and button sections all render.)</em></li>
+<li class="done">Every component folder contains its component, styles, test and index files, checked by a test that walks the components directory.</li>
+<li class="done">A production build contains no Storybook dependency and no story file, verified by inspecting the bundle rather than by inspecting the config. <em>(Trivially true now that neither exists; the gallery route renders nothing when <code></em><em>DEV</em><em></code> is false.)</em></li>
+<li class="done">Every component lives in its own folder with its component, styles, test and index files, and no component's styles or tests live outside its folder.</li>
+<li class="done">There is no <code>components/index.ts</code> re-exporting the directory.</li>
+<li class="done">Every interactive element has a touch target of at least 44 by 44 points. <em>(Tested for all four <code>Button</code> variants and for <code>TextField</code>. There is no <code>TextField</code> clear affordance in this spec, so nothing was measured for one.)</em></li>
+<li class="done">A field's height does not change between its default, focused and error states, and its text sits centred. <em>(Two tests, added after the first look at the gallery found both wrong.)</em></li>
+<li class="done">Content never sits under the home indicator, and the field being typed into is never behind the keyboard.</li>
+<li class="done">A test walks every semantic token pair used as foreground on background and asserts 4.5:1 for body text and 3:1 for large text, icons and control boundaries. It fails if a primitive is changed to a value that breaks a pair.</li>
+<li class="done">Every component's own tests query it by accessible role and name rather than by <code>testID</code>, so a component that cannot be found by a screen reader cannot pass its own tests.</li>
+<li class="done">Every interactive component exposes an <code>accessibilityRole</code> and an accessible name, and <code>Button</code> in its disabled and loading states reports <code>disabled</code> and <code>busy</code> through <code>accessibilityState</code>.</li>
+<li class="done">No component conveys a state by colour alone: <code>TextField</code> in error shows a message, and every state renders legibly in greyscale in the gallery.</li>
+<li class="done">No component sets <code>allowFontScaling={false}</code>, verified by a search returning no matches.</li>
+<li class="todo">A VoiceOver or TalkBack walkthrough of the gallery reaches every component in a sensible order, and each announces what it is and what it does. <strong>Not verified.</strong> It needs a person with a screen reader on. <code>TextField</code> announcing its label, value and error as one stop is covered by a test in the meantime.</li>
+<li class="todo">Text scales with the OS font size setting, and at the largest setting nothing in the gallery is clipped or truncated mid-word. <strong>Not verified.</strong> <code>allowFontScaling={false}</code> appears nowhere, which is tested, so scaling is on; whether the layouts survive the largest setting needs someone to change the setting and look.</li>
+<li class="done"><code>TextField</code> in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.</li>
+<li class="done"><code>Button</code> in its loading state does not change width, and a second press while loading fires no additional handler call.</li>
+<li class="done">Every duration and easing used anywhere in the app resolves to a motion token; a search for numeric duration literals in animation calls outside <code>tokens.ts</code> returns no matches.</li>
+<li class="done">With the OS "reduce motion" setting on, animations either do not run or resolve instantly to their end state. <em>(Vacuously true: this spec ships motion tokens but no component animates. The first animation carries this criterion for real.)</em></li>
+<li class="done">Changing one primitive colour in <code>tokens.ts</code> changes every screen that uses it, with no other file edited. <em>(Holds by construction and is guarded by three tests: every semantic token must resolve to a primitive, no file outside <code>tokens.ts</code> may contain a hex literal, and no file may type a raw number for padding, margin, gap or radius.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>A developer can build a form screen out of semantic tokens and shared components without writing a single raw value, and can see every component in isolation on a simulator.</p>
+<h3>Out of scope</h3><li>Dark mode. The token structure must make a second theme a matter of swapping primitive values, and this spec ships one light theme only.</li>
+<li>An icon set. Components that could take an icon take a <code>React.ReactNode</code> slot instead, and choosing an icon library waits until a spec actually needs icons.</li>
+<li>A full accessibility audit. This spec covers touch target size and OS font scaling, nothing further.</li>
+<li>Visual regression tooling: Chromatic, screenshot diffing, or any hosted service.</li>
+<li>The rest of the component set. <code>Card</code>, <code>Divider</code>, <code>Spinner</code>, <code>Skeleton</code>, <code>EmptyState</code>, <code>ErrorState</code> and <code>ConfirmDialog</code> are 0004. This spec ships the five a form needs, which is what 0003 requires next.</li>
+<li>Any component that no existing spec needs. New components arrive with the feature that requires them, per <code>CLAUDE.md</code>.</li>
+<h3>Data model</h3><p>None. This spec adds no tables, no columns and no migration.</p>
+<h3>API contract</h3><p>None. This spec adds no endpoints and makes no network calls.</p>
+<h3>Components</h3><p><code>apps/mobile/src/components/</code>, one folder per component, laid out per the Repo layout section of</p>
+<p><code>CLAUDE.md</code>: <code>Button/Button.tsx</code>, <code>Button/Button.styles.ts</code>, <code>Button/Button.test.tsx</code>,</p>
+<p><code>Button/index.ts</code>. Props are typed, with no <code>any</code>, and every component ships its own tests in its own</p>
+<p>folder rather than in a parallel test tree.</p>
+<p>This spec establishes that shape. Every component added by a later spec follows it without the later</p>
+<p>spec having to restate it.</p>
+<p>The list is confined to what a form screen needs, which is what 0003 builds next:</p>
+<li><strong><code>Screen</code></strong> — safe area on all four edges, background, standard horizontal padding, optional scrolling, and keyboard avoidance. The bottom edge matters as much as the top: without it the last row sits under the home indicator. Keyboard avoidance lives here because <code>CLAUDE.md</code> says no screen writes its own.</li>
+<li><strong><code>Text</code></strong> — takes a named text style and a semantic colour. The only component in the app allowed to render a raw React Native <code>Text</code>.</li>
+<li><strong><code>Stack</code></strong> — vertical or horizontal, with <code>gap</code> taken from the spacing scale. Replaces ad hoc margins, so spacing lives with the container rather than being sprinkled on children.</li>
+<li><strong><code>Button</code></strong> — variants <code>primary</code>, <code>secondary</code>, <code>ghost</code>, <code>danger</code>. States: default, pressed, disabled, loading. Loading shows a spinner in place of the label and blocks further presses without changing the button's size.</li>
+<li><strong><code>TextField</code></strong> — label, value, optional error, optional helper text, secure entry. The error state changes the border colour, shows the message, and is announced to screen readers rather than being colour alone. The border width never changes, because a border that thickens on focus changes the field's height and shifts everything below it. The input does not take the type token's <code>lineHeight</code>: iOS applies it inside the text container and the text lands off-centre.</li>
+<h3>UI</h3><p><strong>A design gallery at <code>/design</code>, inside the app.</strong> A development-only route listing every semantic</p>
+<p>colour with its measured contrast ratio, the spacing scale, the type ramp, and every component in</p>
+<p>every state. <code>pnpm mobile</code>, then the "Design system" button on the placeholder screen.</p>
+<p>Storybook was the original choice and is gone. On-device Storybook could not be made to work - it</p>
+<p>wants to own the root component and Expo Router will not give it up without losing the navigation</p>
+<p>context Storybook's own UI then needs - and a browser build was rejected because it renders through</p>
+<p><code>react-native-web</code>, a different engine from the one that ships. A plain screen in the app has</p>
+<p>neither problem: it is the app, so what it shows is what the device does, and it costs no</p>
+<p>dependency at all.</p>
+<p>The gallery does less than Storybook. There are no per-prop controls and no isolation between</p>
+<p>cases; it is a single scrolling page. That is the trade, and for a set this size it is a fair one.</p>
+<p><code>_<em>DEV</em>_</code> is false in a release build and the route renders nothing, so the gallery cannot be</p>
+<p>reached by guessing the path.</p>
+<p>There is no screen to refactor here, because no real screen exists yet. The proof that this set is sufficient comes in 0003, which builds the sign-in screen from it and carries the criterion that the screen contains no raw values. If it cannot, this spec was wrong and comes back.</p>
+</details>
+</section>
+
+<section id="spec-0003">
+<h2>0003: Sign in with Google and Apple <span class="status in-progress">In progress</span></h2>
+<p class="goal">A user signs in with Google or Apple in one tap, and stays signed in after restarting the app.</p>
+<p class="summary">2 of 31 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 6%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="todo"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces.</li>
+<li class="todo"><code>POST /api/auth/dev-session</code> returns 404 when <code>ALLOW<em>DEV</em>SIGN_IN</code> is unset, proving the route is not registered rather than merely guarded.</li>
+<li class="todo">The API refuses to start when <code>ALLOW<em>DEV</em>SIGN<em>IN</code> is <code>true</code> and <code>NODE</em>ENV</code> is <code>production</code>, with a message naming the variable.</li>
+<li class="todo"><code>POST /api/auth/dev-session</code> with an email no user holds returns 404 and creates nothing.</li>
+<li class="todo">A session from the development route is indistinguishable from a real one: the same response shape, and <code>GET /api/me</code> accepts its access token.</li>
+<li class="todo">A release bundle contains no development sign-in affordance, verified by grepping an export rather than by inspecting the config.</li>
+<li class="todo">A token with a valid signature but the wrong audience is rejected with 401.</li>
+<li class="todo">A token with a valid signature but an expired <code>exp</code> is rejected.</li>
+<li class="todo">A token whose <code>nonce</code> does not match the attempt is rejected, so a captured token cannot be replayed.</li>
+<li class="todo">A provider access token sent where an ID token is expected is rejected.</li>
+<li class="todo">A token signed by a key that is not the provider's is rejected, verified with a self-signed token.</li>
+<li class="todo">Signing in twice with the same provider account produces one user row and one identity row, not two.</li>
+<li class="todo">Signing in with Google, then Apple, with the same verified email produces one user with two identities.</li>
+<li class="todo">Signing in with a provider whose email is not marked verified is refused with 401, creates no user and joins no existing one.</li>
+<li class="todo">A sign-in with no name from the token or the client creates a user with a blank display name.</li>
+<li class="todo">Apple's display name is stored on first sign-in and is not overwritten by a later sign-in that omits it.</li>
+<li class="todo"><code>displayName</code> sent on a sign-in for an existing user changes nothing.</li>
+<li class="todo">Using a refresh token twice fails the second time with 401, and the token issued by the first use is also revoked.</li>
+<li class="todo">Refresh token reuse writes a log line identifying the user and the event.</li>
+<li class="todo"><code>GET /api/me</code> returns 401 without a token and with an expired one.</li>
+<li class="todo">No response anywhere contains <code>tokenHash</code>, a provider token, or a <code>subject</code>.</li>
+<li class="todo">No auth endpoint accepts a body containing a field its schema does not define.</li>
+<li class="todo">A JWT payload contains no email, no display name and nothing beyond what identifies the session.</li>
+<li class="done">The app restores the session after a full restart without showing the sign-in screen. <em>(Verified on an iPhone 17 Pro simulator: relaunching the built app lands on the recipe list. The router does nothing until the keychain has been read, so nothing flashes.)</em></li>
+<li class="done">Two requests firing together with an expired access token cause exactly one call to <code>/api/auth/refresh</code>. <em>(Tested against a stubbed server: one refresh, both requests retried with the new token, and a refused refresh ends the session.)</em></li>
+<li class="todo">Cancelling the provider sheet returns to idle with no error shown.</li>
+<li class="todo">On Android the screen shows only Continue with Google, and on iOS it shows Apple first and then Google.</li>
+<li class="todo">Attempting sign-in with no connection shows an offline message rather than a generic failure.</li>
+<li class="todo">The sign-in screen contains no colour value, no spacing number and no font size outside the two provider buttons. This is the proof that 0002's component set is sufficient for a real screen.</li>
+<li class="todo">No user-visible string on the sign-in screen is a literal; every one resolves through <code>t()</code>.</li>
+<li class="todo">A VoiceOver or TalkBack walkthrough of the sign-in screen reaches both buttons, each announcing which provider it uses, and the loading state is announced rather than only shown.</li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>A user signs in with Google or Apple in one tap, and stays signed in after restarting the app.</p>
+<h3>Out of scope</h3><li>Passwords of any kind. There is a development-only sign-in, described in its own section below, and it is deliberately not a password: it mints a session for a user that is already in the seed, and it cannot create one.</li>
+<li>Facebook, and any third provider. Google and Apple cover almost everyone, and adding another later is a small change.</li>
+<li>Linking or unlinking providers from a settings screen. Automatic linking is described below; doing it by hand is a later spec.</li>
+<li>Account deletion, profile editing, avatars.</li>
+<li>Choosing a language or unit system. 0006 owns that; this spec follows the device locale.</li>
+<li>Any recipe screen. The signed-in destination is a placeholder.</li>
+<h3>Data model</h3><p>No new tables. <code>users</code>, <code>identities</code> and <code>refresh_tokens</code> exist from 0001.</p>
+<p><strong>Account linking.</strong> A sign-in is matched to an existing user by <code>(provider, subject)</code> first, which is the only stable key. If there is no match and the provider says the email is verified, the identity is attached to the user holding that email, or a new user is created with it. If there is no match and no verified email, the sign-in is refused with <code>AUTH<em>PROVIDER</em>TOKEN_INVALID</code>.</p>
+<p>Linking on an <em>unverified</em> email would be account takeover: anyone who can get a provider to assert an address they do not own would inherit the account behind it. Creating a separate account instead is not possible either, because <code>users.email</code> is unique and the address may already be taken. Google and Apple both verify addresses, so in practice this path is not reached; it exists so that it fails closed if it ever is.</p>
+<p><strong>A name may be blank.</strong> Google puts one in its token. Apple hands one over only if the person agrees, and only the first time. When neither supplies one, <code>displayName</code> is stored empty, until 0017 makes it editable.</p>
+<p><strong>Apple's private relay.</strong> Apple lets people hide their real address, giving a unique relay address per app instead. It will never match an existing user, so someone who signs in with Apple privately and later with Google gets two accounts, and there is no way for the app to know they are the same person. That is a limitation of the choice, not a bug to fix here.</p>
+<p><strong>Apple sends a name once.</strong> The display name arrives only on the very first authorisation, from the client rather than from the token, and never again. If it is not captured then it is gone, so the first sign-in stores it and later ones leave it alone.</p>
+<h3>API contract</h3><p>Through the contract in <code>packages/shared</code>. Error codes this spec introduces, alongside <code>VALIDATION<em>FAILED</code> and <code>RATE</em>LIMITED</code> from 0001:</p>
+<p><code>AUTH<em>PROVIDER</em>TOKEN<em>INVALID</code>, <code>AUTH</em>TOKEN<em>INVALID</code>, <code>AUTH</em>TOKEN<em>EXPIRED</code>, <code>AUTH</em>TOKEN_REVOKED</code>.</p>
+<p>There is no code for "this email already exists", because there is no path where a user asserts an email.</p>
+<p><strong>POST /api/auth/session</strong></p>
+<p>Body: <code>{ provider: 'google' | 'apple', idToken, nonce, displayName? }</code></p>
+<p>200: <code>{ user: { id, email, displayName }, accessToken, refreshToken }</code>, for both a new account and an existing one. The response does not say which, because the client does not need to know and the difference is not the client's to act on.</p>
+<p>401 with <code>AUTH<em>PROVIDER</em>TOKEN_INVALID</code> if the token fails any check.</p>
+<p>429 when throttled per IP.</p>
+<p>Verification, in full, per the Security section of <code>CLAUDE.md</code>: signature against the provider's published keys, issuer, audience matching our own client id, expiry, issued-at, and <code>nonce</code> matching the value the client generated for this attempt. <code>email</code> is used only when the provider marks it verified. An access token is never accepted in place of an ID token.</p>
+<p><code>displayName</code> is accepted only when creating a user, is treated as untrusted text, and is ignored on every later sign-in.</p>
+<p><strong>POST /api/auth/refresh</strong></p>
+<p>Body: <code>{ refreshToken }</code></p>
+<p>200: <code>{ accessToken, refreshToken }</code>. The old token is revoked and a new one issued on every use.</p>
+<p>401 with <code>AUTH<em>TOKEN</em>INVALID</code>, <code>AUTH<em>TOKEN</em>EXPIRED</code> or <code>AUTH<em>TOKEN</em>REVOKED</code>.</p>
+<p><strong>Reuse is treated as theft.</strong> Presenting a token that has already been used revokes every token in that chain, not only the one presented, and logs it. A stolen refresh token therefore works once, after which both parties are signed out and there is a log line saying so. Revoking only the presented token would leave the thief's fresh token working while the victim's rotation failed, which is the wrong way round. Each refresh token records the token it replaced, so the chain is identifiable.</p>
+<p><strong>POST /api/auth/logout</strong></p>
+<p>Auth required. Revokes the caller's refresh token chain. 204.</p>
+<p><strong>GET /api/me</strong></p>
+<p>Auth required. 200: <code>{ id, email, displayName }</code>. 401 without a valid access token.</p>
+<p>Refresh tokens are 256 bits of randomness stored as a SHA-256 hash, never written raw to the database or to logs. Failed verifications, throttle rejections and refresh reuse are logged as authentication events.</p>
+<h3>UI</h3><p>Expo Router with two route groups, <code>(auth)</code> and <code>(app)</code>. Built from 0002's components.</p>
+<p><strong><code>(auth)/index</code></strong>: the app name, a short line saying what it is for, and two buttons - Continue with Google, Continue with Apple. Nothing else. No email field, no password, no third option.</p>
+<p>In a development build only, a third affordance appears under those two, taking the seeded developer account straight in. It is compiled out of a release bundle, per the Development sign-in section, and is styled as an ordinary <code>Button</code> so nobody mistakes it for a provider.</p>
+<p>The two buttons follow Google's and Apple's own branding rules rather than the app's <code>Button</code> styling, per the Platform behaviour section of <code>CLAUDE.md</code>. Both providers require it, and it is the one place the design system does not win.</p>
+<p>Sign in with Apple appears first on iOS, per Apple's guidance. <strong>On Android only Google is offered</strong> - the Apple web flow is poor enough not to ship, per the decision recorded under Open questions.</p>
+<p>The client generates a fresh <code>nonce</code> per attempt. It gives the provider the SHA-256 of it and sends the API the nonce itself; the API hashes what it receives and compares it with the token's claim. The token therefore carries only the hash, so holding a captured token is not enough to present it.</p>
+<p>Google runs through its browser sign-in sheet rather than its native SDK, because the free native library cannot pass a nonce. An iOS client has no secret, so the code is exchanged with PKCE alone.</p>
+<p>States: idle, in flight with the pressed button showing a loading state and both disabled, and failed. A cancelled sign-in returns silently to idle, because cancelling is a choice rather than an error. A genuine failure shows a message and lets the user try again or use the other provider. Being offline says so plainly, since sign-in is the one thing that cannot work without a connection.</p>
+<p><strong><code>(app)/index</code></strong>: placeholder home screen showing the display name and a sign-out button. Replaces 0001's placeholder. Recipes come in 0005.</p>
+<p>The root layout chooses the group based on whether a session exists, showing a splash state while it checks rather than flashing the sign-in screen.</p>
+<p>Tokens are stored in <code>expo-secure-store</code>. The shared client attaches the access token, and on a 401 attempts one refresh, retries once, and on failure clears the session and returns to sign-in. Concurrent 401s trigger exactly one refresh call.</p>
+</details>
+</section>
+
+<section id="spec-0004">
+<h2>0004: Design system - display and feedback components <span class="status approved">Approved</span></h2>
+<p class="goal">A developer can build a list screen with all of its states - loading, empty, error, populated - without writing a raw value or a bespoke placeholder.</p>
+<p class="summary">10 of 14 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 71%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces.</li>
+<li class="done">Every component above lives in its own folder with its component, styles, test and index files. <em>(Checked by the folder test; <code>ConfirmDialog</code> is the one named exception to the styles file, per its section above.)</em></li>
+<li class="done">The gallery shows every component in every variant and state, with no runtime warnings. <em>(Verified on an iPhone 17 Pro simulator.)</em></li>
+<li class="done">A skeleton and the content it stands in for occupy the same height in the side-by-side gallery entry: swapping one for the other shifts nothing. <em>(Verified by eye on the simulator, and the first look found a mismatch, which is what the entry is for. A test also checks each line measures its text style's line height.)</em></li>
+<li class="done">Contrast for every new semantic pairing passes the same test 0002 introduced, with no new failures. <em>(No new pairings: every component uses colours 0002 already paired.)</em></li>
+<li class="todo"><code>ConfirmDialog</code> renders the platform's own alert on both iOS and Android, closes on the Android back gesture, and returns focus to whatever opened it. <em>(iOS verified on the simulator. A test checks the back-gesture dismissal is wired as a cancel. <strong>Android and focus return not verified</strong>: no Android build exists yet.)</em></li>
+<li class="done"><code>ConfirmDialog</code> with <code>destructive</code> uses the platform's destructive button style and announces the action as destructive to a screen reader, rather than relying on the button being red. <em>(The destructive style is tested and seen on the simulator; the announcement is the platform's own behaviour for that style.)</em></li>
+<li class="done"><code>ErrorState</code> in its offline variant reads differently from its failure variant, and both offer an action. <em>(Tested.)</em></li>
+<li class="done"><code>Skeleton</code> is hidden from the accessibility tree, and <code>Spinner</code> announces that something is loading. <em>(Tested. Spinner both carries a progressbar role and announces itself on appearance.)</em></li>
+<li class="done">Every component's tests query by accessible role and name rather than by <code>testID</code>. <em>(<code>Divider</code> and <code>Skeleton</code> are the exceptions, by <code>testID</code>, because both are hidden from the accessibility tree on purpose and have no role or name to query.)</em></li>
+<li class="done">No component sets <code>allowFontScaling={false}</code>, and no component contains a colour, spacing or font size literal. <em>(Checked by 0002's tests.)</em></li>
+<li class="todo">Swipe-back on iOS and the back gesture on Android both work on every screen these components appear in, including with a dialog open. <em>(iOS swipe-back on the gallery works. <strong>Android not verified</strong>: no Android build exists yet.)</em></li>
+<li class="todo">With reduce motion on, the skeleton shimmer stops rather than animating, and the content still reads as a placeholder. <em>(Built: the shimmer reads the OS setting and holds still. <strong>Not verified</strong> with the setting on; it needs someone to change it and look.)</em></li>
+<li class="todo">A VoiceOver or TalkBack walkthrough of these components in the gallery reaches each in a sensible order, and <code>Card</code> used as a list row announces as one element rather than as its separate children. <strong>Not verified.</strong> It needs a person with a screen reader on. <code>Card</code> folding its children into one label is covered by a test in the meantime.</li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>A developer can build a list screen with all of its states - loading, empty, error, populated - without writing a raw value or a bespoke placeholder.</p>
+<h3>Out of scope</h3><li>Any screen. This spec adds components and their gallery entries, and 0005 is the first to use them.</li>
+<li>Icons. <code>EmptyState</code> and <code>ErrorState</code> take a <code>React.ReactNode</code> slot; choosing an icon library waits for a spec that needs one.</li>
+<li>Illustrations for empty states. That is a separate decision with an asset dependency and no owner yet.</li>
+<li>Toasts, banners, snackbars, pull-to-refresh. Nothing needs them.</li>
+<li>Swipe actions and drag handles. 0007 and 0008 introduce reordering and can bring what they need.</li>
+<li>A full-screen image viewer. 0010 introduces the one place an image is shown large, and brings it then.</li>
+<h3>Data model</h3><p>None.</p>
+<h3>API contract</h3><p>None.</p>
+<h3>Components</h3><p>Same folder rule as 0002, per the Repo layout section of <code>CLAUDE.md</code>: component, styles, tests and an <code>index.ts</code>, all in the component's own folder.</p>
+<li><strong><code>Card</code></strong> — a padded surface with radius and border, used for list rows.</li>
+<li><strong><code>Divider</code></strong> — a one-pixel line in <code>borderSubtle</code>.</li>
+<li><strong><code>Spinner</code></strong> — a single size and a semantic colour. For a load that replaces known content, prefer <code>Skeleton</code>; a spinner is for an action in flight, not for a screen filling in.</li>
+<li><strong><code>Skeleton</code></strong> — a shimmering placeholder in the shape of the content it stands in for, with <code>Skeleton.Text</code> for lines of text and <code>Skeleton.Block</code> for rectangles. Every screen's loading state is built from these, so the layout does not jump when real content arrives. A skeleton whose shape differs from the content it replaces is worse than a spinner, because it promises a layout and then breaks it.</li>
+<li><strong><code>EmptyState</code></strong> — title, optional body, optional action slot.</li>
+<li><strong><code>ErrorState</code></strong> — message and a retry action. It takes a variant for being offline, because that is a different situation from a failed request and the user can act on only one of them.</li>
+<li><strong><code>ConfirmDialog</code></strong> — title, body, confirm and cancel labels, and a <code>destructive</code> flag. It wraps the platform's own alert rather than drawing a custom modal, per the Platform behaviour section of <code>CLAUDE.md</code>. That gets the right look on both phones, correct focus handling and full screen reader support without building any of it, and it is why this component has no styles file.</li>
+<h3>UI</h3><p>The design gallery only. Each component gets a section in the <code>/design</code> gallery 0002 set up, showing every variant and state, per the Design system section of <code>CLAUDE.md</code>.</p>
+<p><code>Skeleton</code> gets one further gallery entry that places a skeleton next to the content it stands in for, so the two can be compared directly. That comparison is the only reliable way to catch the height mismatch that makes a screen jump, and it is not something a test can judge.</p>
+</details>
+</section>
+
+<section id="spec-0005">
+<h2>0005: Recipe CRUD <span class="status approved">Approved</span></h2>
+<p class="goal">A logged-in user can create, view, edit and delete their own recipes, as metadata only.</p>
+<p class="summary">17 of 22 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 77%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces.</li>
+<li class="done">Every one of the five endpoints returns 401 when called with no access token, and with an expired one. <em>(Tested.)</em></li>
+<li class="done">Creating a recipe returns 201 and a body whose keys are exactly the eight in the recipe response shape, with no <code>authorId</code>, <code>coverImageKey</code> or <code>shareToken</code>. <em>(Tested.)</em></li>
+<li class="done"><code>GET /api/recipes</code> for a user returns only that user's recipes: with two users each owning recipes, neither sees any of the other's. <em>(Tested.)</em></li>
+<li class="done"><code>GET /api/recipes</code> returns <code>[]</code> with status 200 for a freshly registered user. <em>(Tested.)</em></li>
+<li class="done"><code>GET</code>, <code>PATCH</code> and <code>DELETE</code> on a recipe owned by another user each return 404 with the same body as a <code>GET</code> for a random non-existent uuid. <em>(Tested. A malformed id is a 404 too, not a 500.)</em></li>
+<li class="done">A <code>PATCH</code> rejected as 404 leaves the target row byte-identical, including <code>updatedAt</code>. <em>(Tested.)</em></li>
+<li class="done"><code>POST</code> with <code>title</code> of <code>"   "</code> returns 400 and creates no row. <em>(Tested.)</em></li>
+<li class="done"><code>POST</code> with <code>servings</code> of <code>0</code>, and with <code>servings</code> of <code>1.5</code>, each return 400. <em>(Tested.)</em></li>
+<li class="done"><code>PATCH</code> with an empty body returns 400. <em>(Tested.)</em></li>
+<li class="done">A newly created recipe has <code>status</code> of <code>draft</code>, and a <code>POST</code> body containing <code>status</code> is rejected as an unknown field. <em>(Tested. The 400 names <code>status</code> in <code>fields</code>.)</em></li>
+<li class="done"><code>PATCH</code> moves a recipe from <code>draft</code> to <code>ready</code> and back again. <em>(Tested. No screen in this spec offers the change; the UI section names none, so it waits for the review page of the create flow.)</em></li>
+<li class="done">A draft recipe shows a chip in the list that reads as text, not colour alone, and a screen reader announces it as part of the row. <em>(Tested: the row's one accessible name ends in "draft". Seen on the simulator.)</em></li>
+<li class="done"><code>PATCH</code> with <code>{ "description": null }</code> clears the description, and <code>PATCH</code> with <code>{ "title": null }</code> returns 400. <em>(Tested.)</em></li>
+<li class="done"><code>PATCH</code> updates <code>updatedAt</code>, and a recipe updated after another sorts ahead of it in <code>GET /api/recipes</code>. <em>(Tested.)</em></li>
+<li class="done"><code>DELETE</code> returns 204, and a second <code>DELETE</code> of the same id returns 404. <em>(Tested.)</em></li>
+<li class="done">In the app, creating a recipe and navigating back to the list shows it without a manual refresh, and deleting one removes it from the list the same way. <em>(Verified on an iPhone 17 Pro simulator, along with edit.)</em></li>
+<li class="todo">A fresh account opening the app sees the empty state, and never sees the empty state flash before the loading state resolves. <em>(The list renders placeholders while pending and the empty state only once data has arrived, which a test checks. <strong>Not verified by eye</strong> on a fresh account; the seed gives every account a recipe.)</em></li>
+<li class="todo">Opening a detail route for a recipe id that does not exist shows the not-found state with a way back to the list. <em>(Built: a 404 renders the not-found state with a back action. <strong>Not verified</strong>: the app has no deep link scheme yet to open such a route with.)</em></li>
+<li class="todo">The query cache is persisted: opening a recipe, force-quitting the app, going offline and reopening it shows the recipe rather than an error. <em>(Built: the cache is persisted to <code>expo-sqlite/kv-store</code>. <strong>Not verified</strong>: it needs the simulator's network cut, which the walkthrough did not do.)</em></li>
+<li class="todo">Creating a recipe with no connection fails with an offline message, keeps everything the user typed, and creates nothing when the connection returns. <em>(Built: offline, the form sends nothing and says so, and mutations never queue. <strong>Not verified</strong> offline for the same reason as above.)</em></li>
+<li class="todo">A VoiceOver or TalkBack walkthrough of the list, create, detail and edit screens reaches every control in a sensible order. Each recipe row is one element announcing title, servings and time together, not four separate stops, and the delete confirmation announces itself and returns focus to the list afterwards. <strong>Not verified.</strong> It needs a person with a screen reader on. The row's single label is covered by a test in the meantime.</li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>A logged-in user can create, view, edit and delete their own recipes, as metadata only.</p>
+<h3>Out of scope</h3><li>Ingredients, steps and the <code>step_ingredients</code> link. The tables exist from 0001 and stay empty.</li>
+<li>Sharing. <code>shareToken</code> stays null and <code>GET /api/shared/:shareToken</code> is not implemented.</li>
+<li>Images. <code>coverImageKey</code> stays null and is never written or returned.</li>
+<li>Search, filtering, sorting controls, tags, categories, favourites.</li>
+<li>Pagination. A user's own list is returned in full.</li>
+<li>The in-progress section of the home screen. Cooking does not exist until 0011, so there is nothing to be part-way through. The list ships as one section here and gains the other above it later.</li>
+<li>The Cook button on the detail screen. Same reason.</li>
+<li>Offline editing and any mutation queue. Reads are cached per the Offline section of <code>CLAUDE.md</code>; writes require a connection.</li>
+<li>Duplicating a recipe, importing a recipe, exporting a recipe.</li>
+<li>Soft delete, trash, undo. Deletion is permanent.</li>
+<li>Any read access to a recipe by anyone other than its author.</li>
+<h3>Data model</h3><p>No new tables and no new columns. The <code>recipes</code> table created in 0001 is used as-is, so this spec adds no migration.</p>
+<p>Fields written by this spec: <code>title</code>, <code>description</code>, <code>servings</code>, <code>totalTimeMinutes</code>, <code>authorId</code>.</p>
+<p>Fields not written by this spec: <code>coverImageKey</code>, <code>shareToken</code>.</p>
+<h3>API contract</h3><p>All bodies validated by Zod schemas in <code>packages/shared</code>. All routes require a valid access token; without one they return 401 before any authorization check runs.</p>
+<p><strong>Recipe response shape</strong>, used by every endpoint below:</p>
+<p><code>{ id, title, description, status, servings, totalTimeMinutes, createdAt, updatedAt }</code></p>
+<p><code>authorId</code>, <code>coverImageKey</code> and <code>shareToken</code> are never returned by this spec's endpoints. Sharing state becomes visible to the client in 0016, not here.</p>
+<p><strong>Field rules</strong>, shared by create and update:</p>
+<li><code>title</code>: string, trimmed, 1 to 120 characters. A title that is empty after trimming is a 400.</li>
+<li><code>description</code>: string or null, trimmed, up to 2000 characters.</li>
+<li><code>servings</code>: integer, 1 to 100.</li>
+<li><code>totalTimeMinutes</code>: integer or null, 1 to 1440.</li>
+<p><strong>POST /api/recipes</strong></p>
+<p>Body: <code>{ title, description?, servings, totalTimeMinutes? }</code>. Omitted optional fields are stored as null. <code>status</code> is not accepted here: every new recipe starts as <code>draft</code>.</p>
+<p>201: recipe response shape.</p>
+<p>400 on validation failure.</p>
+<p><strong>GET /api/recipes</strong></p>
+<p>Returns every recipe owned by the caller, ordered by <code>updatedAt</code> descending, then <code>id</code> descending as a tiebreak so the order is stable when two recipes share a timestamp.</p>
+<p>200: array of recipe response shapes. An author with no recipes gets <code>[]</code>, not a 404.</p>
+<p><strong>GET /api/recipes/:recipeId</strong></p>
+<p>200: recipe response shape.</p>
+<p>404 if the recipe does not exist <strong>or</strong> exists and belongs to another user. The two cases are indistinguishable to the caller, so the endpoint does not reveal which recipe ids are real.</p>
+<p><strong>PATCH /api/recipes/:recipeId</strong></p>
+<p>Body: any subset of <code>{ title, description, status, servings, totalTimeMinutes }</code>. <code>status</code> moves a recipe between <code>draft</code> and <code>ready</code> in both directions, because a finished recipe can turn out to need more work. An empty body is a 400. A field present with value <code>null</code> clears it, for the two nullable fields only; <code>title</code> and <code>servings</code> cannot be set to null.</p>
+<p>200: the updated recipe response shape, with <code>updatedAt</code> refreshed.</p>
+<p>404 under the same rule as <code>GET</code>. A rejected update writes nothing.</p>
+<p><strong>DELETE /api/recipes/:recipeId</strong></p>
+<p>204 with an empty body.</p>
+<p>404 under the same rule as <code>GET</code>, including for a recipe that was already deleted.</p>
+<p>Rows in <code>ingredients</code>, <code>steps</code> and <code>step_ingredients</code> are removed by the existing cascades. In this spec those tables are always empty, so the cascade is untested here and is covered by 0007 and 0008.</p>
+<p>Ownership is enforced by a guard, as <code>CLAUDE.md</code> requires, not by checks scattered through the service.</p>
+<h3>UI</h3><p>Three new routes in the <code>(app)</code> group, plus a change to the existing home screen.</p>
+<p><strong><code>(app)/index</code></strong> stops being the 0003 placeholder and becomes the recipe list. It keeps the logged-in display name and the logout button, now in the screen header rather than the body.</p>
+<li>Loading: skeleton rows in the shape of real recipe rows, never a spinner and never a flash of the empty state.</li>
+<li>Empty: a short line explaining there are no recipes yet, and a primary action that opens the create screen.</li>
+<li>Error: a message and a retry control that refetches. Being offline is its own state with its own wording, not a generic failure, because the user can act on one and not the other.</li>
+<li>Populated: one row per recipe showing title, servings and total time when it is set. A recipe in <code>draft</code> carries a chip saying so, and the chip is text rather than only a colour. Tapping a row opens the detail screen. A control in the header opens the create screen.</li>
+<p><strong><code>(app)/recipes/new</code></strong>: the first page of the create flow. Creating a recipe is four pages - basics, what you need, the steps, then a review - but only the first exists until 0007 and 0008 add the others, so here it is one page that saves a draft and lands on the recipe. The flow grows into a wizard rather than arriving as one, and this spec builds the shell it grows in.</p>
+<p>A form for the four fields. Submit is disabled while the request is in flight. On success the app navigates to the new recipe's detail screen, and the list reflects it on return without a manual refresh. Field-level errors render against the field; a failure that is not field-specific renders once at form level.</p>
+<p><strong><code>(app)/recipes/[id]</code></strong>: detail view showing title, description, servings and total time, with actions to edit and to delete. Metadata only. There are no placeholder sections for ingredients or steps, because those are not part of this slice. Loading, error and populated states as above; a 404 renders a "recipe not found" state with a way back to the list, not a crash.</p>
+<p><strong><code>(app)/recipes/[id]/edit</code></strong>: the whole recipe on one screen, prefilled, submitting a PATCH. Editing never uses the create flow's pages - someone fixing one wrong quantity should not be walked through a wizard to reach it. On success it returns to the detail screen showing the new values.</p>
+<p>Deleting asks for confirmation first. On confirmation the app returns to the list and the deleted recipe is gone from it without a manual refresh.</p>
+<p>All four screens follow the <code>CLAUDE.md</code> mobile conventions: logic in <code>src/features/recipes</code>, routes carrying routing and layout only, all colours and spacing from the typed theme module.</p>
+</details>
+</section>
+
+<section id="spec-0006">
+<h2>0006: Internationalisation <span class="status approved">Approved</span></h2>
+<p class="goal">A user can run the app in English or Latvian, with correct plurals, locale-appropriate formats, and measurements in the system they think in.</p>
+<p class="summary">10 of 16 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 63%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces.</li>
+<li class="done">A lint rule fails the build on a user-visible string literal in a component, so the sweep cannot silently regress as new screens are added. <em>(<code>i18next/no-literal-string</code> over JSX text and the props that carry words, in every component and route; tests and the development gallery are exempt.)</em></li>
+<li class="done">Switching to Latviešu changes every string on every screen built so far, with no English left except recipe content the user authored. <em>(Verified on an iPhone 17 Pro simulator: the change applies at once, with no restart. The Latvian wording is a draft for the owner to correct, per Decided.)</em></li>
+<li class="done">A key present in English and missing in Latvian renders the English text, never the raw key. <em>(Tested, for a missing key and for an empty one. A second test walks every English key in Latvian and fails on a raw key.)</em></li>
+<li class="done">Ingredient counts of 0, 1, 2, 10 and 21 each render the grammatically correct Latvian form, asserted in a test. <em>(Asserted on servings, the one count the app shows today: porciju, porcija, porcijas, porciju, porcija.)</em></li>
+<li class="done">With <code>unitSystem</code> imperial, the converter renders an amount stored as <code>500 g</code> in pounds or ounces, and one stored as <code>500 ml</code> in cups or fluid ounces, asserted in a test until 0007 puts an ingredient on screen. <em>(Tested: about 1.1 lb, about 2 cups.)</em></li>
+<li class="done">No display path converts a volume unit into a mass unit or the reverse, asserted by a test over every pair in the enum. <em>(Tested over every unit, both systems and five amounts: the dimension never changes and the amount never rounds to zero.)</em></li>
+<li class="done">The converter renders <code>temperatureCelsius</code> 180 as 356°F for an imperial user, and a body text mentioning 180°C is never passed through it, asserted in a test until 0008 puts a step on screen. <em>(Tested. The converter takes a number only, so prose cannot reach it.)</em></li>
+<li class="todo">Setting <code>locale</code> to <code>null</code> returns the app to following the device, verified by changing the device language and seeing the app follow. <em>(The resolution order is tested and the Device row restores null. <strong>Not verified</strong> by changing the simulator's language.)</em></li>
+<li class="todo">A device set to Latvian with <code>locale</code> null shows Latvian, not English. <em>(Tested at the resolver. <strong>Not verified</strong> on a device set to Latvian.)</em></li>
+<li class="todo">A device set to a language the app does not ship, with <code>locale</code> null, shows English. <em>(Tested at the resolver. <strong>Not verified</strong> on a device.)</em></li>
+<li class="todo">An explicit choice survives a device language change: a user who picked English on a Latvian device is still in English afterwards. <em>(Tested at the resolver. <strong>Not verified</strong> on a device.)</em></li>
+<li class="done"><code>PATCH /api/me</code> with an unsupported locale returns 400 with <code>VALIDATION<em>FAILED</code>. </em>(Tested, and <code>fields</code> names <code>locale</code>.)_</li>
+<li class="todo">Every screen renders without clipping or overlap in Latvian, which is materially longer than English in several labels. <em>(Settings and the list seen in Latvian on the simulator. <strong>Not verified</strong> on every screen.)</em></li>
+<li class="done">A search for <code>left:</code>, <code>right:</code>, <code>marginLeft</code> and <code>paddingRight</code> in <code>apps/mobile/src</code> returns no matches. <em>(The only <code>left</code> and <code>right</code> are safe-area edge names, which are the platform's API rather than layout.)</em></li>
+<li class="todo">A VoiceOver or TalkBack walkthrough of the settings screen announces each picker, its current value, and which option is selected, in Latvian as well as English.</li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>A user can run the app in English or Latvian, with correct plurals, locale-appropriate formats, and measurements in the system they think in.</p>
+<h3>Out of scope</h3><li>Any third language. Adding one must cost a translation file and a line in the locale list, and this spec ships two.</li>
+<li>Translating recipe content. Titles, ingredient names and step bodies stay in the language their author wrote them in, always. The recipe does not record which language that is, because nothing would read it.</li>
+<li>Shipping a right-to-left language. The layout discipline that makes one possible is in scope; an actual RTL locale is not.</li>
+<li>Translation management tooling, string extraction pipelines, or a translator-facing service. Files are edited by hand in the repo.</li>
+<li>Converting volume to mass. See the limitation below.</li>
+<li>Localised recipe search or collation. Nothing searches yet.</li>
+<h3>Data model</h3><p>No new tables. Two columns created empty by 0001 come into use here:</p>
+<li><code>users.locale</code> — a BCP-47 tag, or null for "follow the device".</li>
+<li><code>users.unitSystem</code> — <code>metric</code> or <code>imperial</code>, or null for "derive from the locale".</li>
+<p>Null is a real value in the first two and is not the same as the resolved value. A user on a <code>lv-LV</code> device who explicitly picks English has <code>locale = 'en'</code>; a user who never opened settings has <code>locale = null</code> and follows the device wherever it goes. Storing the resolved value on first launch would silently freeze a preference the user never expressed.</p>
+<p><strong>Resolution order: explicit choice, then device, then English.</strong> Null is not English. A Latvian on a Latvian phone who never opened settings gets Latvian; English is the last resort for a device asking for a language the app does not ship. <code>unitSystem</code> resolves the same way and ends at metric.</p>
+<h3>API contract</h3><p><strong>PATCH /api/me</strong></p>
+<p>Auth required. Body: any subset of <code>{ locale, unitSystem, displayName }</code>. Either of the first two may be <code>null</code>, which restores "follow the device".</p>
+<p>200: <code>{ id, email, displayName, locale, unitSystem }</code>.</p>
+<p>400 with <code>VALIDATION_FAILED</code> if <code>locale</code> is not in the shipped set or <code>unitSystem</code> is not one of the two enum values.</p>
+<p><strong>GET /api/me</strong> gains <code>locale</code> and <code>unitSystem</code> in its response.</p>
+<p>No other endpoint changes. The server does not translate anything, does not read <code>Accept-Language</code>, and does not convert units. It stores the preference; the client does the work.</p>
+<h3>Translation</h3><p>Files live at <code>apps/mobile/src/i18n/&lt;locale&gt;/&lt;namespace&gt;.json</code>, one namespace per feature, matching the <code>src/features/*</code> folders.</p>
+<li>Keys are structural, not English: <code>recipes.list.empty.title</code>, never <code>noRecipesYet</code>. A key derived from the English wording has to change when the English changes, which breaks every other language for no reason.</li>
+<li>English is the source. A key missing from another locale falls back to English rather than rendering the key, because a user seeing <code>recipes.list.empty.title</code> is a worse failure than a user seeing English. An empty string counts as missing too, so a key can be added to English first and the app stays usable until it is translated.</li>
+<li>Plurals use i18next's plural categories. Latvian resolves to <code>zero</code>, <code>one</code> and <code>other</code>, and its zero form applies to 0, 10, 20 and every number ending in zero, which no hand-written condition gets right by accident.</li>
+<li>Interpolated values are formatted through <code>Intl</code>, not concatenated.</li>
+<h3>Units</h3><p>Conversion happens on display only. Values are stored exactly as the author entered them, in the unit they chose, and <code>unitSystem</code> decides what the reader sees. Storing a canonical value instead would mean the author's own recipe reads back in numbers they did not write.</p>
+<p>Conversion is within a dimension only:</p>
+<li>Mass to mass, <code>g</code>/<code>kg</code> to <code>oz</code>/<code>lb</code>.</li>
+<li>Volume to volume, <code>ml</code>/<code>l</code> to <code>tsp</code>/<code>tbsp</code>/<code>cup</code>/<code>floz</code>.</li>
+<li><code>temperatureCelsius</code> to Fahrenheit.</li>
+<li>Count units - <code>piece</code>, <code>pinch</code>, <code>clove</code>, <code>slice</code> - are translated, never converted.</li>
+<p><strong>Volume to mass is never attempted.</strong> Turning <code>1 cup</code> of an ingredient into grams needs that ingredient's density: a cup of flour and a cup of honey differ by more than a factor of two. Guessing produces a recipe that is confidently, invisibly wrong, which is worse for a cooking app than showing a unit the reader has to think about. So an imperial reader sees cups for a volume and ounces for a mass, and never a mass derived from a volume.</p>
+<p>Converted values are rounded to something a person would say - <code>250 ml</code> becomes <code>1 cup</code>, not <code>1.0567 cups</code> - and a converted value is marked as approximate in the UI so nobody weighs to a precision the conversion does not have. Volumes round to the nearest common cup or spoon fraction when one is close enough, and fall back to fluid ounces when none is, per the decision below.</p>
+<p><strong>Ingredients and steps do not exist on any screen until 0007 and 0008.</strong> This spec ships the conversion as a tested module in <code>src/features/units</code>, with the setting that drives it, and those specs put it on screen. The unit criteria below are therefore asserted against the module, not a screen.</p>
+<p>A temperature written into a step's <code>body</code> as prose is not converted, because that would mean rewriting user text. Only <code>temperatureCelsius</code> converts, which is the reason the column exists.</p>
+<h3>UI</h3><p><strong><code>(app)/settings</code></strong>, a new screen: language picker (Device, English, Latviešu), unit system picker (Device, Metric, Imperial), and the logout button, which moves here from the recipe list header. Each picker's "Device" option is the null state and shows what the device currently resolves to, so the choice is legible rather than blank.</p>
+<p>Changing either takes effect immediately across the app, with no restart and no reload of the navigation stack.</p>
+<p><strong>Every screen from 0003 and 0005</strong> is swept for string literals. This spec is not done while one remains.</p>
+</details>
+</section>
+
+<p class="generated">Generated from <code>specs/*.md</code> by <code>pnpm specs:status</code> on 2026-09-16. Edit the specs, not this page.</p>
+</main>
+</body>
+</html>

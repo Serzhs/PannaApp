@@ -2,10 +2,13 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
+import '@/i18n';
+import { LocaleSync } from '@/i18n/LocaleSync';
 import {
   createPersister,
   createQueryClient,
@@ -29,6 +32,7 @@ function SessionRouter() {
   const { session } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (session === undefined) return;
@@ -40,8 +44,8 @@ function SessionRouter() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" options={{ title: 'Panna' }} />
-      <Stack.Screen name="(app)" options={{ title: 'Panna' }} />
+      <Stack.Screen name="(auth)" options={{ title: t('common:appName') }} />
+      <Stack.Screen name="(app)" options={{ title: t('common:appName') }} />
     </Stack>
   );
 }
@@ -60,6 +64,7 @@ export default function RootLayout() {
       >
         <KeyboardProvider>
           <AuthProvider>
+            <LocaleSync />
             <StatusBar style="dark" />
             <SessionRouter />
           </AuthProvider>

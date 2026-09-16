@@ -1,0 +1,24 @@
+{
+  "appName": "Panna",
+  "loading": "Loading",
+  "errorState": {
+    "failure": {
+      "title": "Something went wrong",
+      "body": "That did not work. Try again in a moment.",
+      "action": "Try again"
+    },
+    "offline": {
+      "title": "You are offline",
+      "body": "Connect to the internet, then try again.",
+      "action": "Retry"
+    }
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "action": "Try again"
+  },
+  "offline": {
+    "save": "You are offline. Connect to the internet to save.",
+    "delete": "You are offline. Connect to the internet to delete."
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "screen": "Iestatījumi",
+  "language": {
+    "title": "Valoda",
+    "device": "Ierīces ({{resolved}})",
+    "en": "English",
+    "lv": "Latviešu"
+  },
+  "units": {
+    "title": "Mērvienības",
+    "device": "Ierīces ({{resolved}})",
+    "metric": "Metriskās",
+    "imperial": "Imperiālās"
+  },
+  "saveFailed": "Neizdevās saglabāt iestatījumu. Mēģini vēlreiz.",
+  "signOut": "Izrakstīties"
+}

@@ -1,0 +1,60 @@
+{
+  "screens": {
+    "list": "Recipes",
+    "new": "New recipe",
+    "detail": "Recipe",
+    "edit": "Edit recipe"
+  },
+  "header": {
+    "settings": "Settings",
+    "new": "New",
+    "newRecipe": "New recipe"
+  },
+  "servings_one": "{{count, number}} serving",
+  "servings_other": "{{count, number}} servings",
+  "minutes": "{{count, number}} min",
+  "status": {
+    "draft": "Draft"
+  },
+  "list": {
+    "loading": "Loading recipes",
+    "empty": {
+      "title": "No recipes yet",
+      "body": "Write one down, and it is here the next time you cook.",
+      "action": "New recipe"
+    }
+  },
+  "detail": {
+    "loading": "Loading recipe",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteFailed": "Could not delete the recipe. Try again.",
+    "notFound": {
+      "title": "Recipe not found",
+      "body": "It may have been deleted.",
+      "action": "Back to recipes"
+    },
+    "confirmDelete": {
+      "title": "Delete this recipe?",
+      "body": "This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Keep"
+    }
+  },
+  "form": {
+    "title": "Title",
+    "description": "Description",
+    "servings": "Servings",
+    "totalTime": "Total time, minutes",
+    "totalTimeHelper": "Leave empty if you are not sure yet.",
+    "saveDraft": "Save draft",
+    "saveChanges": "Save changes",
+    "failed": "Could not save the recipe. Try again.",
+    "errors": {
+      "title": "Give it a title, up to 120 characters.",
+      "description": "Keep the description under 2000 characters.",
+      "servings": "Servings is a whole number from 1 to 100.",
+      "totalTimeMinutes": "Time is a whole number of minutes, up to 1440."
+    }
+  }
+}

@@ -20,6 +20,7 @@
     "db:studio": "pnpm --filter api db:studio",
     "db:migrate": "pnpm --filter api db:migrate",
     "db:generate": "pnpm --filter api db:generate",
+    "specs:status": "node scripts/spec-status.mjs",
     "db:seed": "pnpm --filter api db:seed",
     "prepare": "husky"
   },
@@ -29,6 +30,7 @@
     "@eslint/js": "^9.18.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-i18next": "^6.1.5",
     "eslint-plugin-import": "^2.31.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.3.0",
@@ -54,5 +56,11 @@
       "expo-modules-jsi@57.1.0": "patches/expo-modules-jsi@57.1.0.patch",
       "expo-modules-core@57.0.18": "patches/expo-modules-core@57.0.18.patch"
     }
+  },
+  "version": "1.0.0",
+  "dependencies": {
+    "expo": "~57.0.22",
+    "react": "19.2.3",
+    "react-native": "0.86.3"
   }
 }

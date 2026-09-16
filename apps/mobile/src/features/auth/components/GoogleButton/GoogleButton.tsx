@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 import { PROVIDER_BUTTON } from '../providerButton';
@@ -17,10 +18,12 @@ export interface GoogleButtonProps {
  * and this label's colour is Google's to choose.
  */
 export function GoogleButton({ onPress, disabled = false }: GoogleButtonProps) {
+  const { t } = useTranslation();
+  const label = t('auth:continueWithGoogle');
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Continue with Google"
+      accessibilityLabel={label}
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
@@ -29,7 +32,7 @@ export function GoogleButton({ onPress, disabled = false }: GoogleButtonProps) {
       <View style={styles.logo}>
         <GoogleLogo size={PROVIDER_BUTTON.logo} />
       </View>
-      <Text style={styles.label}>Continue with Google</Text>
+      <Text style={styles.label}>{label}</Text>
     </Pressable>
   );
 }
