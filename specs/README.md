@@ -4,26 +4,26 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 
 ## Index
 
-| #                                        | Title                                | Status      | Goal                                                                      |
-| ---------------------------------------- | ------------------------------------ | ----------- | ------------------------------------------------------------------------- |
-| [0001](0001-project-setup.md)            | Project setup and database           | Done        | Clone, run three commands, get a linted API on a migrated database.       |
-| [0002](0002-design-system.md)            | Design system: tokens and primitives | Done        | Build a form screen from tokens and components, with no raw values.       |
-| [0003](0003-auth.md)                     | Sign in with Google and Apple        | In progress | Sign in with one tap, no passwords, and stay signed in.                   |
-| [0004](0004-design-system-components.md) | Design system: display and feedback  | Approved    | Build a list screen's loading, empty and error states.                    |
-| [0005](0005-recipe-crud.md)              | Recipe CRUD                          | Approved    | Create, view, edit and delete your own recipes, with a draft state.       |
-| [0006](0006-i18n.md)                     | Internationalisation                 | Approved    | Run the app in another language, with correct plurals, formats and units. |
-| 0007                                     | Ingredients and equipment            | Not written | Add, edit, remove and reorder what a recipe needs.                        |
-| 0008                                     | Steps and nesting                    | Not written | Write steps, and nest the ones that happen during a wait.                 |
-| 0009                                     | Step links                           | Not written | Attach ingredients and equipment to the step that uses them.              |
-| 0010                                     | Images                               | Not written | A cover photo, and a picture of how each step should look.                |
-| 0011                                     | Cooking mode                         | Not written | Cook a recipe, seeing what else you could do during each wait.            |
-| 0012                                     | Cooking without an ingredient        | Not written | Check off what you have, and cook it without the carrots.                 |
-| 0013                                     | Recipe history                       | Not written | See when you cooked something, and what you changed each time.            |
-| 0014                                     | Cook's notes                         | Not written | Record what you learned, and see it next time you cook.                   |
-| 0015                                     | JSON recipe import                   | Not written | Paste AI-generated JSON and get a working recipe.                         |
-| 0016                                     | Sharing                              | Not written | Share a recipe read-only by private link, and revoke it.                  |
-| 0017                                     | Avatars and the tab bar              | Not written | An avatar, an editable name, and three tabs to reach things by.           |
-| 0018                                     | Featured recipes                     | Not written | A searchable set of recipes we wrote, to start from.                      |
+| #                                         | Title                                | Status      | Goal                                                                      |
+| ----------------------------------------- | ------------------------------------ | ----------- | ------------------------------------------------------------------------- |
+| [0001](0001-project-setup.md)             | Project setup and database           | Done        | Clone, run three commands, get a linted API on a migrated database.       |
+| [0002](0002-design-system.md)             | Design system: tokens and primitives | Done        | Build a form screen from tokens and components, with no raw values.       |
+| [0003](0003-auth.md)                      | Sign in with Google and Apple        | In progress | Sign in with one tap, no passwords, and stay signed in.                   |
+| [0004](0004-design-system-components.md)  | Design system: display and feedback  | Approved    | Build a list screen's loading, empty and error states.                    |
+| [0005](0005-recipe-crud.md)               | Recipe CRUD                          | Approved    | Create, view, edit and delete your own recipes, with a draft state.       |
+| [0006](0006-i18n.md)                      | Internationalisation                 | Approved    | Run the app in another language, with correct plurals, formats and units. |
+| [0007](0007-ingredients-and-equipment.md) | Ingredients and equipment            | Draft       | Add, edit, remove and reorder what a recipe needs.                        |
+| 0008                                      | Steps and nesting                    | Not written | Write steps, and nest the ones that happen during a wait.                 |
+| 0009                                      | Step links                           | Not written | Attach ingredients and equipment to the step that uses them.              |
+| 0010                                      | Images                               | Not written | A cover photo, and a picture of how each step should look.                |
+| 0011                                      | Cooking mode                         | Not written | Cook a recipe, seeing what else you could do during each wait.            |
+| 0012                                      | Cooking without an ingredient        | Not written | Check off what you have, and cook it without the carrots.                 |
+| 0013                                      | Recipe history                       | Not written | See when you cooked something, and what you changed each time.            |
+| 0014                                      | Cook's notes                         | Not written | Record what you learned, and see it next time you cook.                   |
+| 0015                                      | JSON recipe import                   | Not written | Paste AI-generated JSON and get a working recipe.                         |
+| 0016                                      | Sharing                              | Not written | Share a recipe read-only by private link, and revoke it.                  |
+| 0017                                      | Avatars and the tab bar              | Not written | An avatar, an editable name, and three tabs to reach things by.           |
+| 0018                                      | Featured recipes                     | Not written | A searchable set of recipes we wrote, to start from.                      |
 
 Numbers run in build order, and each spec depends only on lower-numbered ones. That holds today because
 nothing below 0007 is written yet and the order has been kept tidy; it will stop being true the first

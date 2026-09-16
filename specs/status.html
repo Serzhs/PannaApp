@@ -37,8 +37,8 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">113 of 127 acceptance criteria verified across 6 written specs.</p>
-<div class="bar"><div style="width: 89%"></div></div>
+<p class="summary">113 of 146 acceptance criteria verified across 7 written specs.</p>
+<div class="bar"><div style="width: 77%"></div></div>
 
 <h2>All specs</h2>
 <table>
@@ -50,7 +50,7 @@
 <tr><td><a href="#spec-0004">0004</a></td><td>Design system: display and feedback</td><td><span class="status approved">Approved</span></td><td>10 / 13</td><td>Build a list screen's loading, empty and error states.</td></tr>
 <tr><td><a href="#spec-0005">0005</a></td><td>Recipe CRUD</td><td><span class="status approved">Approved</span></td><td>17 / 21</td><td>Create, view, edit and delete your own recipes, with a draft state.</td></tr>
 <tr><td><a href="#spec-0006">0006</a></td><td>Internationalisation</td><td><span class="status approved">Approved</span></td><td>10 / 15</td><td>Run the app in another language, with correct plurals, formats and units.</td></tr>
-<tr><td>0007</td><td>Ingredients and equipment</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Add, edit, remove and reorder what a recipe needs.</td></tr>
+<tr><td><a href="#spec-0007">0007</a></td><td>Ingredients and equipment</td><td><span class="status draft">Draft</span></td><td>0 / 19</td><td>Add, edit, remove and reorder what a recipe needs.</td></tr>
 <tr><td>0008</td><td>Steps and nesting</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Write steps, and nest the ones that happen during a wait.</td></tr>
 <tr><td>0009</td><td>Step links</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Attach ingredients and equipment to the step that uses them.</td></tr>
 <tr><td>0010</td><td>Images</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A cover photo, and a picture of how each step should look.</td></tr>
@@ -482,6 +482,85 @@
 <h3>UI</h3><p><strong><code>(app)/settings</code></strong>, a new screen: language picker (Device, English, Latviešu), unit system picker (Device, Metric, Imperial), and the logout button, which moves here from the recipe list header. Each picker's "Device" option is the null state and shows what the device currently resolves to, so the choice is legible rather than blank.</p>
 <p>Changing either takes effect immediately across the app, with no restart and no reload of the navigation stack.</p>
 <p><strong>Every screen from 0003 and 0005</strong> is swept for string literals. This spec is not done while one remains.</p>
+</details>
+</section>
+
+<section id="spec-0007">
+<h2>0007: Ingredients and equipment <span class="status draft">Draft</span></h2>
+<p class="goal">An author lists what a recipe needs - ingredients with amounts, and the pans and gadgets - and a reader sees that list in the units they think in.</p>
+<p class="summary">0 of 19 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 0%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="todo"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces.</li>
+<li class="todo"><code>GET /api/recipes/:recipeId</code> returns <code>ingredients</code> and <code>equipment</code> as <code>[]</code> for a recipe with none, and <code>GET /api/recipes</code> carries neither array.</li>
+<li class="todo">A <code>PATCH</code> with three ingredients and two pieces of equipment stores them with positions 0, 1, 2 and 0, 1, and <code>GET</code> returns them in that order regardless of the order they were inserted.</li>
+<li class="todo">A <code>PATCH</code> that reorders the lists rewrites every position, and the rows keep their ids.</li>
+<li class="todo">A <code>PATCH</code> that omits a row that was in the recipe deletes it, and a <code>PATCH</code> with a row carrying no <code>id</code> inserts it.</li>
+<li class="todo">A <code>PATCH</code> with only metadata leaves both lists untouched, and a <code>PATCH</code> with only <code>ingredients</code> leaves the metadata and <code>equipment</code> untouched, and both refresh <code>updatedAt</code>.</li>
+<li class="todo">A <code>PATCH</code> whose fourth ingredient has a blank name returns 400 with <code>fields</code> naming <code>ingredients.3.name</code>, and writes nothing: the first three are not stored either.</li>
+<li class="todo">A <code>PATCH</code> with a <code>unit</code> and no <code>amount</code>, with an amount of <code>0</code>, of <code>-1</code>, of <code>1.005</code>, and of <code>100000</code>, each return 400.</li>
+<li class="todo">A <code>PATCH</code> with 101 ingredients, and one with 51 pieces of equipment, each return 400 and write nothing.</li>
+<li class="todo">A <code>PATCH</code> carrying an ingredient <code>id</code> from another user's recipe returns 400 and changes neither recipe; a <code>PATCH</code> on another user's recipe returns 404 with the same body as an unknown id.</li>
+<li class="todo">A <code>PATCH</code> with the same <code>id</code> twice returns 400.</li>
+<li class="todo">Every new endpoint behaviour returns 401 with no token and with an expired one.</li>
+<li class="todo">The recipe screen shows <code>250 ml</code> as "about 1 cup" to an imperial reader and as "250 ml" to a metric reader, and shows "2 eggs" and "salt" for a bare count and an unmeasured ingredient, asserted in a component test.</li>
+<li class="todo">The recipe screen reads each ingredient as one element to a screen reader, carrying amount, unit, name and note, asserted by querying the accessible name.</li>
+<li class="todo">Optional equipment shows the word, not only a style, asserted in a test.</li>
+<li class="todo">In the app, adding, removing and moving lines on the edit screen and saving shows the new lists on the recipe screen without a manual refresh.</li>
+<li class="todo">Saving with a blank ingredient name marks that line and sends nothing, and saving offline keeps every line typed and shows the offline message.</li>
+<li class="todo">Every new component appears in the design gallery in every state, and the unit picker lists all fourteen units grouped by dimension in both languages.</li>
+<li class="todo">The Latvian file lists every new key, and switching language changes the section headings, the unit names and the word "optional".</li>
+</ul>
+<h3>Open questions</h3><ol class="open"><li><strong>Does the second create page ship here?</strong> Building the editors once and reusing them on the create flow is a few hours on top of the edit screen. Shipping it makes the wizard real one page earlier; leaving it out keeps this spec to about a day and means a new recipe still lands on its screen straight after the basics, with ingredients added through Edit. Either is coherent; the cost is the day.</li><li><strong>How does a line move?</strong> Move up and move down buttons on each line are simple, work with a screen reader as they are, and need no library. Drag handles feel better with twenty ingredients and are what people expect, but need a gesture-driven list on top of reanimated and gesture-handler, and their accessibility has to be built by hand. Buttons now and drag later is possible, since the contract does not care.</li><li><strong>How is an amount typed?</strong> A decimal keyboard accepts <code>1.5</code>; it does not accept <code>1/2</code>, which is how people write half a cup. Accepting fractions means parsing text and deciding what <code>1 1/2</code> and <code>1,5</code> mean. The simplest rule is decimals only, with the unit picker offering the spoon and cup sizes that make halves rare; the friendlier one costs a small parser and a test per form.</li></ol>
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>An author lists what a recipe needs - ingredients with amounts, and the pans and gadgets - and a reader sees that list in the units they think in.</p>
+<h3>Out of scope</h3><li>Linking an ingredient or a piece of equipment to a step. That is 0009, and it is why rows keep their ids across an edit, so the links have something to hold on to.</li>
+<li>Steps of any kind. 0008.</li>
+<li>The check before cooking, ticking ingredients off, or going without one. 0011 and 0012.</li>
+<li>Scaling a recipe to a different number of servings. Amounts are shown as written; the servings number and the amounts are not yet connected.</li>
+<li>A shopping list, combining ingredients across recipes, or grouping ingredients into sections such as "for the sauce".</li>
+<li>Autocomplete, an ingredient database, nutrition, allergens, or any notion of two recipes sharing the same ingredient. An ingredient is a line of text the author wrote.</li>
+<li>Translating ingredient or equipment names. They are recipe content, in the author's language, per the Internationalisation section of <code>CLAUDE.md</code>.</li>
+<li>Converting a volume into a mass, or a mass into a volume. 0006 settled this: it needs the ingredient's density, and a guess is a confidently wrong recipe.</li>
+<li>Images of ingredients or equipment.</li>
+<li>The JSON import shape. 0015 defines the document; it will reuse the field rules below, but the document itself is not designed here.</li>
+<li>Drag-to-reorder gestures, unless the open question below is answered that way.</li>
+<h3>Data model</h3><p>No new tables and no new columns. <code>ingredients</code> and <code>equipment</code> from 0001 are used as they are, so there is no migration.</p>
+<p>Both carry <code>position</code>, a zero-based integer unique within the recipe, and the app never relies on insertion order or <code>createdAt</code> for display order. Reordering rewrites every position in one transaction, per the Data model section of <code>CLAUDE.md</code>.</p>
+<p><code>note</code> on both is the qualifier that does not belong in the name: "not too long", "plain not self-raising", "at least 30 cm". It is a separate field so the name stays the name, which is what a shopping list and 0009's links depend on.</p>
+<p>An ingredient's <code>amount</code> is stored exactly as the author entered it, in the <code>unit</code> they chose. Null <code>unit</code> with an amount is a bare count, "2 eggs". Null <code>amount</code> is an unmeasured quantity, "salt, to taste". A <code>unit</code> with no <code>amount</code> is meaningless and is refused.</p>
+<p><code>equipment.optional</code> marks something the recipe is better with but can be done without. It is shown as a word, never as a colour alone.</p>
+<h3>API contract</h3><p>All routes require a valid access token and answer 401 without one. Ownership goes through the guard 0005 added: a recipe that does not exist and a recipe that belongs to someone else both answer 404 with <code>RECIPE<em>NOT</em>FOUND</code>, with identical bodies.</p>
+<p><strong>Field rules</strong> for an ingredient:</p>
+<li><code>name</code>: string, trimmed, 1 to 120 characters.</li>
+<li><code>note</code>: string or null, trimmed, up to 200 characters.</li>
+<li><code>amount</code>: number or null, greater than 0, at most 99999.99, with at most two decimal places.</li>
+<li><code>unit</code>: one of the fourteen values of the <code>unit</code> enum, or null. Requires <code>amount</code>.</li>
+<p>For a piece of equipment:</p>
+<li><code>name</code> and <code>note</code>: as above.</li>
+<li><code>optional</code>: boolean, default false.</li>
+<p>A recipe holds at most 100 ingredients and at most 50 pieces of equipment. Above that is a 400, because 0015 will feed pasted, untrusted documents through the same rules.</p>
+<p><strong>Ingredient and equipment shapes</strong>, in every response that carries them:</p>
+<p><code>{ id, position, name, note, amount, unit }</code> and <code>{ id, position, name, note, optional }</code>. Rows are ordered by <code>position</code>.</p>
+<p><strong>GET /api/recipes/:recipeId</strong> gains two arrays, <code>ingredients</code> and <code>equipment</code>, in position order. An empty recipe answers <code>[]</code> for both. The list endpoint does not carry them: a list of forty recipes does not need four hundred ingredients.</p>
+<p><strong>PATCH /api/recipes/:recipeId</strong> accepts two further optional fields, <code>ingredients</code> and <code>equipment</code>, each the complete list in the order it should have. This is the one write path for the lists, and it is the same request that edits the metadata, so the whole recipe is written in one transaction per the API conventions in <code>CLAUDE.md</code>.</p>
+<p>Each row in the body is <code>{ id?, name, note?, amount?, unit? }</code> or <code>{ id?, name, note?, optional? }</code>:</p>
+<li>A row with an <code>id</code> that belongs to this recipe is updated in place, and keeps that id. This is what lets 0009's links survive an edit that only fixes a typo.</li>
+<li>A row with no <code>id</code> is inserted.</li>
+<li>A row that was in the recipe and is absent from the body is deleted. Deleting it cascades to its links, which is the intended meaning of removing an ingredient.</li>
+<li><code>position</code> is not sent. It is the row's index in the array.</li>
+<p>The response is the same shape as <code>GET</code>, with both arrays, whether or not the body carried them.</p>
+<p>400 with <code>VALIDATION_FAILED</code> and a <code>fields</code> object, and nothing written, when: any field breaks its rule, a <code>unit</code> is sent without an <code>amount</code>, an <code>id</code> appears twice, an <code>id</code> is not one of this recipe's rows, or a list is over its cap. A <code>fields</code> key names the row, as in <code>ingredients.3.amount</code>, so the editor can mark the right line. The metadata rules and codes from 0005 are unchanged; sending only metadata leaves both lists untouched, and sending only a list leaves the metadata untouched.</p>
+<p>Error codes this spec can return: <code>AUTH<em>TOKEN</em>INVALID</code>, <code>AUTH<em>TOKEN</em>EXPIRED</code>, <code>RECIPE<em>NOT</em>FOUND</code>, <code>VALIDATION_FAILED</code>.</p>
+<h3>UI</h3><p><strong>Recipe screen, <code>(app)/recipes/[id]</code>.</strong> Below the description, a section "What you need" with the ingredients and then the equipment. Each ingredient shows its amount and unit as 0006's converter renders them for the reader's unit system - an imperial reader sees "about 1 cup" for 250 ml, marked approximate - then the name, then the note in secondary text. A bare count shows the number and the name. An unmeasured ingredient shows the name alone. Each piece of equipment shows its name, "optional" as a word where set, and its note. When a list is empty the section says so in one line rather than vanishing, so an author can see what is missing.</p>
+<p>To a screen reader an ingredient row is one element: amount, unit, name and note read together.</p>
+<p><strong>Edit screen, <code>(app)/recipes/[id]/edit</code>.</strong> The whole recipe on one screen, as 0005 established. Below the four fields, two editable lists. Each ingredient line has name, amount, unit and note; each equipment line has name, note and an optional switch. A line can be added at the end, removed, and moved. Amount takes a decimal keyboard. Unit is chosen from a list of the fourteen units grouped by dimension, in the reader's language, with "none" for a bare count. The author edits in whatever units they type; conversion is for reading, never for editing.</p>
+<p>Save sends one <code>PATCH</code> with the fields and both lists. Field-level errors from the server land on the line and field they name; a failure that is not about a field shows once. Offline, nothing is sent, the message says so, and everything typed stays, per the Offline section of <code>CLAUDE.md</code>. On success the app returns to the recipe screen showing the new lists.</p>
+<p><strong>Create flow, <code>(app)/recipes/new</code>.</strong> 0005 built the first page and said the flow grows into a wizard. This spec adds the second page, "What you need": after the basics are saved as a draft, the app goes on to the same two editors for that draft, with Done saving them and landing on the recipe. Skip is offered, because a recipe can be written down before its shopping is known. Whether this page ships here or waits is the first open question.</p>
+<p><strong>Components</strong> added, each in its own folder with its styles, test and index, per the Repo layout section of <code>CLAUDE.md</code>: an ingredient line editor, an equipment line editor, and the unit picker. Each gets an entry in the design gallery.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian, and the lint rule from 0006 holds.</p>
 </details>
 </section>
 
