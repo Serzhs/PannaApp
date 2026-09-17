@@ -138,7 +138,15 @@
     "usesLine": "Izmanto: {{list}}",
     "needsLine": "Nepieciešams: {{list}}",
     "addNote": "Pievienot piezīmi",
-    "during": "{{number}}. soļa laikā"
+    "during": "{{number}}. soļa laikā",
+    "addLine": "Pievienot",
+    "addLineFor": "Pievienot: {{label}}",
+    "saveLine": "Saglabāt",
+    "saveLineFor": "Saglabāt: {{label}}",
+    "cancelLine": "Atcelt",
+    "editLine": "Labot",
+    "edit": "Labot: {{label}}",
+    "removeFor": "Noņemt: {{label}}"
   },
   "review": {
     "screen": "Pārskats",

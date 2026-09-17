@@ -1,6 +1,6 @@
 # 0024: Settled steps
 
-**Status:** Draft
+**Status:** Done
 **Depends on:** 0022, 0023
 
 ## Context
@@ -57,18 +57,18 @@ All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] The steps page renders with one open step card and no settled rows, asserted in a test.
-- [ ] Add with an empty instruction shows the instruction error and keeps the card open; Add with
-      one settles the step into a row reading its instruction and time, asserted in a test.
-- [ ] Cancel on a new step removes it; Edit on a settled step reopens it with its values; Cancel
-      after an edit restores them, asserted in a test.
-- [ ] A recipe loaded for editing shows every step settled, asserted in a test.
-- [ ] The helper the pages send through drops a blank step and keeps a typed one, open or settled,
-      asserted in a test.
-- [ ] On the simulator: the steps page opens on a card, two steps are written and settled, one is
-      edited, Done, and the recipe screen shows both.
-- [ ] The Latvian file lists every new key.
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 118, mobile 895 tests.)_
+- [x] The steps page renders with one open step card and no settled rows, asserted in a test. _(StepsScreen test "opens with the first step ready to write".)_
+- [x] Add with an empty instruction shows the instruction error and keeps the card open; Add with
+      one settles the step into a row reading its instruction and time, asserted in a test. _(StepsEditor test "refuses to settle an empty instruction, then settles a written one"; the time under a row in "shows the time under a settled step".)_
+- [x] Cancel on a new step removes it; Edit on a settled step reopens it with its values; Cancel
+      after an edit restores them, asserted in a test. _(StepsEditor test "drops a new step on Cancel, and puts an edited step back on Cancel".)_
+- [x] A recipe loaded for editing shows every step settled, asserted in a test. _(StepsEditor test "opens a step that was never saved and settles the loaded ones".)_
+- [x] The helper the pages send through drops a blank step and keeps a typed one, open or settled,
+      asserted in a test. _(steps.test "drops a step nobody typed into and keeps the rest".)_
+- [x] On the simulator: the steps page opens on a card, two steps are written and settled, one is
+      edited, Done, and the recipe screen shows both. _(Seen: the page opened on an open step 1; two steps written and settled; step 1 reopened with Edit, changed and saved; Done went on to the flow and the review showed both steps.)_
+- [x] The Latvian file lists every new key. _(`steps.addLine`, `saveLine`, `cancelLine`, `editLine`, `edit`, `removeFor` and the `...For` labels; the key-parity test passes.)_
 
 ## Open questions
 

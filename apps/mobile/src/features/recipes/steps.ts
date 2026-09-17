@@ -177,6 +177,37 @@ export function removeStep(drafts: readonly StepDraft[], key: string): StepDraft
   return normalize([...mains, ...rest]);
 }
 
+export type StepFieldErrors = Partial<Record<StepField, true>>;
+
+/** What is wrong with one step, checked on Add (0024) and again before sending. */
+export function checkStep(draft: StepDraft): StepFieldErrors {
+  const errors: Record<string, true> = {};
+  if (draft.body.trim() === '') errors.body = true;
+  if (
+    draft.durationSeconds !== null &&
+    (draft.durationSeconds < 1 || draft.durationSeconds > 86400)
+  ) {
+    errors.duration = true;
+  }
+  return errors;
+}
+
+/** The first step opens on its own (0024); left untouched, it is dropped rather than flagged. */
+export function isBlankStep(draft: StepDraft): boolean {
+  return (
+    draft.id === undefined &&
+    draft.body.trim() === '' &&
+    draft.note.trim() === '' &&
+    draft.durationSeconds === null &&
+    draft.ingredientIds.length === 0 &&
+    draft.equipmentIds.length === 0
+  );
+}
+
+export function dropBlank(drafts: readonly StepDraft[]): StepDraft[] {
+  return normalize(drafts.filter((draft) => !isBlankStep(draft)));
+}
+
 export type StepsOutcome =
   | { readonly ok: true; readonly steps: StepInput[] }
   | { readonly ok: false; readonly errors: StepErrors };
@@ -189,13 +220,7 @@ export function validateSteps(drafts: readonly StepDraft[]): StepsOutcome {
   };
 
   const one = (draft: StepDraft): NestedStepInput => {
-    if (draft.body.trim() === '') flag(draft.key, 'body');
-    if (
-      draft.durationSeconds !== null &&
-      (draft.durationSeconds < 1 || draft.durationSeconds > 86400)
-    ) {
-      flag(draft.key, 'duration');
-    }
+    for (const field of Object.keys(checkStep(draft)) as StepField[]) flag(draft.key, field);
     return {
       ...(draft.id === undefined ? {} : { id: draft.id }),
       body: draft.body.trim(),

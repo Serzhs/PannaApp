@@ -5,7 +5,14 @@ import { useTranslation } from 'react-i18next';
 
 import { StepsEditor } from './components/StepsEditor';
 import { useRecipe, useUpdateRecipe } from './queries';
-import { stepErrorsFromServer, validateSteps, type StepDraft, type StepErrors } from './steps';
+import {
+  dropBlank,
+  emptyStep,
+  stepErrorsFromServer,
+  validateSteps,
+  type StepDraft,
+  type StepErrors,
+} from './steps';
 import { styles } from './StepsScreen.styles';
 
 import { Button } from '@/components/Button';
@@ -26,7 +33,8 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
   const update = useUpdateRecipe(recipeId);
   // Page two just saved the lists, so the detail is in the cache; the chips need their ids.
   const recipe = useRecipe(recipeId);
-  const [draft, setDraft] = useState<StepDraft[]>([]);
+  // The first step is open from the start (0024): the author types instead of pressing a button.
+  const [draft, setDraft] = useState<StepDraft[]>(() => [emptyStep()]);
   const [errors, setErrors] = useState<StepErrors>({});
   const [triedOffline, setTriedOffline] = useState(false);
 
@@ -47,7 +55,7 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
       setTriedOffline(true);
       return;
     }
-    const outcome = validateSteps(draft);
+    const outcome = validateSteps(dropBlank(draft));
     if (!outcome.ok) {
       setErrors(outcome.errors);
       return;

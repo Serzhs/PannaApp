@@ -19,6 +19,7 @@ import { useRecipe, useUpdateRecipe } from './queries';
 import {
   draftFromSteps,
   stepErrorsFromServer,
+  dropBlank,
   validateSteps,
   type StepDraft,
   type StepErrors,
@@ -97,14 +98,14 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
         error={update.error}
         beforeSubmit={() => {
           const lists = validateNeeds(needs);
-          const stepsOutcome = validateSteps(steps);
+          const stepsOutcome = validateSteps(dropBlank(steps));
           setNeedsErrors(lists.ok ? {} : lists.errors);
           setStepErrors(stepsOutcome.ok ? {} : stepsOutcome.errors);
           return lists.ok && stepsOutcome.ok;
         }}
         onSubmit={(body) => {
           const lists = validateNeeds(needs);
-          const stepsOutcome = validateSteps(steps);
+          const stepsOutcome = validateSteps(dropBlank(steps));
           if (!lists.ok || !stepsOutcome.ok) return;
           update.mutate(
             // An emptied field clears the value; the create body leaves it out instead.

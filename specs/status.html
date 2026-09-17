@@ -37,8 +37,8 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">203 of 220 acceptance criteria verified across 14 written specs.</p>
-<div class="bar"><div style="width: 92%"></div></div>
+<p class="summary">211 of 228 acceptance criteria verified across 15 written specs.</p>
+<div class="bar"><div style="width: 93%"></div></div>
 
 <h2>All specs</h2>
 <table>
@@ -67,6 +67,7 @@
 <tr><td><a href="#spec-0021">0021</a></td><td>Move buttons in the card</td><td><span class="status \1in-progress">\1In progress</span></td><td>6 / 6</td><td>The move arrows sit on the card's first line, with words beside them.</td></tr>
 <tr><td><a href="#spec-0022">0022</a></td><td>Flow</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>Write steps flat, then say what runs during what on a Flow page with a chart.</td></tr>
 <tr><td><a href="#spec-0023">0023</a></td><td>Settled lines</td><td><span class="status done">Done</span></td><td>7 / 7</td><td>An ingredient or tool is added with a button and sits in the list as one row, with Edit and Remove.</td></tr>
+<tr><td><a href="#spec-0024">0024</a></td><td>Settled steps</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>The first step is open from the start, and a step is settled with Add like a line is.</td></tr>
 </tbody>
 </table>
 
@@ -949,6 +950,52 @@
 <p><strong>Component</strong>: the settled row is a new component in its own folder with styles, test and index,</p>
 <p>with a gallery entry showing an ingredient row, an equipment row with the optional mark, and one</p>
 <p>with a note. The line editors and the needs editor change in place.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian.</p>
+</details>
+</section>
+
+<section id="spec-0024">
+<h2>0024: Settled steps <span class="status done">Done</span></h2>
+<p class="goal">The steps page opens with the first step ready to write, and a step is settled with Add and sits in the list as one row until Edit reopens it, exactly as a line does.</p>
+<p class="summary">8 of 8 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. <em>(<code>pnpm check</code>: shared 9, API 118, mobile 895 tests.)</em></li>
+<li class="done">The steps page renders with one open step card and no settled rows, asserted in a test. <em>(StepsScreen test "opens with the first step ready to write".)</em></li>
+<li class="done">Add with an empty instruction shows the instruction error and keeps the card open; Add with</li>
+<li class="done">Cancel on a new step removes it; Edit on a settled step reopens it with its values; Cancel</li>
+<li class="done">A recipe loaded for editing shows every step settled, asserted in a test. <em>(StepsEditor test "opens a step that was never saved and settles the loaded ones".)</em></li>
+<li class="done">The helper the pages send through drops a blank step and keeps a typed one, open or settled,</li>
+<li class="done">On the simulator: the steps page opens on a card, two steps are written and settled, one is</li>
+<li class="done">The Latvian file lists every new key. <em>(<code>steps.addLine</code>, <code>saveLine</code>, <code>cancelLine</code>, <code>editLine</code>, <code>edit</code>, <code>removeFor</code> and the <code>...For</code> labels; the key-parity test passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>The steps page opens with the first step ready to write, and a step is settled with Add and sits</p>
+<p>in the list as one row until Edit reopens it, exactly as a line does.</p>
+<h3>Out of scope</h3><li>Any change to the API, the data model, or the Flow view from 0022. Settling is on screen only;</li>
+<p>  Done and Save changes still send the whole recipe.</p>
+<li>A new row component. The settled row from 0023 is reused, so nothing new goes in the gallery.</li>
+<li>Ingredients and equipment. 0023 already did them and nothing there changes.</li>
+<h3>Data model</h3><p>None.</p>
+<h3>API contract</h3><p>None.</p>
+<h3>UI</h3><p><strong>Steps page and the steps on the edit screen.</strong> A step is open or settled, as a line is in 0023.</p>
+<p><em>Open</em>: the card from 0022, instruction, time, links and note, with Cancel and Add underneath, or</p>
+<p>Cancel and Save for a step that was settled before. Add checks the step as Done does, an</p>
+<p>instruction at least and a sensible time, shows the field's error and stays open if it fails, and</p>
+<p>otherwise settles it. Cancel on a new step removes it; on a reopened one it puts the values back.</p>
+<p><em>Settled</em>: the step's number line with the move buttons, then one row reading the instruction,</p>
+<p>with the time and the note under it, and Edit and Remove. Remove keeps the promotion rule from</p>
+<p>0022: what ran during a removed step becomes main steps in its place.</p>
+<p>A step loaded from a saved recipe starts settled. A step just added starts open.</p>
+<p><strong>The first step is already open.</strong> The steps page of the create flow opens with one open, empty</p>
+<p>step card rather than an empty list, so the author starts typing instead of pressing a button</p>
+<p>first. If they leave it blank, Done and Skip treat it as if it were never there: a blank step is</p>
+<p>dropped, never flagged. A blank step that was typed into and emptied again is the same case.</p>
+<p><strong>Done and Save changes</strong> send every step that is not blank, open or settled. A step the server</p>
+<p>refuses reopens with its error.</p>
 <p>All new strings go through <code>t()</code>, in English and Latvian.</p>
 </details>
 </section>

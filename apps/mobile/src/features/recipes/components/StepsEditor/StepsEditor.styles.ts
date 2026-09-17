@@ -11,7 +11,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: theme.space.space2,
   },
-  remove: {
-    alignSelf: 'flex-end',
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: theme.space.space2,
   },
 });

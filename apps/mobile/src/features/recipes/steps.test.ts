@@ -3,6 +3,7 @@ import {
   canMoveDown,
   canMoveUp,
   draftFromSteps,
+  dropBlank,
   moveStep,
   nestUnder,
   numberOf,
@@ -155,6 +156,16 @@ describe('the flow', () => {
   it('names a step by the start of its instruction', () => {
     expect(stepTitle('Roast the beetroot\nuntil soft')).toBe('Roast the beetroot');
     expect(stepTitle('x'.repeat(80))).toHaveLength(60);
+  });
+});
+
+describe('dropBlank', () => {
+  /** The criterion: an untouched first step goes, a typed one stays, open or not. */
+  it('drops a step nobody typed into and keeps the rest', () => {
+    const typed = step('b', 'Roast');
+    const noted = { ...step('c', ''), note: 'later' };
+    expect(dropBlank([step('a', ''), typed, noted]).map((s) => s.key)).toEqual(['b', 'c']);
+    expect(dropBlank([{ ...step('a', ''), id: 'saved' }])).toHaveLength(1);
   });
 });
 

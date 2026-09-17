@@ -137,7 +137,15 @@
     "usesLine": "Uses {{list}}",
     "needsLine": "Needs {{list}}",
     "addNote": "Add a note",
-    "during": "During step {{number}}"
+    "during": "During step {{number}}",
+    "addLine": "Add",
+    "addLineFor": "Add {{label}}",
+    "saveLine": "Save",
+    "saveLineFor": "Save {{label}}",
+    "cancelLine": "Cancel",
+    "editLine": "Edit",
+    "edit": "Edit {{label}}",
+    "removeFor": "Remove {{label}}"
   },
   "review": {
     "screen": "Review",
