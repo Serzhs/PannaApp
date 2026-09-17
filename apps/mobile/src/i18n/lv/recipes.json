@@ -118,14 +118,20 @@
     "errors": {
       "body": "Uzraksti, kas jādara.",
       "temperature": "Temperatūra ir vesels skaitlis.",
-      "duration": "Laiks ir no vienas minūtes līdz dienai."
+      "duration": "Laiks ir no vienas minūtes līdz dienai.",
+      "links": "Piesaistītā rinda vairs nepastāv. Saglabā recepti un mēģini vēlreiz."
     },
     "done": "Gatavs",
     "skip": "Izlaist pagaidām",
     "screen": "Soļi",
     "minutes": "{{count, number}} min",
     "hours": "{{count, number}} h",
-    "hoursMinutes": "{{hours, number}} h {{minutes, number}} min"
+    "hoursMinutes": "{{hours, number}} h {{minutes, number}} min",
+    "uses": "Izmanto",
+    "usesEquipment": "Nepieciešams",
+    "linkAfterSave": "Vispirms saglabā recepti, lai varētu piesaistīt jaunās rindas.",
+    "usesLine": "Izmanto: {{list}}",
+    "needsLine": "Nepieciešams: {{list}}"
   },
   "review": {
     "screen": "Pārskats",

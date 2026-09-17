@@ -123,7 +123,13 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
         }}
       >
         <NeedsEditor value={needs} errors={needsErrors} onChange={setNeeds} />
-        <StepsEditor value={steps} errors={stepErrors} onChange={setSteps} />
+        <StepsEditor
+          value={steps}
+          errors={stepErrors}
+          onChange={setSteps}
+          ingredients={needs.ingredients}
+          equipment={needs.equipment}
+        />
       </RecipeForm>
     </Screen>
   );

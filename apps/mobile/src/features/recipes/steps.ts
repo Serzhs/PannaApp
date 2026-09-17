@@ -12,17 +12,27 @@ export interface StepDraft {
   readonly note: string;
   readonly durationSeconds: number | null;
   readonly temperature: string;
+  readonly ingredientIds: readonly string[];
+  readonly equipmentIds: readonly string[];
 }
 
 export interface MainStepDraft extends StepDraft {
   readonly children: readonly StepDraft[];
 }
 
-export type StepField = 'body' | 'temperature' | 'duration';
+export type StepField = 'body' | 'temperature' | 'duration' | 'links';
 export type StepErrors = Readonly<Record<string, Partial<Record<StepField, true>>>>;
 
 export function emptyStep(): StepDraft {
-  return { key: newKey(), body: '', note: '', durationSeconds: null, temperature: '' };
+  return {
+    key: newKey(),
+    body: '',
+    note: '',
+    durationSeconds: null,
+    temperature: '',
+    ingredientIds: [],
+    equipmentIds: [],
+  };
 }
 
 export function emptyMainStep(): MainStepDraft {
@@ -38,6 +48,8 @@ function draftOf(step: Step['children'][number], system: UnitSystem): StepDraft 
     durationSeconds: step.durationSeconds,
     temperature:
       step.temperatureCelsius === null ? '' : String(fromCelsius(step.temperatureCelsius, system)),
+    ingredientIds: step.ingredientIds,
+    equipmentIds: step.equipmentIds,
   };
 }
 
@@ -84,6 +96,8 @@ export function validateSteps(drafts: readonly MainStepDraft[], system: UnitSyst
       note: draft.note.trim() === '' ? null : draft.note.trim(),
       durationSeconds: draft.durationSeconds,
       temperatureCelsius: typed == null ? null : toCelsius(typed, system),
+      ingredientIds: [...draft.ingredientIds],
+      equipmentIds: [...draft.equipmentIds],
     };
   };
 
@@ -137,6 +151,8 @@ export function nestUnderPrevious(
     note: step.note,
     durationSeconds: step.durationSeconds,
     temperature: step.temperature,
+    ingredientIds: step.ingredientIds,
+    equipmentIds: step.equipmentIds,
     ...(step.id === undefined ? {} : { id: step.id }),
   };
   return drafts.flatMap((main, i) => {
@@ -193,7 +209,7 @@ export function stepErrorsFromServer(
   const errors: Record<string, Partial<Record<StepField, true>>> = {};
   for (const path of Object.keys(fields)) {
     const match =
-      /^steps\.(\d+)(?:\.children\.(\d+))?\.(body|note|durationSeconds|temperatureCelsius|id)$/.exec(
+      /^steps\.(\d+)(?:\.children\.(\d+))?\.(body|note|durationSeconds|temperatureCelsius|id|ingredientIds|equipmentIds)$/.exec(
         path,
       );
     if (match === null) continue;
@@ -205,7 +221,9 @@ export function stepErrorsFromServer(
         ? 'duration'
         : match[3] === 'temperatureCelsius'
           ? 'temperature'
-          : 'body';
+          : match[3] === 'ingredientIds' || match[3] === 'equipmentIds'
+            ? 'links'
+            : 'body';
     errors[line.key] = { ...errors[line.key], [field]: true };
   }
   return errors;

@@ -5,6 +5,7 @@ import { styles } from './DesignGallery.styles';
 
 import { Button, type ButtonVariant } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { Chip } from '@/components/Chip';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Divider } from '@/components/Divider';
 import { EmptyState } from '@/components/EmptyState';
@@ -19,6 +20,7 @@ import { TextField } from '@/components/TextField';
 import { DurationField } from '@/features/recipes/components/DurationField';
 import { EquipmentLine } from '@/features/recipes/components/EquipmentLine';
 import { IngredientLine } from '@/features/recipes/components/IngredientLine';
+import { LinkChips } from '@/features/recipes/components/LinkChips';
 import { NeedsSection } from '@/features/recipes/components/NeedsSection';
 import { StepLine } from '@/features/recipes/components/StepLine';
 import { StepsEditor } from '@/features/recipes/components/StepsEditor';
@@ -386,6 +388,53 @@ function Dialogs(): React.JSX.Element {
   );
 }
 
+/** The same two lines the needs section shows, so the step links below can point at them. */
+const GALLERY_INGREDIENTS = [
+  { id: 'n1', position: 0, name: 'kefir', amount: 250, unit: 'ml', note: 'cold' },
+  { id: 'n2', position: 1, name: 'eggs', amount: 2, unit: null, note: null },
+] as const;
+const LINKABLE = [
+  { id: 'n1', name: 'kefir' },
+  { id: 'n2', name: 'eggs' },
+  { name: 'dill, unsaved' },
+];
+
+function Chips(): React.JSX.Element {
+  const [on, setOn] = useState(true);
+  const [picked, setPicked] = useState<string[]>(['n1']);
+  return (
+    <>
+      <Section title="Chip">
+        <Text variant="caption" color="textSecondary">
+          A checkbox drawn as a chip: filled with a mark when on, outlined when off, grey when it
+          cannot be pressed.
+        </Text>
+        <View style={styles.row}>
+          <Chip
+            label="Toggles"
+            selected={on}
+            onPress={() => {
+              setOn(!on);
+            }}
+          />
+          <Chip label="On" selected onPress={() => undefined} />
+          <Chip label="Off" selected={false} onPress={() => undefined} />
+          <Chip label="Disabled" selected={false} disabled onPress={() => undefined} />
+        </View>
+      </Section>
+      <Section title="LinkChips">
+        <LinkChips
+          title="Uses"
+          options={LINKABLE}
+          selected={picked}
+          onChange={setPicked}
+          unsavedHint="Save the recipe once to link new lines."
+        />
+      </Section>
+    </>
+  );
+}
+
 function Reorderables(): React.JSX.Element {
   const [items, setItems] = useState(['Beetroot', 'Kefir', 'Dill', 'Sour cream']);
   return (
@@ -488,6 +537,8 @@ function StepPieces(): React.JSX.Element {
     note: 'Turn once',
     durationSeconds: 3600,
     temperature: '200',
+    ingredientIds: [],
+    equipmentIds: [],
   });
   const [drafts, setDrafts] = useState<MainStepDraft[]>([
     {
@@ -496,6 +547,8 @@ function StepPieces(): React.JSX.Element {
       note: '',
       durationSeconds: 600,
       temperature: '180',
+      ingredientIds: [],
+      equipmentIds: [],
       children: [],
     },
     {
@@ -504,8 +557,18 @@ function StepPieces(): React.JSX.Element {
       note: '',
       durationSeconds: 3600,
       temperature: '',
+      ingredientIds: [],
+      equipmentIds: [],
       children: [
-        { key: 'c1', body: 'Chop the dill', note: '', durationSeconds: 120, temperature: '' },
+        {
+          key: 'c1',
+          body: 'Chop the dill',
+          note: '',
+          durationSeconds: 120,
+          temperature: '',
+          ingredientIds: [],
+          equipmentIds: [],
+        },
       ],
     },
   ]);
@@ -533,15 +596,23 @@ function StepPieces(): React.JSX.Element {
       </Section>
       <Section title="StepLine">
         <Card>
-          <StepLine line={line} onChange={setLine} />
+          <StepLine line={line} onChange={setLine} ingredients={LINKABLE} equipment={[]} />
         </Card>
       </Section>
       <Section title="StepsEditor">
-        <StepsEditor value={drafts} errors={{}} onChange={setDrafts} />
+        <StepsEditor
+          value={drafts}
+          errors={{}}
+          onChange={setDrafts}
+          ingredients={LINKABLE}
+          equipment={[]}
+        />
       </Section>
       <Section title="StepsSection">
         <Card>
           <StepsSection
+            ingredients={GALLERY_INGREDIENTS}
+            equipment={[]}
             steps={[
               {
                 id: 'r1',
@@ -550,6 +621,8 @@ function StepPieces(): React.JSX.Element {
                 note: 'Fan off',
                 durationSeconds: 600,
                 temperatureCelsius: 180,
+                ingredientIds: ['n1'],
+                equipmentIds: [],
                 children: [],
               },
               {
@@ -559,6 +632,8 @@ function StepPieces(): React.JSX.Element {
                 note: null,
                 durationSeconds: 3600,
                 temperatureCelsius: null,
+                ingredientIds: [],
+                equipmentIds: [],
                 children: [
                   {
                     id: 'r3',
@@ -567,6 +642,8 @@ function StepPieces(): React.JSX.Element {
                     note: null,
                     durationSeconds: 120,
                     temperatureCelsius: null,
+                    ingredientIds: [],
+                    equipmentIds: [],
                   },
                   {
                     id: 'r4',
@@ -575,6 +652,8 @@ function StepPieces(): React.JSX.Element {
                     note: 'Nine minutes, then cold water',
                     durationSeconds: 540,
                     temperatureCelsius: null,
+                    ingredientIds: [],
+                    equipmentIds: [],
                   },
                 ],
               },
@@ -582,7 +661,7 @@ function StepPieces(): React.JSX.Element {
           />
         </Card>
         <Card>
-          <StepsSection steps={[]} />
+          <StepsSection steps={[]} ingredients={[]} equipment={[]} />
         </Card>
       </Section>
     </>
@@ -616,6 +695,7 @@ export function DesignGallery(): React.JSX.Element {
         <ErrorStates />
         <Dialogs />
         <Reorderables />
+        <Chips />
         <NeedsLines />
         <StepPieces />
       </Stack>

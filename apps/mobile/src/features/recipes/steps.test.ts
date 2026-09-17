@@ -19,6 +19,8 @@ const main = (
   note: '',
   durationSeconds: null,
   temperature: '',
+  ingredientIds: [],
+  equipmentIds: [],
   children,
 });
 const child = (key: string, body: string) => ({
@@ -27,6 +29,8 @@ const child = (key: string, body: string) => ({
   note: '',
   durationSeconds: null,
   temperature: '',
+  ingredientIds: [],
+  equipmentIds: [],
 });
 
 describe('validateSteps', () => {
@@ -46,6 +50,8 @@ describe('validateSteps', () => {
           note: null,
           durationSeconds: 600,
           temperatureCelsius: 177,
+          ingredientIds: [],
+          equipmentIds: [],
           children: [],
         },
         {
@@ -53,8 +59,17 @@ describe('validateSteps', () => {
           note: null,
           durationSeconds: null,
           temperatureCelsius: null,
+          ingredientIds: [],
+          equipmentIds: [],
           children: [
-            { body: 'Chop the dill', note: null, durationSeconds: null, temperatureCelsius: null },
+            {
+              body: 'Chop the dill',
+              note: null,
+              durationSeconds: null,
+              temperatureCelsius: null,
+              ingredientIds: [],
+              equipmentIds: [],
+            },
           ],
         },
       ],
@@ -122,6 +137,8 @@ describe('draftFromSteps', () => {
           note: null,
           durationSeconds: null,
           temperatureCelsius: 177,
+          ingredientIds: [],
+          equipmentIds: [],
           children: [],
         },
       ],

@@ -14,6 +14,7 @@ import {
   type StepDraft,
   type StepErrors,
 } from '../../steps';
+import type { Linkable } from '../LinkChips';
 import { StepLine } from '../StepLine';
 
 import { styles } from './StepsEditor.styles';
@@ -28,6 +29,8 @@ export interface StepsEditorProps {
   readonly value: readonly MainStepDraft[];
   readonly errors: StepErrors;
   readonly onChange: (next: MainStepDraft[]) => void;
+  readonly ingredients: readonly Linkable[];
+  readonly equipment: readonly Linkable[];
 }
 
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
@@ -36,7 +39,13 @@ const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
  * Two levels, each its own reorderable list. Changing level is a button, never a drag:
  * a drag that can also re-parent is two gestures pretending to be one.
  */
-export function StepsEditor({ value, errors, onChange }: StepsEditorProps): React.JSX.Element {
+export function StepsEditor({
+  value,
+  errors,
+  onChange,
+  ingredients,
+  equipment,
+}: StepsEditorProps): React.JSX.Element {
   const { t } = useTranslation();
   const nameOf = (line: StepDraft, label: string) => (line.body.trim() === '' ? label : line.body);
   const labelsFor = (label: (line: StepDraft) => string) => ({
@@ -80,6 +89,8 @@ export function StepsEditor({ value, errors, onChange }: StepsEditorProps): Reac
               </Text>
               <StepLine
                 line={main}
+                ingredients={ingredients}
+                equipment={equipment}
                 errors={errors[main.key] ?? {}}
                 onChange={(next) => {
                   setMain(index, next);
@@ -113,6 +124,8 @@ export function StepsEditor({ value, errors, onChange }: StepsEditorProps): Reac
                           </Text>
                           <StepLine
                             line={child}
+                            ingredients={ingredients}
+                            equipment={equipment}
                             errors={errors[child.key] ?? {}}
                             onChange={(next) => {
                               setChild(index, childIndex, next);

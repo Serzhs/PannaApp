@@ -18,13 +18,23 @@ import { and, asc, desc, eq, inArray, notInArray } from 'drizzle-orm';
 import { AppException } from '../../common/app-exception.js';
 import type { Database } from '../../db/client.js';
 import { DatabaseService } from '../../db/database.service.js';
-import { equipment, ingredients, recipes, steps } from '../../db/schema/index.js';
+import {
+  equipment,
+  ingredients,
+  recipes,
+  stepEquipment,
+  stepIngredients,
+  steps,
+} from '../../db/schema/index.js';
 
 export type RecipeRow = typeof recipes.$inferSelect;
 type IngredientRow = typeof ingredients.$inferSelect;
 type EquipmentRow = typeof equipment.$inferSelect;
 type StepRow = typeof steps.$inferSelect;
 type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];
+type StepLine = StepInput | NonNullable<StepInput['children']>[number];
+/** Per step id, the linked ids already in the order of the recipe's lists (0010). */
+type StepLinks = Readonly<Record<'ingredientIds' | 'equipmentIds', ReadonlyMap<string, string[]>>>;
 
 /**
  * The response shape is narrower than the row: no author, no image key, no share
@@ -65,7 +75,7 @@ function toEquipment(row: EquipmentRow): Equipment {
   };
 }
 
-function toNestedStep(row: StepRow): NestedStep {
+function toNestedStep(row: StepRow, links: StepLinks): NestedStep {
   return {
     id: row.id,
     position: row.position,
@@ -73,22 +83,43 @@ function toNestedStep(row: StepRow): NestedStep {
     note: row.note,
     durationSeconds: row.durationSeconds,
     temperatureCelsius: row.temperatureCelsius,
+    ingredientIds: links.ingredientIds.get(row.id) ?? [],
+    equipmentIds: links.equipmentIds.get(row.id) ?? [],
   };
 }
 
 /** Main steps in order, each with its children in order. One level, as the table is used. */
-function toSteps(rows: readonly StepRow[]): Step[] {
+function toSteps(rows: readonly StepRow[], links: StepLinks): Step[] {
   const byPosition = (a: StepRow, b: StepRow) => a.position - b.position;
   return rows
     .filter((row) => row.parentStepId === null)
     .sort(byPosition)
     .map((main) => ({
-      ...toNestedStep(main),
+      ...toNestedStep(main, links),
       children: rows
         .filter((row) => row.parentStepId === main.id)
         .sort(byPosition)
-        .map(toNestedStep),
+        .map((child) => toNestedStep(child, links)),
     }));
+}
+
+/**
+ * Link rows carry no position of their own: a step's ingredients read in the order the
+ * ingredient list has them, so the two never disagree on screen.
+ */
+function groupLinks(
+  rows: readonly { stepId: string; targetId: string }[],
+  ordered: readonly { id: string }[],
+): Map<string, string[]> {
+  const rank = new Map(ordered.map((row, index) => [row.id, index]));
+  const grouped = new Map<string, string[]>();
+  for (const { stepId, targetId } of rows) {
+    grouped.set(stepId, [...(grouped.get(stepId) ?? []), targetId]);
+  }
+  for (const ids of grouped.values()) {
+    ids.sort((a, b) => (rank.get(a) ?? 0) - (rank.get(b) ?? 0));
+  }
+  return grouped;
 }
 
 /**
@@ -136,24 +167,38 @@ export class RecipesService {
   }
 
   private async readDetail(db: Database | Tx, row: RecipeRow): Promise<RecipeDetail> {
-    const [ingredientRows, equipmentRows, stepRows] = await Promise.all([
-      db
-        .select()
-        .from(ingredients)
-        .where(eq(ingredients.recipeId, row.id))
-        .orderBy(asc(ingredients.position)),
-      db
-        .select()
-        .from(equipment)
-        .where(eq(equipment.recipeId, row.id))
-        .orderBy(asc(equipment.position)),
-      db.select().from(steps).where(eq(steps.recipeId, row.id)),
-    ]);
+    const [ingredientRows, equipmentRows, stepRows, ingredientLinks, equipmentLinks] =
+      await Promise.all([
+        db
+          .select()
+          .from(ingredients)
+          .where(eq(ingredients.recipeId, row.id))
+          .orderBy(asc(ingredients.position)),
+        db
+          .select()
+          .from(equipment)
+          .where(eq(equipment.recipeId, row.id))
+          .orderBy(asc(equipment.position)),
+        db.select().from(steps).where(eq(steps.recipeId, row.id)),
+        db
+          .select({ stepId: stepIngredients.stepId, targetId: stepIngredients.ingredientId })
+          .from(stepIngredients)
+          .innerJoin(steps, eq(steps.id, stepIngredients.stepId))
+          .where(eq(steps.recipeId, row.id)),
+        db
+          .select({ stepId: stepEquipment.stepId, targetId: stepEquipment.equipmentId })
+          .from(stepEquipment)
+          .innerJoin(steps, eq(steps.id, stepEquipment.stepId))
+          .where(eq(steps.recipeId, row.id)),
+      ]);
     return {
       ...toRecipe(row),
       ingredients: ingredientRows.map(toIngredient),
       equipment: equipmentRows.map(toEquipment),
-      steps: toSteps(stepRows),
+      steps: toSteps(stepRows, {
+        ingredientIds: groupLinks(ingredientLinks, ingredientRows),
+        equipmentIds: groupLinks(equipmentLinks, equipmentRows),
+      }),
     };
   }
 
@@ -334,23 +379,40 @@ export class RecipesService {
    * rule, expressed by the client listing them and the server never deleting a named row.
    */
   private async writeSteps(tx: Tx, recipeId: string, lines: readonly StepInput[]): Promise<void> {
-    const existing = new Set(
-      (await tx.select({ id: steps.id }).from(steps).where(eq(steps.recipeId, recipeId))).map(
-        (r) => r.id,
+    const idsOf = async (rows: Promise<{ id: string }[]>) => new Set((await rows).map((r) => r.id));
+    // The lists are written before the steps, so these are the ids a link may name after
+    // this same body's deletions have happened (0010).
+    const [existing, ingredientIds, equipmentIds] = await Promise.all([
+      idsOf(tx.select({ id: steps.id }).from(steps).where(eq(steps.recipeId, recipeId))),
+      idsOf(
+        tx
+          .select({ id: ingredients.id })
+          .from(ingredients)
+          .where(eq(ingredients.recipeId, recipeId)),
       ),
-    );
+      idsOf(
+        tx.select({ id: equipment.id }).from(equipment).where(eq(equipment.recipeId, recipeId)),
+      ),
+    ]);
     const seen = new Set<string>();
     const fields: Record<string, string> = {};
-    const check = (path: string, lineId: string | undefined) => {
-      if (lineId === undefined) return;
-      if (seen.has(lineId)) fields[`${path}.id`] = 'DUPLICATE_ID';
-      else if (!existing.has(lineId)) fields[`${path}.id`] = 'UNKNOWN_ID';
-      seen.add(lineId);
+    const checkLinks = (path: string, ids: readonly string[] | undefined, known: Set<string>) => {
+      if (ids === undefined) return;
+      if (new Set(ids).size !== ids.length) fields[path] = 'DUPLICATE_ID';
+      else if (ids.some((id) => !known.has(id))) fields[path] = 'UNKNOWN_ID';
+    };
+    const check = (path: string, line: StepLine) => {
+      checkLinks(`${path}.ingredientIds`, line.ingredientIds, ingredientIds);
+      checkLinks(`${path}.equipmentIds`, line.equipmentIds, equipmentIds);
+      if (line.id === undefined) return;
+      if (seen.has(line.id)) fields[`${path}.id`] = 'DUPLICATE_ID';
+      else if (!existing.has(line.id)) fields[`${path}.id`] = 'UNKNOWN_ID';
+      seen.add(line.id);
     };
     lines.forEach((main, i) => {
-      check(`steps.${String(i)}`, main.id);
+      check(`steps.${String(i)}`, main);
       (main.children ?? []).forEach((child, j) => {
-        check(`steps.${String(i)}.children.${String(j)}`, child.id);
+        check(`steps.${String(i)}.children.${String(j)}`, child);
       });
     });
     if (Object.keys(fields).length > 0) {
@@ -388,7 +450,31 @@ export class RecipesService {
   private async writeStep(
     tx: Tx,
     recipeId: string,
-    line: StepInput | NonNullable<StepInput['children']>[number],
+    line: StepLine,
+    parentStepId: string | null,
+    position: number,
+  ): Promise<string> {
+    const stepId = await this.writeStepRow(tx, recipeId, line, parentStepId, position);
+    // Links are the whole truth per step, so the old set goes before the new one lands.
+    await tx.delete(stepIngredients).where(eq(stepIngredients.stepId, stepId));
+    await tx.delete(stepEquipment).where(eq(stepEquipment.stepId, stepId));
+    const ingredientLinks = (line.ingredientIds ?? []).map((ingredientId) => ({
+      stepId,
+      ingredientId,
+    }));
+    const equipmentLinks = (line.equipmentIds ?? []).map((equipmentId) => ({
+      stepId,
+      equipmentId,
+    }));
+    if (ingredientLinks.length > 0) await tx.insert(stepIngredients).values(ingredientLinks);
+    if (equipmentLinks.length > 0) await tx.insert(stepEquipment).values(equipmentLinks);
+    return stepId;
+  }
+
+  private async writeStepRow(
+    tx: Tx,
+    recipeId: string,
+    line: StepLine,
     parentStepId: string | null,
     position: number,
   ): Promise<string> {

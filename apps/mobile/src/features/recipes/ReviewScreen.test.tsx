@@ -41,6 +41,8 @@ const mockDetail: RecipeDetail = {
       note: null,
       durationSeconds: null,
       temperatureCelsius: null,
+      ingredientIds: [],
+      equipmentIds: [],
       children: [],
     },
   ],

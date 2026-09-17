@@ -11,6 +11,8 @@ const step = (over: Partial<Step> & { id: string }): Step => ({
   note: null,
   durationSeconds: null,
   temperatureCelsius: null,
+  ingredientIds: [],
+  equipmentIds: [],
   children: [],
   ...over,
 });
@@ -23,6 +25,8 @@ describe('StepsSection', () => {
     system.mockReturnValue('imperial');
     await render(
       <StepsSection
+        ingredients={[]}
+        equipment={[]}
         steps={[
           step({ id: 'a', body: 'Heat the oven', temperatureCelsius: 180, durationSeconds: 600 }),
           step({
@@ -47,6 +51,8 @@ describe('StepsSection', () => {
     system.mockReturnValue('metric');
     await render(
       <StepsSection
+        ingredients={[]}
+        equipment={[]}
         steps={[step({ id: 'a', body: 'Heat the oven', temperatureCelsius: 180, note: 'Fan off' })]}
       />,
     );
@@ -55,7 +61,7 @@ describe('StepsSection', () => {
 
   it('says so when there are no steps', async () => {
     system.mockReturnValue('metric');
-    await render(<StepsSection steps={[]} />);
+    await render(<StepsSection steps={[]} ingredients={[]} equipment={[]} />);
     expect(screen.getByText('No steps yet.')).toBeTruthy();
   });
 });

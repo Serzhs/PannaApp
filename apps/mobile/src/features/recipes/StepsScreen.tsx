@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { StepsEditor } from './components/StepsEditor';
-import { useUpdateRecipe } from './queries';
+import { useRecipe, useUpdateRecipe } from './queries';
 import { stepErrorsFromServer, validateSteps, type MainStepDraft, type StepErrors } from './steps';
 import { styles } from './StepsScreen.styles';
 
@@ -26,6 +26,8 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
   const online = useIsOnline();
   const system = useUnitSystem();
   const update = useUpdateRecipe(recipeId);
+  // Page two just saved the lists, so the detail is in the cache; the chips need their ids.
+  const recipe = useRecipe(recipeId);
   const [draft, setDraft] = useState<MainStepDraft[]>([]);
   const [errors, setErrors] = useState<StepErrors>({});
   const [triedOffline, setTriedOffline] = useState(false);
@@ -66,6 +68,8 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
         <StepsEditor
           value={draft}
           errors={errors}
+          ingredients={recipe.data?.ingredients ?? []}
+          equipment={recipe.data?.equipment ?? []}
           onChange={(next) => {
             setDraft(next);
             setTriedOffline(false);

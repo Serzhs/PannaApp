@@ -93,6 +93,9 @@ const durationSeconds = z.number().int().min(1).max(86400);
 /** Stored in Celsius whatever the author typed; -50 covers a freezer, 500 a pizza oven. */
 const temperatureCelsius = z.number().int().min(-50).max(500);
 
+/** 0010. Which of the recipe's own rows a step uses, in the order of those lists. */
+const linkIds = z.array(z.string().uuid());
+
 const stepFields = {
   id: z.string().uuid(),
   position: z.number().int().min(0),
@@ -100,6 +103,8 @@ const stepFields = {
   note: stepNote.nullable(),
   durationSeconds: durationSeconds.nullable(),
   temperatureCelsius: temperatureCelsius.nullable(),
+  ingredientIds: linkIds,
+  equipmentIds: linkIds,
 };
 
 /** A nested step: the same fields, and nothing under it. One level, by shape. */
@@ -112,6 +117,8 @@ const stepInputFields = {
   note: stepNote.nullable().optional(),
   durationSeconds: durationSeconds.nullable().optional(),
   temperatureCelsius: temperatureCelsius.nullable().optional(),
+  ingredientIds: linkIds.optional(),
+  equipmentIds: linkIds.optional(),
 };
 
 /** Strict, so a nested step carrying `children` is refused rather than silently flattened. */

@@ -2,11 +2,12 @@ import type { Equipment, Ingredient } from '@panna/shared';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
+import { describeIngredient } from '../../format';
+
 import { styles } from './NeedsSection.styles';
 
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
-import { formatAmount } from '@/features/units/format';
 import { useUnitSystem } from '@/features/units/useUnitSystem';
 
 export interface NeedsSectionProps {
@@ -21,13 +22,6 @@ export interface NeedsSectionProps {
 export function NeedsSection({ ingredients, equipment }: NeedsSectionProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
   const system = useUnitSystem();
-
-  const amountOf = (line: Ingredient): string | null =>
-    line.amount === null
-      ? null
-      : line.unit === null
-        ? new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2 }).format(line.amount)
-        : formatAmount(line.amount, line.unit, system, t, i18n.language);
 
   return (
     <Stack gap="space4">
@@ -45,8 +39,7 @@ export function NeedsSection({ ingredients, equipment }: NeedsSectionProps): Rea
           </Text>
         ) : (
           ingredients.map((line) => {
-            const amount = amountOf(line);
-            const heading = amount === null ? line.name : `${amount} ${line.name}`;
+            const heading = describeIngredient(line, system, t, i18n.language);
             const label = [heading, line.note].filter((part) => part !== null).join(', ');
             return (
               <View key={line.id} style={styles.line} accessible accessibilityLabel={label}>

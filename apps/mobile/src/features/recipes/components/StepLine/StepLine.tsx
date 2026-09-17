@@ -2,19 +2,30 @@ import { useTranslation } from 'react-i18next';
 
 import type { StepDraft, StepField } from '../../steps';
 import { DurationField } from '../DurationField';
+import { LinkChips, type Linkable } from '../LinkChips';
 import { TemperatureField } from '../TemperatureField';
 
 import { Stack } from '@/components/Stack';
+import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 
 export interface StepLineProps {
   readonly line: StepDraft;
   readonly errors?: Partial<Record<StepField, true>>;
   readonly onChange: (line: StepDraft) => void;
+  /** The recipe's own lines, which are all a step may point at (0010). */
+  readonly ingredients: readonly Linkable[];
+  readonly equipment: readonly Linkable[];
 }
 
 /** One step as the author writes it: the instruction, then the tip, then how long and how hot. */
-export function StepLine({ line, errors = {}, onChange }: StepLineProps): React.JSX.Element {
+export function StepLine({
+  line,
+  errors = {},
+  onChange,
+  ingredients,
+  equipment,
+}: StepLineProps): React.JSX.Element {
   const { t } = useTranslation();
   const set = (patch: Partial<StepDraft>) => {
     onChange({ ...line, ...patch });
@@ -53,6 +64,29 @@ export function StepLine({ line, errors = {}, onChange }: StepLineProps): React.
         }}
         {...(errors.temperature ? { error: t('recipes:steps.errors.temperature') } : {})}
       />
+      <LinkChips
+        title={t('recipes:steps.uses')}
+        options={ingredients}
+        selected={line.ingredientIds}
+        onChange={(ingredientIds) => {
+          set({ ingredientIds });
+        }}
+        unsavedHint={t('recipes:steps.linkAfterSave')}
+      />
+      <LinkChips
+        title={t('recipes:steps.usesEquipment')}
+        options={equipment}
+        selected={line.equipmentIds}
+        onChange={(equipmentIds) => {
+          set({ equipmentIds });
+        }}
+        unsavedHint={t('recipes:steps.linkAfterSave')}
+      />
+      {errors.links ? (
+        <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
+          {t('recipes:steps.errors.links')}
+        </Text>
+      ) : null}
     </Stack>
   );
 }

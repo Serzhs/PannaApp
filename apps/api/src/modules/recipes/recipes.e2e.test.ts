@@ -11,6 +11,7 @@ import {
   MAX_NESTED_STEPS,
   errorBodySchema,
   recipeDetailSchema,
+  type RecipeDetail,
   recipeListSchema,
   recipeSchema,
   sessionSchema,
@@ -22,7 +23,14 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { ErrorFilter } from '../../common/error.filter.js';
 import { validateEnv } from '../../config/env.js';
 import { DatabaseModule } from '../../db/database.module.js';
-import { equipment, ingredients, recipes, steps, users } from '../../db/schema/index.js';
+import {
+  equipment,
+  ingredients,
+  recipes,
+  stepIngredients,
+  steps,
+  users,
+} from '../../db/schema/index.js';
 import { db } from '../../test/db.js';
 import { AuthModule } from '../auth/auth.module.js';
 
@@ -729,5 +737,225 @@ describe('steps and nesting, end to end', () => {
     const missing = await server().get(`/api/recipes/${NOBODY}`).set(as(alice));
     expect(notMine.status).toBe(404);
     expect(notMine.body).toEqual(missing.body);
+  });
+});
+
+describe('step links, end to end', () => {
+  let app: NestExpressApplication;
+  let alice: string;
+  let bob: string;
+
+  beforeAll(async () => {
+    const env = validateEnv({ ...process.env, ALLOW_DEV_SIGN_IN: 'true' });
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true, load: [() => env] }),
+        DatabaseModule,
+        AuthModule.register(env),
+        RecipesModule,
+      ],
+    }).compile();
+    app = moduleRef.createNestApplication<NestExpressApplication>();
+    app.setGlobalPrefix(API_PREFIX);
+    app.useGlobalFilters(new ErrorFilter());
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  const server = () => request(app.getHttpServer());
+  const as = (token: string) => ({ Authorization: `Bearer ${token}` });
+  const asDetail = (res: request.Response) => recipeDetailSchema.parse(res.body);
+
+  async function tokenFor(email: string): Promise<string> {
+    const res = await server().post('/api/auth/dev-session').send({ email });
+    return sessionSchema.parse(res.body).accessToken;
+  }
+
+  const patch = (token: string, id: string, body: object) =>
+    server().patch(`/api/recipes/${id}`).set(as(token)).send(body);
+
+  /** Rows the response gives back, in the shape a PATCH takes: without their positions. */
+  const pick = (step: RecipeDetail['steps'][number]['children'][number]) => ({
+    id: step.id,
+    body: step.body,
+    note: step.note,
+    durationSeconds: step.durationSeconds,
+    temperatureCelsius: step.temperatureCelsius,
+    ingredientIds: step.ingredientIds,
+    equipmentIds: step.equipmentIds,
+  });
+  const asInput = (step: RecipeDetail['steps'][number]) => ({
+    ...pick(step),
+    children: step.children.map(pick),
+  });
+  const keep = ({ id, name }: { id: string; name: string }) => ({ id, name });
+  const at = <T>(rows: readonly T[], index: number): T => {
+    const row = rows[index];
+    if (row === undefined) throw new Error(`no row ${String(index)}`);
+    return row;
+  };
+
+  /** A recipe with two ingredients, one piece of equipment and one plain step. */
+  async function stocked(token: string): Promise<RecipeDetail> {
+    const res = await server().post('/api/recipes').set(as(token)).send(VALID);
+    const id = recipeSchema.parse(res.body).id;
+    return asDetail(
+      await patch(token, id, {
+        ingredients: [{ name: 'Beetroot' }, { name: 'Dill' }],
+        equipment: [{ name: 'Blender' }],
+        steps: [{ body: 'Roast the beetroot' }],
+      }),
+    );
+  }
+
+  beforeEach(async () => {
+    await db.insert(users).values([ALICE, BOB]);
+    alice = await tokenFor(ALICE.email);
+    bob = await tokenFor(BOB.email);
+  });
+
+  it('reads back empty links on every step until some are set', async () => {
+    const recipe = await stocked(alice);
+    expect(recipe.steps[0]?.ingredientIds).toEqual([]);
+    expect(recipe.steps[0]?.equipmentIds).toEqual([]);
+  });
+
+  it('links a step to ingredients and equipment, and reads them in list order', async () => {
+    const recipe = await stocked(alice);
+    const [beetroot, dill] = recipe.ingredients.map((i) => i.id);
+    const blender = recipe.equipment[0]?.id;
+    const detail = asDetail(
+      await patch(alice, recipe.id, {
+        steps: [
+          {
+            ...asInput(at(recipe.steps, 0)),
+            ingredientIds: [dill, beetroot],
+            equipmentIds: [blender],
+          },
+          { body: 'Chill', children: [{ body: 'Chop the dill', ingredientIds: [dill] }] },
+        ],
+      }),
+    );
+    expect(detail.steps[0]?.ingredientIds).toEqual([beetroot, dill]);
+    expect(detail.steps[0]?.equipmentIds).toEqual([blender]);
+    expect(detail.steps[1]?.children[0]?.ingredientIds).toEqual([dill]);
+    const read = asDetail(await server().get(`/api/recipes/${recipe.id}`).set(as(alice)));
+    expect(read.steps).toEqual(detail.steps);
+  });
+
+  it('treats the ids sent as the whole truth: an omitted key clears the links', async () => {
+    const recipe = await stocked(alice);
+    const step = asInput(at(recipe.steps, 0));
+    const dill = recipe.ingredients[1]?.id;
+    const linked = asDetail(
+      await patch(alice, recipe.id, { steps: [{ ...step, ingredientIds: [dill] }] }),
+    );
+    expect(linked.steps[0]?.ingredientIds).toEqual([dill]);
+    const cleared = asDetail(await patch(alice, recipe.id, { steps: [step] }));
+    expect(cleared.steps[0]?.ingredientIds).toEqual([]);
+  });
+
+  it('loses the link when the ingredient goes, without the steps being sent', async () => {
+    const recipe = await stocked(alice);
+    const dill = recipe.ingredients[1];
+    await patch(alice, recipe.id, {
+      steps: [{ ...asInput(at(recipe.steps, 0)), ingredientIds: [dill?.id] }],
+    });
+    const detail = asDetail(
+      await patch(alice, recipe.id, { ingredients: [keep(at(recipe.ingredients, 0))] }),
+    );
+    expect(detail.ingredients.map((i) => i.name)).toEqual(['Beetroot']);
+    expect(detail.steps[0]?.ingredientIds).toEqual([]);
+  });
+
+  it('refuses a link to an ingredient the same body deletes, naming the step', async () => {
+    const recipe = await stocked(alice);
+    const dill = recipe.ingredients[1];
+    const res = await patch(alice, recipe.id, {
+      ingredients: [keep(at(recipe.ingredients, 0))],
+      steps: [{ ...asInput(at(recipe.steps, 0)), ingredientIds: [dill?.id] }],
+    });
+    expect(res.status).toBe(400);
+    expect(errorBodySchema.parse(res.body).fields).toEqual({
+      'steps.0.ingredientIds': 'UNKNOWN_ID',
+    });
+    const after = asDetail(await server().get(`/api/recipes/${recipe.id}`).set(as(alice)));
+    expect(after.ingredients.map((i) => i.name)).toEqual(['Beetroot', 'Dill']);
+  });
+
+  it("refuses another recipe's ingredient, a stranger's or my own, with the same 400", async () => {
+    const mine = await stocked(alice);
+    const other = await stocked(alice);
+    const bobs = await stocked(bob);
+    for (const foreign of [other.ingredients[0]?.id, bobs.ingredients[0]?.id]) {
+      const res = await patch(alice, mine.id, {
+        steps: [{ ...asInput(at(mine.steps, 0)), ingredientIds: [foreign] }],
+      });
+      expect(res.status).toBe(400);
+      expect(errorBodySchema.parse(res.body).fields).toEqual({
+        'steps.0.ingredientIds': 'UNKNOWN_ID',
+      });
+    }
+    const res = await patch(alice, mine.id, {
+      steps: [{ ...asInput(at(mine.steps, 0)), equipmentIds: [bobs.equipment[0]?.id] }],
+    });
+    expect(errorBodySchema.parse(res.body).fields).toEqual({
+      'steps.0.equipmentIds': 'UNKNOWN_ID',
+    });
+  });
+
+  it('refuses a duplicate id in one step, and names a nested step by its path', async () => {
+    const recipe = await stocked(alice);
+    const dill = recipe.ingredients[1]?.id;
+    const res = await patch(alice, recipe.id, {
+      steps: [
+        {
+          ...asInput(at(recipe.steps, 0)),
+          children: [{ body: 'Chop', ingredientIds: [dill, dill] }],
+        },
+      ],
+    });
+    expect(res.status).toBe(400);
+    expect(errorBodySchema.parse(res.body).fields).toEqual({
+      'steps.0.children.0.ingredientIds': 'DUPLICATE_ID',
+    });
+  });
+
+  it('keeps links across a reorder and loses them with the step', async () => {
+    const recipe = await stocked(alice);
+    const dill = recipe.ingredients[1]?.id;
+    const two = asDetail(
+      await patch(alice, recipe.id, {
+        steps: [{ ...asInput(at(recipe.steps, 0)), ingredientIds: [dill] }, { body: 'Serve' }],
+      }),
+    );
+    const swapped = asDetail(
+      await patch(alice, recipe.id, {
+        steps: [at(two.steps, 1), at(two.steps, 0)].map(asInput),
+      }),
+    );
+    expect(swapped.steps.map((s) => [s.body, s.ingredientIds])).toEqual([
+      ['Serve', []],
+      ['Roast the beetroot', [dill]],
+    ]);
+    const gone = asDetail(await patch(alice, recipe.id, { steps: [asInput(at(two.steps, 1))] }));
+    expect(gone.steps.map((s) => s.body)).toEqual(['Serve']);
+    const rows = await db.select().from(stepIngredients);
+    expect(rows).toEqual([]);
+  });
+
+  it("cannot be set by someone else's PATCH, which is a 404 that changes nothing", async () => {
+    const recipe = await stocked(alice);
+    const dill = recipe.ingredients[1]?.id;
+    const res = await patch(bob, recipe.id, {
+      steps: [{ ...asInput(at(recipe.steps, 0)), ingredientIds: [dill] }],
+    });
+    expect(res.status).toBe(404);
+    expect(asError(res).code).toBe(ERROR_CODES.RECIPE_NOT_FOUND);
+    const after = asDetail(await server().get(`/api/recipes/${recipe.id}`).set(as(alice)));
+    expect(after.steps[0]?.ingredientIds).toEqual([]);
   });
 });

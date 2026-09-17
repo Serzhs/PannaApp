@@ -117,14 +117,20 @@
     "errors": {
       "body": "Write what to do.",
       "temperature": "Temperature is a whole number.",
-      "duration": "Time is between one minute and a day."
+      "duration": "Time is between one minute and a day.",
+      "links": "A linked line no longer exists. Save the recipe and try again."
     },
     "done": "Done",
     "skip": "Skip for now",
     "screen": "Steps",
     "minutes": "{{count, number}} min",
     "hours": "{{count, number}} h",
-    "hoursMinutes": "{{hours, number}} h {{minutes, number}} min"
+    "hoursMinutes": "{{hours, number}} h {{minutes, number}} min",
+    "uses": "Uses",
+    "usesEquipment": "Needs",
+    "linkAfterSave": "Save the recipe once to link new lines.",
+    "usesLine": "Uses {{list}}",
+    "needsLine": "Needs {{list}}"
   },
   "review": {
     "screen": "Review",

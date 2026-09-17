@@ -1,6 +1,6 @@
 # 0010: Step links
 
-**Status:** Draft
+**Status:** Approved
 **Depends on:** 0007, 0008
 
 ## Context

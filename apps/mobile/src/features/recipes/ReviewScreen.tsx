@@ -80,7 +80,11 @@ export function ReviewScreen({ recipeId }: ReviewScreenProps): React.JSX.Element
         </Stack>
         {data.description === null ? null : <Text variant="body">{data.description}</Text>}
         <NeedsSection ingredients={data.ingredients} equipment={data.equipment} />
-        <StepsSection steps={data.steps} />
+        <StepsSection
+          steps={data.steps}
+          ingredients={data.ingredients}
+          equipment={data.equipment}
+        />
         <View style={styles.switchRow}>
           <Stack gap="space0" style={styles.switchLabel}>
             <Text variant="bodyStrong">{t('recipes:review.ready')}</Text>

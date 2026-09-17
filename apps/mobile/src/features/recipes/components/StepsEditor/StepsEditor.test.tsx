@@ -14,7 +14,9 @@ beforeAll(() => {
 
 function Harness({ initial = [] }: { readonly initial?: MainStepDraft[] }) {
   const [value, setValue] = useState(initial);
-  return <StepsEditor value={value} errors={{}} onChange={setValue} />;
+  return (
+    <StepsEditor value={value} errors={{}} onChange={setValue} ingredients={[]} equipment={[]} />
+  );
 }
 
 const main = (
@@ -27,6 +29,8 @@ const main = (
   note: '',
   durationSeconds: null,
   temperature: '',
+  ingredientIds: [],
+  equipmentIds: [],
   children,
 });
 
@@ -56,7 +60,15 @@ describe('StepsEditor', () => {
         initial={[
           main('a', 'Heat'),
           main('b', 'Roast', [
-            { key: 'c', body: 'Chop', note: '', durationSeconds: null, temperature: '' },
+            {
+              key: 'c',
+              body: 'Chop',
+              note: '',
+              durationSeconds: null,
+              temperature: '',
+              ingredientIds: [],
+              equipmentIds: [],
+            },
           ]),
         ]}
       />,
@@ -71,7 +83,15 @@ describe('StepsEditor', () => {
         initial={[
           main('a', 'Heat'),
           main('b', 'Roast', [
-            { key: 'c', body: 'Chop', note: '', durationSeconds: null, temperature: '' },
+            {
+              key: 'c',
+              body: 'Chop',
+              note: '',
+              durationSeconds: null,
+              temperature: '',
+              ingredientIds: [],
+              equipmentIds: [],
+            },
           ]),
         ]}
       />,
