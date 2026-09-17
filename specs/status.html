@@ -37,7 +37,7 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">211 of 228 acceptance criteria verified across 15 written specs.</p>
+<p class="summary">219 of 236 acceptance criteria verified across 16 written specs.</p>
 <div class="bar"><div style="width: 93%"></div></div>
 
 <h2>All specs</h2>
@@ -68,6 +68,7 @@
 <tr><td><a href="#spec-0022">0022</a></td><td>Flow</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>Write steps flat, then say what runs during what on a Flow page with a chart.</td></tr>
 <tr><td><a href="#spec-0023">0023</a></td><td>Settled lines</td><td><span class="status done">Done</span></td><td>7 / 7</td><td>An ingredient or tool is added with a button and sits in the list as one row, with Edit and Remove.</td></tr>
 <tr><td><a href="#spec-0024">0024</a></td><td>Settled steps</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>The first step is open from the start, and a step is settled with Add like a line is.</td></tr>
+<tr><td><a href="#spec-0025">0025</a></td><td>Three parts</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Recipe, Steps and Flow as pages when creating and tabs when editing; servings picked with a tap.</td></tr>
 </tbody>
 </table>
 
@@ -996,6 +997,58 @@
 <p>dropped, never flagged. A blank step that was typed into and emptied again is the same case.</p>
 <p><strong>Done and Save changes</strong> send every step that is not blank, open or settled. A step the server</p>
 <p>refuses reopens with its error.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian.</p>
+</details>
+</section>
+
+<section id="spec-0025">
+<h2>0025: Three parts <span class="status done">Done</span></h2>
+<p class="goal">A recipe is written and edited in three parts, Recipe, Steps and Flow, and servings is picked with a tap.</p>
+<p class="summary">8 of 8 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. <em>(<code>pnpm check</code>: shared 9, API 119, mobile 927 tests.)</em></li>
+<li class="done"><code>POST /api/recipes</code> with two ingredients and one piece of equipment creates all of them and</li>
+<li class="done">The first page of creating shows the fields and both lists, and Continue sends one request</li>
+<li class="done">The edit screen shows three tabs, the open one selected; switching shows only that part and</li>
+<li class="done">Picking 4 sets servings to 4; picking Other shows the field; a recipe with 3 servings opens on</li>
+<li class="done">On the simulator: create a recipe with a title, 4 servings and one ingredient on the first</li>
+<li class="done">No route or link to the old "What you need" page remains. <em>(The screen, its route, its layout entry and its title key are deleted; typecheck would fail on a stale link.)</em></li>
+<li class="done">The Latvian file lists every new key. <em>(<code>form.continue</code>, <code>form.servingsOther</code>, <code>form.tabRecipe</code>; the key-parity test passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>A recipe is written and edited in three parts, Recipe, Steps and Flow, and servings is picked with</p>
+<p>a tap.</p>
+<h3>Out of scope</h3><li>The app's own tab bar from <code>CLAUDE.md</code>, Recipes, Featured and You. That is 0018; the tabs here</li>
+<p>  are inside one screen.</p>
+<li>The review page. It stays the last page of creating, unchanged.</li>
+<li>The recipe screen. It reads the same as before.</li>
+<li>Any change to what a recipe can hold.</li>
+<h3>Data model</h3><p>None.</p>
+<h3>API contract</h3><p><code>POST /api/recipes</code> also accepts <code>ingredients</code> and <code>equipment</code>, the same optional arrays and caps</p>
+<p><code>PATCH</code> takes, and writes the recipe and both lists in one transaction, per the API conventions in</p>
+<p><code>CLAUDE.md</code>. It answers with the recipe detail, lists included, rather than the bare recipe. A bad</p>
+<p>line fails the whole request with <code>400 VALIDATION_FAILED</code> naming the line, and nothing is created.</p>
+<p>No new error codes.</p>
+<h3>UI</h3><p><strong>Creating: four pages.</strong> The first, "Recipe", holds the title, description and servings, then the</p>
+<p>ingredient and equipment lists from 0023. Its button, "Continue", creates the recipe with its lists</p>
+<p>in that one request and goes on to "Steps" from 0024, then "Flow" from 0022, then the review from 0009. The old "What you need" page and its route are gone; nothing links to it.</p>
+<p><strong>Editing: one screen, three tabs.</strong> A row of tabs under the header, "Recipe", "Steps" and "Flow",</p>
+<p>each showing its part and nothing else. Recipe holds the same fields and lists as the first page of</p>
+<p>creating; Steps the steps editor; Flow the flow list and its chart. Every part is one draft, so a</p>
+<p>step renamed on Steps reads renamed on Flow, and the single "Save changes" button sits under</p>
+<p>whichever tab is open. A field the server refuses switches to the tab that holds it.</p>
+<p>The tabs are a new shared component, one folder with styles, test and index, with a gallery</p>
+<p>entry: the tab row reads as tabs to a screen reader, the open one selected, and a tab is a 44-point</p>
+<p>target. It is chosen by tapping; the OS swipe-back gesture stays what it is.</p>
+<p><strong>Servings</strong> becomes a row of choices, 1, 2, 4 and 6, and "Other". Tapping a number picks it;</p>
+<p>tapping Other opens a number field for anything else, up to the 100 the schema allows. A recipe</p>
+<p>whose servings is none of the four opens with Other chosen and the field filled. One choice at a</p>
+<p>time, read as radio buttons. This is a new component in the recipes feature, in its own folder,</p>
+<p>with a gallery entry showing a picked number and Other with its field.</p>
 <p>All new strings go through <code>t()</code>, in English and Latvian.</p>
 </details>
 </section>

@@ -29,12 +29,14 @@ import { ErrorState } from '@/components/ErrorState';
 import { Screen } from '@/components/Screen';
 import { Spinner } from '@/components/Spinner';
 import { Stack } from '@/components/Stack';
-import { Text } from '@/components/Text';
+import { Tabs, type Tab } from '@/components/Tabs';
 import { useIsOnline } from '@/query/useIsOnline';
 
 export interface EditRecipeScreenProps {
   readonly recipeId: string;
 }
+
+type Part = 'recipe' | 'steps' | 'flow';
 
 /**
  * The whole recipe on one screen, never the create flow's pages: someone fixing one
@@ -74,11 +76,25 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
   const [needsErrors, setNeedsErrors] = useState<NeedsErrors>({});
   const [steps, setSteps] = useState<StepDraft[]>(() => draftFromSteps(recipe.steps));
   const [stepErrors, setStepErrors] = useState<StepErrors>({});
+  const [tab, setTab] = useState<Part>('recipe');
+  const tabs: readonly Tab<Part>[] = [
+    { key: 'recipe', label: t('recipes:form.tabRecipe') },
+    { key: 'steps', label: t('recipes:steps.title') },
+    { key: 'flow', label: t('recipes:flow.title') },
+  ];
 
   useEffect(() => {
     if (update.error instanceof ApiError && update.error.body.fields !== undefined) {
-      setNeedsErrors(errorsFromServer(update.error.body.fields, needs));
-      setStepErrors(stepErrorsFromServer(update.error.body.fields, steps));
+      const fields = update.error.body.fields;
+      const forNeeds = errorsFromServer(fields, needs);
+      const forSteps = stepErrorsFromServer(fields, steps);
+      setNeedsErrors(forNeeds);
+      setStepErrors(forSteps);
+      // The tab that holds the refused field opens, so the error is never on a hidden part.
+      const onRecipe =
+        Object.keys(forNeeds).length > 0 ||
+        Object.keys(fields).some((key) => !key.startsWith('steps.'));
+      setTab(onRecipe ? 'recipe' : Object.keys(forSteps).length > 0 ? 'steps' : tab);
     }
     // The drafts are deliberately not dependencies: errors map onto what was sent.
   }, [update.error]);
@@ -101,6 +117,8 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
           const stepsOutcome = validateSteps(dropBlank(steps));
           setNeedsErrors(lists.ok ? {} : lists.errors);
           setStepErrors(stepsOutcome.ok ? {} : stepsOutcome.errors);
+          if (!lists.ok) setTab('recipe');
+          else if (!stepsOutcome.ok) setTab('steps');
           return lists.ok && stepsOutcome.ok;
         }}
         onSubmit={(body) => {
@@ -125,21 +143,30 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
           );
         }}
       >
-        <NeedsEditor value={needs} errors={needsErrors} onChange={setNeeds} />
-        <StepsEditor
-          value={steps}
-          errors={stepErrors}
-          onChange={setSteps}
-          ingredients={needs.ingredients}
-          equipment={needs.equipment}
-        />
-        <Stack gap="space3">
-          <Text variant="heading" accessibilityRole="header">
-            {t('recipes:flow.title')}
-          </Text>
-          <FlowEditor value={steps} onChange={setSteps} />
-          <FlowChart steps={steps} />
-        </Stack>
+        {(fields) => (
+          <Stack gap="space5">
+            <Tabs tabs={tabs} value={tab} onChange={setTab} />
+            {tab === 'recipe' ? (
+              <Stack gap="space5">
+                {fields}
+                <NeedsEditor value={needs} errors={needsErrors} onChange={setNeeds} />
+              </Stack>
+            ) : tab === 'steps' ? (
+              <StepsEditor
+                value={steps}
+                errors={stepErrors}
+                onChange={setSteps}
+                ingredients={needs.ingredients}
+                equipment={needs.equipment}
+              />
+            ) : (
+              <Stack gap="space3">
+                <FlowEditor value={steps} onChange={setSteps} />
+                <FlowChart steps={steps} />
+              </Stack>
+            )}
+          </Stack>
+        )}
       </RecipeForm>
     </Screen>
   );

@@ -57,7 +57,7 @@ describe('RecipeForm', () => {
       <RecipeForm submitLabel="Save draft" submitting={false} error={null} onSubmit={onSubmit} />,
     );
     await fireEvent.changeText(screen.getByLabelText('Title'), 'Cold beetroot soup');
-    await fireEvent.changeText(screen.getByLabelText('Servings'), '4');
+    await fireEvent.press(screen.getByRole('radio', { name: '4' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Save draft' }));
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith({ title: 'Cold beetroot soup', servings: 4 });
@@ -69,6 +69,7 @@ describe('RecipeForm', () => {
     await render(
       <RecipeForm submitLabel="Save draft" submitting={false} error={null} onSubmit={onSubmit} />,
     );
+    await fireEvent.press(screen.getByRole('radio', { name: 'Other' }));
     await fireEvent.changeText(screen.getByLabelText('Servings'), '0');
     await fireEvent.press(screen.getByRole('button', { name: 'Save draft' }));
     await waitFor(() => {

@@ -201,18 +201,23 @@ export class RecipesService {
     };
   }
 
-  async create(authorId: string, body: CreateRecipeBody): Promise<Recipe> {
-    const [row] = await this.database.db
-      .insert(recipes)
-      .values({
-        authorId,
-        title: body.title,
-        description: body.description ?? null,
-        servings: body.servings,
-      })
-      .returning();
-    if (row === undefined) throw new Error('insert returned nothing');
-    return toRecipe(row);
+  /** The recipe and whatever lists came with it, in one transaction (0025): a bad line creates nothing. */
+  async create(authorId: string, body: CreateRecipeBody): Promise<RecipeDetail> {
+    return this.database.db.transaction(async (tx) => {
+      const [row] = await tx
+        .insert(recipes)
+        .values({
+          authorId,
+          title: body.title,
+          description: body.description ?? null,
+          servings: body.servings,
+        })
+        .returning();
+      if (row === undefined) throw new Error('insert returned nothing');
+      if (body.ingredients !== undefined) await this.writeIngredients(tx, row.id, body.ingredients);
+      if (body.equipment !== undefined) await this.writeEquipment(tx, row.id, body.equipment);
+      return this.readDetail(tx, row);
+    });
   }
 
   /**

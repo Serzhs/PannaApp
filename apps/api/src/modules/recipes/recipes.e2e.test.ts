@@ -123,25 +123,50 @@ describe('recipes, end to end', () => {
   });
 
   describe('create', () => {
-    it('returns 201 with exactly the eight response keys, as a draft', async () => {
+    it('returns 201 with the detail, lists empty, as a draft', async () => {
       const res = await create(alice);
       expect(res.status).toBe(201);
       expect(Object.keys(res.body as object).sort()).toEqual(
         [
           'createdAt',
           'description',
+          'equipment',
           'id',
+          'ingredients',
           'servings',
           'status',
+          'steps',
           'title',
           'totalTimeMinutes',
           'updatedAt',
         ].sort(),
       );
+      expect(recipeDetailSchema.parse(res.body).ingredients).toEqual([]);
       const recipe = asRecipe(res);
       expect(recipe.status).toBe('draft');
       expect(recipe.description).toBeNull();
       expect(recipe.totalTimeMinutes).toBeNull();
+    });
+
+    /** 0025: the first page of creating sends the lists along. */
+    it('creates the lists with the recipe, and refuses all of it on one bad line', async () => {
+      const res = await create(alice, {
+        ...VALID,
+        ingredients: [{ name: 'Beetroot', amount: 500, unit: 'g' }, { name: 'Dill' }],
+        equipment: [{ name: 'Blender' }],
+      });
+      expect(res.status).toBe(201);
+      const detail = recipeDetailSchema.parse(res.body);
+      expect(detail.ingredients.map((i) => i.name)).toEqual(['Beetroot', 'Dill']);
+      expect(detail.equipment.map((e) => e.name)).toEqual(['Blender']);
+
+      const bad = await create(alice, {
+        ...VALID,
+        ingredients: [{ name: 'Beetroot' }, { name: '   ' }],
+      });
+      expect(bad.status).toBe(400);
+      expect(asError(bad).fields).toHaveProperty('ingredients.1.name');
+      expect(await db.select().from(recipes)).toHaveLength(1);
     });
 
     it('rejects a blank title and creates nothing', async () => {

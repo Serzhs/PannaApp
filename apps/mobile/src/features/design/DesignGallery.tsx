@@ -15,6 +15,7 @@ import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
 import { Spinner } from '@/components/Spinner';
 import { Stack } from '@/components/Stack';
+import { Tabs } from '@/components/Tabs';
 import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import { DurationField } from '@/features/recipes/components/DurationField';
@@ -25,6 +26,7 @@ import { IngredientLine } from '@/features/recipes/components/IngredientLine';
 import { LinkChips } from '@/features/recipes/components/LinkChips';
 import { NeedRow } from '@/features/recipes/components/NeedRow';
 import { NeedsSection } from '@/features/recipes/components/NeedsSection';
+import { ServingsPicker } from '@/features/recipes/components/ServingsPicker';
 import { StepLine } from '@/features/recipes/components/StepLine';
 import { StepsEditor } from '@/features/recipes/components/StepsEditor';
 import { StepsSection } from '@/features/recipes/components/StepsSection';
@@ -401,6 +403,38 @@ const LINKABLE = [
   { name: 'dill, unsaved' },
 ];
 
+function TabsAndServings(): React.JSX.Element {
+  const [tab, setTab] = useState<'recipe' | 'steps' | 'flow'>('recipe');
+  const [servings, setServings] = useState('4');
+  const [other, setOther] = useState('3');
+  return (
+    <>
+      <Section title="Tabs">
+        <Tabs
+          tabs={[
+            { key: 'recipe', label: 'Recipe' },
+            { key: 'steps', label: 'Steps' },
+            { key: 'flow', label: 'Flow' },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
+      </Section>
+      <Section title="ServingsPicker">
+        <Stack gap="space4">
+          <ServingsPicker value={servings} onChangeText={setServings} />
+          <ServingsPicker value={other} onChangeText={setOther} />
+          <ServingsPicker
+            value=""
+            onChangeText={() => undefined}
+            error="Servings is a whole number from 1 to 100."
+          />
+        </Stack>
+      </Section>
+    </>
+  );
+}
+
 function Chips(): React.JSX.Element {
   const [on, setOn] = useState(true);
   const [picked, setPicked] = useState<string[]>(['n1']);
@@ -739,6 +773,7 @@ export function DesignGallery(): React.JSX.Element {
         <Dialogs />
         <Reorderables />
         <Chips />
+        <TabsAndServings />
         <NeedsLines />
         <StepPieces />
       </Stack>

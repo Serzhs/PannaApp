@@ -4,7 +4,6 @@
     "new": "New recipe",
     "detail": "Recipe",
     "edit": "Edit recipe",
-    "needs": "What you need",
     "steps": "Steps",
     "review": "Review",
     "flow": "Flow"
@@ -54,7 +53,6 @@
     "servings": "Servings",
     "totalTime": "Total time, minutes",
     "totalTimeHelper": "Leave empty if you are not sure yet.",
-    "saveDraft": "Save draft",
     "saveChanges": "Save changes",
     "failed": "Could not save the recipe. Try again.",
     "errors": {
@@ -62,7 +60,10 @@
       "description": "Keep the description under 2000 characters.",
       "servings": "Servings is a whole number from 1 to 100.",
       "totalTimeMinutes": "Time is a whole number of minutes, up to 1440."
-    }
+    },
+    "continue": "Continue",
+    "servingsOther": "Other",
+    "tabRecipe": "Recipe"
   },
   "needs": {
     "title": "What you need",
@@ -90,9 +91,6 @@
       "amount": "Amount is a number with up to two decimals, like 1.5.",
       "unit": "A unit needs an amount."
     },
-    "done": "Done",
-    "skip": "Skip for now",
-    "screen": "What you need",
     "addNote": "Add a note",
     "up": "Move up",
     "down": "Move down",

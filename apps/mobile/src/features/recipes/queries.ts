@@ -1,4 +1,4 @@
-import type { CreateRecipeBody, Recipe, RecipeDetail, UpdateRecipeBody } from '@panna/shared';
+import type { CreateRecipeBody, RecipeDetail, UpdateRecipeBody } from '@panna/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { createRecipe, deleteRecipe, getRecipe, listRecipes, updateRecipe } from './recipes.api';
@@ -40,10 +40,8 @@ export function useCreateRecipe() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (body: CreateRecipeBody) => createRecipe(body),
-    onSuccess: async (recipe: Recipe) => {
-      // A new recipe has nothing in it yet, and the detail screen expects the lists.
-      const detail: RecipeDetail = { ...recipe, ingredients: [], equipment: [], steps: [] };
-      client.setQueryData(recipeKeys.detail(recipe.id), detail);
+    onSuccess: async (recipe: RecipeDetail) => {
+      client.setQueryData(recipeKeys.detail(recipe.id), recipe);
       await client.invalidateQueries({ queryKey: recipeKeys.list() });
     },
   });

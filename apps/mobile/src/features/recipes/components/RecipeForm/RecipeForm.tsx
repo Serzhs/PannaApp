@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
+import { ServingsPicker } from '../ServingsPicker';
+
 import { styles } from './RecipeForm.styles';
 import {
   EMPTY_VALUES,
@@ -26,8 +28,11 @@ export interface RecipeFormProps {
   /** The failure of the last submit, if any. Field errors from it land on their fields. */
   readonly error: unknown;
   readonly onSubmit: (body: RecipeFormOutput) => void;
-  /** Rendered between the fields and the submit button: the lists, from 0007 on. */
-  readonly children?: React.ReactNode;
+  /**
+   * Rendered between the fields and the submit button: the lists, from 0007 on. A
+   * function gets the fields to place itself, which is how the edit screen tabs them (0025).
+   */
+  readonly children?: React.ReactNode | ((fields: React.ReactNode) => React.ReactNode);
   /** A last check of whatever the children hold. Returning false keeps the submit from sending. */
   readonly beforeSubmit?: () => boolean;
 }
@@ -79,8 +84,8 @@ export function RecipeForm({
     onSubmit(body);
   });
 
-  return (
-    <Stack gap="space4" style={styles.form}>
+  const fields = (
+    <Stack gap="space4">
       <Controller
         control={control}
         name="title"
@@ -113,17 +118,27 @@ export function RecipeForm({
         control={control}
         name="servings"
         render={({ field, fieldState }) => (
-          <TextField
-            label={t('recipes:form.servings')}
+          <ServingsPicker
             value={field.value}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
-            keyboardType="number-pad"
             {...fieldError('servings', fieldState.error !== undefined)}
           />
         )}
       />
-      {children}
+    </Stack>
+  );
+
+  return (
+    <Stack gap="space4" style={styles.form}>
+      {typeof children === 'function' ? (
+        children(fields)
+      ) : (
+        <>
+          {fields}
+          {children}
+        </>
+      )}
       {offlineBlock ? (
         <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
           {t('common:offline.save')}

@@ -1,6 +1,6 @@
 # 0025: Three parts
 
-**Status:** Draft
+**Status:** Done
 **Depends on:** 0022, 0023, 0024
 
 ## Context
@@ -62,21 +62,21 @@ All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] `POST /api/recipes` with two ingredients and one piece of equipment creates all of them and
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 119, mobile 927 tests.)_
+- [x] `POST /api/recipes` with two ingredients and one piece of equipment creates all of them and
       answers with the detail; with a bad line it returns 400 naming `ingredients.1.name` and no
-      recipe exists afterwards, asserted end to end.
-- [ ] The first page of creating shows the fields and both lists, and Continue sends one request
-      carrying the lists, asserted in a test.
-- [ ] The edit screen shows three tabs, the open one selected; switching shows only that part and
-      the Save button stays, asserted in a test.
-- [ ] Picking 4 sets servings to 4; picking Other shows the field; a recipe with 3 servings opens on
-      Other with 3 in the field, asserted in a test.
-- [ ] On the simulator: create a recipe with a title, 4 servings and one ingredient on the first
+      recipe exists afterwards, asserted end to end. _(e2e "creates the lists with the recipe, and refuses all of it on one bad line".)_
+- [x] The first page of creating shows the fields and both lists, and Continue sends one request
+      carrying the lists, asserted in a test. _(NewRecipeScreen test "sends the recipe and its lists together on Continue".)_
+- [x] The edit screen shows three tabs, the open one selected; switching shows only that part and
+      the Save button stays, asserted in a test. _(EditRecipeScreen test "shows one part at a time and keeps Save under every tab".)_
+- [x] Picking 4 sets servings to 4; picking Other shows the field; a recipe with 3 servings opens on
+      Other with 3 in the field, asserted in a test. _(ServingsPicker tests, and the edit screen test opening on Other with 3.)_
+- [x] On the simulator: create a recipe with a title, 4 servings and one ingredient on the first
       page, reach the steps page, then open the recipe for editing and switch between the three
-      tabs.
-- [ ] No route or link to the old "What you need" page remains.
-- [ ] The Latvian file lists every new key.
+      tabs. _(Seen: "Tabs", 4 picked with a tap, Salt added and settled, Continue created it and opened the steps page with Salt already linkable; Edit showed Recipe, Steps and Flow tabs with Save under each.)_
+- [x] No route or link to the old "What you need" page remains. _(The screen, its route, its layout entry and its title key are deleted; typecheck would fail on a stale link.)_
+- [x] The Latvian file lists every new key. _(`form.continue`, `form.servingsOther`, `form.tabRecipe`; the key-parity test passes.)_
 - _Manual follow-up, not a gate:_ a VoiceOver or TalkBack walkthrough of the edit screen's tabs
   and of the servings row.
 

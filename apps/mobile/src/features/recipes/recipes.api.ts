@@ -10,7 +10,7 @@ export async function getRecipe(recipeId: string): Promise<RecipeDetail> {
   return authorizedCall('getRecipe', { params: { recipeId } });
 }
 
-export async function createRecipe(body: CreateRecipeBody): Promise<Recipe> {
+export async function createRecipe(body: CreateRecipeBody): Promise<RecipeDetail> {
   return authorizedCall('createRecipe', { body });
 }
 

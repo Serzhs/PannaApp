@@ -13,7 +13,6 @@ import {
   createRecipeBodySchema,
   recipeDetailSchema,
   recipeListSchema,
-  recipeSchema,
   updateRecipeBodySchema,
 } from './recipes.js';
 
@@ -98,7 +97,7 @@ export const api = {
   createRecipe: endpoint({
     method: 'POST',
     path: '/api/recipes',
-    response: recipeSchema,
+    response: recipeDetailSchema,
     body: createRecipeBodySchema,
   }),
   getRecipe: endpoint({

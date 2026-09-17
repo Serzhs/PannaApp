@@ -3,6 +3,8 @@
 **Status:** In progress
 **Depends on:** 0008
 
+**Changed by 0025:** creating has four pages, Recipe, Steps, Flow, Review.
+
 ## Context
 
 `status` has had an API since 0005 - a recipe is a `draft` until its author says it is `ready` - and the app has never offered a way to say so. Every recipe wears the Draft chip forever. The create flow was always meant to end on a review page where that decision is made, and 0008 was the last page before it.

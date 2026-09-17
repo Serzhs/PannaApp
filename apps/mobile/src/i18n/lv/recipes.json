@@ -4,7 +4,6 @@
     "new": "Jauna recepte",
     "detail": "Recepte",
     "edit": "Rediģēt recepti",
-    "needs": "Kas vajadzīgs",
     "steps": "Soļi",
     "review": "Pārskats",
     "flow": "Gaita"
@@ -55,7 +54,6 @@
     "servings": "Porcijas",
     "totalTime": "Kopējais laiks, minūtēs",
     "totalTimeHelper": "Atstāj tukšu, ja vēl neesi drošs.",
-    "saveDraft": "Saglabāt melnrakstu",
     "saveChanges": "Saglabāt izmaiņas",
     "failed": "Neizdevās saglabāt recepti. Mēģini vēlreiz.",
     "errors": {
@@ -63,7 +61,10 @@
       "description": "Apraksts nedrīkst pārsniegt 2000 rakstzīmes.",
       "servings": "Porcijas ir vesels skaitlis no 1 līdz 100.",
       "totalTimeMinutes": "Laiks ir vesels minūšu skaits, līdz 1440."
-    }
+    },
+    "continue": "Turpināt",
+    "servingsOther": "Cits",
+    "tabRecipe": "Recepte"
   },
   "needs": {
     "title": "Kas vajadzīgs",
@@ -91,9 +92,6 @@
       "amount": "Daudzums ir skaitlis ar ne vairāk kā divām decimāldaļām, piemēram, 1.5.",
       "unit": "Mērvienībai vajadzīgs daudzums."
     },
-    "done": "Gatavs",
-    "skip": "Izlaist pagaidām",
-    "screen": "Kas vajadzīgs",
     "addNote": "Pievienot piezīmi",
     "up": "Augšup",
     "down": "Lejup",

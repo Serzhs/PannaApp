@@ -3,6 +3,8 @@
 **Status:** Approved
 **Depends on:** 0003, 0004
 
+**Changed by 0025:** the first page of creating also carries the lists and continues to the steps; servings is picked from a row; the edit screen is three tabs.
+
 ## Context
 
 After 0003 a user can register and log in, but the app has nothing in it. The `recipes` table exists and is empty, with no endpoints and no screens. A recipe has to exist as an owned object before ingredients, steps or sharing have anything to attach to.

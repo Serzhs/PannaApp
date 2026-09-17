@@ -10,6 +10,8 @@ export interface ChipProps {
   readonly onPress: () => void;
   readonly disabled?: boolean;
   readonly accessibilityHint?: string;
+  /** Checkbox when each chip is its own choice; radio when exactly one of a row is chosen. */
+  readonly role?: 'checkbox' | 'radio';
 }
 
 /**
@@ -22,10 +24,11 @@ export function Chip({
   onPress,
   disabled = false,
   accessibilityHint,
+  role = 'checkbox',
 }: ChipProps): React.JSX.Element {
   return (
     <Pressable
-      accessibilityRole="checkbox"
+      accessibilityRole={role}
       accessibilityState={{ checked: selected, disabled }}
       accessibilityLabel={label}
       {...(accessibilityHint === undefined ? {} : { accessibilityHint })}

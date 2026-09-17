@@ -139,11 +139,14 @@ export const recipeDetailSchema = recipeSchema.extend({
  * Strict: `status` is not accepted here, because every new recipe starts as a draft, and
  * neither is `totalTimeMinutes`, which 0008 derives from the steps.
  */
+/** The lists may come along at birth (0025), written with the recipe in one transaction. */
 export const createRecipeBodySchema = z
   .object({
     title,
     description: description.optional(),
     servings,
+    ingredients: z.array(ingredientInputSchema).max(MAX_INGREDIENTS).optional(),
+    equipment: z.array(equipmentInputSchema).max(MAX_EQUIPMENT).optional(),
   })
   .strict();
 
