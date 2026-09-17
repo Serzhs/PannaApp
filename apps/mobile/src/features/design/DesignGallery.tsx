@@ -406,7 +406,7 @@ const LINKABLE = [
 function TabsAndServings(): React.JSX.Element {
   const [tab, setTab] = useState<'recipe' | 'steps' | 'flow'>('recipe');
   const [servings, setServings] = useState('4');
-  const [other, setOther] = useState('12');
+  const [other, setOther] = useState('3');
   return (
     <>
       <Section title="Tabs">

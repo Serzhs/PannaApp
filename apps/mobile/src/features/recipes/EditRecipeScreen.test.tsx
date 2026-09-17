@@ -25,7 +25,7 @@ const mockDetail: RecipeDetail = {
   title: 'Cold beetroot soup',
   description: null,
   status: 'draft',
-  servings: 12,
+  servings: 3,
   totalTimeMinutes: null,
   createdAt: '2026-09-16T12:00:00.000Z',
   updatedAt: '2026-09-16T12:00:00.000Z',
@@ -68,9 +68,9 @@ describe('EditRecipeScreen', () => {
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeTruthy();
   });
 
-  it('opens on Other with the value filled when servings is past the row', async () => {
+  it('opens on Other with the value filled when servings is not in the row', async () => {
     await render(<EditRecipeScreen recipeId={mockDetail.id} />);
     expect(screen.getByRole('radio', { name: 'Other' })).toBeChecked();
-    expect(screen.getByLabelText('Servings')).toHaveProp('value', '12');
+    expect(screen.getByLabelText('Servings')).toHaveProp('value', '3');
   });
 });

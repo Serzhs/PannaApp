@@ -21,16 +21,23 @@ describe('ServingsPicker', () => {
     expect(screen.getByLabelText('Servings')).toHaveProp('value', '12');
   });
 
-  it('opens on Other, field filled, for a value past the row', async () => {
-    await render(<Harness initial="12" />);
+  it('opens on Other, field filled, for a value that is not in the row', async () => {
+    await render(<Harness initial="3" />);
     expect(screen.getByRole('radio', { name: 'Other' })).toBeChecked();
-    expect(screen.getByLabelText('Servings')).toHaveProp('value', '12');
+    expect(screen.getByLabelText('Servings')).toHaveProp('value', '3');
   });
 
-  it('runs from one to ten', async () => {
+  it('offers 1, 2, 4, 6, 8, 10 and Other', async () => {
     await render(<Harness />);
-    expect(screen.getAllByRole('radio')).toHaveLength(11);
-    expect(screen.getByRole('radio', { name: '10' })).toBeTruthy();
+    expect(screen.getAllByRole('radio').map((r) => r.props.accessibilityLabel as string)).toEqual([
+      '1',
+      '2',
+      '4',
+      '6',
+      '8',
+      '10',
+      'Other',
+    ]);
   });
 
   it('opens on the number for a value that is in the row', async () => {

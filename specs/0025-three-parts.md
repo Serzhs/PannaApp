@@ -52,9 +52,9 @@ The tabs are a new shared component, one folder with styles, test and index, wit
 entry: the tab row reads as tabs to a screen reader, the open one selected, and a tab is a 44-point
 target. It is chosen by tapping; the OS swipe-back gesture stays what it is.
 
-**Servings** becomes a row of choices, 1 to 10, and "Other". Tapping a number picks it;
+**Servings** becomes a row of choices, 1, 2, 4, 6, 8 and 10, and "Other". Tapping a number picks it;
 tapping Other opens a number field for anything else, up to the 100 the schema allows. A recipe
-whose servings is past ten opens with Other chosen and the field filled. One choice at a
+whose servings is none of the six opens with Other chosen and the field filled. One choice at a
 time, read as radio buttons. This is a new component in the recipes feature, in its own folder,
 with a gallery entry showing a picked number and Other with its field.
 
@@ -70,8 +70,8 @@ All new strings go through `t()`, in English and Latvian.
       carrying the lists, asserted in a test. _(NewRecipeScreen test "sends the recipe and its lists together on Continue".)_
 - [x] The edit screen shows three tabs, the open one selected; switching shows only that part and
       the Save button stays, asserted in a test. _(EditRecipeScreen test "shows one part at a time and keeps Save under every tab".)_
-- [x] Picking 4 sets servings to 4; picking Other shows the field; a recipe with 12 servings opens on
-      Other with 12 in the field, asserted in a test. _(ServingsPicker tests, and the edit screen test opening on Other with 12. The row was 1, 2, 4, 6 at first and became 1 to 10 on review.)_
+- [x] Picking 4 sets servings to 4; picking Other shows the field; a recipe with 3 servings opens on
+      Other with 3 in the field, asserted in a test. _(ServingsPicker tests, and the edit screen test opening on Other with 3. The row was 1, 2, 4, 6 at first and gained 8 and 10 on review.)_
 - [x] On the simulator: create a recipe with a title, 4 servings and one ingredient on the first
       page, reach the steps page, then open the recipe for editing and switch between the three
       tabs. _(Seen: "Tabs", 4 picked with a tap, Salt added and settled, Continue created it and opened the steps page with Salt already linkable; Edit showed Recipe, Steps and Flow tabs with Save under each.)_

@@ -17,8 +17,8 @@ export interface ServingsPickerProps {
   readonly error?: string;
 }
 
-/** One to ten, one tap each; a bigger table is a tap on Other. */
-const QUICK = Array.from({ length: 10 }, (_, i) => String(i + 1));
+/** The tables people usually cook for, one tap each; anything else is a tap on Other. */
+const QUICK: readonly string[] = ['1', '2', '4', '6', '8', '10'];
 
 /** One choice at a time, so the row reads as radio buttons (0025). */
 export function ServingsPicker({
