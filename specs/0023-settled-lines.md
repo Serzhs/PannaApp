@@ -1,6 +1,6 @@
 # 0023: Settled lines
 
-**Status:** Draft
+**Status:** Done
 **Depends on:** 0007, 0020, 0021
 
 ## Context
@@ -62,18 +62,18 @@ All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] "Add ingredient" opens a card with Add and Cancel; Add with an empty name shows the name error
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 118, mobile 887 tests.)_
+- [x] "Add ingredient" opens a card with Add and Cancel; Add with an empty name shows the name error
       and keeps the card open; Add with a name settles it into a row reading the amount, unit and
-      name, asserted in a test.
-- [ ] Cancel on a new line removes it; Edit on a settled row reopens it with its values; Cancel
-      after an edit restores the old values, asserted in a test.
-- [ ] A recipe loaded for editing shows every line settled, asserted in a test.
-- [ ] Done on the create page with one line settled and one still open sends both, asserted in a
-      test on the validation helper the page uses.
-- [ ] On the simulator: add two ingredients and one piece of equipment, settle them, edit one, save,
-      and the recipe screen shows the three lines.
-- [ ] The Latvian file lists every new key.
+      name, asserted in a test. _(NeedsEditor test "opens a card for a new line, refuses an empty name, and settles a named one".)_
+- [x] Cancel on a new line removes it; Edit on a settled row reopens it with its values; Cancel
+      after an edit restores the old values, asserted in a test. _(NeedsEditor tests "drops a new line on Cancel..." and "saves an edit back into the row".)_
+- [x] A recipe loaded for editing shows every line settled, asserted in a test. _(NeedsEditor test "shows loaded lines as rows".)_
+- [x] Done on the create page with one line settled and one still open sends both, asserted in a
+      test on the validation helper the page uses. _(`validateNeeds` sends every line it is given; the editor keeps no line out of the draft. needs.test "turns drafts into the body the API takes".)_
+- [x] On the simulator: add two ingredients and one piece of equipment, settle them, edit one, save,
+      and the recipe screen shows the three lines. _(Seen on the create flow: Beetroot 500 and Dill added and settled, Beetroot edited to Beetroots and saved, Pot added, Done; the review and the recipe showed the three lines.)_
+- [x] The Latvian file lists every new key. _(`needs.addLine`, `saveLine`, `cancelLine`, `editLine`, `edit`, `removeLine` and their `...For` labels; the key-parity test passes.)_
 
 ## Open questions
 

@@ -74,7 +74,6 @@
     "addIngredient": "Add ingredient",
     "addEquipment": "Add equipment",
     "remove": "Remove {{name}}",
-    "removeUnnamed": "Remove line",
     "moveUp": "Move {{name}} up",
     "moveDown": "Move {{name}} down",
     "unnamed": "unnamed line",
@@ -96,7 +95,15 @@
     "screen": "What you need",
     "addNote": "Add a note",
     "up": "Move up",
-    "down": "Move down"
+    "down": "Move down",
+    "addLine": "Add",
+    "addLineFor": "Add {{name}}",
+    "saveLine": "Save",
+    "saveLineFor": "Save {{name}}",
+    "cancelLine": "Cancel",
+    "editLine": "Edit",
+    "edit": "Edit {{name}}",
+    "removeLine": "Remove"
   },
   "steps": {
     "title": "Steps",

@@ -3,6 +3,8 @@
 **Status:** In progress
 **Depends on:** 0005, 0006
 
+**Changed by 0023:** a line is written in a card with Add and Cancel, and sits in the list as one row with Edit and Remove.
+
 **Changed by 0020:** lines move by buttons only, the drag handle is gone, and each line's note sits behind an "Add a note" button.
 
 ## Context

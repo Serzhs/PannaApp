@@ -75,7 +75,6 @@
     "addIngredient": "Pievienot sastāvdaļu",
     "addEquipment": "Pievienot piederumu",
     "remove": "Noņemt {{name}}",
-    "removeUnnamed": "Noņemt rindu",
     "moveUp": "Pārvietot {{name}} augšup",
     "moveDown": "Pārvietot {{name}} lejup",
     "unnamed": "rinda bez nosaukuma",
@@ -97,7 +96,15 @@
     "screen": "Kas vajadzīgs",
     "addNote": "Pievienot piezīmi",
     "up": "Augšup",
-    "down": "Lejup"
+    "down": "Lejup",
+    "addLine": "Pievienot",
+    "addLineFor": "Pievienot {{name}}",
+    "saveLine": "Saglabāt",
+    "saveLineFor": "Saglabāt {{name}}",
+    "cancelLine": "Atcelt",
+    "editLine": "Labot",
+    "edit": "Labot {{name}}",
+    "removeLine": "Noņemt"
   },
   "steps": {
     "title": "Soļi",

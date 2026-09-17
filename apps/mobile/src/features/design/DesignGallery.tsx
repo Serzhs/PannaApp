@@ -23,6 +23,7 @@ import { FlowChart } from '@/features/recipes/components/FlowChart';
 import { FlowEditor } from '@/features/recipes/components/FlowEditor';
 import { IngredientLine } from '@/features/recipes/components/IngredientLine';
 import { LinkChips } from '@/features/recipes/components/LinkChips';
+import { NeedRow } from '@/features/recipes/components/NeedRow';
 import { NeedsSection } from '@/features/recipes/components/NeedsSection';
 import { StepLine } from '@/features/recipes/components/StepLine';
 import { StepsEditor } from '@/features/recipes/components/StepsEditor';
@@ -506,6 +507,28 @@ function NeedsLines(): React.JSX.Element {
             errors={{ name: true }}
             onChange={() => undefined}
           />
+        </Stack>
+      </Section>
+      <Section title="NeedRow">
+        <Stack gap="space3">
+          {[
+            { title: '500 g beetroot' },
+            { title: 'Grater (optional)' },
+            { title: '2 cups flour', detail: 'plain, not self-raising' },
+          ].map((row) => (
+            <Card key={row.title}>
+              <NeedRow
+                title={row.title}
+                {...(row.detail === undefined ? {} : { detail: row.detail })}
+                editLabel="Edit"
+                editAccessibilityLabel={`Edit ${row.title}`}
+                removeLabel="Remove"
+                removeAccessibilityLabel={`Remove ${row.title}`}
+                onEdit={() => undefined}
+                onRemove={() => undefined}
+              />
+            </Card>
+          ))}
         </Stack>
       </Section>
       <Section title="UnitPicker">

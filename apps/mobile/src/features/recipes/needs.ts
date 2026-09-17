@@ -94,22 +94,36 @@ export type NeedsOutcome =
     }
   | { readonly ok: false; readonly errors: NeedsErrors };
 
+export type LineErrors = Partial<Record<LineField, true>>;
+
+/** What is wrong with one ingredient line, checked on Add (0023) and again before sending. */
+export function checkIngredient(line: IngredientDraft): LineErrors {
+  const errors: Record<string, true> = {};
+  if (line.name.trim() === '') errors.name = true;
+  const amount = parseAmount(line.amount);
+  if (amount === undefined) errors.amount = true;
+  // A bad amount is one error, not two: the unit is only at fault when nothing was typed.
+  if (line.unit !== null && amount === null) errors.unit = true;
+  return errors;
+}
+
+export function checkEquipment(line: EquipmentDraft): LineErrors {
+  return line.name.trim() === '' ? { name: true } : {};
+}
+
 /**
  * The same rules the API applies, checked before anything is sent so the line at fault
- * is marked rather than the whole form failing.
+ * is marked rather than the whole form failing. Every line counts, open or settled.
  */
 export function validateNeeds(draft: NeedsDraft): NeedsOutcome {
-  const errors: Record<string, Partial<Record<LineField, true>>> = {};
-  const flag = (key: string, field: LineField) => {
-    errors[key] = { ...errors[key], [field]: true };
+  const errors: Record<string, LineErrors> = {};
+  const note = (key: string, found: LineErrors) => {
+    if (Object.keys(found).length > 0) errors[key] = found;
   };
 
   const ingredients: IngredientInput[] = draft.ingredients.map((line) => {
-    if (line.name.trim() === '') flag(line.key, 'name');
+    note(line.key, checkIngredient(line));
     const amount = parseAmount(line.amount);
-    if (amount === undefined) flag(line.key, 'amount');
-    // A bad amount is one error, not two: the unit is only at fault when nothing was typed.
-    if (line.unit !== null && amount === null) flag(line.key, 'unit');
     return {
       ...(line.id === undefined ? {} : { id: line.id }),
       name: line.name.trim(),
@@ -120,7 +134,7 @@ export function validateNeeds(draft: NeedsDraft): NeedsOutcome {
   });
 
   const equipment: EquipmentInput[] = draft.equipment.map((line) => {
-    if (line.name.trim() === '') flag(line.key, 'name');
+    note(line.key, checkEquipment(line));
     return {
       ...(line.id === undefined ? {} : { id: line.id }),
       name: line.name.trim(),

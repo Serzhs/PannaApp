@@ -10,52 +10,73 @@ function Harness({ initial = EMPTY_NEEDS }: { readonly initial?: NeedsDraft }) {
   return <NeedsEditor value={value} errors={{}} onChange={setValue} />;
 }
 
+const TWO: NeedsDraft = {
+  ingredients: [
+    { key: 'a', name: 'Beetroot', amount: '500', unit: 'g', note: '' },
+    { key: 'b', name: 'Kefir', amount: '', unit: null, note: 'cold' },
+  ],
+  equipment: [{ key: 'e', name: 'Blender', note: '', optional: true }],
+};
+
 describe('NeedsEditor', () => {
-  it('adds a line, names it as typed, and removes it', async () => {
+  /** The criterion: Add checks the line and settles it into a row. */
+  it('opens a card for a new line, refuses an empty name, and settles a named one', async () => {
     await render(<Harness />);
     await fireEvent.press(screen.getByRole('button', { name: 'Add ingredient' }));
     expect(screen.getByLabelText('Name')).toBeTruthy();
-    await fireEvent.changeText(screen.getByLabelText('Name'), 'Beetroot');
-    await fireEvent.press(screen.getByRole('button', { name: 'Remove Beetroot' }));
-    expect(screen.queryByLabelText('Name')).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: 'Add unnamed line' }));
+    expect(screen.getByLabelText('Name, Give the line a name.')).toBeTruthy();
+    await fireEvent.changeText(screen.getByLabelText(/^Name/), 'Beetroot');
+    await fireEvent.changeText(screen.getByLabelText('Amount'), '2');
+    await fireEvent.press(screen.getByRole('button', { name: 'Add Beetroot' }));
+    expect(screen.queryByLabelText(/^Name/)).toBeNull();
+    expect(screen.getByLabelText('2 Beetroot')).toBeTruthy();
   });
 
-  it('moves a line with the buttons', async () => {
-    await render(
-      <Harness
-        initial={{
-          ingredients: [
-            { key: 'a', name: 'Beetroot', amount: '', unit: null, note: '' },
-            { key: 'b', name: 'Kefir', amount: '', unit: null, note: '' },
-          ],
-          equipment: [],
-        }}
-      />,
-    );
-    await fireEvent.press(screen.getByRole('button', { name: 'Move Kefir up' }));
-    const names = screen.getAllByLabelText('Name').map((field) => field.props.value as string);
-    expect(names).toEqual(['Kefir', 'Beetroot']);
-  });
-
-  it('adds equipment with the optional switch off', async () => {
-    await render(<Harness />);
+  it('drops a new line on Cancel, and puts an edited line back on Cancel', async () => {
+    await render(<Harness initial={TWO} />);
     await fireEvent.press(screen.getByRole('button', { name: 'Add equipment' }));
-    expect(screen.getByRole('switch', { name: 'Optional' })).toHaveProp('value', false);
+    await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByLabelText('Name')).toBeNull();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Edit Kefir' }));
+    expect(screen.getByLabelText('Name')).toHaveProp('value', 'Kefir');
+    await fireEvent.changeText(screen.getByLabelText('Name'), 'Yoghurt');
+    await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.getByLabelText('Kefir, cold')).toBeTruthy();
+    expect(screen.queryByText('Yoghurt')).toBeNull();
   });
 
-  it("keeps each line's note behind a button until it is wanted, per 0020", async () => {
-    await render(
-      <Harness
-        initial={{
-          ingredients: [{ key: 'a', name: 'Beetroot', amount: '', unit: null, note: '' }],
-          equipment: [{ key: 'e', name: 'Blender', note: 'Big one', optional: false }],
-        }}
-      />,
-    );
-    // The ingredient has no note: a button. The equipment has one: its field, open.
-    expect(screen.getAllByLabelText('Note')).toHaveLength(1);
-    expect(screen.getByLabelText('Note')).toHaveProp('value', 'Big one');
-    await fireEvent.press(screen.getByRole('button', { name: 'Add a note' }));
-    expect(screen.getAllByLabelText('Note')).toHaveLength(2);
+  it('saves an edit back into the row', async () => {
+    await render(<Harness initial={TWO} />);
+    await fireEvent.press(screen.getByRole('button', { name: 'Edit Kefir' }));
+    await fireEvent.changeText(screen.getByLabelText('Name'), 'Yoghurt');
+    await fireEvent.press(screen.getByRole('button', { name: 'Save Yoghurt' }));
+    expect(screen.getByLabelText('Yoghurt, cold')).toBeTruthy();
+  });
+
+  /** The criterion: a loaded recipe starts with every line settled. */
+  it('shows loaded lines as rows, amounts and the optional mark included', async () => {
+    await render(<Harness initial={TWO} />);
+    expect(screen.queryByLabelText('Name')).toBeNull();
+    expect(screen.getByLabelText('500 g Beetroot')).toBeTruthy();
+    expect(screen.getByLabelText('Blender (optional)')).toBeTruthy();
+  });
+
+  it('moves a settled line with the buttons and removes one', async () => {
+    await render(<Harness initial={TWO} />);
+    await fireEvent.press(screen.getByRole('button', { name: 'Move Kefir up' }));
+    const rows = screen
+      .getAllByLabelText(/^(Kefir, cold|500 g Beetroot)$/)
+      .map((row) => row.props.accessibilityLabel as string);
+    expect(rows).toEqual(['Kefir, cold', '500 g Beetroot']);
+    await fireEvent.press(screen.getByRole('button', { name: 'Remove Kefir' }));
+    expect(screen.queryByLabelText('Kefir, cold')).toBeNull();
+  });
+
+  it('reopens a settled line when the save flags it', async () => {
+    await render(<NeedsEditor value={TWO} errors={{ a: { amount: true } }} onChange={jest.fn()} />);
+    expect(screen.getByLabelText(/^Amount, Amount is a number/)).toBeTruthy();
+    expect(screen.queryByLabelText('500 g Beetroot')).toBeNull();
   });
 });

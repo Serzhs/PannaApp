@@ -28,7 +28,7 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0020](0020-simpler-editing.md)           | Simpler editing                      | Done          | No temperature field, the note behind a button, lines moved by buttons.                             |
 | [0021](0021-move-buttons-in-the-card.md)  | Move buttons in the card             | \1In progress | The move arrows sit on the card's first line, with words beside them.                               |
 | [0022](0022-flow.md)                      | Flow                                 | Done          | Write steps flat, then say what runs during what on a Flow page with a chart.                       |
-| [0023](0023-settled-lines.md)             | Settled lines                        | Draft         | An ingredient or tool is added with a button and sits in the list as one row, with Edit and Remove. |
+| [0023](0023-settled-lines.md)             | Settled lines                        | Done          | An ingredient or tool is added with a button and sits in the list as one row, with Edit and Remove. |
 
 Numbers run in build order, and each spec depends only on lower-numbered ones. That holds today because
 nothing below 0007 is written yet and the order has been kept tidy; it will stop being true the first

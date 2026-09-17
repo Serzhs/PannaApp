@@ -37,7 +37,7 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">196 of 213 acceptance criteria verified across 13 written specs.</p>
+<p class="summary">203 of 220 acceptance criteria verified across 14 written specs.</p>
 <div class="bar"><div style="width: 92%"></div></div>
 
 <h2>All specs</h2>
@@ -66,6 +66,7 @@
 <tr><td><a href="#spec-0020">0020</a></td><td>Simpler editing</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>No temperature field, the note behind a button, lines moved by buttons.</td></tr>
 <tr><td><a href="#spec-0021">0021</a></td><td>Move buttons in the card</td><td><span class="status \1in-progress">\1In progress</span></td><td>6 / 6</td><td>The move arrows sit on the card's first line, with words beside them.</td></tr>
 <tr><td><a href="#spec-0022">0022</a></td><td>Flow</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>Write steps flat, then say what runs during what on a Flow page with a chart.</td></tr>
+<tr><td><a href="#spec-0023">0023</a></td><td>Settled lines</td><td><span class="status done">Done</span></td><td>7 / 7</td><td>An ingredient or tool is added with a button and sits in the list as one row, with Edit and Remove.</td></tr>
 </tbody>
 </table>
 
@@ -898,6 +899,56 @@
 <p><strong>Components</strong>, each in its own folder with styles, test and index: the flow editor (the list with</p>
 <p>its buttons), the step picker (the checklist, in a modal like the unit picker), and the flow chart.</p>
 <p>Each gets a gallery entry; the chart's shows a recipe with and without parallel steps.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian.</p>
+</details>
+</section>
+
+<section id="spec-0023">
+<h2>0023: Settled lines <span class="status done">Done</span></h2>
+<p class="goal">An ingredient or piece of equipment is either being written, with Add and Cancel, or settled in the list as one line with Edit and Remove.</p>
+<p class="summary">7 of 7 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. <em>(<code>pnpm check</code>: shared 9, API 118, mobile 887 tests.)</em></li>
+<li class="done">"Add ingredient" opens a card with Add and Cancel; Add with an empty name shows the name error</li>
+<li class="done">Cancel on a new line removes it; Edit on a settled row reopens it with its values; Cancel</li>
+<li class="done">A recipe loaded for editing shows every line settled, asserted in a test. <em>(NeedsEditor test "shows loaded lines as rows".)</em></li>
+<li class="done">Done on the create page with one line settled and one still open sends both, asserted in a</li>
+<li class="done">On the simulator: add two ingredients and one piece of equipment, settle them, edit one, save,</li>
+<li class="done">The Latvian file lists every new key. <em>(<code>needs.addLine</code>, <code>saveLine</code>, <code>cancelLine</code>, <code>editLine</code>, <code>edit</code>, <code>removeLine</code> and their <code>...For</code> labels; the key-parity test passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>An ingredient or piece of equipment is either being written, with Add and Cancel, or settled in</p>
+<p>the list as one line with Edit and Remove.</p>
+<h3>Out of scope</h3><li>Saving a line to the server on Add. Add settles the line on screen; Done and Save changes still</li>
+<p>  send the whole recipe, as 0007 and 0009 built it. A line can therefore still not be linked from a</p>
+<p>  step until the recipe is saved, per 0010.</p>
+<li>Steps. They keep their cards from 0020 and 0022; a step is written in the card it lives in.</li>
+<li>Any change to the data model, the API, or what a line can hold.</li>
+<li>Reordering settled lines by anything other than the move buttons from 0021.</li>
+<h3>Data model</h3><p>None.</p>
+<h3>API contract</h3><p>None.</p>
+<h3>UI</h3><p><strong>Both lists, on the create page and the edit screen.</strong> A line is in one of two states.</p>
+<p><em>Open</em>: the card of fields from 0007, name, amount, unit and note for an ingredient, name, note and</p>
+<p>the optional switch for equipment, with two buttons under them, "Add" and "Cancel". "Add ingredient"</p>
+<p>and "Add equipment" open a fresh card at the end of the list. Add checks the line the way Done</p>
+<p>does, a name at least and a decimal amount if any, shows the field's error and stays open if it</p>
+<p>fails, and otherwise settles the line. Cancel on a new line removes it; on a reopened line it puts</p>
+<p>the values back as they were and settles it again.</p>
+<p><em>Settled</em>: one row reading the line as the recipe screen will, "500 g beetroot" with the note under</p>
+<p>it, or "grater, optional" with its note, and two buttons, "Edit" and "Remove". Edit reopens the</p>
+<p>card with the current values. Remove takes the line out, as before. The move buttons from 0021 sit</p>
+<p>on the row's first line as they do on every card.</p>
+<p>A line loaded from a saved recipe starts settled. A line the author has just added starts open.</p>
+<p><strong>Done and Save changes</strong> send every line, open or settled, so nothing typed is lost; an open line</p>
+<p>that would fail is flagged in place exactly as it is today. A line the server refuses after a save</p>
+<p>reopens with its error, so the author can see what to fix.</p>
+<p><strong>Component</strong>: the settled row is a new component in its own folder with styles, test and index,</p>
+<p>with a gallery entry showing an ingredient row, an equipment row with the optional mark, and one</p>
+<p>with a note. The line editors and the needs editor change in place.</p>
 <p>All new strings go through <code>t()</code>, in English and Latvian.</p>
 </details>
 </section>
