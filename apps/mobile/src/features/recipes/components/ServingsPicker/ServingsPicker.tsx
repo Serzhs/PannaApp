@@ -17,8 +17,8 @@ export interface ServingsPickerProps {
   readonly error?: string;
 }
 
-/** The servings almost everyone cooks for. Anything else is a tap on Other. */
-const QUICK = ['1', '2', '4', '6'] as const;
+/** One to ten, one tap each; a bigger table is a tap on Other. */
+const QUICK = Array.from({ length: 10 }, (_, i) => String(i + 1));
 
 /** One choice at a time, so the row reads as radio buttons (0025). */
 export function ServingsPicker({
@@ -28,7 +28,7 @@ export function ServingsPicker({
   error,
 }: ServingsPickerProps): React.JSX.Element {
   const { t } = useTranslation();
-  const quick = (QUICK as readonly string[]).includes(value.trim());
+  const quick = QUICK.includes(value.trim());
   // Other stays open once chosen, even while its field is empty or holds a quick number.
   const [other, setOther] = useState(value.trim() !== '' && !quick);
   const showField = other || (value.trim() !== '' && !quick) || (error !== undefined && !quick);

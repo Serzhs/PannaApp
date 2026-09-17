@@ -1013,7 +1013,7 @@
 <li class="done"><code>POST /api/recipes</code> with two ingredients and one piece of equipment creates all of them and</li>
 <li class="done">The first page of creating shows the fields and both lists, and Continue sends one request</li>
 <li class="done">The edit screen shows three tabs, the open one selected; switching shows only that part and</li>
-<li class="done">Picking 4 sets servings to 4; picking Other shows the field; a recipe with 3 servings opens on</li>
+<li class="done">Picking 4 sets servings to 4; picking Other shows the field; a recipe with 12 servings opens on</li>
 <li class="done">On the simulator: create a recipe with a title, 4 servings and one ingredient on the first</li>
 <li class="done">No route or link to the old "What you need" page remains. <em>(The screen, its route, its layout entry and its title key are deleted; typecheck would fail on a stale link.)</em></li>
 <li class="done">The Latvian file lists every new key. <em>(<code>form.continue</code>, <code>form.servingsOther</code>, <code>form.tabRecipe</code>; the key-parity test passes.)</em></li>
@@ -1044,9 +1044,9 @@
 <p>The tabs are a new shared component, one folder with styles, test and index, with a gallery</p>
 <p>entry: the tab row reads as tabs to a screen reader, the open one selected, and a tab is a 44-point</p>
 <p>target. It is chosen by tapping; the OS swipe-back gesture stays what it is.</p>
-<p><strong>Servings</strong> becomes a row of choices, 1, 2, 4 and 6, and "Other". Tapping a number picks it;</p>
+<p><strong>Servings</strong> becomes a row of choices, 1 to 10, and "Other". Tapping a number picks it;</p>
 <p>tapping Other opens a number field for anything else, up to the 100 the schema allows. A recipe</p>
-<p>whose servings is none of the four opens with Other chosen and the field filled. One choice at a</p>
+<p>whose servings is past ten opens with Other chosen and the field filled. One choice at a</p>
 <p>time, read as radio buttons. This is a new component in the recipes feature, in its own folder,</p>
 <p>with a gallery entry showing a picked number and Other with its field.</p>
 <p>All new strings go through <code>t()</code>, in English and Latvian.</p>
