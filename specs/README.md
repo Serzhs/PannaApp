@@ -25,6 +25,7 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | 0017                                      | Sharing                              | Not written | Share a recipe read-only by private link, and revoke it.                  |
 | 0018                                      | Avatars and the tab bar              | Not written | An avatar, an editable name, and three tabs to reach things by.           |
 | 0019                                      | Featured recipes                     | Not written | A searchable set of recipes we wrote, to start from.                      |
+| [0020](0020-simpler-editing.md)           | Simpler editing                      | Draft       | No temperature field, the note behind a button, lines moved by buttons.   |
 
 Numbers run in build order, and each spec depends only on lower-numbered ones. That holds today because
 nothing below 0007 is written yet and the order has been kept tidy; it will stop being true the first
