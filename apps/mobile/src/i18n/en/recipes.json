@@ -5,7 +5,8 @@
     "detail": "Recipe",
     "edit": "Edit recipe",
     "needs": "What you need",
-    "steps": "Steps"
+    "steps": "Steps",
+    "review": "Review"
   },
   "header": {
     "settings": "Settings",
@@ -16,7 +17,10 @@
   "servings_other": "{{count, number}} servings",
   "minutes": "{{count, number}} min",
   "status": {
-    "draft": "Draft"
+    "draft": "Draft",
+    "markReady": "Mark as ready",
+    "backToDraft": "Back to draft",
+    "failed": "Could not change the status. Try again."
   },
   "list": {
     "loading": "Loading recipes",
@@ -121,5 +125,11 @@
     "minutes": "{{count, number}} min",
     "hours": "{{count, number}} h",
     "hoursMinutes": "{{hours, number}} h {{minutes, number}} min"
+  },
+  "review": {
+    "screen": "Review",
+    "ready": "Ready to cook",
+    "readyHelper": "Off while it still needs checking. You can change this on the recipe later.",
+    "done": "Done"
   }
 }
