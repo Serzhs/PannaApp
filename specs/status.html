@@ -37,8 +37,8 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">160 of 177 acceptance criteria verified across 9 written specs.</p>
-<div class="bar"><div style="width: 90%"></div></div>
+<p class="summary">160 of 189 acceptance criteria verified across 10 written specs.</p>
+<div class="bar"><div style="width: 85%"></div></div>
 
 <h2>All specs</h2>
 <table>
@@ -53,7 +53,7 @@
 <tr><td><a href="#spec-0007">0007</a></td><td>Ingredients and equipment</td><td><span class="status in-progress">In progress</span></td><td>21 / 22</td><td>Add, edit, remove and reorder what a recipe needs.</td></tr>
 <tr><td><a href="#spec-0008">0008</a></td><td>Steps and nesting</td><td><span class="status in-progress">In progress</span></td><td>20 / 21</td><td>Write steps, and nest the ones that happen during a wait.</td></tr>
 <tr><td><a href="#spec-0009">0009</a></td><td>Review and mark as ready</td><td><span class="status in-progress">In progress</span></td><td>6 / 7</td><td>Check a new recipe over on one page, and say when it is ready to cook.</td></tr>
-<tr><td>0010</td><td>Step links</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Attach ingredients and equipment to the step that uses them.</td></tr>
+<tr><td><a href="#spec-0010">0010</a></td><td>Step links</td><td><span class="status draft">Draft</span></td><td>0 / 12</td><td>Attach ingredients and equipment to the step that uses them.</td></tr>
 <tr><td>0011</td><td>Images</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A cover photo, and a picture of how each step should look.</td></tr>
 <tr><td>0012</td><td>Cooking mode</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Cook a recipe, seeing what else you could do during each wait.</td></tr>
 <tr><td>0013</td><td>Cooking without an ingredient</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Check off what you have, and cook it without the carrots.</td></tr>
@@ -681,6 +681,58 @@
 <p><strong>Recipe screen, <code>(app)/recipes/[id]</code>.</strong> Next to the Draft mark, a control that flips the status: "Mark as ready" on a draft, "Back to draft" on a ready recipe. Without this, a recipe created before this spec, or one whose author skipped the review, could never become ready. The chip in the list follows without a manual refresh. Offline, the control fails at once with the offline message and nothing changes, per the Offline section of <code>CLAUDE.md</code>.</p>
 <p>The status is a word and a mark, never a colour alone.</p>
 <p><strong>Components</strong>: the review page is a screen composed from existing components, and the status control is a <code>Button</code>. No new shared component is added, so no gallery entry is due.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian.</p>
+</details>
+</section>
+
+<section id="spec-0010">
+<h2>0010: Step links <span class="status draft">Draft</span></h2>
+<p class="goal">An author says which ingredients and equipment each step uses, and a reader sees them under the step.</p>
+<p class="summary">0 of 12 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 0%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="todo"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces.</li>
+<li class="todo"><code>GET /api/recipes/:recipeId</code> returns <code>ingredientIds</code> and <code>equipmentIds</code> as <code>[]</code> on every step of a recipe with no links.</li>
+<li class="todo">A <code>PATCH</code> linking a main step to two ingredients and a nested step to one piece of equipment stores the links, and <code>GET</code> returns the ids in the order of the lists.</li>
+<li class="todo">A <code>PATCH</code> that sends a step without <code>ingredientIds</code> after it had links removes them, and one that sends fewer ids keeps only those.</li>
+<li class="todo">A <code>PATCH</code> linking an ingredient id that belongs to another user's recipe returns 400 naming <code>steps.0.ingredientIds</code> and writes nothing, and that other recipe is unchanged.</li>
+<li class="todo">A <code>PATCH</code> linking an id the same body omits from <code>ingredients</code>, so the row is deleted, returns 400 and writes nothing.</li>
+<li class="todo">A <code>PATCH</code> with the same id twice in one array returns 400.</li>
+<li class="todo">Removing an ingredient through a <code>PATCH</code> removes its links, and the step it was linked to remains.</li>
+<li class="todo">The recipe screen shows a step's linked ingredients with their amounts and its equipment, and includes them in the step's accessible name, asserted in a component test.</li>
+<li class="todo">Toggling chips on the edit screen and saving shows the links on the recipe screen without a manual refresh, seen on the simulator; a chip for an unsaved line is disabled, asserted in a test.</li>
+<li class="todo">Every new component appears in the design gallery in every state.</li>
+<li class="todo">The Latvian file lists every new key.</li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>An author says which ingredients and equipment each step uses, and a reader sees them under the step.</p>
+<h3>Out of scope</h3><li>Cooking mode, and showing a step's needs at the stove. 0012 reads these links; this spec only writes and shows them.</li>
+<li>Hiding steps whose ingredients are excluded. 0013.</li>
+<li>Amounts per step, "half the flour here, half later". A link says a step uses an ingredient, nothing more. Splitting amounts is a different data model and nobody has asked for it.</li>
+<li>Checking that every ingredient is linked to some step, or warning about unlinked ones. The author decides how much to link; a recipe with no links at all stays valid.</li>
+<li>Linking across recipes, or linking a step to an ingredient of another recipe. Refused, never supported.</li>
+<li>Automatic linking by matching names in the step text. It would be wrong often enough to be worse than nothing, and "chop the carrots and celery" already reads fine without a link.</li>
+<li>Any change to how ingredients, equipment or steps themselves are edited.</li>
+<h3>Data model</h3><p>No new tables and no new columns. <code>step<em>ingredients</code> and <code>step</em>equipment</code> from 0001 are used as they are, so there is no migration.</p>
+<p>Both are join tables with a composite primary key on the two ids, and both cascade when either side is deleted. Deleting an ingredient through 0007's write removes its links; deleting a step through 0008's write removes its links; neither needs this spec to do anything.</p>
+<p><strong>A link must stay inside one recipe.</strong> A foreign key checks that the ingredient exists, not that it belongs to the same recipe as the step, per the Data model section of <code>CLAUDE.md</code>. That is checked in application code on write, inside the same transaction, like the other same-recipe rules.</p>
+<h3>API contract</h3><p>All routes require a valid access token and answer 401 without one. Ownership goes through the guard 0005 added: a recipe that does not exist and one that belongs to someone else both answer 404 with <code>RECIPE<em>NOT</em>FOUND</code>, with identical bodies.</p>
+<p><strong>Step shape</strong> gains two arrays in every response that carries steps, on main and nested steps alike:</p>
+<p>```</p>
+<p>{ ..., ingredientIds: [uuid], equipmentIds: [uuid] }</p>
+<p>```</p>
+<p>Each holds the ids of this recipe's ingredients and equipment the step uses, in the order of the lists they belong to. Empty arrays for a step with no links.</p>
+<p><strong>PATCH /api/recipes/:recipeId</strong> accepts, on each step in <code>steps</code>, optional <code>ingredientIds</code> and <code>equipmentIds</code>. As with the lists and the steps, what is sent is the whole truth for that step: an id present is linked, an id absent is not. A step sent without the field keeps no links, the same as sending <code>[]</code>, because the body is the complete list and a step row is written whole. Links are written in the same transaction as everything else.</p>
+<p>A link can only name a row that will exist once the same body is written: an ingredient that carries an <code>id</code> in the body's <code>ingredients</code>, or one already in the recipe when the body does not send <code>ingredients</code>. Ingredients and equipment are written before steps for that reason. A link to a row the body deletes, or a row that never existed, or a row of another recipe, is a 400.</p>
+<p>400 with <code>VALIDATION_FAILED</code> and a <code>fields</code> object, and nothing written, when an id in either array is not one of this recipe's rows, or an id appears twice in one array. A <code>fields</code> key names the step and array, as in <code>steps.2.ingredientIds</code> or <code>steps.2.children.1.equipmentIds</code>. A new ingredient in the same body, one with no <code>id</code> yet, cannot be linked in that body: it has no id to name. The editor links it on the next save.</p>
+<p>Error codes this spec can return: <code>AUTH<em>TOKEN</em>INVALID</code>, <code>AUTH<em>TOKEN</em>EXPIRED</code>, <code>RECIPE<em>NOT</em>FOUND</code>, <code>VALIDATION_FAILED</code>.</p>
+<h3>UI</h3><p><strong>Recipe screen, <code>(app)/recipes/[id]</code>.</strong> Under a step's timing, the ingredients it uses, each with its amount as the reader sees it, and the equipment it needs, as one short line each: "500 g beetroot, 2 eggs" and "Large bowl". A step with no links shows nothing extra. The lines are part of the step's single accessible element.</p>
+<p><strong>Edit screen and the create flow's Steps page.</strong> Under each step's fields, two rows of chips, one per ingredient and one per piece of equipment in the recipe, each a toggle showing the name; a chip is on when the step uses it. A recipe with no ingredients shows no ingredient row. A chip for a line added on the same screen and not yet saved is disabled, with a hint that it can be linked after saving, because it has no id yet.</p>
+<p>Chips are toggles to a screen reader, with their state, and are at least 44 points tall.</p>
+<p><strong>Components</strong> added, in their own folders with styles, test and index: a chip, and a chip group that takes the list and the selected ids. The chip goes to the design gallery.</p>
 <p>All new strings go through <code>t()</code>, in English and Latvian.</p>
 </details>
 </section>
