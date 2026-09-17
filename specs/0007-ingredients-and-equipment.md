@@ -5,7 +5,7 @@
 
 ## Context
 
-A recipe is still only a title, a description and two numbers. The `ingredients` and `equipment` tables have existed since 0001 with nothing in them, and nothing else in the roadmap can start until they fill: steps link to ingredients in 0009, the check before cooking in 0012 ticks them off, and the JSON import in 0015 has to have somewhere to put them.
+A recipe is still only a title, a description and two numbers. The `ingredients` and `equipment` tables have existed since 0001 with nothing in them, and nothing else in the roadmap can start until they fill: steps link to ingredients in 0010, the check before cooking in 0013 ticks them off, and the JSON import in 0016 has to have somewhere to put them.
 
 ## Goal
 
@@ -13,16 +13,16 @@ An author lists what a recipe needs - ingredients with amounts, and the pans and
 
 ## Out of scope
 
-- Linking an ingredient or a piece of equipment to a step. That is 0009, and it is why rows keep their ids across an edit, so the links have something to hold on to.
+- Linking an ingredient or a piece of equipment to a step. That is 0010, and it is why rows keep their ids across an edit, so the links have something to hold on to.
 - Steps of any kind. 0008.
-- The check before cooking, ticking ingredients off, or going without one. 0011 and 0012.
+- The check before cooking, ticking ingredients off, or going without one. 0012 and 0013.
 - Scaling a recipe to a different number of servings. Amounts are shown as written; the servings number and the amounts are not yet connected.
 - A shopping list, combining ingredients across recipes, or grouping ingredients into sections such as "for the sauce".
 - Autocomplete, an ingredient database, nutrition, allergens, or any notion of two recipes sharing the same ingredient. An ingredient is a line of text the author wrote.
 - Translating ingredient or equipment names. They are recipe content, in the author's language, per the Internationalisation section of `CLAUDE.md`.
 - Converting a volume into a mass, or a mass into a volume. 0006 settled this: it needs the ingredient's density, and a guess is a confidently wrong recipe.
 - Images of ingredients or equipment.
-- The JSON import shape. 0015 defines the document; it will reuse the field rules below, but the document itself is not designed here.
+- The JSON import shape. 0016 defines the document; it will reuse the field rules below, but the document itself is not designed here.
 
 ## Data model
 
@@ -30,7 +30,7 @@ No new tables and no new columns. `ingredients` and `equipment` from 0001 are us
 
 Both carry `position`, a zero-based integer unique within the recipe, and the app never relies on insertion order or `createdAt` for display order. Reordering rewrites every position in one transaction, per the Data model section of `CLAUDE.md`.
 
-`note` on both is the qualifier that does not belong in the name: "not too long", "plain not self-raising", "at least 30 cm". It is a separate field so the name stays the name, which is what a shopping list and 0009's links depend on.
+`note` on both is the qualifier that does not belong in the name: "not too long", "plain not self-raising", "at least 30 cm". It is a separate field so the name stays the name, which is what a shopping list and 0010's links depend on.
 
 An ingredient's `amount` is stored exactly as the author entered it, in the `unit` they chose. Null `unit` with an amount is a bare count, "2 eggs". Null `amount` is an unmeasured quantity, "salt, to taste". A `unit` with no `amount` is meaningless and is refused.
 
@@ -52,7 +52,7 @@ For a piece of equipment:
 - `name` and `note`: as above.
 - `optional`: boolean, default false.
 
-A recipe holds at most 100 ingredients and at most 50 pieces of equipment. Above that is a 400, because 0015 will feed pasted, untrusted documents through the same rules.
+A recipe holds at most 100 ingredients and at most 50 pieces of equipment. Above that is a 400, because 0016 will feed pasted, untrusted documents through the same rules.
 
 **Ingredient and equipment shapes**, in every response that carries them:
 
@@ -64,7 +64,7 @@ A recipe holds at most 100 ingredients and at most 50 pieces of equipment. Above
 
 Each row in the body is `{ id?, name, note?, amount?, unit? }` or `{ id?, name, note?, optional? }`:
 
-- A row with an `id` that belongs to this recipe is updated in place, and keeps that id. This is what lets 0009's links survive an edit that only fixes a typo.
+- A row with an `id` that belongs to this recipe is updated in place, and keeps that id. This is what lets 0010's links survive an edit that only fixes a typo.
 - A row with no `id` is inserted.
 - A row that was in the recipe and is absent from the body is deleted. Deleting it cascades to its links, which is the intended meaning of removing an ingredient.
 - `position` is not sent. It is the row's index in the array.

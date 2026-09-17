@@ -7,7 +7,7 @@ import { View } from 'react-native';
 import { NeedsSection } from './components/NeedsSection';
 import { StepsSection } from './components/StepsSection';
 import { describeMeta } from './format';
-import { useDeleteRecipe, useRecipe } from './queries';
+import { useDeleteRecipe, useRecipe, useUpdateRecipe } from './queries';
 import { styles } from './RecipeDetailScreen.styles';
 
 import { Button } from '@/components/Button';
@@ -27,7 +27,9 @@ export interface RecipeDetailScreenProps {
 export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React.JSX.Element {
   const recipe = useRecipe(recipeId);
   const remove = useDeleteRecipe(recipeId);
+  const status = useUpdateRecipe(recipeId);
   const online = useIsOnline();
+  const [statusOffline, setStatusOffline] = useState(false);
   const router = useRouter();
   const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
@@ -101,6 +103,24 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
         <View style={styles.actions}>
           <Stack gap="space3">
             <Button
+              label={
+                data.status === 'draft'
+                  ? t('recipes:status.markReady')
+                  : t('recipes:status.backToDraft')
+              }
+              variant="secondary"
+              loading={status.isPending}
+              onPress={() => {
+                // A write attempted offline fails at once and changes nothing, per CLAUDE.md.
+                if (!online) {
+                  setStatusOffline(true);
+                  return;
+                }
+                setStatusOffline(false);
+                status.mutate({ status: data.status === 'draft' ? 'ready' : 'draft' });
+              }}
+            />
+            <Button
               label={t('recipes:detail.edit')}
               variant="secondary"
               onPress={() => {
@@ -117,6 +137,15 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
             />
           </Stack>
         </View>
+        {statusOffline && !online ? (
+          <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
+            {t('common:offline.save')}
+          </Text>
+        ) : status.isError ? (
+          <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
+            {t('recipes:status.failed')}
+          </Text>
+        ) : null}
         {remove.isError ? (
           <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
             {online ? t('recipes:detail.deleteFailed') : t('common:offline.delete')}

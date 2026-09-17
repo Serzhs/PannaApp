@@ -37,8 +37,8 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">154 of 170 acceptance criteria verified across 8 written specs.</p>
-<div class="bar"><div style="width: 91%"></div></div>
+<p class="summary">160 of 177 acceptance criteria verified across 9 written specs.</p>
+<div class="bar"><div style="width: 90%"></div></div>
 
 <h2>All specs</h2>
 <table>
@@ -52,16 +52,17 @@
 <tr><td><a href="#spec-0006">0006</a></td><td>Internationalisation</td><td><span class="status approved">Approved</span></td><td>10 / 15</td><td>Run the app in another language, with correct plurals, formats and units.</td></tr>
 <tr><td><a href="#spec-0007">0007</a></td><td>Ingredients and equipment</td><td><span class="status in-progress">In progress</span></td><td>21 / 22</td><td>Add, edit, remove and reorder what a recipe needs.</td></tr>
 <tr><td><a href="#spec-0008">0008</a></td><td>Steps and nesting</td><td><span class="status in-progress">In progress</span></td><td>20 / 21</td><td>Write steps, and nest the ones that happen during a wait.</td></tr>
-<tr><td>0009</td><td>Step links</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Attach ingredients and equipment to the step that uses them.</td></tr>
-<tr><td>0010</td><td>Images</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A cover photo, and a picture of how each step should look.</td></tr>
-<tr><td>0011</td><td>Cooking mode</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Cook a recipe, seeing what else you could do during each wait.</td></tr>
-<tr><td>0012</td><td>Cooking without an ingredient</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Check off what you have, and cook it without the carrots.</td></tr>
-<tr><td>0013</td><td>Recipe history</td><td><span class="status not-written">Not written</span></td><td>–</td><td>See when you cooked something, and what you changed each time.</td></tr>
-<tr><td>0014</td><td>Cook's notes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Record what you learned, and see it next time you cook.</td></tr>
-<tr><td>0015</td><td>JSON recipe import</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Paste AI-generated JSON and get a working recipe.</td></tr>
-<tr><td>0016</td><td>Sharing</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Share a recipe read-only by private link, and revoke it.</td></tr>
-<tr><td>0017</td><td>Avatars and the tab bar</td><td><span class="status not-written">Not written</span></td><td>–</td><td>An avatar, an editable name, and three tabs to reach things by.</td></tr>
-<tr><td>0018</td><td>Featured recipes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A searchable set of recipes we wrote, to start from.</td></tr>
+<tr><td><a href="#spec-0009">0009</a></td><td>Review and mark as ready</td><td><span class="status in-progress">In progress</span></td><td>6 / 7</td><td>Check a new recipe over on one page, and say when it is ready to cook.</td></tr>
+<tr><td>0010</td><td>Step links</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Attach ingredients and equipment to the step that uses them.</td></tr>
+<tr><td>0011</td><td>Images</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A cover photo, and a picture of how each step should look.</td></tr>
+<tr><td>0012</td><td>Cooking mode</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Cook a recipe, seeing what else you could do during each wait.</td></tr>
+<tr><td>0013</td><td>Cooking without an ingredient</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Check off what you have, and cook it without the carrots.</td></tr>
+<tr><td>0014</td><td>Recipe history</td><td><span class="status not-written">Not written</span></td><td>–</td><td>See when you cooked something, and what you changed each time.</td></tr>
+<tr><td>0015</td><td>Cook's notes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Record what you learned, and see it next time you cook.</td></tr>
+<tr><td>0016</td><td>JSON recipe import</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Paste AI-generated JSON and get a working recipe.</td></tr>
+<tr><td>0017</td><td>Sharing</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Share a recipe read-only by private link, and revoke it.</td></tr>
+<tr><td>0018</td><td>Avatars and the tab bar</td><td><span class="status not-written">Not written</span></td><td>–</td><td>An avatar, an editable name, and three tabs to reach things by.</td></tr>
+<tr><td>0019</td><td>Featured recipes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A searchable set of recipes we wrote, to start from.</td></tr>
 </tbody>
 </table>
 
@@ -247,7 +248,7 @@
 <h3>Data model</h3><p>No new tables. <code>users</code>, <code>identities</code> and <code>refresh_tokens</code> exist from 0001.</p>
 <p><strong>Account linking.</strong> A sign-in is matched to an existing user by <code>(provider, subject)</code> first, which is the only stable key. If there is no match and the provider says the email is verified, the identity is attached to the user holding that email, or a new user is created with it. If there is no match and no verified email, the sign-in is refused with <code>AUTH<em>PROVIDER</em>TOKEN_INVALID</code>.</p>
 <p>Linking on an <em>unverified</em> email would be account takeover: anyone who can get a provider to assert an address they do not own would inherit the account behind it. Creating a separate account instead is not possible either, because <code>users.email</code> is unique and the address may already be taken. Google and Apple both verify addresses, so in practice this path is not reached; it exists so that it fails closed if it ever is.</p>
-<p><strong>A name may be blank.</strong> Google puts one in its token. Apple hands one over only if the person agrees, and only the first time. When neither supplies one, <code>displayName</code> is stored empty, until 0017 makes it editable.</p>
+<p><strong>A name may be blank.</strong> Google puts one in its token. Apple hands one over only if the person agrees, and only the first time. When neither supplies one, <code>displayName</code> is stored empty, until 0018 makes it editable.</p>
 <p><strong>Apple's private relay.</strong> Apple lets people hide their real address, giving a unique relay address per app instead. It will never match an existing user, so someone who signs in with Apple privately and later with Google gets two accounts, and there is no way for the app to know they are the same person. That is a limitation of the choice, not a bug to fix here.</p>
 <p><strong>Apple sends a name once.</strong> The display name arrives only on the very first authorisation, from the client rather than from the token, and never again. If it is not captured then it is gone, so the first sign-in stores it and later ones leave it alone.</p>
 <h3>API contract</h3><p>Through the contract in <code>packages/shared</code>. Error codes this spec introduces, alongside <code>VALIDATION<em>FAILED</code> and <code>RATE</em>LIMITED</code> from 0001:</p>
@@ -314,7 +315,7 @@
 <li>Illustrations for empty states. That is a separate decision with an asset dependency and no owner yet.</li>
 <li>Toasts, banners, snackbars, pull-to-refresh. Nothing needs them.</li>
 <li>Swipe actions and drag handles. 0007 and 0008 introduce reordering and can bring what they need.</li>
-<li>A full-screen image viewer. 0010 introduces the one place an image is shown large, and brings it then.</li>
+<li>A full-screen image viewer. 0011 introduces the one place an image is shown large, and brings it then.</li>
 <h3>Data model</h3><p>None.</p>
 <h3>API contract</h3><p>None.</p>
 <h3>Components</h3><p>Same folder rule as 0002, per the Repo layout section of <code>CLAUDE.md</code>: component, styles, tests and an <code>index.ts</code>, all in the component's own folder.</p>
@@ -368,7 +369,7 @@
 <li>Images. <code>coverImageKey</code> stays null and is never written or returned.</li>
 <li>Search, filtering, sorting controls, tags, categories, favourites.</li>
 <li>Pagination. A user's own list is returned in full.</li>
-<li>The in-progress section of the home screen. Cooking does not exist until 0011, so there is nothing to be part-way through. The list ships as one section here and gains the other above it later.</li>
+<li>The in-progress section of the home screen. Cooking does not exist until 0012, so there is nothing to be part-way through. The list ships as one section here and gains the other above it later.</li>
 <li>The Cook button on the detail screen. Same reason.</li>
 <li>Offline editing and any mutation queue. Reads are cached per the Offline section of <code>CLAUDE.md</code>; writes require a connection.</li>
 <li>Duplicating a recipe, importing a recipe, exporting a recipe.</li>
@@ -380,7 +381,7 @@
 <h3>API contract</h3><p>All bodies validated by Zod schemas in <code>packages/shared</code>. All routes require a valid access token; without one they return 401 before any authorization check runs.</p>
 <p><strong>Recipe response shape</strong>, used by every endpoint below:</p>
 <p><code>{ id, title, description, status, servings, totalTimeMinutes, createdAt, updatedAt }</code></p>
-<p><code>authorId</code>, <code>coverImageKey</code> and <code>shareToken</code> are never returned by this spec's endpoints. Sharing state becomes visible to the client in 0016, not here.</p>
+<p><code>authorId</code>, <code>coverImageKey</code> and <code>shareToken</code> are never returned by this spec's endpoints. Sharing state becomes visible to the client in 0017, not here.</p>
 <p><strong>Field rules</strong>, shared by create and update:</p>
 <li><code>title</code>: string, trimmed, 1 to 120 characters. A title that is empty after trimming is a 400.</li>
 <li><code>description</code>: string or null, trimmed, up to 2000 characters.</li>
@@ -519,19 +520,19 @@
 
 <details><summary>Requirements, as written in the spec</summary>
 <h3>Goal</h3><p>An author lists what a recipe needs - ingredients with amounts, and the pans and gadgets - and a reader sees that list in the units they think in.</p>
-<h3>Out of scope</h3><li>Linking an ingredient or a piece of equipment to a step. That is 0009, and it is why rows keep their ids across an edit, so the links have something to hold on to.</li>
+<h3>Out of scope</h3><li>Linking an ingredient or a piece of equipment to a step. That is 0010, and it is why rows keep their ids across an edit, so the links have something to hold on to.</li>
 <li>Steps of any kind. 0008.</li>
-<li>The check before cooking, ticking ingredients off, or going without one. 0011 and 0012.</li>
+<li>The check before cooking, ticking ingredients off, or going without one. 0012 and 0013.</li>
 <li>Scaling a recipe to a different number of servings. Amounts are shown as written; the servings number and the amounts are not yet connected.</li>
 <li>A shopping list, combining ingredients across recipes, or grouping ingredients into sections such as "for the sauce".</li>
 <li>Autocomplete, an ingredient database, nutrition, allergens, or any notion of two recipes sharing the same ingredient. An ingredient is a line of text the author wrote.</li>
 <li>Translating ingredient or equipment names. They are recipe content, in the author's language, per the Internationalisation section of <code>CLAUDE.md</code>.</li>
 <li>Converting a volume into a mass, or a mass into a volume. 0006 settled this: it needs the ingredient's density, and a guess is a confidently wrong recipe.</li>
 <li>Images of ingredients or equipment.</li>
-<li>The JSON import shape. 0015 defines the document; it will reuse the field rules below, but the document itself is not designed here.</li>
+<li>The JSON import shape. 0016 defines the document; it will reuse the field rules below, but the document itself is not designed here.</li>
 <h3>Data model</h3><p>No new tables and no new columns. <code>ingredients</code> and <code>equipment</code> from 0001 are used as they are, so there is no migration.</p>
 <p>Both carry <code>position</code>, a zero-based integer unique within the recipe, and the app never relies on insertion order or <code>createdAt</code> for display order. Reordering rewrites every position in one transaction, per the Data model section of <code>CLAUDE.md</code>.</p>
-<p><code>note</code> on both is the qualifier that does not belong in the name: "not too long", "plain not self-raising", "at least 30 cm". It is a separate field so the name stays the name, which is what a shopping list and 0009's links depend on.</p>
+<p><code>note</code> on both is the qualifier that does not belong in the name: "not too long", "plain not self-raising", "at least 30 cm". It is a separate field so the name stays the name, which is what a shopping list and 0010's links depend on.</p>
 <p>An ingredient's <code>amount</code> is stored exactly as the author entered it, in the <code>unit</code> they chose. Null <code>unit</code> with an amount is a bare count, "2 eggs". Null <code>amount</code> is an unmeasured quantity, "salt, to taste". A <code>unit</code> with no <code>amount</code> is meaningless and is refused.</p>
 <p><code>equipment.optional</code> marks something the recipe is better with but can be done without. It is shown as a word, never as a colour alone.</p>
 <h3>API contract</h3><p>All routes require a valid access token and answer 401 without one. Ownership goes through the guard 0005 added: a recipe that does not exist and a recipe that belongs to someone else both answer 404 with <code>RECIPE<em>NOT</em>FOUND</code>, with identical bodies.</p>
@@ -543,13 +544,13 @@
 <p>For a piece of equipment:</p>
 <li><code>name</code> and <code>note</code>: as above.</li>
 <li><code>optional</code>: boolean, default false.</li>
-<p>A recipe holds at most 100 ingredients and at most 50 pieces of equipment. Above that is a 400, because 0015 will feed pasted, untrusted documents through the same rules.</p>
+<p>A recipe holds at most 100 ingredients and at most 50 pieces of equipment. Above that is a 400, because 0016 will feed pasted, untrusted documents through the same rules.</p>
 <p><strong>Ingredient and equipment shapes</strong>, in every response that carries them:</p>
 <p><code>{ id, position, name, note, amount, unit }</code> and <code>{ id, position, name, note, optional }</code>. Rows are ordered by <code>position</code>.</p>
 <p><strong>GET /api/recipes/:recipeId</strong> gains two arrays, <code>ingredients</code> and <code>equipment</code>, in position order. An empty recipe answers <code>[]</code> for both. The list endpoint does not carry them: a list of forty recipes does not need four hundred ingredients.</p>
 <p><strong>PATCH /api/recipes/:recipeId</strong> accepts two further optional fields, <code>ingredients</code> and <code>equipment</code>, each the complete list in the order it should have. This is the one write path for the lists, and it is the same request that edits the metadata, so the whole recipe is written in one transaction per the API conventions in <code>CLAUDE.md</code>.</p>
 <p>Each row in the body is <code>{ id?, name, note?, amount?, unit? }</code> or <code>{ id?, name, note?, optional? }</code>:</p>
-<li>A row with an <code>id</code> that belongs to this recipe is updated in place, and keeps that id. This is what lets 0009's links survive an edit that only fixes a typo.</li>
+<li>A row with an <code>id</code> that belongs to this recipe is updated in place, and keeps that id. This is what lets 0010's links survive an edit that only fixes a typo.</li>
 <li>A row with no <code>id</code> is inserted.</li>
 <li>A row that was in the recipe and is absent from the body is deleted. Deleting it cascades to its links, which is the intended meaning of removing an ingredient.</li>
 <li><code>position</code> is not sent. It is the row's index in the array.</li>
@@ -599,10 +600,10 @@
 
 <details><summary>Requirements, as written in the spec</summary>
 <h3>Goal</h3><p>An author writes a recipe's steps in order, nesting under a step whatever can be done during it, and a reader sees the steps numbered with the nested ones marked as things to do meanwhile.</p>
-<h3>Out of scope</h3><li>Linking a step to the ingredients and equipment it uses. That is 0009, and it is why steps keep their ids across an edit.</li>
-<li>Cooking mode, timers, ticking steps off, keeping the screen awake. 0011.</li>
-<li>A picture of what a step should look like. <code>imageKey</code> stays null; 0010.</li>
-<li>Cook's notes on a step. <code>steps.note</code> is the author's tip and part of the recipe; the cook's own dated notes are 0014 and a different table.</li>
+<h3>Out of scope</h3><li>Linking a step to the ingredients and equipment it uses. That is 0010, and it is why steps keep their ids across an edit.</li>
+<li>Cooking mode, timers, ticking steps off, keeping the screen awake. 0012.</li>
+<li>A picture of what a step should look like. <code>imageKey</code> stays null; 0011.</li>
+<li>Cook's notes on a step. <code>steps.note</code> is the author's tip and part of the recipe; the cook's own dated notes are 0015 and a different table.</li>
 <li>More than one level of nesting. A nested step cannot itself have nested steps, per the Data model section of <code>CLAUDE.md</code>, and the request shape below makes a second level impossible to express rather than merely refused.</li>
 <li>Converting a temperature written into a step's text. Only the <code>temperatureCelsius</code> column is converted, per 0006; prose is the author's and is never rewritten.</li>
 <li>Moving a step by dragging it into or out of a parent. A step moves within its level by drag or buttons; changing its level is a button, because a drag that can also re-parent is two gestures pretending to be one.</li>
@@ -631,7 +632,7 @@
 <p>Main steps are ordered by <code>position</code>, and so are the children within each one.</p>
 <p><strong>GET /api/recipes/:recipeId</strong> gains <code>steps</code>, an array of main steps in that shape, <code>[]</code> for a recipe with none. The list endpoint does not carry steps.</p>
 <p><strong>PATCH /api/recipes/:recipeId</strong> accepts a further optional field, <code>steps</code>, the complete list in the order it should have, in the same nested shape without <code>position</code>. It is written in the same transaction as the metadata and the lists from 0007, and the rules are the ones 0007 established:</p>
-<li>A row with an <code>id</code> that belongs to this recipe is updated in place and keeps its id, wherever it now sits: a step may move to another position, under another parent, or from nested to main and back, and stays the same step. This is what keeps 0009's links alive through an edit.</li>
+<li>A row with an <code>id</code> that belongs to this recipe is updated in place and keeps its id, wherever it now sits: a step may move to another position, under another parent, or from nested to main and back, and stays the same step. This is what keeps 0010's links alive through an edit.</li>
 <li>A row with no <code>id</code> is inserted.</li>
 <li>A row absent from the body is deleted. A main step absent from the body whose children are present elsewhere in the body keeps those children, which is how the promotion rule is expressed: the client lists the orphaned steps as main steps, and the server never deletes a row the body still names.</li>
 <li><code>position</code> is not sent; it is the index in its array. A child's <code>parentStepId</code> is the step it is listed under.</li>
@@ -650,7 +651,41 @@
 </details>
 </section>
 
-<p class="generated">Generated from <code>specs/*.md</code> by <code>pnpm specs:status</code> on 2026-09-16. Edit the specs, not this page.</p>
+<section id="spec-0009">
+<h2>0009: Review and mark as ready <span class="status in-progress">In progress</span></h2>
+<p class="goal">An author looks over a new recipe on one page and marks it ready to cook, and can change their mind either way from the recipe screen.</p>
+<p class="summary">6 of 7 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 86%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. <em>(Passes.)</em></li>
+<li class="todo">After "Steps" in the create flow the app continues to the review page, which shows the title, servings, total time, description, ingredients, equipment and steps that were entered. <em>(The review page is tested with a recipe that has a description, an ingredient and a step. The hand-off from Steps is wired; <strong>the flow was not walked on the simulator</strong> in this pass.)</em></li>
+<li class="done">Done with the switch off lands on the recipe still as a draft; Done with the switch on lands on the recipe marked ready, and the list shows no Draft chip for it, without a manual refresh. <em>(Tested: off sends nothing and lands on the recipe; on sends <code>ready</code>. The list follows through the cache update 0005 established.)</em></li>
+<li class="done">"Mark as ready" on the recipe screen sends <code>status: ready</code>, the screen and the list update without a refresh, and "Back to draft" reverses it, asserted in a component test with the mutation stubbed and seen on the simulator. <em>(Tested with the mutation stubbed, and seen on the simulator.)</em></li>
+<li class="done">Marking a recipe ready while offline sends nothing, shows the offline message, and leaves the status unchanged, asserted in a test. <em>(Tested on both the recipe screen and the review page.)</em></li>
+<li class="done">The switch and the control are found by role and name in tests, and the switch reports its state through <code>accessibilityState</code>. <em>(They are; the switch is the platform's own, which reports its state.)</em></li>
+<li class="done">The Latvian file lists every new key. <em>(The key test passes; the Latvian is a draft for the owner to correct.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>An author looks over a new recipe on one page and marks it ready to cook, and can change their mind either way from the recipe screen.</p>
+<h3>Out of scope</h3><li>Any new field on a recipe. This spec writes <code>status</code> and nothing else.</li>
+<li>Validation of readiness. A recipe with no steps can be marked ready; the author decides, per the Data model section of <code>CLAUDE.md</code>, and the app does not second-guess them.</li>
+<li>Editing anything from the review page. It shows; the edit screen and the earlier pages change. A review that also edits is a fifth editor to keep in step with the other four.</li>
+<li>Hiding drafts from anywhere, filtering by status, or sorting drafts apart. The list shows the chip and nothing more.</li>
+<li>Sharing, cooking, or anything that a <code>ready</code> recipe unlocks later. 0011 and 0017 own what readiness means to them.</li>
+<h3>Data model</h3><p>No changes. <code>recipes.status</code> from 0001 is used as it is.</p>
+<h3>API contract</h3><p>No changes. <code>PATCH /api/recipes/:recipeId</code> with <code>{ status }</code> has existed since 0005, moves a recipe between <code>draft</code> and <code>ready</code> in both directions, and returns the recipe. It answers 401, 404 with <code>RECIPE<em>NOT</em>FOUND</code>, and 400 with <code>VALIDATION_FAILED</code>, as 0005 specified and tested.</p>
+<h3>UI</h3><p><strong>Create flow, fourth page: <code>(app)/recipes/[id]/review</code>.</strong> After "Steps", the recipe as the reader will see it: title, servings and total time, the description, then the "What you need" and "Steps" sections 0007 and 0008 built for the recipe screen, reused as they are. Below them a switch, "Ready to cook", off by default because a recipe just typed in usually has a mistake somewhere, and a Done button. Done saves the status when the switch is on, and in either case lands on the recipe. 0008's Done and Skip continue here instead of landing on the recipe.</p>
+<p><strong>Recipe screen, <code>(app)/recipes/[id]</code>.</strong> Next to the Draft mark, a control that flips the status: "Mark as ready" on a draft, "Back to draft" on a ready recipe. Without this, a recipe created before this spec, or one whose author skipped the review, could never become ready. The chip in the list follows without a manual refresh. Offline, the control fails at once with the offline message and nothing changes, per the Offline section of <code>CLAUDE.md</code>.</p>
+<p>The status is a word and a mark, never a colour alone.</p>
+<p><strong>Components</strong>: the review page is a screen composed from existing components, and the status control is a <code>Button</code>. No new shared component is added, so no gallery entry is due.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian.</p>
+</details>
+</section>
+
+<p class="generated">Generated from <code>specs/*.md</code> by <code>pnpm specs:status</code> on 2026-09-17. Edit the specs, not this page.</p>
 </main>
 </body>
 </html>

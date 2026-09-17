@@ -5,7 +5,8 @@
     "detail": "Recepte",
     "edit": "Rediģēt recepti",
     "needs": "Kas vajadzīgs",
-    "steps": "Soļi"
+    "steps": "Soļi",
+    "review": "Pārskats"
   },
   "header": {
     "settings": "Iestatījumi",
@@ -17,7 +18,10 @@
   "servings_other": "{{count, number}} porcijas",
   "minutes": "{{count, number}} min",
   "status": {
-    "draft": "Melnraksts"
+    "draft": "Melnraksts",
+    "markReady": "Atzīmēt kā gatavu",
+    "backToDraft": "Atpakaļ uz melnrakstu",
+    "failed": "Neizdevās mainīt statusu. Mēģini vēlreiz."
   },
   "list": {
     "loading": "Ielādē receptes",
@@ -122,5 +126,11 @@
     "minutes": "{{count, number}} min",
     "hours": "{{count, number}} h",
     "hoursMinutes": "{{hours, number}} h {{minutes, number}} min"
+  },
+  "review": {
+    "screen": "Pārskats",
+    "ready": "Gatava gatavošanai",
+    "readyHelper": "Izslēgts, kamēr vēl jāpārbauda. To var mainīt vēlāk receptes lapā.",
+    "done": "Gatavs"
   }
 }

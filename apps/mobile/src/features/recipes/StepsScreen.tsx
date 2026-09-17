@@ -19,7 +19,7 @@ export interface StepsScreenProps {
   readonly recipeId: string;
 }
 
-/** The third page of the create flow. Done saves the steps and lands on the recipe. */
+/** The third page of the create flow. Done saves the steps and goes on to the review. */
 export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
@@ -37,8 +37,9 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
     // The draft is deliberately not a dependency: errors map onto the draft that was sent.
   }, [update.error]);
 
-  const landOnRecipe = () => {
-    router.replace({ pathname: '/recipes/[id]', params: { id: recipeId } });
+  // The last page, the review, is next; it is the one that lands on the recipe.
+  const continueToReview = () => {
+    router.replace({ pathname: '/recipes/[id]/review', params: { id: recipeId } });
   };
 
   const done = () => {
@@ -52,7 +53,7 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
       return;
     }
     setErrors({});
-    update.mutate({ steps: outcome.steps }, { onSuccess: landOnRecipe });
+    update.mutate({ steps: outcome.steps }, { onSuccess: continueToReview });
   };
 
   const failed =
@@ -81,7 +82,7 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
         ) : null}
         <Stack gap="space3">
           <Button label={t('recipes:steps.done')} loading={update.isPending} onPress={done} />
-          <Button label={t('recipes:steps.skip')} variant="ghost" onPress={landOnRecipe} />
+          <Button label={t('recipes:steps.skip')} variant="ghost" onPress={continueToReview} />
         </Stack>
       </Stack>
     </Screen>
