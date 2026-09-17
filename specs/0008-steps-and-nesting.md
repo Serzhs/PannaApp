@@ -5,7 +5,7 @@
 
 ## Context
 
-A recipe now knows what it needs but not what to do. The `steps` table has waited since 0001, and it is the reason the app exists: a step can be nested inside another to say "this happens while that cooks", which is what tells someone at the stove what else they could be getting on with. Nothing after this - links in 0009, cooking in 0011, the import in 0015 - has anything to work on until steps exist.
+A recipe now knows what it needs but not what to do. The `steps` table has waited since 0001, and it is the reason the app exists: a step can be nested inside another to say "this happens while that cooks", which is what tells someone at the stove what else they could be getting on with. Nothing after this - links in 0010, cooking in 0012, the import in 0016 - has anything to work on until steps exist.
 
 ## Goal
 
@@ -13,10 +13,10 @@ An author writes a recipe's steps in order, nesting under a step whatever can be
 
 ## Out of scope
 
-- Linking a step to the ingredients and equipment it uses. That is 0009, and it is why steps keep their ids across an edit.
-- Cooking mode, timers, ticking steps off, keeping the screen awake. 0011.
-- A picture of what a step should look like. `imageKey` stays null; 0010.
-- Cook's notes on a step. `steps.note` is the author's tip and part of the recipe; the cook's own dated notes are 0014 and a different table.
+- Linking a step to the ingredients and equipment it uses. That is 0010, and it is why steps keep their ids across an edit.
+- Cooking mode, timers, ticking steps off, keeping the screen awake. 0012.
+- A picture of what a step should look like. `imageKey` stays null; 0011.
+- Cook's notes on a step. `steps.note` is the author's tip and part of the recipe; the cook's own dated notes are 0015 and a different table.
 - More than one level of nesting. A nested step cannot itself have nested steps, per the Data model section of `CLAUDE.md`, and the request shape below makes a second level impossible to express rather than merely refused.
 - Converting a temperature written into a step's text. Only the `temperatureCelsius` column is converted, per 0006; prose is the author's and is never rewritten.
 - Moving a step by dragging it into or out of a parent. A step moves within its level by drag or buttons; changing its level is a button, because a drag that can also re-parent is two gestures pretending to be one.
@@ -66,7 +66,7 @@ Main steps are ordered by `position`, and so are the children within each one.
 
 **PATCH /api/recipes/:recipeId** accepts a further optional field, `steps`, the complete list in the order it should have, in the same nested shape without `position`. It is written in the same transaction as the metadata and the lists from 0007, and the rules are the ones 0007 established:
 
-- A row with an `id` that belongs to this recipe is updated in place and keeps its id, wherever it now sits: a step may move to another position, under another parent, or from nested to main and back, and stays the same step. This is what keeps 0009's links alive through an edit.
+- A row with an `id` that belongs to this recipe is updated in place and keeps its id, wherever it now sits: a step may move to another position, under another parent, or from nested to main and back, and stays the same step. This is what keeps 0010's links alive through an edit.
 - A row with no `id` is inserted.
 - A row absent from the body is deleted. A main step absent from the body whose children are present elsewhere in the body keeps those children, which is how the promotion rule is expressed: the client lists the orphaned steps as main steps, and the server never deletes a row the body still names.
 - `position` is not sent; it is the index in its array. A child's `parentStepId` is the step it is listed under.

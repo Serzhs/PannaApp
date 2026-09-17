@@ -59,7 +59,7 @@ just say it simply.
 | Lint           | ESLint 9 flat config, `typescript-eslint` strict-type-checked                                   |
 | Format         | Prettier, with `eslint-config-prettier` disabling all conflicting rules                         |
 
-Explicitly **not** used: CSS Modules (does not work in React Native), **react-native-unistyles**, NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL, Moti (Reanimated directly is enough for what this app does), `react-native-skia` (revisit only if the cooking view in 0011 genuinely outgrows Reanimated).
+Explicitly **not** used: CSS Modules (does not work in React Native), **react-native-unistyles**, NativeWind, styled-components, Redux, Prisma, TypeORM, GraphQL, Moti (Reanimated directly is enough for what this app does), `react-native-skia` (revisit only if the cooking view in 0012 genuinely outgrows Reanimated).
 
 **Why unistyles is out.** It was the original choice and it needs `react-native-nitro-modules`,
 which is native code Expo Go does not carry. Running it meant building the app locally, which at
@@ -272,7 +272,7 @@ contract and for AI tool calling, and a `tools` table would be read wrong.
 **Why these are tables and not arrays on `steps`.** Postgres cannot put a foreign key on ids inside an
 array, so `steps.ingredientIds` would let a step keep pointing at an ingredient the author deleted -
 silently, with nothing to clean it up. A join row cascades away on its own. Two further reasons: "which
-steps use the carrots?" is one query here and a scan-and-unpack against arrays, and 0012 needs exactly
+steps use the carrots?" is one query here and a scan-and-unpack against arrays, and 0013 needs exactly
 that question; and copying a recipe rewrites every id, which is easier to get right inserting mapped
 rows than parsing, remapping and re-serialising JSON.
 
