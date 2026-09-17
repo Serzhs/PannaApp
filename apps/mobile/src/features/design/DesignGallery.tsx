@@ -439,14 +439,17 @@ function Reorderables(): React.JSX.Element {
   return (
     <Section title="ReorderableList">
       <Text variant="caption" color="textSecondary">
-        Use the buttons. The first has no up, the last no down.
+        The buttons sit inside the card. The first has no up, the last no down.
       </Text>
       <ReorderableList
         items={items}
         keyOf={(item) => item}
-        renderItem={(item) => (
+        renderItem={(item, _index, controls) => (
           <Card>
-            <Text>{item}</Text>
+            <Stack gap="space2">
+              {controls}
+              <Text>{item}</Text>
+            </Stack>
           </Card>
         )}
         onMove={(from, to) => {
@@ -455,6 +458,8 @@ function Reorderables(): React.JSX.Element {
         labels={{
           moveUp: (item) => `Move ${item} up`,
           moveDown: (item) => `Move ${item} down`,
+          up: 'Move up',
+          down: 'Move down',
         }}
       />
     </Section>

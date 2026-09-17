@@ -7,6 +7,8 @@ import { Text } from '@/components/Text';
 const labels = {
   moveUp: (item: string) => `Move ${item} up`,
   moveDown: (item: string) => `Move ${item} down`,
+  up: 'Move up',
+  down: 'Move down',
 };
 
 function renderList(items: readonly string[], onMove = jest.fn()) {
@@ -14,7 +16,12 @@ function renderList(items: readonly string[], onMove = jest.fn()) {
     <ReorderableList
       items={items}
       keyOf={(item) => item}
-      renderItem={(item) => <Text>{item}</Text>}
+      renderItem={(item, _index, controls) => (
+        <>
+          {controls}
+          <Text>{item}</Text>
+        </>
+      )}
       onMove={onMove}
       labels={labels}
     />,
@@ -22,10 +29,13 @@ function renderList(items: readonly string[], onMove = jest.fn()) {
 }
 
 describe('ReorderableList', () => {
-  it('renders every item with move buttons and nothing to drag, per 0020', async () => {
+  it('renders every item with worded move buttons and nothing to drag', async () => {
     await renderList(['Beetroot', 'Kefir', 'Dill']);
     expect(screen.getByText('Kefir')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Move Kefir up' })).toBeTruthy();
+    // Two lines can go up and two can go down; the words are what everyone sees.
+    expect(screen.getAllByText('↑ Move up')).toHaveLength(2);
+    expect(screen.getAllByText('↓ Move down')).toHaveLength(2);
     expect(screen.queryByRole('button', { name: /drag/i })).toBeNull();
   });
 
@@ -41,6 +51,8 @@ describe('ReorderableList', () => {
   it('reports a move as from and to', async () => {
     const onMove = jest.fn();
     await renderList(['Beetroot', 'Kefir', 'Dill'], onMove);
+    await fireEvent.press(screen.getByRole('button', { name: 'Move Beetroot down' }));
+    expect(onMove).toHaveBeenCalledWith(0, 1);
     await fireEvent.press(screen.getByRole('button', { name: 'Move Kefir up' }));
     expect(onMove).toHaveBeenCalledWith(1, 0);
     await fireEvent.press(screen.getByRole('button', { name: 'Move Kefir down' }));

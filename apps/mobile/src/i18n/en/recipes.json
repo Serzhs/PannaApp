@@ -93,7 +93,9 @@
     "done": "Done",
     "skip": "Skip for now",
     "screen": "What you need",
-    "addNote": "Add a note"
+    "addNote": "Add a note",
+    "up": "Move up",
+    "down": "Move down"
   },
   "steps": {
     "title": "Steps",

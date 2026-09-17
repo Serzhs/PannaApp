@@ -37,8 +37,8 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">181 of 198 acceptance criteria verified across 11 written specs.</p>
-<div class="bar"><div style="width: 91%"></div></div>
+<p class="summary">187 of 204 acceptance criteria verified across 12 written specs.</p>
+<div class="bar"><div style="width: 92%"></div></div>
 
 <h2>All specs</h2>
 <table>
@@ -64,6 +64,7 @@
 <tr><td>0018</td><td>Avatars and the tab bar</td><td><span class="status not-written">Not written</span></td><td>–</td><td>An avatar, an editable name, and three tabs to reach things by.</td></tr>
 <tr><td>0019</td><td>Featured recipes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A searchable set of recipes we wrote, to start from.</td></tr>
 <tr><td><a href="#spec-0020">0020</a></td><td>Simpler editing</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>No temperature field, the note behind a button, lines moved by buttons.</td></tr>
+<tr><td><a href="#spec-0021">0021</a></td><td>Move buttons in the card</td><td><span class="status \1in-progress">\1In progress</span></td><td>6 / 6</td><td>The move arrows sit on the card's first line, with words beside them.</td></tr>
 </tbody>
 </table>
 
@@ -792,6 +793,42 @@
 <p>half of 0006's converter and formatter, and their tests and gallery entries. The step line's gallery</p>
 <p>entry shows a step with the note button and one with the note open; the reorderable list's entry</p>
 <p>shows the buttons only.</p>
+</details>
+</section>
+
+<section id="spec-0021">
+<h2>0021: Move buttons in the card <span class="status done">Done</span></h2>
+<p class="goal">The move controls sit inside the card, on its first line, and say what they do.</p>
+<p class="summary">6 of 6 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. <em>(<code>pnpm check</code>: shared 9, API 118, mobile 819 tests.)</em></li>
+<li class="done">In a rendered list of three, the first line has a "Move down" button and no "Move up", the</li>
+<li class="done">Pressing "Move down" on the first line reports a move from 0 to 1, asserted in a test. <em>(ReorderableList test "reports a move as from and to".)</em></li>
+<li class="done">On the simulator the arrows and their words sit on the "Step N" line inside each step card,</li>
+<li class="done">The gallery's reorderable list entry shows the control inside a card. <em>(The entry places the control inside its card.)</em></li>
+<li class="done">The Latvian file lists the two new labels. <em>(<code>needs.up</code> "Augšup", <code>needs.down</code> "Lejup"; the key-parity test passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>The move controls sit inside the card, on its first line, and say what they do.</p>
+<h3>Out of scope</h3><li>Any change to how lines are reordered underneath. The list still reports "from here to there".</li>
+<li>Moving a step between levels. That stays with the buttons 0008 gave it.</li>
+<li>Dragging. 0020 removed it and it stays removed.</li>
+<h3>Data model</h3><p>None.</p>
+<h3>API contract</h3><p>None.</p>
+<h3>UI</h3><p>The reorderable list no longer draws a column. It hands each row a ready-made control: an up</p>
+<p>button reading "↑ Move up" and a down button reading "↓ Move down", in small text, the first</p>
+<p>line without up and the last without down, and a line on its own with neither. Each button is a</p>
+<p>44-point target. The owner of the list places the control where its card wants it.</p>
+<p><strong>Steps.</strong> The control sits on the header line, after "Step 1" or "Step 2a, during step 2",</p>
+<p>aligned to the end. Nested steps get the same line as main ones.</p>
+<p><strong>Ingredients and equipment.</strong> Their cards have no header line, so the control sits on a line of</p>
+<p>its own at the top of the card, aligned to the end. A card with nothing to move has no such line.</p>
+<p>To a screen reader each button still announces which line it moves, as before: "Move Beetroot</p>
+<p>up", never just "Move up".</p>
 </details>
 </section>
 

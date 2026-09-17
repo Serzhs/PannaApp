@@ -39,6 +39,8 @@ export function NeedsEditor({ value, errors, onChange }: NeedsEditorProps): Reac
     moveUp: (line: { readonly name: string }) => t('recipes:needs.moveUp', { name: nameOf(line) }),
     moveDown: (line: { readonly name: string }) =>
       t('recipes:needs.moveDown', { name: nameOf(line) }),
+    up: t('recipes:needs.up'),
+    down: t('recipes:needs.down'),
   };
 
   const setIngredients = (ingredients: readonly IngredientDraft[]) => {
@@ -61,9 +63,10 @@ export function NeedsEditor({ value, errors, onChange }: NeedsEditorProps): Reac
           onMove={(from, to) => {
             setIngredients(move(value.ingredients, from, to));
           }}
-          renderItem={(line, index) => (
+          renderItem={(line, index, controls) => (
             <Card>
               <Stack gap="space3">
+                {controls}
                 <IngredientLine
                   line={line}
                   errors={errors[line.key] ?? {}}
@@ -109,9 +112,10 @@ export function NeedsEditor({ value, errors, onChange }: NeedsEditorProps): Reac
           onMove={(from, to) => {
             setEquipment(move(value.equipment, from, to));
           }}
-          renderItem={(line, index) => (
+          renderItem={(line, index, controls) => (
             <Card>
               <Stack gap="space3">
+                {controls}
                 <EquipmentLine
                   line={line}
                   errors={errors[line.key] ?? {}}

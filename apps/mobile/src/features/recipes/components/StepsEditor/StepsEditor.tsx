@@ -51,6 +51,8 @@ export function StepsEditor({
   const labelsFor = (label: (line: StepDraft) => string) => ({
     moveUp: (line: StepDraft) => t('recipes:needs.moveUp', { name: nameOf(line, label(line)) }),
     moveDown: (line: StepDraft) => t('recipes:needs.moveDown', { name: nameOf(line, label(line)) }),
+    up: t('recipes:needs.up'),
+    down: t('recipes:needs.down'),
   });
 
   const setMain = (index: number, next: StepDraft) => {
@@ -80,12 +82,15 @@ export function StepsEditor({
         onMove={(from, to) => {
           onChange(moveMain(value, from, to));
         }}
-        renderItem={(main, index) => (
+        renderItem={(main, index, controls) => (
           <Card>
             <Stack gap="space3">
-              <Text variant="label" color="textSecondary">
-                {t('recipes:steps.number', { number: index + 1 })}
-              </Text>
+              <View style={styles.header}>
+                <Text variant="label" color="textSecondary">
+                  {t('recipes:steps.number', { number: index + 1 })}
+                </Text>
+                {controls}
+              </View>
               <StepLine
                 line={main}
                 ingredients={ingredients}
@@ -112,15 +117,18 @@ export function StepsEditor({
                     onMove={(from, to) => {
                       onChange(moveChild(value, index, from, to));
                     }}
-                    renderItem={(child, childIndex) => (
+                    renderItem={(child, childIndex, controls) => (
                       <Card>
                         <Stack gap="space3">
-                          <Text variant="label" color="textSecondary">
-                            {t('recipes:steps.nestedNumber', {
-                              number: index + 1,
-                              letter: LETTERS[childIndex] ?? '',
-                            })}
-                          </Text>
+                          <View style={styles.header}>
+                            <Text variant="label" color="textSecondary">
+                              {t('recipes:steps.nestedNumber', {
+                                number: index + 1,
+                                letter: LETTERS[childIndex] ?? '',
+                              })}
+                            </Text>
+                            {controls}
+                          </View>
                           <StepLine
                             line={child}
                             ingredients={ingredients}

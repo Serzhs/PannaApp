@@ -94,7 +94,9 @@
     "done": "Gatavs",
     "skip": "Izlaist pagaidām",
     "screen": "Kas vajadzīgs",
-    "addNote": "Pievienot piezīmi"
+    "addNote": "Pievienot piezīmi",
+    "up": "Augšup",
+    "down": "Lejup"
   },
   "steps": {
     "title": "Soļi",

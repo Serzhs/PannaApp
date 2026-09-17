@@ -1,6 +1,6 @@
 # 0021: Move buttons in the card
 
-**Status:** Draft
+**Status:** Done
 **Depends on:** 0020
 
 ## Context
@@ -45,14 +45,14 @@ up", never just "Move up".
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] In a rendered list of three, the first line has a "Move down" button and no "Move up", the
-      last the reverse, the middle both, and a list of one has neither, asserted in a test.
-- [ ] Pressing "Move down" on the first line reports a move from 0 to 1, asserted in a test.
-- [ ] On the simulator the arrows and their words sit on the "Step N" line inside each step card,
-      main and nested, and at the top of each ingredient card, with no column beside the cards.
-- [ ] The gallery's reorderable list entry shows the control inside a card.
-- [ ] The Latvian file lists the two new labels.
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 118, mobile 819 tests.)_
+- [x] In a rendered list of three, the first line has a "Move down" button and no "Move up", the
+      last the reverse, the middle both, and a list of one has neither, asserted in a test. _(ReorderableList tests, by accessible name and by the visible words.)_
+- [x] Pressing "Move down" on the first line reports a move from 0 to 1, asserted in a test. _(ReorderableList test "reports a move as from and to".)_
+- [x] On the simulator the arrows and their words sit on the "Step N" line inside each step card,
+      main and nested, and at the top of each ingredient card, with no column beside the cards. _(Seen: "↓ Move down" at the top of the beetroot card, "↑ Move up" on the "Step 2" line, cards at full width.)_
+- [x] The gallery's reorderable list entry shows the control inside a card. _(The entry places the control inside its card.)_
+- [x] The Latvian file lists the two new labels. _(`needs.up` "Augšup", `needs.down` "Lejup"; the key-parity test passes.)_
 
 ## Open questions
 
