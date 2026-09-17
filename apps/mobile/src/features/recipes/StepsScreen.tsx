@@ -12,7 +12,6 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
-import { useUnitSystem } from '@/features/units/useUnitSystem';
 import { useIsOnline } from '@/query/useIsOnline';
 
 export interface StepsScreenProps {
@@ -24,7 +23,6 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
   const online = useIsOnline();
-  const system = useUnitSystem();
   const update = useUpdateRecipe(recipeId);
   // Page two just saved the lists, so the detail is in the cache; the chips need their ids.
   const recipe = useRecipe(recipeId);
@@ -49,7 +47,7 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
       setTriedOffline(true);
       return;
     }
-    const outcome = validateSteps(draft, system);
+    const outcome = validateSteps(draft);
     if (!outcome.ok) {
       setErrors(outcome.errors);
       return;

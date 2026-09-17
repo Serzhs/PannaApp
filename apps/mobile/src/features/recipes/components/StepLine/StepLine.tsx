@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { StepDraft, StepField } from '../../steps';
 import { DurationField } from '../DurationField';
 import { LinkChips, type Linkable } from '../LinkChips';
-import { TemperatureField } from '../TemperatureField';
+import { NoteField } from '../NoteField';
 
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
@@ -18,7 +18,7 @@ export interface StepLineProps {
   readonly equipment: readonly Linkable[];
 }
 
-/** One step as the author writes it: the instruction, then the tip, then how long and how hot. */
+/** One step as the author writes it: the instruction, how long, what it uses, then the tip. */
 export function StepLine({
   line,
   errors = {},
@@ -42,27 +42,12 @@ export function StepLine({
         multiline
         {...(errors.body ? { error: t('recipes:steps.errors.body') } : {})}
       />
-      <TextField
-        label={t('recipes:steps.note')}
-        value={line.note}
-        onChangeText={(note) => {
-          set({ note });
-        }}
-        helper={t('recipes:steps.noteHelper')}
-      />
       <DurationField
         value={line.durationSeconds}
         onChange={(durationSeconds) => {
           set({ durationSeconds });
         }}
         {...(errors.duration ? { error: t('recipes:steps.errors.duration') } : {})}
-      />
-      <TemperatureField
-        value={line.temperature}
-        onChangeText={(temperature) => {
-          set({ temperature });
-        }}
-        {...(errors.temperature ? { error: t('recipes:steps.errors.temperature') } : {})}
       />
       <LinkChips
         title={t('recipes:steps.uses')}
@@ -87,6 +72,15 @@ export function StepLine({
           {t('recipes:steps.errors.links')}
         </Text>
       ) : null}
+      <NoteField
+        label={t('recipes:steps.note')}
+        addLabel={t('recipes:steps.addNote')}
+        value={line.note}
+        onChangeText={(note) => {
+          set({ note });
+        }}
+        helper={t('recipes:steps.noteHelper')}
+      />
     </Stack>
   );
 }

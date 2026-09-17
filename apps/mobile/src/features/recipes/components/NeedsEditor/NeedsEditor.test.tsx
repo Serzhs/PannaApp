@@ -42,4 +42,20 @@ describe('NeedsEditor', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Add equipment' }));
     expect(screen.getByRole('switch', { name: 'Optional' })).toHaveProp('value', false);
   });
+
+  it("keeps each line's note behind a button until it is wanted, per 0020", async () => {
+    await render(
+      <Harness
+        initial={{
+          ingredients: [{ key: 'a', name: 'Beetroot', amount: '', unit: null, note: '' }],
+          equipment: [{ key: 'e', name: 'Blender', note: 'Big one', optional: false }],
+        }}
+      />,
+    );
+    // The ingredient has no note: a button. The equipment has one: its field, open.
+    expect(screen.getAllByLabelText('Note')).toHaveLength(1);
+    expect(screen.getByLabelText('Note')).toHaveProp('value', 'Big one');
+    await fireEvent.press(screen.getByRole('button', { name: 'Add a note' }));
+    expect(screen.getAllByLabelText('Note')).toHaveLength(2);
+  });
 });

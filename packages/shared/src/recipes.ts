@@ -91,7 +91,6 @@ const stepBody = z.string().trim().min(1).max(2000);
 const stepNote = z.string().trim().max(500);
 const durationSeconds = z.number().int().min(1).max(86400);
 /** Stored in Celsius whatever the author typed; -50 covers a freezer, 500 a pizza oven. */
-const temperatureCelsius = z.number().int().min(-50).max(500);
 
 /** 0010. Which of the recipe's own rows a step uses, in the order of those lists. */
 const linkIds = z.array(z.string().uuid());
@@ -102,7 +101,6 @@ const stepFields = {
   body: stepBody,
   note: stepNote.nullable(),
   durationSeconds: durationSeconds.nullable(),
-  temperatureCelsius: temperatureCelsius.nullable(),
   ingredientIds: linkIds,
   equipmentIds: linkIds,
 };
@@ -116,7 +114,6 @@ const stepInputFields = {
   body: stepBody,
   note: stepNote.nullable().optional(),
   durationSeconds: durationSeconds.nullable().optional(),
-  temperatureCelsius: temperatureCelsius.nullable().optional(),
   ingredientIds: linkIds.optional(),
   equipmentIds: linkIds.optional(),
 };

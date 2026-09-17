@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Switch, View } from 'react-native';
 
 import type { EquipmentDraft, LineField } from '../../needs';
+import { NoteField } from '../NoteField';
 
 import { styles } from './EquipmentLine.styles';
 
@@ -36,8 +37,9 @@ export function EquipmentLine({
         }}
         {...(errors.name ? { error: t('recipes:needs.errors.name') } : {})}
       />
-      <TextField
+      <NoteField
         label={t('recipes:needs.note')}
+        addLabel={t('recipes:needs.addNote')}
         value={line.note}
         onChangeText={(note) => {
           set({ note });

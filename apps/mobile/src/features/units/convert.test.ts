@@ -1,7 +1,7 @@
 import { unitSchema, type Unit } from '@panna/shared';
 
-import { convertAmount, convertTemperature, dimensionOf, fromCelsius, toCelsius } from './convert';
-import { formatAmount, formatTemperature } from './format';
+import { convertAmount, dimensionOf } from './convert';
+import { formatAmount } from './format';
 
 import { i18n } from '@/i18n';
 
@@ -117,24 +117,6 @@ describe('convertAmount', () => {
   });
 });
 
-describe('convertTemperature', () => {
-  /** The criterion: 180 shows as 356°F. Only the structured column reaches this. */
-  it('turns 180°C into 356°F for an imperial reader, and leaves it for a metric one', () => {
-    expect(convertTemperature(180, 'imperial')).toEqual({ degrees: 356, scale: 'fahrenheit' });
-    expect(convertTemperature(180, 'metric')).toEqual({ degrees: 180, scale: 'celsius' });
-  });
-});
-
-describe('typing a temperature in your own unit', () => {
-  /** 0008 accepted a degree of drift: 350 becomes 177 becomes 351. */
-  it('stores what an imperial author typed as Celsius, and reads it back a degree off at most', () => {
-    expect(toCelsius(350, 'imperial')).toBe(177);
-    expect(fromCelsius(177, 'imperial')).toBe(351);
-    expect(toCelsius(180, 'metric')).toBe(180);
-    expect(fromCelsius(180, 'metric')).toBe(180);
-  });
-});
-
 describe('formatting', () => {
   it('reads as something a person would say, marked approximate when converted', () => {
     expect(formatAmount(250, 'ml', 'imperial', t, 'en')).toBe('about 1 cup');
@@ -142,7 +124,5 @@ describe('formatting', () => {
     expect(formatAmount(500, 'ml', 'imperial', t, 'en')).toBe('about 2 cups');
     expect(formatAmount(500, 'g', 'metric', t, 'en')).toBe('500 g');
     expect(formatAmount(2, 'clove', 'imperial', t, 'en')).toBe('2 cloves');
-    expect(formatTemperature(180, 'imperial', t)).toBe('356°F');
-    expect(formatTemperature(180, 'metric', t)).toBe('180°C');
   });
 });

@@ -1,6 +1,6 @@
 # 0020: Simpler editing
 
-**Status:** Draft
+**Status:** Done
 **Depends on:** 0007, 0008, 0010
 
 ## Context
@@ -22,7 +22,6 @@ The editor shows a field only when it is wanted, and lines move with buttons alo
 
 - Removing the note itself. `steps.note` stays, and the recipe screen still shows it; only the editor
   hides the field until asked.
-- Ingredient and equipment notes. Their fields stay as 0007 built them. _(See Open questions.)_
 - The unit converter for mass and volume from 0006. Only the temperature part goes.
 - Any other change to the reorderable list: the animation on move, a swipe to delete, or moving a
   step between levels by anything but the buttons 0008 gave it.
@@ -51,6 +50,9 @@ field in its place and moves focus into it. A step that already has a note shows
 start, so an existing note is never hidden behind a button. Clearing the text keeps the field open
 until the screen is left; an empty note saves as null, as before.
 
+**Ingredient and equipment lines** get the same button in place of their always-open note field, so
+the three editors behave alike and each line is shorter.
+
 **Lists, everywhere they are edited.** The reorderable list loses its drag handle and the gesture
 behind it. A line moves with the move up and move down buttons only, which were always what a screen
 reader user had. The two arrows sit in a narrow column at the end of the row, each a 44-point target
@@ -67,25 +69,24 @@ shows the buttons only.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] `pnpm db:migrate` on the existing development database drops the column, and `pnpm db:seed`
-      still runs.
-- [ ] A `PATCH` with `temperatureCelsius` on a step returns 400 naming
-      `steps.0.temperatureCelsius`, and `GET` returns steps without the key, asserted end to end.
-- [ ] The recipe screen shows a step's duration alone on its timing line, and a step's accessible
-      name carries number, body, duration, links and note, asserted in a component test.
-- [ ] A step with no note shows "Add a note" and no note field; pressing it shows the field. A step
-      with a note shows the field at once. Both asserted in a component test.
-- [ ] No element named for dragging exists in a rendered list, asserted in a test, and a line still
-      moves with the buttons.
-- [ ] The step editor on the simulator shows no temperature field, no open note field on a fresh
-      step, and arrows without a handle, with a list line noticeably wider than before.
-- [ ] Nothing in `apps/mobile` imports the removed temperature code, and the gallery has no entry
-      for it.
-- [ ] The Latvian file has no key the English file lacks and lists the new "Add a note" key.
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 118, mobile 819 tests.)_
+- [x] `pnpm db:migrate` on the existing development database drops the column, and `pnpm db:seed`
+      still runs. _(Migration `0001_drop-step-temperature` applied to the dev database, then reseeded.)_
+- [x] A `PATCH` with `temperatureCelsius` on a step returns 400 naming
+      `steps.0.temperatureCelsius`, and `GET` returns steps without the key, asserted end to end. _(e2e "rejects a temperature, which 0020 removed"; every step response is parsed by the shared schema, which no longer has the key.)_
+- [x] The recipe screen shows a step's duration alone on its timing line, and a step's accessible
+      name carries number, body, duration, links and note, asserted in a component test. _(StepsSection tests: "10 min" alone; label "Step 1. Heat the oven. Fan off" and the link test from 0010.)_
+- [x] A step with no note shows "Add a note" and no note field; pressing it shows the field. A step
+      with a note shows the field at once. Both asserted in a component test, and the same for an
+      ingredient line and an equipment line. _(NoteField and StepLine tests; NeedsEditor test covers an ingredient without a note and equipment with one.)_
+- [x] No element named for dragging exists in a rendered list, asserted in a test, and a line still
+      moves with the buttons. _(ReorderableList tests.)_
+- [x] The step editor on the simulator shows no temperature field, no open note field on a fresh
+      step, and arrows without a handle, with a list line noticeably wider than before. _(Seen: "Add a note" on ingredient, equipment and steps; the field opened with focus on press; a saved note open at once; arrows only. A list with one line now takes the full width.)_
+- [x] Nothing in `apps/mobile` imports the removed temperature code, and the gallery has no entry
+      for it. _(The component folder and the converter functions are deleted, so an import would fail typecheck.)_
+- [x] The Latvian file has no key the English file lacks and lists the new "Add a note" key. _(`needs.addNote` and `steps.addNote` as "Pievienot piezīmi"; the key-parity test passes.)_
 
 ## Open questions
 
-- Should ingredient and equipment notes also sit behind an "Add a note" button? The request named
-  steps. Doing the lists too keeps the three editors alike and shortens each ingredient line; leaving
-  them as they are keeps this spec small. Either is a few lines of work.
+None.

@@ -1,7 +1,7 @@
 import type { Unit, UnitSystem } from '@panna/shared';
 import type { TFunction } from 'i18next';
 
-import { convertAmount, convertTemperature, type Amount } from './convert';
+import { convertAmount, type Amount } from './convert';
 
 /** Cup fractions read as fractions, not as 0.333. */
 const VULGAR: ReadonlyMap<number, string> = new Map([
@@ -32,9 +32,4 @@ export function formatAmount(
   const count = converted.amount < 1 ? 1 : converted.amount;
   const text = `${formatNumber(converted.amount, locale)} ${t(`units:${converted.unit}`, { count })}`;
   return converted.approximate ? t('units:approximate', { amount: text }) : text;
-}
-
-export function formatTemperature(celsius: number, system: UnitSystem, t: TFunction): string {
-  const converted = convertTemperature(celsius, system);
-  return t(`units:${converted.scale}`, { degrees: converted.degrees });
 }

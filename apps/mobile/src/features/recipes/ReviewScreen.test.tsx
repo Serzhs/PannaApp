@@ -40,7 +40,6 @@ const mockDetail: RecipeDetail = {
       body: 'Roast',
       note: null,
       durationSeconds: null,
-      temperatureCelsius: null,
       ingredientIds: [],
       equipmentIds: [],
       children: [],

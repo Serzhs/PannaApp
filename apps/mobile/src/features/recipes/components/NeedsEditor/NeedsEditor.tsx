@@ -39,7 +39,6 @@ export function NeedsEditor({ value, errors, onChange }: NeedsEditorProps): Reac
     moveUp: (line: { readonly name: string }) => t('recipes:needs.moveUp', { name: nameOf(line) }),
     moveDown: (line: { readonly name: string }) =>
       t('recipes:needs.moveDown', { name: nameOf(line) }),
-    drag: (line: { readonly name: string }) => t('recipes:needs.drag', { name: nameOf(line) }),
   };
 
   const setIngredients = (ingredients: readonly IngredientDraft[]) => {

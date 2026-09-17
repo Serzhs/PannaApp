@@ -25,7 +25,6 @@ import { NeedsSection } from '@/features/recipes/components/NeedsSection';
 import { StepLine } from '@/features/recipes/components/StepLine';
 import { StepsEditor } from '@/features/recipes/components/StepsEditor';
 import { StepsSection } from '@/features/recipes/components/StepsSection';
-import { TemperatureField } from '@/features/recipes/components/TemperatureField';
 import { UnitPicker } from '@/features/recipes/components/UnitPicker';
 import { move, type EquipmentDraft, type IngredientDraft } from '@/features/recipes/needs';
 import type { MainStepDraft, StepDraft } from '@/features/recipes/steps';
@@ -440,7 +439,7 @@ function Reorderables(): React.JSX.Element {
   return (
     <Section title="ReorderableList">
       <Text variant="caption" color="textSecondary">
-        Drag the handle, or use the buttons. The first has no up, the last no down.
+        Use the buttons. The first has no up, the last no down.
       </Text>
       <ReorderableList
         items={items}
@@ -456,7 +455,6 @@ function Reorderables(): React.JSX.Element {
         labels={{
           moveUp: (item) => `Move ${item} up`,
           moveDown: (item) => `Move ${item} down`,
-          drag: (item) => `Drag to reorder ${item}`,
         }}
       />
     </Section>
@@ -530,13 +528,11 @@ function NeedsLines(): React.JSX.Element {
 
 function StepPieces(): React.JSX.Element {
   const [duration, setDuration] = useState<number | null>(5400);
-  const [temperature, setTemperature] = useState('180');
   const [line, setLine] = useState<StepDraft>({
     key: 's1',
     body: 'Roast the beetroot until a knife slides in',
     note: 'Turn once',
     durationSeconds: 3600,
-    temperature: '200',
     ingredientIds: [],
     equipmentIds: [],
   });
@@ -546,7 +542,6 @@ function StepPieces(): React.JSX.Element {
       body: 'Heat the oven',
       note: '',
       durationSeconds: 600,
-      temperature: '180',
       ingredientIds: [],
       equipmentIds: [],
       children: [],
@@ -556,7 +551,6 @@ function StepPieces(): React.JSX.Element {
       body: 'Roast the beetroot',
       note: '',
       durationSeconds: 3600,
-      temperature: '',
       ingredientIds: [],
       equipmentIds: [],
       children: [
@@ -565,7 +559,6 @@ function StepPieces(): React.JSX.Element {
           body: 'Chop the dill',
           note: '',
           durationSeconds: 120,
-          temperature: '',
           ingredientIds: [],
           equipmentIds: [],
         },
@@ -584,19 +577,17 @@ function StepPieces(): React.JSX.Element {
           />
         </Stack>
       </Section>
-      <Section title="TemperatureField">
-        <Stack gap="space4">
-          <TemperatureField value={temperature} onChangeText={setTemperature} />
-          <TemperatureField
-            value="hot"
-            onChangeText={() => undefined}
-            error="Temperature is a whole number."
-          />
-        </Stack>
-      </Section>
       <Section title="StepLine">
         <Card>
           <StepLine line={line} onChange={setLine} ingredients={LINKABLE} equipment={[]} />
+        </Card>
+        <Card>
+          <StepLine
+            line={{ ...line, key: 'g-noted', note: 'Do not let the garlic brown.' }}
+            onChange={() => undefined}
+            ingredients={LINKABLE}
+            equipment={[]}
+          />
         </Card>
       </Section>
       <Section title="StepsEditor">
@@ -620,7 +611,6 @@ function StepPieces(): React.JSX.Element {
                 body: 'Heat the oven',
                 note: 'Fan off',
                 durationSeconds: 600,
-                temperatureCelsius: 180,
                 ingredientIds: ['n1'],
                 equipmentIds: [],
                 children: [],
@@ -631,7 +621,6 @@ function StepPieces(): React.JSX.Element {
                 body: 'Roast the beetroot',
                 note: null,
                 durationSeconds: 3600,
-                temperatureCelsius: null,
                 ingredientIds: [],
                 equipmentIds: [],
                 children: [
@@ -641,7 +630,6 @@ function StepPieces(): React.JSX.Element {
                     body: 'Chop the dill',
                     note: null,
                     durationSeconds: 120,
-                    temperatureCelsius: null,
                     ingredientIds: [],
                     equipmentIds: [],
                   },
@@ -651,7 +639,6 @@ function StepPieces(): React.JSX.Element {
                     body: 'Boil the eggs',
                     note: 'Nine minutes, then cold water',
                     durationSeconds: 540,
-                    temperatureCelsius: null,
                     ingredientIds: [],
                     equipmentIds: [],
                   },

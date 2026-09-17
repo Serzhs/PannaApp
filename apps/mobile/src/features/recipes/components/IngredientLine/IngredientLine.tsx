@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import type { IngredientDraft, LineField } from '../../needs';
+import { NoteField } from '../NoteField';
 import { UnitPicker } from '../UnitPicker';
 
 import { styles } from './IngredientLine.styles';
@@ -66,8 +67,9 @@ export function IngredientLine({
           error={t('recipes:needs.errors.unit')}
         />
       ) : null}
-      <TextField
+      <NoteField
         label={t('recipes:needs.note')}
+        addLabel={t('recipes:needs.addNote')}
         value={line.note}
         onChangeText={(note) => {
           set({ note });

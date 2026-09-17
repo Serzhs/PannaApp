@@ -1,0 +1,1 @@
+ALTER TABLE "steps" DROP COLUMN "temperature_celsius";

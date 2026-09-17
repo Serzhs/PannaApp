@@ -159,32 +159,4 @@ export function convertAmount(amount: number, unit: Unit, system: UnitSystem): A
   return system === 'imperial' ? volumeToImperial(ml) : volumeToMetric(ml);
 }
 
-export interface Temperature {
-  readonly degrees: number;
-  readonly scale: 'celsius' | 'fahrenheit';
-}
-
-/**
- * Only the structured `temperatureCelsius` column ever reaches this. A temperature
- * written into a step's text is prose the author wrote, and is never rewritten.
- */
-export function convertTemperature(celsius: number, system: UnitSystem): Temperature {
-  if (system === 'metric') return { degrees: celsius, scale: 'celsius' };
-  return { degrees: Math.round((celsius * 9) / 5 + 32), scale: 'fahrenheit' };
-}
-
-/** The author's unit, for a field labelled °F on an imperial device. Celsius is what is stored. */
-export function fromCelsius(celsius: number, system: UnitSystem): number {
-  return convertTemperature(celsius, system).degrees;
-}
-
-/**
- * What an author typed in their own unit, as the Celsius the table stores. Rounded to a
- * whole degree, which is why 350 °F reads back as 351: 0008 accepted the drift.
- */
-export function toCelsius(degrees: number, system: UnitSystem): number {
-  if (system === 'metric') return Math.round(degrees);
-  return Math.round(((degrees - 32) * 5) / 9);
-}
-
 export { COUNT_UNITS };

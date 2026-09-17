@@ -37,7 +37,7 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">172 of 189 acceptance criteria verified across 10 written specs.</p>
+<p class="summary">181 of 198 acceptance criteria verified across 11 written specs.</p>
 <div class="bar"><div style="width: 91%"></div></div>
 
 <h2>All specs</h2>
@@ -63,6 +63,7 @@
 <tr><td>0017</td><td>Sharing</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Share a recipe read-only by private link, and revoke it.</td></tr>
 <tr><td>0018</td><td>Avatars and the tab bar</td><td><span class="status not-written">Not written</span></td><td>–</td><td>An avatar, an editable name, and three tabs to reach things by.</td></tr>
 <tr><td>0019</td><td>Featured recipes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A searchable set of recipes we wrote, to start from.</td></tr>
+<tr><td><a href="#spec-0020">0020</a></td><td>Simpler editing</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>No temperature field, the note behind a button, lines moved by buttons.</td></tr>
 </tbody>
 </table>
 
@@ -734,6 +735,63 @@
 <p>Chips are toggles to a screen reader, with their state, and are at least 44 points tall.</p>
 <p><strong>Components</strong> added, in their own folders with styles, test and index: a chip, and a chip group that takes the list and the selected ids. The chip goes to the design gallery.</p>
 <p>All new strings go through <code>t()</code>, in English and Latvian.</p>
+</details>
+</section>
+
+<section id="spec-0020">
+<h2>0020: Simpler editing <span class="status done">Done</span></h2>
+<p class="goal">The editor shows a field only when it is wanted, and lines move with buttons alone.</p>
+<p class="summary">9 of 9 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. <em>(<code>pnpm check</code>: shared 9, API 118, mobile 819 tests.)</em></li>
+<li class="done"><code>pnpm db:migrate</code> on the existing development database drops the column, and <code>pnpm db:seed</code></li>
+<li class="done">A <code>PATCH</code> with <code>temperatureCelsius</code> on a step returns 400 naming</li>
+<li class="done">The recipe screen shows a step's duration alone on its timing line, and a step's accessible</li>
+<li class="done">A step with no note shows "Add a note" and no note field; pressing it shows the field. A step</li>
+<li class="done">No element named for dragging exists in a rendered list, asserted in a test, and a line still</li>
+<li class="done">The step editor on the simulator shows no temperature field, no open note field on a fresh</li>
+<li class="done">Nothing in <code>apps/mobile</code> imports the removed temperature code, and the gallery has no entry</li>
+<li class="done">The Latvian file has no key the English file lacks and lists the new "Add a note" key. <em>(<code>needs.addNote</code> and <code>steps.addNote</code> as "Pievienot piezīmi"; the key-parity test passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>The editor shows a field only when it is wanted, and lines move with buttons alone.</p>
+<h3>Out of scope</h3><li>Removing the note itself. <code>steps.note</code> stays, and the recipe screen still shows it; only the editor</li>
+<p>  hides the field until asked.</p>
+<li>The unit converter for mass and volume from 0006. Only the temperature part goes.</li>
+<li>Any other change to the reorderable list: the animation on move, a swipe to delete, or moving a</li>
+<p>  step between levels by anything but the buttons 0008 gave it.</p>
+<li>Removing <code>react-native-gesture-handler</code> or <code>react-native-reanimated</code> from the app. The list stops</li>
+<p>  using the gesture; nothing else changes about what is installed.</p>
+<li>The create flow's pages. They use the same components and change with them, and nothing else about</li>
+<p>  them changes.</p>
+<h3>Data model</h3><p><code>steps.temperatureCelsius</code> is dropped, with a generated migration. Any value already stored is lost,</p>
+<p>deliberately: the field was never filled on the seeded data, and a recipe that needs a temperature</p>
+<p>carries it in the instruction, where it was always going to be read from.</p>
+<h3>API contract</h3><p>The step shape in <code>GET /api/recipes/:recipeId</code> and the step input in <code>PATCH /api/recipes/:recipeId</code></p>
+<p>lose <code>temperatureCelsius</code>. Because the input schemas are strict, a body that still sends it gets</p>
+<p><code>400 VALIDATION_FAILED</code> with <code>fields</code> naming the key, as any unknown key does. No new error codes.</p>
+<h3>UI</h3><p><strong>Steps, in the editor.</strong> The temperature field is gone from every step card. Below the duration, a</p>
+<p>step with no note shows a single button, "Add a note", and no note field. Pressing it shows the note</p>
+<p>field in its place and moves focus into it. A step that already has a note shows the field from the</p>
+<p>start, so an existing note is never hidden behind a button. Clearing the text keeps the field open</p>
+<p>until the screen is left; an empty note saves as null, as before.</p>
+<p><strong>Ingredient and equipment lines</strong> get the same button in place of their always-open note field, so</p>
+<p>the three editors behave alike and each line is shorter.</p>
+<p><strong>Lists, everywhere they are edited.</strong> The reorderable list loses its drag handle and the gesture</p>
+<p>behind it. A line moves with the move up and move down buttons only, which were always what a screen</p>
+<p>reader user had. The two arrows sit in a narrow column at the end of the row, each a 44-point target</p>
+<p>and no wider, so the fields beside them get the width back. The first line has no move up and the</p>
+<p>last no move down, as before. The scroll lock that the drag needed goes from <code>Screen</code>.</p>
+<p><strong>Recipe screen.</strong> A step's timing line shows its duration only. The accessible name of a step is its</p>
+<p>number, body, duration, links and note.</p>
+<p><strong>Removed</strong> with nothing replacing them: the temperature field component from 0008, the temperature</p>
+<p>half of 0006's converter and formatter, and their tests and gallery entries. The step line's gallery</p>
+<p>entry shows a step with the note button and one with the note open; the reorderable list's entry</p>
+<p>shows the buttons only.</p>
 </details>
 </section>
 

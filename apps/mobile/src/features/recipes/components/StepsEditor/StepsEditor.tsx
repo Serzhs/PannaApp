@@ -36,8 +36,8 @@ export interface StepsEditorProps {
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
 
 /**
- * Two levels, each its own reorderable list. Changing level is a button, never a drag:
- * a drag that can also re-parent is two gestures pretending to be one.
+ * Two levels, each its own reorderable list, and changing level is its own button, so a
+ * step is never in two lists at once.
  */
 export function StepsEditor({
   value,
@@ -51,7 +51,6 @@ export function StepsEditor({
   const labelsFor = (label: (line: StepDraft) => string) => ({
     moveUp: (line: StepDraft) => t('recipes:needs.moveUp', { name: nameOf(line, label(line)) }),
     moveDown: (line: StepDraft) => t('recipes:needs.moveDown', { name: nameOf(line, label(line)) }),
-    drag: (line: StepDraft) => t('recipes:needs.drag', { name: nameOf(line, label(line)) }),
   });
 
   const setMain = (index: number, next: StepDraft) => {

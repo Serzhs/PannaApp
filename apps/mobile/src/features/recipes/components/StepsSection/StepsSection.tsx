@@ -8,7 +8,6 @@ import { styles } from './StepsSection.styles';
 
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
-import { formatTemperature } from '@/features/units/format';
 import { useUnitSystem } from '@/features/units/useUnitSystem';
 
 export interface StepsSectionProps {
@@ -31,13 +30,8 @@ export function StepsSection({
   const { t, i18n } = useTranslation();
   const system = useUnitSystem();
 
-  const timing = (step: Step['children'][number]): string | null => {
-    const parts: string[] = [];
-    if (step.durationSeconds !== null) parts.push(formatDuration(step.durationSeconds, t));
-    if (step.temperatureCelsius !== null)
-      parts.push(formatTemperature(step.temperatureCelsius, system, t));
-    return parts.length === 0 ? null : parts.join(' · ');
-  };
+  const timing = (step: Step['children'][number]): string | null =>
+    step.durationSeconds === null ? null : formatDuration(step.durationSeconds, t);
 
   // Links read in list order and name only lines that still exist, per 0010.
   const uses = (step: Step['children'][number]): string | null => {

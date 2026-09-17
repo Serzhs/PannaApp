@@ -25,7 +25,6 @@ import {
 import { ErrorState } from '@/components/ErrorState';
 import { Screen } from '@/components/Screen';
 import { Spinner } from '@/components/Spinner';
-import { useUnitSystem } from '@/features/units/useUnitSystem';
 import { useIsOnline } from '@/query/useIsOnline';
 
 export interface EditRecipeScreenProps {
@@ -68,8 +67,7 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
     draftFrom(recipe.ingredients, recipe.equipment),
   );
   const [needsErrors, setNeedsErrors] = useState<NeedsErrors>({});
-  const system = useUnitSystem();
-  const [steps, setSteps] = useState<MainStepDraft[]>(() => draftFromSteps(recipe.steps, system));
+  const [steps, setSteps] = useState<MainStepDraft[]>(() => draftFromSteps(recipe.steps));
   const [stepErrors, setStepErrors] = useState<StepErrors>({});
 
   useEffect(() => {
@@ -95,14 +93,14 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
         error={update.error}
         beforeSubmit={() => {
           const lists = validateNeeds(needs);
-          const stepsOutcome = validateSteps(steps, system);
+          const stepsOutcome = validateSteps(steps);
           setNeedsErrors(lists.ok ? {} : lists.errors);
           setStepErrors(stepsOutcome.ok ? {} : stepsOutcome.errors);
           return lists.ok && stepsOutcome.ok;
         }}
         onSubmit={(body) => {
           const lists = validateNeeds(needs);
-          const stepsOutcome = validateSteps(steps, system);
+          const stepsOutcome = validateSteps(steps);
           if (!lists.ok || !stepsOutcome.ok) return;
           update.mutate(
             // An emptied field clears the value; the create body leaves it out instead.

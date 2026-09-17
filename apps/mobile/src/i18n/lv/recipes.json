@@ -77,7 +77,6 @@
     "removeUnnamed": "Noņemt rindu",
     "moveUp": "Pārvietot {{name}} augšup",
     "moveDown": "Pārvietot {{name}} lejup",
-    "drag": "Velc, lai pārkārtotu {{name}}",
     "unnamed": "rinda bez nosaukuma",
     "name": "Nosaukums",
     "amount": "Daudzums",
@@ -94,7 +93,8 @@
     },
     "done": "Gatavs",
     "skip": "Izlaist pagaidām",
-    "screen": "Kas vajadzīgs"
+    "screen": "Kas vajadzīgs",
+    "addNote": "Pievienot piezīmi"
   },
   "steps": {
     "title": "Soļi",
@@ -109,7 +109,6 @@
     "untimed": "Bez laika",
     "clearTime": "Notīrīt",
     "setTime": "Iestatīt",
-    "temperature": "Temperatūra ({{unit}})",
     "addMain": "Pievienot soli",
     "addNested": "Pievienot soli, ko darīt pa to laiku",
     "nest": "Darīt to iepriekšējā soļa laikā",
@@ -117,7 +116,6 @@
     "remove": "Noņemt soli",
     "errors": {
       "body": "Uzraksti, kas jādara.",
-      "temperature": "Temperatūra ir vesels skaitlis.",
       "duration": "Laiks ir no vienas minūtes līdz dienai.",
       "links": "Piesaistītā rinda vairs nepastāv. Saglabā recepti un mēģini vēlreiz."
     },
@@ -131,7 +129,8 @@
     "usesEquipment": "Nepieciešams",
     "linkAfterSave": "Vispirms saglabā recepti, lai varētu piesaistīt jaunās rindas.",
     "usesLine": "Izmanto: {{list}}",
-    "needsLine": "Nepieciešams: {{list}}"
+    "needsLine": "Nepieciešams: {{list}}",
+    "addNote": "Pievienot piezīmi"
   },
   "review": {
     "screen": "Pārskats",

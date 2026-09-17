@@ -10,7 +10,6 @@ const step = (over: Partial<Step> & { id: string }): Step => ({
   body: 'Do something',
   note: null,
   durationSeconds: null,
-  temperatureCelsius: null,
   ingredientIds: [],
   equipmentIds: [],
   children: [],
@@ -21,14 +20,14 @@ describe('StepsSection', () => {
   const system = jest.spyOn(unitSystem, 'useUnitSystem');
 
   /** The criteria: numbered from 1, nested marked as meanwhile with 2a numbers, 180 as 356°F. */
-  it('numbers main steps, marks nested ones as meanwhile, and converts the temperature', async () => {
+  it('numbers main steps and marks nested ones as meanwhile', async () => {
     system.mockReturnValue('imperial');
     await render(
       <StepsSection
         ingredients={[]}
         equipment={[]}
         steps={[
-          step({ id: 'a', body: 'Heat the oven', temperatureCelsius: 180, durationSeconds: 600 }),
+          step({ id: 'a', body: 'Heat the oven', durationSeconds: 600 }),
           step({
             id: 'b',
             body: 'Roast',
@@ -41,22 +40,22 @@ describe('StepsSection', () => {
       />,
     );
     expect(screen.getByText('Step 1')).toBeTruthy();
-    expect(screen.getByText('10 min · 356°F')).toBeTruthy();
+    expect(screen.getByText('10 min')).toBeTruthy();
     expect(screen.getByText('Meanwhile')).toBeTruthy();
     expect(screen.getByText('Step 2a, during step 2')).toBeTruthy();
     expect(screen.getByText('Step 2b, during step 2')).toBeTruthy();
   });
 
-  it('reads each step as one element with its number, body, timing and note', async () => {
+  it('reads each step as one element with its number, body, and note', async () => {
     system.mockReturnValue('metric');
     await render(
       <StepsSection
         ingredients={[]}
         equipment={[]}
-        steps={[step({ id: 'a', body: 'Heat the oven', temperatureCelsius: 180, note: 'Fan off' })]}
+        steps={[step({ id: 'a', body: 'Heat the oven', note: 'Fan off' })]}
       />,
     );
-    expect(screen.getByLabelText('Step 1. Heat the oven. 180°C. Fan off')).toBeTruthy();
+    expect(screen.getByLabelText('Step 1. Heat the oven. Fan off')).toBeTruthy();
   });
 
   it('shows what a step uses and needs, in the step itself, per 0010', async () => {

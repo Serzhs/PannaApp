@@ -537,7 +537,7 @@ describe('steps and nesting, end to end', () => {
     server().patch(`/api/recipes/${id}`).set(as(token)).send(body);
 
   const THREE = [
-    { body: 'Heat the oven', durationSeconds: 600, temperatureCelsius: 180 },
+    { body: 'Heat the oven', durationSeconds: 600 },
     {
       body: 'Roast the beetroot',
       durationSeconds: 3600,
@@ -697,7 +697,8 @@ describe('steps and nesting, end to end', () => {
     ['a duration of 0', { body: 'x', durationSeconds: 0 }],
     ['a duration over a day', { body: 'x', durationSeconds: 90000 }],
     ['a fractional duration', { body: 'x', durationSeconds: 1.5 }],
-    ['a temperature of 501', { body: 'x', temperatureCelsius: 501 }],
+    // 0020 dropped the column; the strict schema now names it as a stranger.
+    ['a temperature, which 0020 removed', { body: 'x', temperatureCelsius: 180 }],
   ])('rejects %s', async (_label, step) => {
     const id = await freshRecipe(alice);
     expect((await patch(alice, id, { steps: [step] })).status).toBe(400);
@@ -783,7 +784,6 @@ describe('step links, end to end', () => {
     body: step.body,
     note: step.note,
     durationSeconds: step.durationSeconds,
-    temperatureCelsius: step.temperatureCelsius,
     ingredientIds: step.ingredientIds,
     equipmentIds: step.equipmentIds,
   });

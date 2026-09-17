@@ -7,7 +7,6 @@ import { Text } from '@/components/Text';
 const labels = {
   moveUp: (item: string) => `Move ${item} up`,
   moveDown: (item: string) => `Move ${item} down`,
-  drag: (item: string) => `Drag to reorder ${item}`,
 };
 
 function renderList(items: readonly string[], onMove = jest.fn()) {
@@ -23,10 +22,11 @@ function renderList(items: readonly string[], onMove = jest.fn()) {
 }
 
 describe('ReorderableList', () => {
-  it('renders every item with a drag handle named for it', async () => {
+  it('renders every item with move buttons and nothing to drag, per 0020', async () => {
     await renderList(['Beetroot', 'Kefir', 'Dill']);
     expect(screen.getByText('Kefir')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Drag to reorder Kefir' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Move Kefir up' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /drag/i })).toBeNull();
   });
 
   /** The criterion: the first line has no move up, the last no move down. */

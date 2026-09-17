@@ -105,7 +105,6 @@ export const steps = pgTable(
     /** Extra worth knowing while doing it, as opposed to the instruction itself. */
     note: text(),
     durationSeconds: integer(),
-    temperatureCelsius: integer(),
     /** What it should look like when done. Shown behind a button, never inline. */
     imageKey: varchar({ length: 255 }),
     ...timestamps,

@@ -3,6 +3,8 @@
 **Status:** In progress
 **Depends on:** 0006, 0007
 
+**Changed by 0020:** `temperatureCelsius` and its field are gone, the note sits behind an "Add a note" button, and lines move by buttons only.
+
 ## Context
 
 A recipe now knows what it needs but not what to do. The `steps` table has waited since 0001, and it is the reason the app exists: a step can be nested inside another to say "this happens while that cooks", which is what tells someone at the stove what else they could be getting on with. Nothing after this - links in 0010, cooking in 0012, the import in 0016 - has anything to work on until steps exist.

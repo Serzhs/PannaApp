@@ -1,7 +1,5 @@
 import {
-  draftFromSteps,
   nestUnderPrevious,
-  parseTemperature,
   promote,
   removeMain,
   stepErrorsFromServer,
@@ -18,7 +16,6 @@ const main = (
   body,
   note: '',
   durationSeconds: null,
-  temperature: '',
   ingredientIds: [],
   equipmentIds: [],
   children,
@@ -28,20 +25,16 @@ const child = (key: string, body: string) => ({
   body,
   note: '',
   durationSeconds: null,
-  temperature: '',
   ingredientIds: [],
   equipmentIds: [],
 });
 
 describe('validateSteps', () => {
-  it('turns drafts into the nested body, storing the temperature as Celsius', () => {
-    const result = validateSteps(
-      [
-        { ...main('a', ' Heat the oven '), temperature: '350', durationSeconds: 600 },
-        main('b', 'Roast', [child('c', 'Chop the dill')]),
-      ],
-      'imperial',
-    );
+  it('turns drafts into the nested body', () => {
+    const result = validateSteps([
+      { ...main('a', ' Heat the oven '), durationSeconds: 600 },
+      main('b', 'Roast', [child('c', 'Chop the dill')]),
+    ]);
     expect(result).toEqual({
       ok: true,
       steps: [
@@ -49,7 +42,6 @@ describe('validateSteps', () => {
           body: 'Heat the oven',
           note: null,
           durationSeconds: 600,
-          temperatureCelsius: 177,
           ingredientIds: [],
           equipmentIds: [],
           children: [],
@@ -58,7 +50,6 @@ describe('validateSteps', () => {
           body: 'Roast',
           note: null,
           durationSeconds: null,
-          temperatureCelsius: null,
           ingredientIds: [],
           equipmentIds: [],
           children: [
@@ -66,7 +57,6 @@ describe('validateSteps', () => {
               body: 'Chop the dill',
               note: null,
               durationSeconds: null,
-              temperatureCelsius: null,
               ingredientIds: [],
               equipmentIds: [],
             },
@@ -77,26 +67,11 @@ describe('validateSteps', () => {
   });
 
   it('marks the step and field at fault, nested ones included', () => {
-    const result = validateSteps(
-      [{ ...main('a', '  '), temperature: 'hot' }, main('b', 'Roast', [child('c', '')])],
-      'metric',
-    );
+    const result = validateSteps([main('a', '  '), main('b', 'Roast', [child('c', '')])]);
     expect(result).toEqual({
       ok: false,
-      errors: { a: { body: true, temperature: true }, c: { body: true } },
+      errors: { a: { body: true }, c: { body: true } },
     });
-  });
-});
-
-describe('parseTemperature', () => {
-  it.each([
-    ['180', 180],
-    ['-18', -18],
-    ['', null],
-    ['hot', undefined],
-    ['180.5', undefined],
-  ])('reads %p as %p', (text, expected) => {
-    expect(parseTemperature(text)).toBe(expected);
   });
 });
 
@@ -126,39 +101,17 @@ describe('nesting and promoting', () => {
   });
 });
 
-describe('draftFromSteps', () => {
-  it("shows a stored Celsius in the author's own unit", () => {
-    const [draft] = draftFromSteps(
-      [
-        {
-          id: 'x',
-          position: 0,
-          body: 'Heat',
-          note: null,
-          durationSeconds: null,
-          temperatureCelsius: 177,
-          ingredientIds: [],
-          equipmentIds: [],
-          children: [],
-        },
-      ],
-      'imperial',
-    );
-    expect(draft?.temperature).toBe('351');
-  });
-});
-
 describe('stepErrorsFromServer', () => {
   it('maps a nested path to the child line', () => {
     const drafts = [main('a', 'A'), main('b', 'B', [child('c', 'C'), child('d', 'D')])];
     expect(
       stepErrorsFromServer(
-        { 'steps.1.children.1.body': 'TOO_SMALL', 'steps.0.temperatureCelsius': 'TOO_BIG' },
+        { 'steps.1.children.1.body': 'TOO_SMALL', 'steps.0.durationSeconds': 'TOO_BIG' },
         drafts,
       ),
     ).toEqual({
       d: { body: true },
-      a: { temperature: true },
+      a: { duration: true },
     });
   });
 });

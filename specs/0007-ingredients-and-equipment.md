@@ -3,6 +3,8 @@
 **Status:** In progress
 **Depends on:** 0005, 0006
 
+**Changed by 0020:** lines move by buttons only, the drag handle is gone, and each line's note sits behind an "Add a note" button.
+
 ## Context
 
 A recipe is still only a title, a description and two numbers. The `ingredients` and `equipment` tables have existed since 0001 with nothing in them, and nothing else in the roadmap can start until they fill: steps link to ingredients in 0010, the check before cooking in 0013 ticks them off, and the JSON import in 0016 has to have somewhere to put them.

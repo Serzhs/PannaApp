@@ -82,7 +82,6 @@ function toNestedStep(row: StepRow, links: StepLinks): NestedStep {
     body: row.body,
     note: row.note,
     durationSeconds: row.durationSeconds,
-    temperatureCelsius: row.temperatureCelsius,
     ingredientIds: links.ingredientIds.get(row.id) ?? [],
     equipmentIds: links.equipmentIds.get(row.id) ?? [],
   };
@@ -484,7 +483,6 @@ export class RecipesService {
       body: line.body,
       note: line.note ?? null,
       durationSeconds: line.durationSeconds ?? null,
-      temperatureCelsius: line.temperatureCelsius ?? null,
       updatedAt: new Date(),
     };
     if (line.id === undefined) {

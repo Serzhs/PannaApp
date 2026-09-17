@@ -5,13 +5,6 @@ import type { MainStepDraft } from '../../steps';
 
 import { StepsEditor } from './StepsEditor';
 
-import * as unitSystem from '@/features/units/useUnitSystem';
-
-// The temperature field reads the unit system from the session; there is none in a test.
-beforeAll(() => {
-  jest.spyOn(unitSystem, 'useUnitSystem').mockReturnValue('metric');
-});
-
 function Harness({ initial = [] }: { readonly initial?: MainStepDraft[] }) {
   const [value, setValue] = useState(initial);
   return (
@@ -28,7 +21,6 @@ const main = (
   body,
   note: '',
   durationSeconds: null,
-  temperature: '',
   ingredientIds: [],
   equipmentIds: [],
   children,
@@ -65,7 +57,6 @@ describe('StepsEditor', () => {
               body: 'Chop',
               note: '',
               durationSeconds: null,
-              temperature: '',
               ingredientIds: [],
               equipmentIds: [],
             },
@@ -88,7 +79,6 @@ describe('StepsEditor', () => {
               body: 'Chop',
               note: '',
               durationSeconds: null,
-              temperature: '',
               ingredientIds: [],
               equipmentIds: [],
             },
