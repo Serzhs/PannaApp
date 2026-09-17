@@ -2,15 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import {
-  emptyMainStep,
+  canMoveDown,
+  canMoveUp,
   emptyStep,
-  moveChild,
-  moveMain,
-  nestUnderPrevious,
-  promote,
-  removeChild,
-  removeMain,
-  type MainStepDraft,
+  moveStep,
+  numberOf,
+  removeStep,
   type StepDraft,
   type StepErrors,
 } from '../../steps';
@@ -26,18 +23,16 @@ import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
 
 export interface StepsEditorProps {
-  readonly value: readonly MainStepDraft[];
+  readonly value: readonly StepDraft[];
   readonly errors: StepErrors;
-  readonly onChange: (next: MainStepDraft[]) => void;
+  readonly onChange: (next: StepDraft[]) => void;
   readonly ingredients: readonly Linkable[];
   readonly equipment: readonly Linkable[];
 }
 
-const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
-
 /**
- * Two levels, each its own reorderable list, and changing level is its own button, so a
- * step is never in two lists at once.
+ * Every step as one flat list in reading order. What runs during what is decided on
+ * the Flow view (0022); here a parallel step only says so under its number.
  */
 export function StepsEditor({
   value,
@@ -47,25 +42,22 @@ export function StepsEditor({
   equipment,
 }: StepsEditorProps): React.JSX.Element {
   const { t } = useTranslation();
-  const nameOf = (line: StepDraft, label: string) => (line.body.trim() === '' ? label : line.body);
-  const labelsFor = (label: (line: StepDraft) => string) => ({
-    moveUp: (line: StepDraft) => t('recipes:needs.moveUp', { name: nameOf(line, label(line)) }),
-    moveDown: (line: StepDraft) => t('recipes:needs.moveDown', { name: nameOf(line, label(line)) }),
+  const labelOf = (line: StepDraft): string => {
+    const at = numberOf(value, line.key);
+    if (at === undefined) return '';
+    return at.letter === ''
+      ? t('recipes:steps.number', { number: at.number })
+      : t('recipes:steps.nestedNumber', { number: at.number, letter: at.letter });
+  };
+  const nameOf = (line: StepDraft) => (line.body.trim() === '' ? labelOf(line) : line.body);
+  const labels = {
+    moveUp: (line: StepDraft) => t('recipes:needs.moveUp', { name: nameOf(line) }),
+    moveDown: (line: StepDraft) => t('recipes:needs.moveDown', { name: nameOf(line) }),
     up: t('recipes:needs.up'),
     down: t('recipes:needs.down'),
-  });
-
-  const setMain = (index: number, next: StepDraft) => {
-    onChange(value.map((main, i) => (i === index ? { ...main, ...next } : main)));
   };
-  const setChild = (parent: number, index: number, next: StepDraft) => {
-    onChange(
-      value.map((main, i) =>
-        i === parent
-          ? { ...main, children: main.children.map((c, j) => (j === index ? next : c)) }
-          : main,
-      ),
-    );
+  const set = (key: string, next: StepDraft) => {
+    onChange(value.map((line) => (line.key === key ? next : line)));
   };
 
   return (
@@ -75,121 +67,50 @@ export function StepsEditor({
       </Text>
       <ReorderableList
         items={value}
-        keyOf={(main) => main.key}
-        labels={labelsFor((line) =>
-          t('recipes:steps.number', { number: value.findIndex((m) => m.key === line.key) + 1 }),
-        )}
+        keyOf={(line) => line.key}
+        labels={labels}
+        canMoveUp={(line) => canMoveUp(value, line.key)}
+        canMoveDown={(line) => canMoveDown(value, line.key)}
         onMove={(from, to) => {
-          onChange(moveMain(value, from, to));
+          const line = value[from];
+          if (line !== undefined) onChange(moveStep(value, line.key, to > from ? 1 : -1));
         }}
-        renderItem={(main, index, controls) => (
+        renderItem={(line, _index, controls) => (
           <Card>
             <Stack gap="space3">
               <View style={styles.header}>
-                <Text variant="label" color="textSecondary">
-                  {t('recipes:steps.number', { number: index + 1 })}
-                </Text>
+                <Stack gap="space0">
+                  <Text variant="label" color="textSecondary">
+                    {labelOf(line)}
+                  </Text>
+                  {line.during === null ? null : (
+                    <Text variant="caption" color="textSecondary">
+                      {t('recipes:steps.during', {
+                        number: numberOf(value, line.during)?.number ?? '',
+                      })}
+                    </Text>
+                  )}
+                </Stack>
                 {controls}
               </View>
               <StepLine
-                line={main}
+                line={line}
                 ingredients={ingredients}
                 equipment={equipment}
-                errors={errors[main.key] ?? {}}
+                errors={errors[line.key] ?? {}}
                 onChange={(next) => {
-                  setMain(index, next);
+                  set(line.key, next);
                 }}
               />
-              {main.children.length === 0 ? null : (
-                <View style={styles.nested}>
-                  <Text variant="label" color="textSecondary">
-                    {t('recipes:steps.meanwhile')}
-                  </Text>
-                  <ReorderableList
-                    items={main.children}
-                    keyOf={(child) => child.key}
-                    labels={labelsFor((line) =>
-                      t('recipes:steps.nestedNumber', {
-                        number: index + 1,
-                        letter: LETTERS[main.children.findIndex((c) => c.key === line.key)] ?? '',
-                      }),
-                    )}
-                    onMove={(from, to) => {
-                      onChange(moveChild(value, index, from, to));
-                    }}
-                    renderItem={(child, childIndex, controls) => (
-                      <Card>
-                        <Stack gap="space3">
-                          <View style={styles.header}>
-                            <Text variant="label" color="textSecondary">
-                              {t('recipes:steps.nestedNumber', {
-                                number: index + 1,
-                                letter: LETTERS[childIndex] ?? '',
-                              })}
-                            </Text>
-                            {controls}
-                          </View>
-                          <StepLine
-                            line={child}
-                            ingredients={ingredients}
-                            equipment={equipment}
-                            errors={errors[child.key] ?? {}}
-                            onChange={(next) => {
-                              setChild(index, childIndex, next);
-                            }}
-                          />
-                          <Stack gap="space2">
-                            <Button
-                              label={t('recipes:steps.promote')}
-                              variant="ghost"
-                              onPress={() => {
-                                onChange(promote(value, index, childIndex));
-                              }}
-                            />
-                            <Button
-                              label={t('recipes:steps.remove')}
-                              variant="ghost"
-                              onPress={() => {
-                                onChange(removeChild(value, index, childIndex));
-                              }}
-                            />
-                          </Stack>
-                        </Stack>
-                      </Card>
-                    )}
-                  />
-                </View>
-              )}
-              <Stack gap="space2">
-                <Button
-                  label={t('recipes:steps.addNested')}
-                  variant="secondary"
-                  onPress={() => {
-                    setMain(index, main);
-                    onChange(
-                      value.map((m, i) =>
-                        i === index ? { ...m, children: [...m.children, emptyStep()] } : m,
-                      ),
-                    );
-                  }}
-                />
-                {index > 0 && main.children.length === 0 ? (
-                  <Button
-                    label={t('recipes:steps.nest')}
-                    variant="ghost"
-                    onPress={() => {
-                      onChange(nestUnderPrevious(value, index));
-                    }}
-                  />
-                ) : null}
+              <View style={styles.remove}>
                 <Button
                   label={t('recipes:steps.remove')}
                   variant="ghost"
                   onPress={() => {
-                    onChange(removeMain(value, index));
+                    onChange(removeStep(value, line.key));
                   }}
                 />
-              </Stack>
+              </View>
             </Stack>
           </Card>
         )}
@@ -198,7 +119,7 @@ export function StepsEditor({
         label={t('recipes:steps.addMain')}
         variant="secondary"
         onPress={() => {
-          onChange([...value, emptyMainStep()]);
+          onChange([...value, emptyStep()]);
         }}
       />
     </Stack>

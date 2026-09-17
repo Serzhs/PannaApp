@@ -1,39 +1,45 @@
 import {
-  nestUnderPrevious,
-  promote,
-  removeMain,
+  candidatesFor,
+  canMoveDown,
+  canMoveUp,
+  draftFromSteps,
+  moveStep,
+  nestUnder,
+  numberOf,
+  release,
+  removeStep,
   stepErrorsFromServer,
+  stepTitle,
   validateSteps,
-  type MainStepDraft,
+  type StepDraft,
 } from './steps';
 
-const main = (
-  key: string,
-  body: string,
-  children: MainStepDraft['children'] = [],
-): MainStepDraft => ({
+const step = (key: string, body: string, during: string | null = null): StepDraft => ({
   key,
   body,
   note: '',
   durationSeconds: null,
   ingredientIds: [],
   equipmentIds: [],
-  children,
-});
-const child = (key: string, body: string) => ({
-  key,
-  body,
-  note: '',
-  durationSeconds: null,
-  ingredientIds: [],
-  equipmentIds: [],
+  during,
 });
 
+/** Heat; Roast with Chop and Boil during it; Serve. */
+const FOUR = [
+  step('a', 'Heat'),
+  step('b', 'Roast'),
+  step('c', 'Chop', 'b'),
+  step('d', 'Boil', 'b'),
+  step('e', 'Serve'),
+];
+
 describe('validateSteps', () => {
-  it('turns drafts into the nested body', () => {
+  /** The criterion: the body sent nests exactly what the Flow view shows. */
+  it('folds the flat list into main steps and their children', () => {
     const result = validateSteps([
-      { ...main('a', ' Heat the oven '), durationSeconds: 600 },
-      main('b', 'Roast', [child('c', 'Chop the dill')]),
+      { ...step('a', ' Heat the oven '), durationSeconds: 600 },
+      step('b', 'Roast'),
+      step('c', 'Chop the dill', 'b'),
     ]);
     expect(result).toEqual({
       ok: true,
@@ -66,8 +72,8 @@ describe('validateSteps', () => {
     });
   });
 
-  it('marks the step and field at fault, nested ones included', () => {
-    const result = validateSteps([main('a', '  '), main('b', 'Roast', [child('c', '')])]);
+  it('marks the step and field at fault, parallel ones included', () => {
+    const result = validateSteps([step('a', '  '), step('b', 'Roast'), step('c', '', 'b')]);
     expect(result).toEqual({
       ok: false,
       errors: { a: { body: true }, c: { body: true } },
@@ -75,39 +81,89 @@ describe('validateSteps', () => {
   });
 });
 
-describe('nesting and promoting', () => {
-  it('nests a main step under the previous one, and promotes it back after its parent', () => {
-    const nested = nestUnderPrevious([main('a', 'A'), main('b', 'B')], 1);
-    expect(nested.map((m) => [m.key, m.children.map((c) => c.key)])).toEqual([['a', ['b']]]);
-    const back = promote(nested, 0, 0);
-    expect(back.map((m) => [m.key, m.children.length])).toEqual([
-      ['a', 0],
-      ['b', 0],
+describe('draftFromSteps', () => {
+  it('lays the recipe out in reading order, each parallel step after its main one', () => {
+    const base = { note: null, durationSeconds: null, ingredientIds: [], equipmentIds: [] };
+    const drafts = draftFromSteps([
+      { id: 'x', position: 0, body: 'Heat', ...base, children: [] },
+      {
+        id: 'y',
+        position: 1,
+        body: 'Roast',
+        ...base,
+        children: [{ id: 'z', position: 0, body: 'Chop', ...base }],
+      },
+    ]);
+    expect(drafts.map((d) => [d.key, d.during])).toEqual([
+      ['x', null],
+      ['y', null],
+      ['z', 'y'],
+    ]);
+  });
+});
+
+describe('the flow', () => {
+  it('numbers main steps in order and parallel ones by letter under their step', () => {
+    expect(numberOf(FOUR, 'b')).toEqual({ number: 2, letter: '' });
+    expect(numberOf(FOUR, 'd')).toEqual({ number: 2, letter: 'b' });
+    expect(numberOf(FOUR, 'e')).toEqual({ number: 3, letter: '' });
+  });
+
+  /** The criterion: a step with parallel steps is never offered, and never to itself. */
+  it('offers only other main steps with nothing running during them', () => {
+    expect(candidatesFor(FOUR, 'a').map((s) => s.key)).toEqual(['e']);
+    expect(candidatesFor(FOUR, 'e').map((s) => s.key)).toEqual(['a']);
+  });
+
+  it('moves a step under another and releases it just after its former parent', () => {
+    const nested = nestUnder(FOUR, 'e', 'a');
+    expect(nested.map((s) => [s.key, s.during])).toEqual([
+      ['a', null],
+      ['e', 'a'],
+      ['b', null],
+      ['c', 'b'],
+      ['d', 'b'],
+    ]);
+    const released = release(nested, 'c');
+    expect(released.map((s) => s.key)).toEqual(['a', 'e', 'b', 'd', 'c']);
+    expect(released.find((s) => s.key === 'c')?.during).toBeNull();
+  });
+
+  it('refuses to nest a step that has parallel steps of its own', () => {
+    expect(nestUnder(FOUR, 'b', 'a')).toEqual(FOUR);
+  });
+
+  /** The promotion rule: removing Roast leaves Chop and Boil as main steps in its place. */
+  it('makes the parallel steps main ones in place when their step is removed', () => {
+    expect(removeStep(FOUR, 'b').map((s) => [s.key, s.during])).toEqual([
+      ['a', null],
+      ['c', null],
+      ['d', null],
+      ['e', null],
     ]);
   });
 
-  it('refuses to nest a step that has nested steps of its own', () => {
-    const drafts = [main('a', 'A'), main('b', 'B', [child('c', 'C')])];
-    expect(nestUnderPrevious(drafts, 1)).toEqual(drafts);
+  it('moves a step among its siblings only', () => {
+    expect(canMoveUp(FOUR, 'c')).toBe(false);
+    expect(canMoveDown(FOUR, 'c')).toBe(true);
+    expect(canMoveDown(FOUR, 'd')).toBe(false);
+    expect(moveStep(FOUR, 'd', -1).map((s) => s.key)).toEqual(['a', 'b', 'd', 'c', 'e']);
+    expect(moveStep(FOUR, 'e', -1).map((s) => s.key)).toEqual(['a', 'e', 'b', 'c', 'd']);
+    expect(moveStep(FOUR, 'a', -1).map((s) => s.key)).toEqual(['a', 'b', 'c', 'd', 'e']);
   });
 
-  /** The promotion rule: removing a parent leaves its children in its place. */
-  it('promotes nested steps in place when their main step is removed', () => {
-    const removed = removeMain(
-      [main('a', 'A'), main('b', 'B', [child('c', 'C'), child('d', 'D')]), main('e', 'E')],
-      1,
-    );
-    expect(removed.map((m) => m.key)).toEqual(['a', 'c', 'd', 'e']);
+  it('names a step by the start of its instruction', () => {
+    expect(stepTitle('Roast the beetroot\nuntil soft')).toBe('Roast the beetroot');
+    expect(stepTitle('x'.repeat(80))).toHaveLength(60);
   });
 });
 
 describe('stepErrorsFromServer', () => {
-  it('maps a nested path to the child line', () => {
-    const drafts = [main('a', 'A'), main('b', 'B', [child('c', 'C'), child('d', 'D')])];
+  it('maps a nested path to the parallel line', () => {
     expect(
       stepErrorsFromServer(
         { 'steps.1.children.1.body': 'TOO_SMALL', 'steps.0.durationSeconds': 'TOO_BIG' },
-        drafts,
+        FOUR,
       ),
     ).toEqual({
       d: { body: true },

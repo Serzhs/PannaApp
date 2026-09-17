@@ -20,6 +20,9 @@ export interface ReorderableListProps<T> {
   readonly renderItem: (item: T, index: number, controls: React.ReactNode) => React.ReactNode;
   readonly onMove: (from: number, to: number) => void;
   readonly labels: ReorderableLabels<T>;
+  /** By default the first line cannot go up and the last cannot go down; a list with levels says otherwise. */
+  readonly canMoveUp?: (item: T, index: number) => boolean;
+  readonly canMoveDown?: (item: T, index: number) => boolean;
 }
 
 /**
@@ -34,12 +37,16 @@ export function ReorderableList<T>({
   renderItem,
   onMove,
   labels,
+  canMoveUp = (_item, index) => index > 0,
+  canMoveDown = (_item, index) => index < items.length - 1,
 }: ReorderableListProps<T>): React.JSX.Element {
-  const count = items.length;
-  const controlsFor = (item: T, index: number): React.ReactNode =>
-    count === 1 ? null : (
+  const controlsFor = (item: T, index: number): React.ReactNode => {
+    const up = canMoveUp(item, index);
+    const down = canMoveDown(item, index);
+    if (!up && !down) return null;
+    return (
       <View style={styles.controls}>
-        {index === 0 ? null : (
+        {!up ? null : (
           <MoveButton
             label={labels.moveUp(item)}
             text={labels.up}
@@ -49,7 +56,7 @@ export function ReorderableList<T>({
             }}
           />
         )}
-        {index === count - 1 ? null : (
+        {!down ? null : (
           <MoveButton
             label={labels.moveDown(item)}
             text={labels.down}
@@ -61,6 +68,7 @@ export function ReorderableList<T>({
         )}
       </View>
     );
+  };
 
   return (
     <View>

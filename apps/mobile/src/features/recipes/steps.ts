@@ -2,7 +2,10 @@ import type { NestedStepInput, Step, StepInput } from '@panna/shared';
 
 import { newKey } from './needs';
 
-/** What the editor holds for a step. */
+/**
+ * What the editor holds for a step. The list is flat and in reading order; `during` is
+ * the key of the main step this one runs during, or null for a main step (0022).
+ */
 export interface StepDraft {
   readonly key: string;
   readonly id?: string;
@@ -11,14 +14,14 @@ export interface StepDraft {
   readonly durationSeconds: number | null;
   readonly ingredientIds: readonly string[];
   readonly equipmentIds: readonly string[];
-}
-
-export interface MainStepDraft extends StepDraft {
-  readonly children: readonly StepDraft[];
+  readonly during: string | null;
 }
 
 export type StepField = 'body' | 'duration' | 'links';
 export type StepErrors = Readonly<Record<string, Partial<Record<StepField, true>>>>;
+
+const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
+const TITLE_LENGTH = 60;
 
 export function emptyStep(): StepDraft {
   return {
@@ -28,14 +31,11 @@ export function emptyStep(): StepDraft {
     durationSeconds: null,
     ingredientIds: [],
     equipmentIds: [],
+    during: null,
   };
 }
 
-export function emptyMainStep(): MainStepDraft {
-  return { ...emptyStep(), children: [] };
-}
-
-function draftOf(step: Step['children'][number]): StepDraft {
+function draftOf(step: Step['children'][number], during: string | null): StepDraft {
   return {
     key: step.id,
     id: step.id,
@@ -44,22 +44,145 @@ function draftOf(step: Step['children'][number]): StepDraft {
     durationSeconds: step.durationSeconds,
     ingredientIds: step.ingredientIds,
     equipmentIds: step.equipmentIds,
+    during,
   };
 }
 
-export function draftFromSteps(steps: readonly Step[]): MainStepDraft[] {
-  return steps.map((step) => ({
-    ...draftOf(step),
-    children: step.children.map(draftOf),
-  }));
+export function draftFromSteps(steps: readonly Step[]): StepDraft[] {
+  return steps.flatMap((step) => [
+    draftOf(step, null),
+    ...step.children.map((child) => draftOf(child, step.id)),
+  ]);
+}
+
+export function mainsOf(drafts: readonly StepDraft[]): StepDraft[] {
+  return drafts.filter((draft) => draft.during === null);
+}
+
+export function childrenOf(drafts: readonly StepDraft[], key: string): StepDraft[] {
+  return drafts.filter((draft) => draft.during === key);
+}
+
+/** Reading order: each main step followed by what runs during it. A step whose parent is gone becomes main. */
+function normalize(drafts: readonly StepDraft[]): StepDraft[] {
+  const keys = new Set(drafts.map((draft) => draft.key));
+  const sane = drafts.map((draft) =>
+    draft.during !== null && !keys.has(draft.during) ? { ...draft, during: null } : draft,
+  );
+  return mainsOf(sane).flatMap((main) => [main, ...childrenOf(sane, main.key)]);
+}
+
+/** How a step is named on screen: "2" for a main step, "2a" for one that runs during it. */
+export function numberOf(
+  drafts: readonly StepDraft[],
+  key: string,
+): { readonly number: number; readonly letter: string } | undefined {
+  const draft = drafts.find((d) => d.key === key);
+  if (draft === undefined) return undefined;
+  const mains = mainsOf(drafts);
+  if (draft.during === null) {
+    return { number: mains.findIndex((m) => m.key === key) + 1, letter: '' };
+  }
+  const siblings = childrenOf(drafts, draft.during);
+  return {
+    number: mains.findIndex((m) => m.key === draft.during) + 1,
+    letter: LETTERS[siblings.findIndex((s) => s.key === key)] ?? '',
+  };
+}
+
+/** The Flow view names a step by the start of its instruction; there is no title field. */
+export function stepTitle(body: string): string {
+  const firstLine = body.trim().split('\n')[0]?.trim() ?? '';
+  return firstLine.length > TITLE_LENGTH
+    ? `${firstLine.slice(0, TITLE_LENGTH - 1).trimEnd()}…`
+    : firstLine;
+}
+
+function siblingsOf(drafts: readonly StepDraft[], key: string): StepDraft[] {
+  const draft = drafts.find((d) => d.key === key);
+  if (draft === undefined) return [];
+  return draft.during === null ? mainsOf(drafts) : childrenOf(drafts, draft.during);
+}
+
+export function canMoveUp(drafts: readonly StepDraft[], key: string): boolean {
+  return siblingsOf(drafts, key).findIndex((s) => s.key === key) > 0;
+}
+
+export function canMoveDown(drafts: readonly StepDraft[], key: string): boolean {
+  const siblings = siblingsOf(drafts, key);
+  const index = siblings.findIndex((s) => s.key === key);
+  return index >= 0 && index < siblings.length - 1;
+}
+
+/** A step moves among its own siblings only: a main step past main steps, a parallel one past its parent's others. */
+export function moveStep(
+  drafts: readonly StepDraft[],
+  key: string,
+  direction: -1 | 1,
+): StepDraft[] {
+  const siblings = siblingsOf(drafts, key);
+  const from = siblings.findIndex((s) => s.key === key);
+  const to = from + direction;
+  if (from < 0 || to < 0 || to >= siblings.length) return [...drafts];
+  const other = siblings[to];
+  if (other === undefined) return [...drafts];
+  // Swapping the two rows in the flat list keeps every other row where it was.
+  const swapped = drafts.map((draft) =>
+    draft.key === key ? other : draft.key === other.key ? (siblings[from] ?? draft) : draft,
+  );
+  return normalize(swapped);
+}
+
+/** Main steps that could run during `parentKey`: any other main step with nothing running during it. */
+export function candidatesFor(drafts: readonly StepDraft[], parentKey: string): StepDraft[] {
+  return mainsOf(drafts).filter(
+    (main) => main.key !== parentKey && childrenOf(drafts, main.key).length === 0,
+  );
+}
+
+/** Makes `key` run during `parentKey`, after whatever already does. One level only. */
+export function nestUnder(
+  drafts: readonly StepDraft[],
+  key: string,
+  parentKey: string,
+): StepDraft[] {
+  if (!candidatesFor(drafts, parentKey).some((c) => c.key === key)) return [...drafts];
+  return normalize(
+    drafts.map((draft) => (draft.key === key ? { ...draft, during: parentKey } : draft)),
+  );
+}
+
+/** Returns a parallel step to the main flow, just after the step it ran during. */
+export function release(drafts: readonly StepDraft[], key: string): StepDraft[] {
+  const draft = drafts.find((d) => d.key === key);
+  const parent = draft?.during ?? null;
+  if (draft === undefined || parent === null) return [...drafts];
+  const asMain = { ...draft, during: null };
+  const mains = mainsOf(drafts).flatMap((main) => (main.key === parent ? [main, asMain] : [main]));
+  const rest = drafts.filter((d) => d.during !== null && d.key !== key);
+  return normalize([...mains, ...rest]);
+}
+
+/**
+ * Removing a main step makes what ran during it main steps in its place, mirroring the
+ * server rule, so the editor never shows a state the server would refuse.
+ */
+export function removeStep(drafts: readonly StepDraft[], key: string): StepDraft[] {
+  const mains = mainsOf(drafts).flatMap((main) =>
+    main.key === key
+      ? childrenOf(drafts, key).map((child) => ({ ...child, during: null }))
+      : [main],
+  );
+  const rest = drafts.filter((d) => d.during !== null && d.during !== key && d.key !== key);
+  return normalize([...mains, ...rest]);
 }
 
 export type StepsOutcome =
   | { readonly ok: true; readonly steps: StepInput[] }
   | { readonly ok: false; readonly errors: StepErrors };
 
-/** The same rules the API applies. */
-export function validateSteps(drafts: readonly MainStepDraft[]): StepsOutcome {
+/** The same rules the API applies, with the flat list folded back into main steps and their children. */
+export function validateSteps(drafts: readonly StepDraft[]): StepsOutcome {
   const errors: Record<string, Partial<Record<StepField, true>>> = {};
   const flag = (key: string, field: StepField) => {
     errors[key] = { ...errors[key], [field]: true };
@@ -83,119 +206,33 @@ export function validateSteps(drafts: readonly MainStepDraft[]): StepsOutcome {
     };
   };
 
-  const steps: StepInput[] = drafts.map((main) => ({
+  const steps: StepInput[] = mainsOf(drafts).map((main) => ({
     ...one(main),
-    children: main.children.map(one),
+    children: childrenOf(drafts, main.key).map(one),
   }));
 
   if (Object.keys(errors).length > 0) return { ok: false, errors };
   return { ok: true, steps };
 }
 
-export function moveMain(
-  drafts: readonly MainStepDraft[],
-  from: number,
-  to: number,
-): MainStepDraft[] {
-  const next = [...drafts];
-  const [item] = next.splice(from, 1);
-  if (item === undefined) return next;
-  next.splice(to, 0, item);
-  return next;
-}
-
-export function moveChild(
-  drafts: readonly MainStepDraft[],
-  parent: number,
-  from: number,
-  to: number,
-): MainStepDraft[] {
-  return drafts.map((main, i) => {
-    if (i !== parent) return main;
-    const children = [...main.children];
-    const [item] = children.splice(from, 1);
-    if (item !== undefined) children.splice(to, 0, item);
-    return { ...main, children };
-  });
-}
-
-/** A main step with nothing nested joins the previous main step's children. */
-export function nestUnderPrevious(
-  drafts: readonly MainStepDraft[],
-  index: number,
-): MainStepDraft[] {
-  const step = drafts[index];
-  const previous = drafts[index - 1];
-  if (step === undefined || previous === undefined || step.children.length > 0) return [...drafts];
-  const asChild: StepDraft = {
-    key: step.key,
-    body: step.body,
-    note: step.note,
-    durationSeconds: step.durationSeconds,
-    ingredientIds: step.ingredientIds,
-    equipmentIds: step.equipmentIds,
-    ...(step.id === undefined ? {} : { id: step.id }),
-  };
-  return drafts.flatMap((main, i) => {
-    if (i === index) return [];
-    if (i === index - 1) return [{ ...main, children: [...main.children, asChild] }];
-    return [main];
-  });
-}
-
-/** A nested step becomes a main step just after its parent. */
-export function promote(
-  drafts: readonly MainStepDraft[],
-  parent: number,
-  child: number,
-): MainStepDraft[] {
-  const main = drafts[parent];
-  const step = main?.children[child];
-  if (main === undefined || step === undefined) return [...drafts];
-  return drafts.flatMap((m, i) =>
-    i === parent
-      ? [
-          { ...m, children: m.children.filter((_, j) => j !== child) },
-          { ...step, children: [] },
-        ]
-      : [m],
-  );
-}
-
-/**
- * Removing a main step promotes its nested steps in its place, mirroring the server
- * rule, so the editor never shows a state the server would refuse.
- */
-export function removeMain(drafts: readonly MainStepDraft[], index: number): MainStepDraft[] {
-  return drafts.flatMap((main, i) =>
-    i === index ? main.children.map((child) => ({ ...child, children: [] })) : [main],
-  );
-}
-
-export function removeChild(
-  drafts: readonly MainStepDraft[],
-  parent: number,
-  child: number,
-): MainStepDraft[] {
-  return drafts.map((main, i) =>
-    i === parent ? { ...main, children: main.children.filter((_, j) => j !== child) } : main,
-  );
-}
-
 /** `steps.2.children.1.body` back to the key of that line. */
 export function stepErrorsFromServer(
   fields: Readonly<Record<string, string>>,
-  drafts: readonly MainStepDraft[],
+  drafts: readonly StepDraft[],
 ): StepErrors {
   const errors: Record<string, Partial<Record<StepField, true>>> = {};
+  const mains = mainsOf(drafts);
   for (const path of Object.keys(fields)) {
     const match =
       /^steps\.(\d+)(?:\.children\.(\d+))?\.(body|note|durationSeconds|id|ingredientIds|equipmentIds)$/.exec(
         path,
       );
     if (match === null) continue;
-    const main = drafts[Number(match[1])];
-    const line = match[2] === undefined ? main : main?.children[Number(match[2])];
+    const main = mains[Number(match[1])];
+    const line =
+      match[2] === undefined || main === undefined
+        ? main
+        : childrenOf(drafts, main.key)[Number(match[2])];
     if (line === undefined) continue;
     const field: StepField =
       match[3] === 'durationSeconds'

@@ -6,7 +6,8 @@
     "edit": "Rediģēt recepti",
     "needs": "Kas vajadzīgs",
     "steps": "Soļi",
-    "review": "Pārskats"
+    "review": "Pārskats",
+    "flow": "Gaita"
   },
   "header": {
     "settings": "Iestatījumi",
@@ -112,9 +113,6 @@
     "clearTime": "Notīrīt",
     "setTime": "Iestatīt",
     "addMain": "Pievienot soli",
-    "addNested": "Pievienot soli, ko darīt pa to laiku",
-    "nest": "Darīt to iepriekšējā soļa laikā",
-    "promote": "Padarīt par galveno soli",
     "remove": "Noņemt soli",
     "errors": {
       "body": "Uzraksti, kas jādara.",
@@ -132,12 +130,33 @@
     "linkAfterSave": "Vispirms saglabā recepti, lai varētu piesaistīt jaunās rindas.",
     "usesLine": "Izmanto: {{list}}",
     "needsLine": "Nepieciešams: {{list}}",
-    "addNote": "Pievienot piezīmi"
+    "addNote": "Pievienot piezīmi",
+    "during": "{{number}}. soļa laikā"
   },
   "review": {
     "screen": "Pārskats",
     "ready": "Gatava gatavošanai",
     "readyHelper": "Izslēgts, kamēr vēl jāpārbauda. To var mainīt vēlāk receptes lapā.",
     "done": "Gatavs"
+  },
+  "flow": {
+    "title": "Gaita",
+    "overview": "Pārskats",
+    "nothingYet": "Pievieno vismaz divus soļus, tad šeit norādi, kas notiek kā laikā.",
+    "untitled": "Solis bez nosaukuma",
+    "line": "{{number}}. {{title}}",
+    "parallelLine": "{{number}}{{letter}}. {{title}}",
+    "addParallel": "Pievienot soļus, ko darīt pa to laiku",
+    "addParallelFor": "Pievienot soļus, ko darīt {{number}}. soļa laikā",
+    "backToMain": "Atpakaļ galvenajā gaitā",
+    "backToMainFor": "Pārvietot {{title}} atpakaļ galvenajā gaitā",
+    "pickerTitle": "{{number}}. soļa laikā, {{title}}",
+    "pickerHelp": "Atzīmē soļus, ko var darīt, kamēr šis notiek.",
+    "pickerEmpty": "Neviens cits solis nav brīvs, lai notiktu šī soļa laikā.",
+    "close": "Gatavs",
+    "chartStep": "{{number}}. solis, {{title}}",
+    "chartMeanwhile": "pa to laiku {{list}}",
+    "done": "Gatavs",
+    "skip": "Izlaist pagaidām"
   }
 }

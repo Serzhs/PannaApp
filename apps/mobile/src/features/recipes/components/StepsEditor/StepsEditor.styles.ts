@@ -11,11 +11,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: theme.space.space2,
   },
-  /** Indented, so the nesting is visible while editing as well as while reading. */
-  nested: {
-    paddingStart: theme.space.space4,
-    borderStartWidth: 2,
-    borderStartColor: theme.colors.borderSubtle,
-    gap: theme.space.space2,
+  remove: {
+    alignSelf: 'flex-end',
   },
 });

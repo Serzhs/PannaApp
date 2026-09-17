@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { StepsEditor } from './components/StepsEditor';
 import { useRecipe, useUpdateRecipe } from './queries';
-import { stepErrorsFromServer, validateSteps, type MainStepDraft, type StepErrors } from './steps';
+import { stepErrorsFromServer, validateSteps, type StepDraft, type StepErrors } from './steps';
 import { styles } from './StepsScreen.styles';
 
 import { Button } from '@/components/Button';
@@ -18,7 +18,7 @@ export interface StepsScreenProps {
   readonly recipeId: string;
 }
 
-/** The third page of the create flow. Done saves the steps and goes on to the review. */
+/** The third page of the create flow. Done saves the steps and goes on to the flow. */
 export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
@@ -26,7 +26,7 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
   const update = useUpdateRecipe(recipeId);
   // Page two just saved the lists, so the detail is in the cache; the chips need their ids.
   const recipe = useRecipe(recipeId);
-  const [draft, setDraft] = useState<MainStepDraft[]>([]);
+  const [draft, setDraft] = useState<StepDraft[]>([]);
   const [errors, setErrors] = useState<StepErrors>({});
   const [triedOffline, setTriedOffline] = useState(false);
 
@@ -37,9 +37,9 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
     // The draft is deliberately not a dependency: errors map onto the draft that was sent.
   }, [update.error]);
 
-  // The last page, the review, is next; it is the one that lands on the recipe.
-  const continueToReview = () => {
-    router.replace({ pathname: '/recipes/[id]/review', params: { id: recipeId } });
+  // The flow page is next (0022); the review after it is what lands on the recipe.
+  const continueToFlow = () => {
+    router.replace({ pathname: '/recipes/[id]/flow', params: { id: recipeId } });
   };
 
   const done = () => {
@@ -53,7 +53,7 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
       return;
     }
     setErrors({});
-    update.mutate({ steps: outcome.steps }, { onSuccess: continueToReview });
+    update.mutate({ steps: outcome.steps }, { onSuccess: continueToFlow });
   };
 
   const failed =
@@ -84,7 +84,7 @@ export function StepsScreen({ recipeId }: StepsScreenProps): React.JSX.Element {
         ) : null}
         <Stack gap="space3">
           <Button label={t('recipes:steps.done')} loading={update.isPending} onPress={done} />
-          <Button label={t('recipes:steps.skip')} variant="ghost" onPress={continueToReview} />
+          <Button label={t('recipes:steps.skip')} variant="ghost" onPress={continueToFlow} />
         </Stack>
       </Stack>
     </Screen>

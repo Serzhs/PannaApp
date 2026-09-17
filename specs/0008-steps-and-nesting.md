@@ -3,6 +3,8 @@
 **Status:** In progress
 **Depends on:** 0006, 0007
 
+**Changed by 0022:** nesting moved out of the step cards to the Flow view; the steps editor is a flat list.
+
 **Changed by 0020:** `temperatureCelsius` and its field are gone, the note sits behind an "Add a note" button, and lines move by buttons only.
 
 ## Context

@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { FlowChart } from './components/FlowChart';
+import { FlowEditor } from './components/FlowEditor';
 import { NeedsEditor } from './components/NeedsEditor';
 import { RecipeForm, type RecipeFormValues } from './components/RecipeForm';
 import { StepsEditor } from './components/StepsEditor';
@@ -18,13 +20,15 @@ import {
   draftFromSteps,
   stepErrorsFromServer,
   validateSteps,
-  type MainStepDraft,
+  type StepDraft,
   type StepErrors,
 } from './steps';
 
 import { ErrorState } from '@/components/ErrorState';
 import { Screen } from '@/components/Screen';
 import { Spinner } from '@/components/Spinner';
+import { Stack } from '@/components/Stack';
+import { Text } from '@/components/Text';
 import { useIsOnline } from '@/query/useIsOnline';
 
 export interface EditRecipeScreenProps {
@@ -67,7 +71,7 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
     draftFrom(recipe.ingredients, recipe.equipment),
   );
   const [needsErrors, setNeedsErrors] = useState<NeedsErrors>({});
-  const [steps, setSteps] = useState<MainStepDraft[]>(() => draftFromSteps(recipe.steps));
+  const [steps, setSteps] = useState<StepDraft[]>(() => draftFromSteps(recipe.steps));
   const [stepErrors, setStepErrors] = useState<StepErrors>({});
 
   useEffect(() => {
@@ -128,6 +132,13 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
           ingredients={needs.ingredients}
           equipment={needs.equipment}
         />
+        <Stack gap="space3">
+          <Text variant="heading" accessibilityRole="header">
+            {t('recipes:flow.title')}
+          </Text>
+          <FlowEditor value={steps} onChange={setSteps} />
+          <FlowChart steps={steps} />
+        </Stack>
       </RecipeForm>
     </Screen>
   );

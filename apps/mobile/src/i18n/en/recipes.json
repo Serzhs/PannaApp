@@ -6,7 +6,8 @@
     "edit": "Edit recipe",
     "needs": "What you need",
     "steps": "Steps",
-    "review": "Review"
+    "review": "Review",
+    "flow": "Flow"
   },
   "header": {
     "settings": "Settings",
@@ -111,9 +112,6 @@
     "clearTime": "Clear",
     "setTime": "Set",
     "addMain": "Add step",
-    "addNested": "Add a step to do meanwhile",
-    "nest": "Do this during the previous step",
-    "promote": "Make this a main step",
     "remove": "Remove step",
     "errors": {
       "body": "Write what to do.",
@@ -131,12 +129,33 @@
     "linkAfterSave": "Save the recipe once to link new lines.",
     "usesLine": "Uses {{list}}",
     "needsLine": "Needs {{list}}",
-    "addNote": "Add a note"
+    "addNote": "Add a note",
+    "during": "During step {{number}}"
   },
   "review": {
     "screen": "Review",
     "ready": "Ready to cook",
     "readyHelper": "Off while it still needs checking. You can change this on the recipe later.",
     "done": "Done"
+  },
+  "flow": {
+    "title": "Flow",
+    "overview": "Overview",
+    "nothingYet": "Add at least two steps, then say here what happens during what.",
+    "untitled": "Untitled step",
+    "line": "{{number}}. {{title}}",
+    "parallelLine": "{{number}}{{letter}}. {{title}}",
+    "addParallel": "Add steps to do meanwhile",
+    "addParallelFor": "Add steps to do during step {{number}}",
+    "backToMain": "Back to the main flow",
+    "backToMainFor": "Move {{title}} back to the main flow",
+    "pickerTitle": "During step {{number}}, {{title}}",
+    "pickerHelp": "Tick the steps that can be done while this one runs.",
+    "pickerEmpty": "No other step is free to run during this one.",
+    "close": "Done",
+    "chartStep": "Step {{number}}, {{title}}",
+    "chartMeanwhile": "meanwhile {{list}}",
+    "done": "Done",
+    "skip": "Skip for now"
   }
 }

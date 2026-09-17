@@ -12,6 +12,7 @@ describe('StepLine', () => {
     durationSeconds: 600,
     ingredientIds: [],
     equipmentIds: [],
+    during: null,
   };
 
   it('offers the instruction and the time, and keeps the note behind a button', async () => {

@@ -19,6 +19,8 @@ import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import { DurationField } from '@/features/recipes/components/DurationField';
 import { EquipmentLine } from '@/features/recipes/components/EquipmentLine';
+import { FlowChart } from '@/features/recipes/components/FlowChart';
+import { FlowEditor } from '@/features/recipes/components/FlowEditor';
 import { IngredientLine } from '@/features/recipes/components/IngredientLine';
 import { LinkChips } from '@/features/recipes/components/LinkChips';
 import { NeedsSection } from '@/features/recipes/components/NeedsSection';
@@ -27,7 +29,7 @@ import { StepsEditor } from '@/features/recipes/components/StepsEditor';
 import { StepsSection } from '@/features/recipes/components/StepsSection';
 import { UnitPicker } from '@/features/recipes/components/UnitPicker';
 import { move, type EquipmentDraft, type IngredientDraft } from '@/features/recipes/needs';
-import type { MainStepDraft, StepDraft } from '@/features/recipes/steps';
+import type { StepDraft } from '@/features/recipes/steps';
 import { contrast } from '@/styles/contrast';
 import { textStyles, theme } from '@/styles/theme';
 import { primitives, type SemanticColor, type SpaceName } from '@/styles/tokens';
@@ -540,8 +542,9 @@ function StepPieces(): React.JSX.Element {
     durationSeconds: 3600,
     ingredientIds: [],
     equipmentIds: [],
+    during: null,
   });
-  const [drafts, setDrafts] = useState<MainStepDraft[]>([
+  const [drafts, setDrafts] = useState<StepDraft[]>([
     {
       key: 'm1',
       body: 'Heat the oven',
@@ -549,7 +552,7 @@ function StepPieces(): React.JSX.Element {
       durationSeconds: 600,
       ingredientIds: [],
       equipmentIds: [],
-      children: [],
+      during: null,
     },
     {
       key: 'm2',
@@ -558,16 +561,25 @@ function StepPieces(): React.JSX.Element {
       durationSeconds: 3600,
       ingredientIds: [],
       equipmentIds: [],
-      children: [
-        {
-          key: 'c1',
-          body: 'Chop the dill',
-          note: '',
-          durationSeconds: 120,
-          ingredientIds: [],
-          equipmentIds: [],
-        },
-      ],
+      during: null,
+    },
+    {
+      key: 'c1',
+      body: 'Chop the dill',
+      note: '',
+      durationSeconds: 120,
+      ingredientIds: [],
+      equipmentIds: [],
+      during: 'm2',
+    },
+    {
+      key: 'm3',
+      body: 'Blend and chill',
+      note: '',
+      durationSeconds: null,
+      ingredientIds: [],
+      equipmentIds: [],
+      during: null,
     },
   ]);
   return (
@@ -603,6 +615,22 @@ function StepPieces(): React.JSX.Element {
           ingredients={LINKABLE}
           equipment={[]}
         />
+      </Section>
+      <Section title="FlowEditor">
+        <Text variant="caption" color="textSecondary">
+          Edits the same steps as the editor above; the chart below follows.
+        </Text>
+        <FlowEditor value={drafts} onChange={setDrafts} />
+      </Section>
+      <Section title="FlowChart">
+        <Card>
+          <FlowChart steps={drafts} />
+        </Card>
+        <Card>
+          <FlowChart
+            steps={drafts.filter((d) => d.during === null).map((d) => ({ ...d, during: null }))}
+          />
+        </Card>
       </Section>
       <Section title="StepsSection">
         <Card>
