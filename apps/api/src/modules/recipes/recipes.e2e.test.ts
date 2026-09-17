@@ -905,6 +905,8 @@ describe('step links, end to end', () => {
     expect(errorBodySchema.parse(res.body).fields).toEqual({
       'steps.0.equipmentIds': 'UNKNOWN_ID',
     });
+    const bobsAfter = asDetail(await server().get(`/api/recipes/${bobs.id}`).set(as(bob)));
+    expect(bobsAfter).toEqual(bobs);
   });
 
   it('refuses a duplicate id in one step, and names a nested step by its path', async () => {

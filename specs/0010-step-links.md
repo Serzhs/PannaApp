@@ -1,6 +1,6 @@
 # 0010: Step links
 
-**Status:** Approved
+**Status:** Done
 **Depends on:** 0007, 0008
 
 ## Context
@@ -63,18 +63,18 @@ All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] `GET /api/recipes/:recipeId` returns `ingredientIds` and `equipmentIds` as `[]` on every step of a recipe with no links.
-- [ ] A `PATCH` linking a main step to two ingredients and a nested step to one piece of equipment stores the links, and `GET` returns the ids in the order of the lists.
-- [ ] A `PATCH` that sends a step without `ingredientIds` after it had links removes them, and one that sends fewer ids keeps only those.
-- [ ] A `PATCH` linking an ingredient id that belongs to another user's recipe returns 400 naming `steps.0.ingredientIds` and writes nothing, and that other recipe is unchanged.
-- [ ] A `PATCH` linking an id the same body omits from `ingredients`, so the row is deleted, returns 400 and writes nothing.
-- [ ] A `PATCH` with the same id twice in one array returns 400.
-- [ ] Removing an ingredient through a `PATCH` removes its links, and the step it was linked to remains.
-- [ ] The recipe screen shows a step's linked ingredients with their amounts and its equipment, and includes them in the step's accessible name, asserted in a component test.
-- [ ] Toggling chips on the edit screen and saving shows the links on the recipe screen without a manual refresh, seen on the simulator; a chip for an unsaved line is disabled, asserted in a test.
-- [ ] Every new component appears in the design gallery in every state.
-- [ ] The Latvian file lists every new key.
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 118, mobile 826 tests at the first run; one section test and one assertion added after.)_
+- [x] `GET /api/recipes/:recipeId` returns `ingredientIds` and `equipmentIds` as `[]` on every step of a recipe with no links. _(e2e "reads back empty links on every step until some are set".)_
+- [x] A `PATCH` linking a main step to two ingredients and a nested step to one piece of equipment stores the links, and `GET` returns the ids in the order of the lists. _(e2e "links a step to ingredients and equipment, and reads them in list order": sent as dill, beetroot; read back as beetroot, dill.)_
+- [x] A `PATCH` that sends a step without `ingredientIds` after it had links removes them, and one that sends fewer ids keeps only those. _(e2e "treats the ids sent as the whole truth".)_
+- [x] A `PATCH` linking an ingredient id that belongs to another user's recipe returns 400 naming `steps.0.ingredientIds` and writes nothing, and that other recipe is unchanged. _(e2e "refuses another recipe's ingredient, a stranger's or my own"; Bob's recipe is read back unchanged.)_
+- [x] A `PATCH` linking an id the same body omits from `ingredients`, so the row is deleted, returns 400 and writes nothing. _(e2e "refuses a link to an ingredient the same body deletes": both ingredients still there afterwards.)_
+- [x] A `PATCH` with the same id twice in one array returns 400. _(e2e "refuses a duplicate id in one step", path `steps.0.children.0.ingredientIds`.)_
+- [x] Removing an ingredient through a `PATCH` removes its links, and the step it was linked to remains. _(e2e "loses the link when the ingredient goes" and "keeps links across a reorder and loses them with the step".)_
+- [x] The recipe screen shows a step's linked ingredients with their amounts and its equipment, and includes them in the step's accessible name, asserted in a component test. _(StepsSection test: "Uses 500 g beetroot, dill" and "Needs blender" inside the step's label.)_
+- [x] Toggling chips on the edit screen and saving shows the links on the recipe screen without a manual refresh, seen on the simulator; a chip for an unsaved line is disabled, asserted in a test. _(Simulator: kefir and blender toggled on step 2, saved, recipe screen showed "Uses 1 l kefir" and "Needs blender" at once. LinkChips test covers the disabled chip and its hint.)_
+- [x] Every new component appears in the design gallery in every state. _(Chip: toggling, on, off, disabled. LinkChips: with an unsaved line.)_
+- [x] The Latvian file lists every new key. _(`steps.uses`, `usesEquipment`, `usesLine`, `needsLine`, `linkAfterSave`, `errors.links`; the key-parity test passes.)_
 - _Manual follow-up, not a gate:_ A VoiceOver or TalkBack walkthrough of a step with links, checking that the chips announce their state and that the step reads its links in one element.
 
 ## Open questions

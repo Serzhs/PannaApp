@@ -59,6 +59,34 @@ describe('StepsSection', () => {
     expect(screen.getByLabelText('Step 1. Heat the oven. 180°C. Fan off')).toBeTruthy();
   });
 
+  it('shows what a step uses and needs, in the step itself, per 0010', async () => {
+    system.mockReturnValue('metric');
+    await render(
+      <StepsSection
+        ingredients={[
+          { id: 'i1', position: 0, name: 'beetroot', note: null, amount: 500, unit: 'g' },
+          { id: 'i2', position: 1, name: 'dill', note: null, amount: null, unit: null },
+        ]}
+        equipment={[{ id: 'e1', position: 0, name: 'blender', note: null, optional: false }]}
+        steps={[
+          step({
+            id: 'a',
+            body: 'Blend',
+            ingredientIds: ['i1', 'i2'],
+            equipmentIds: ['e1'],
+            children: [step({ id: 'b', body: 'Chop', ingredientIds: ['i2'] })],
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText('Uses 500 g beetroot, dill')).toBeTruthy();
+    expect(screen.getByText('Needs blender')).toBeTruthy();
+    expect(
+      screen.getByLabelText('Step 1. Blend. Uses 500 g beetroot, dill. Needs blender'),
+    ).toBeTruthy();
+    expect(screen.getByLabelText('Step 1a, during step 1. Chop. Uses dill')).toBeTruthy();
+  });
+
   it('says so when there are no steps', async () => {
     system.mockReturnValue('metric');
     await render(<StepsSection steps={[]} ingredients={[]} equipment={[]} />);
