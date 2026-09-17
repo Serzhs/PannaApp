@@ -30,6 +30,7 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0022](0022-flow.md)                      | Flow                                 | Done          | Write steps flat, then say what runs during what on a Flow page with a chart.                       |
 | [0023](0023-settled-lines.md)             | Settled lines                        | Done          | An ingredient or tool is added with a button and sits in the list as one row, with Edit and Remove. |
 | [0024](0024-settled-steps.md)             | Settled steps                        | Done          | The first step is open from the start, and a step is settled with Add like a line is.               |
+| [0025](0025-three-parts.md)               | Three parts                          | Draft         | Recipe, Steps and Flow as pages when creating and tabs when editing; servings picked with a tap.    |
 
 Numbers run in build order, and each spec depends only on lower-numbered ones. That holds today because
 nothing below 0007 is written yet and the order has been kept tidy; it will stop being true the first
