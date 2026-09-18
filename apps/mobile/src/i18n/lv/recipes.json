@@ -148,9 +148,10 @@
   },
   "review": {
     "screen": "Pārskats",
-    "ready": "Gatava gatavošanai",
-    "readyHelper": "Izslēgts, kamēr vēl jāpārbauda. To var mainīt vēlāk receptes lapā.",
-    "done": "Gatavs"
+    "save": "Saglabāt",
+    "close": "Aizvērt",
+    "closeNote": "Tā paliek tavās receptēs kā melnraksts.",
+    "delete": "Dzēst"
   },
   "flow": {
     "title": "Gaita",

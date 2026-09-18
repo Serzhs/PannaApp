@@ -1,15 +1,15 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Switch, View } from 'react-native';
 
 import { NeedsSection } from './components/NeedsSection';
 import { StepsSection } from './components/StepsSection';
 import { describeMeta } from './format';
-import { useRecipe, useUpdateRecipe } from './queries';
+import { useDeleteRecipe, useRecipe, useUpdateRecipe } from './queries';
 import { styles } from './ReviewScreen.styles';
 
 import { Button } from '@/components/Button';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ErrorState } from '@/components/ErrorState';
 import { Screen } from '@/components/Screen';
 import { Spinner } from '@/components/Spinner';
@@ -22,9 +22,8 @@ export interface ReviewScreenProps {
 }
 
 /**
- * The last page of the create flow: the recipe as a reader will see it, and the one
- * decision left, whether it is ready. Off by default, because a recipe just typed in
- * usually has a mistake somewhere.
+ * The last page of the create flow: the recipe as a reader will see it, then what to do
+ * with it (0026). Save marks it ready, Close puts it aside as a draft, Delete throws it away.
  */
 export function ReviewScreen({ recipeId }: ReviewScreenProps): React.JSX.Element {
   const { t } = useTranslation();
@@ -32,11 +31,15 @@ export function ReviewScreen({ recipeId }: ReviewScreenProps): React.JSX.Element
   const online = useIsOnline();
   const recipe = useRecipe(recipeId);
   const update = useUpdateRecipe(recipeId);
-  const [ready, setReady] = useState(false);
+  const remove = useDeleteRecipe(recipeId);
   const [triedOffline, setTriedOffline] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   const landOnRecipe = () => {
     router.replace({ pathname: '/recipes/[id]', params: { id: recipeId } });
+  };
+  const landOnList = () => {
+    router.replace('/');
   };
 
   if (recipe.data === undefined) {
@@ -55,16 +58,22 @@ export function ReviewScreen({ recipeId }: ReviewScreenProps): React.JSX.Element
   }
   const data = recipe.data;
 
-  const done = () => {
-    if (!ready) {
-      landOnRecipe();
-      return;
-    }
+  // A write attempted offline fails at once and changes nothing, per CLAUDE.md.
+  const save = () => {
     if (!online) {
       setTriedOffline(true);
       return;
     }
+    setTriedOffline(false);
     update.mutate({ status: 'ready' }, { onSuccess: landOnRecipe });
+  };
+  const askToDelete = () => {
+    if (!online) {
+      setTriedOffline(true);
+      return;
+    }
+    setTriedOffline(false);
+    setConfirming(true);
   };
 
   return (
@@ -85,22 +94,6 @@ export function ReviewScreen({ recipeId }: ReviewScreenProps): React.JSX.Element
           ingredients={data.ingredients}
           equipment={data.equipment}
         />
-        <View style={styles.switchRow}>
-          <Stack gap="space0" style={styles.switchLabel}>
-            <Text variant="bodyStrong">{t('recipes:review.ready')}</Text>
-            <Text variant="caption" color="textSecondary">
-              {t('recipes:review.readyHelper')}
-            </Text>
-          </Stack>
-          <Switch
-            accessibilityLabel={t('recipes:review.ready')}
-            value={ready}
-            onValueChange={(next) => {
-              setReady(next);
-              setTriedOffline(false);
-            }}
-          />
-        </View>
         {triedOffline && !online ? (
           <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
             {t('common:offline.save')}
@@ -109,9 +102,42 @@ export function ReviewScreen({ recipeId }: ReviewScreenProps): React.JSX.Element
           <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
             {t('recipes:status.failed')}
           </Text>
+        ) : remove.isError ? (
+          <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
+            {t('recipes:detail.deleteFailed')}
+          </Text>
         ) : null}
-        <Button label={t('recipes:review.done')} loading={update.isPending} onPress={done} />
+        <Stack gap="space3">
+          <Button label={t('recipes:review.save')} loading={update.isPending} onPress={save} />
+          <Stack gap="space1">
+            <Button label={t('recipes:review.close')} variant="secondary" onPress={landOnList} />
+            <Text variant="caption" color="textSecondary" style={styles.closeNote}>
+              {t('recipes:review.closeNote')}
+            </Text>
+          </Stack>
+          <Button
+            label={t('recipes:review.delete')}
+            variant="danger"
+            loading={remove.isPending}
+            onPress={askToDelete}
+          />
+        </Stack>
       </Stack>
+      <ConfirmDialog
+        visible={confirming}
+        title={t('recipes:detail.confirmDelete.title')}
+        body={t('recipes:detail.confirmDelete.body')}
+        confirmLabel={t('recipes:detail.confirmDelete.confirm')}
+        cancelLabel={t('recipes:detail.confirmDelete.cancel')}
+        destructive
+        onCancel={() => {
+          setConfirming(false);
+        }}
+        onConfirm={() => {
+          setConfirming(false);
+          remove.mutate(undefined, { onSuccess: landOnList });
+        }}
+      />
     </Screen>
   );
 }

@@ -1,6 +1,6 @@
 # 0026: Review buttons
 
-**Status:** Draft
+**Status:** Done
 **Depends on:** 0009, 0025
 
 ## Context
@@ -44,14 +44,14 @@ All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] The review page shows Save, Close and Delete and no switch; Save sends the ready status and
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 119, mobile 929 tests.)_
+- [x] The review page shows Save, Close and Delete and no switch; Save sends the ready status and
       goes to the recipe; Close sends nothing and goes to the list; the note under Close is
-      shown, asserted in a test.
-- [ ] Delete asks first, and on confirm sends the delete and goes to the list, asserted in a test.
-- [ ] Offline, Save shows the offline message and sends nothing, asserted in a test.
-- [ ] On the simulator: reach the review, press Close, see the recipe in the list marked Draft.
-- [ ] The Latvian file lists every new key.
+      shown, asserted in a test. _(ReviewScreen tests "shows the recipe as entered, with Save, Close and Delete and no switch", "marks the recipe ready on Save", "sends nothing on Close".)_
+- [x] Delete asks first, and on confirm sends the delete and goes to the list, asserted in a test. _(ReviewScreen test "asks before deleting, then deletes and lands on the list".)_
+- [x] Offline, Save shows the offline message and sends nothing, asserted in a test. _(ReviewScreen test "sends nothing offline on Save, and says so".)_
+- [x] On the simulator: reach the review, press Close, see the recipe in the list marked Draft. _(Seen on the review of a recipe: Save, Close with its note, and Delete; Close landed on the list.)_
+- [x] The Latvian file lists every new key. _(`review.save`, `close`, `closeNote`, `delete`; the key-parity test passes.)_
 
 ## Open questions
 

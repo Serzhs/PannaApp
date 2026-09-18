@@ -147,9 +147,10 @@
   },
   "review": {
     "screen": "Review",
-    "ready": "Ready to cook",
-    "readyHelper": "Off while it still needs checking. You can change this on the recipe later.",
-    "done": "Done"
+    "save": "Save",
+    "close": "Close",
+    "closeNote": "It stays in your recipes as a draft.",
+    "delete": "Delete"
   },
   "flow": {
     "title": "Flow",

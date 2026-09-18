@@ -3,6 +3,8 @@
 **Status:** In progress
 **Depends on:** 0008
 
+**Changed by 0026:** the review page ends on Save, Close and Delete; the switch is gone.
+
 **Changed by 0025:** creating has four pages, Recipe, Steps, Flow, Review.
 
 ## Context
