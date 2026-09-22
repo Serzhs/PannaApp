@@ -1,4 +1,5 @@
 import { imagePath } from '@panna/shared';
+import { File } from 'expo-file-system';
 
 import { baseUrl } from './client';
 import { authorizedCall } from './session';
@@ -17,12 +18,9 @@ export interface PickedImage {
 /** Uploads a picked photo and answers with the key the recipe will carry (0011). */
 export async function uploadImage(picked: PickedImage): Promise<string> {
   const form = new FormData();
-  // React Native's FormData takes a file as a plain object with a uri, not a Blob.
-  form.append('file', {
-    uri: picked.uri,
-    type: picked.mimeType ?? 'image/jpeg',
-    name: picked.fileName ?? 'photo.jpg',
-  } as unknown as Blob);
+  // Expo's fetch refuses React Native's old `{ uri }` part; a File from the file system is
+  // what it reads. The picker already re-encoded the photo, so the name is only a name.
+  form.append('file', new File(picked.uri), picked.fileName ?? 'photo.jpg');
   const { key } = await authorizedCall('uploadImage', { form });
   return key;
 }

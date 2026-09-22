@@ -37,7 +37,7 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">231 of 248 acceptance criteria verified across 18 written specs.</p>
+<p class="summary">240 of 257 acceptance criteria verified across 19 written specs.</p>
 <div class="bar"><div style="width: 93%"></div></div>
 
 <h2>All specs</h2>
@@ -54,7 +54,7 @@
 <tr><td><a href="#spec-0008">0008</a></td><td>Steps and nesting</td><td><span class="status in-progress">In progress</span></td><td>20 / 21</td><td>Write steps, and nest the ones that happen during a wait.</td></tr>
 <tr><td><a href="#spec-0009">0009</a></td><td>Review and mark as ready</td><td><span class="status in-progress">In progress</span></td><td>6 / 7</td><td>Check a new recipe over on one page, and say when it is ready to cook.</td></tr>
 <tr><td><a href="#spec-0010">0010</a></td><td>Step links</td><td><span class="status done">Done</span></td><td>12 / 12</td><td>Attach ingredients and equipment to the step that uses them.</td></tr>
-<tr><td>0011</td><td>Images</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A cover photo, and a picture of how each step should look.</td></tr>
+<tr><td><a href="#spec-0011">0011</a></td><td>Images</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>A cover photo, and a picture of how each step should look.</td></tr>
 <tr><td>0012</td><td>Cooking mode</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Cook a recipe, seeing what else you could do during each wait.</td></tr>
 <tr><td>0013</td><td>Cooking without an ingredient</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Check off what you have, and cook it without the carrots.</td></tr>
 <tr><td>0014</td><td>Recipe history</td><td><span class="status not-written">Not written</span></td><td>–</td><td>See when you cooked something, and what you changed each time.</td></tr>
@@ -741,6 +741,73 @@
 <p><strong>Edit screen and the create flow's Steps page.</strong> Under each step's fields, two rows of chips, one per ingredient and one per piece of equipment in the recipe, each a toggle showing the name; a chip is on when the step uses it. A recipe with no ingredients shows no ingredient row. A chip for a line added on the same screen and not yet saved is disabled, with a hint that it can be linked after saving, because it has no id yet.</p>
 <p>Chips are toggles to a screen reader, with their state, and are at least 44 points tall.</p>
 <p><strong>Components</strong> added, in their own folders with styles, test and index: a chip, and a chip group that takes the list and the selected ids. The chip goes to the design gallery.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian.</p>
+</details>
+</section>
+
+<section id="spec-0011">
+<h2>0011: Images <span class="status done">Done</span></h2>
+<p class="goal">A recipe can carry a cover photo and each step a photo of its result, stored beside the API and shown in the list, on the recipe screen and in the editor.</p>
+<p class="summary">9 of 9 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. <em>(<code>pnpm check</code>: shared 9, API 123, mobile 953 tests.)</em></li>
+<li class="done">Uploading a 3000-pixel-wide PNG with an orientation tag stores a JPEG no wider than 1600 with</li>
+<li class="done">A text file uploaded as <code>file</code> returns 400 <code>IMAGE_UNSUPPORTED</code> and writes nothing; a</li>
+<li class="done"><code>PATCH</code> with an unknown <code>coverImageKey</code> returns 400 naming it; with a real one the detail</li>
+<li class="done">Uploading needs a session: without a token, 401, asserted end to end. <em>(images.e2e "needs a session to upload".)</em></li>
+<li class="done">The photo field shows Choose when empty, uploads on pick and calls back with the key, shows</li>
+<li class="done">A row with a cover key renders the thumbnail and one without does not, asserted in a test. <em>(RecipeRow test "shows the cover photo as a thumbnail when there is one".)</em></li>
+<li class="done">On the simulator: choose a cover photo from the library on a new recipe, see it on the first</li>
+<li class="done">The Latvian file lists every new key. <em>(the <code>photo</code> group, <code>steps.photo</code>, <code>steps.photoAlt</code>, <code>common:offline.upload</code>; the key-parity test passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>A recipe can carry a cover photo and each step a photo of its result, stored beside the API and</p>
+<p>shown in the list, on the recipe screen and in the editor.</p>
+<h3>Out of scope</h3><li>Photos in cooking mode. 0012 shows the step photo behind a large button; here the recipe screen</li>
+<p>  shows it small, because reading happens with clean hands.</p>
+<li>The camera. Photos come from the library; on a phone the library already holds what the camera</li>
+<p>  took, and the simulator has no camera at all.</p>
+<li>Cropping, filters, more than one photo per step, or a photo on an ingredient.</li>
+<li>Photos on shared recipes. Sharing is 0017, and the files live on one machine.</li>
+<li>Sweeping uploads that were never attached, for example a photo chosen and then Cancel pressed.</li>
+<p>  The file stays on disk. A sweep of files no row names is a small later spec.</p>
+<li>Any store but the local disk. The column holds a key so that can change without touching rows.</li>
+<h3>Data model</h3><p>None. The two columns exist. A key is 32 lowercase hex characters, and the file behind it is</p>
+<p>always a JPEG, whatever was uploaded.</p>
+<h3>API contract</h3><p><strong><code>POST /api/images</code></strong>, authenticated, multipart with one field, <code>file</code>, up to 12 MB. The image is</p>
+<p>turned upright by its orientation tag, resized to fit within 1600 pixels on its long side, re-encoded</p>
+<p>as JPEG, and stored with no metadata at all: EXIF, and the GPS inside it, never reaches the disk.</p>
+<p>Answers <code>201 { key }</code>. Errors: <code>400 IMAGE_UNSUPPORTED</code> when the bytes are not a JPEG, PNG or WebP</p>
+<p>the resizer can read, or the field is missing; <code>413 PAYLOAD<em>TOO</em>LARGE</code> over 12 MB.</p>
+<p><strong><code>GET /api/images/:key</code></strong>, unauthenticated, serves the JPEG with a long immutable cache header,</p>
+<p>since a key's bytes never change. A key is opaque and unguessable, which is what stands in for a</p>
+<p>permission check, as the Images section of <code>CLAUDE.md</code> describes. <code>404 IMAGE<em>NOT</em>FOUND</code> for a key</p>
+<p>that is not 32 hex characters or has no file.</p>
+<p><strong>Recipes.</strong> <code>recipeSchema</code> gains <code>coverImageKey: string | null</code>, and each step and nested step</p>
+<p>gains <code>imageKey: string | null</code>. <code>POST</code> and <code>PATCH /api/recipes/:recipeId</code> accept <code>coverImageKey</code></p>
+<p>and a step's <code>imageKey</code>, each nullable and optional. A key with no file behind it is</p>
+<p><code>400 VALIDATION_FAILED</code> with <code>fields</code> naming the path, <code>coverImageKey</code> or <code>steps.2.imageKey</code>,</p>
+<p>as <code>UNKNOWN_IMAGE</code>. When a key is replaced or cleared, when a step carrying one is deleted, and</p>
+<p>when a recipe is deleted, the files behind the dropped keys are deleted after the transaction</p>
+<p>commits, so a failed write never loses a file the rows still name.</p>
+<p><strong>Configuration.</strong> <code>IMAGE_DIR</code> says where files live and defaults to <code>~/.panna/images</code>, outside</p>
+<p>the repo, created on first use. Tests point it at a temporary directory.</p>
+<h3>UI</h3><p><strong>Recipe page and tab.</strong> Under servings, "Cover photo": a preview when there is one, and</p>
+<p>"Choose photo" or "Change photo" plus "Remove". Choosing opens the platform's photo library,</p>
+<p>uploads at once, and shows the result; the key travels with the recipe on Continue or Save. Offline,</p>
+<p>choosing fails at once with the offline message.</p>
+<p><strong>Step card.</strong> After the note, "Photo of the result", the same control. A settled step's row</p>
+<p>shows the photo as a small thumbnail beside its text.</p>
+<p><strong>Recipe list.</strong> A row with a cover photo shows it as a square thumbnail at the start of the row.</p>
+<p>Decorative: the row's accessible name does not change.</p>
+<p><strong>Recipe screen.</strong> The cover photo sits above the title, full width. A step with a photo shows it</p>
+<p>small under its text, described to a screen reader as "photo of the result".</p>
+<p><strong>Component:</strong> one photo field in the recipes feature, its own folder with styles, test and index,</p>
+<p>and a gallery entry showing empty, chosen and uploading.</p>
 <p>All new strings go through <code>t()</code>, in English and Latvian.</p>
 </details>
 </section>

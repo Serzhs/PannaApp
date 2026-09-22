@@ -52,7 +52,7 @@ export class ImagesController {
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     res.type('image/jpeg');
     await new Promise<void>((resolve, reject) => {
-      res.sendFile(this.images.pathOf(key), (error) => {
+      res.sendFile(this.images.fileNameOf(key), { root: this.images.root }, (error) => {
         if (error) reject(error);
         else resolve();
       });

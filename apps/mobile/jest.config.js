@@ -19,5 +19,6 @@ module.exports = {
     '^react-native-keyboard-controller$': 'react-native-keyboard-controller/jest',
     '^@react-native-community/netinfo$': '@react-native-community/netinfo/jest/netinfo-mock.js',
     '^expo-image-picker$': '<rootDir>/src/test/mocks/expo-image-picker.ts',
+    '^expo-file-system$': '<rootDir>/src/test/mocks/expo-file-system.ts',
   },
 };

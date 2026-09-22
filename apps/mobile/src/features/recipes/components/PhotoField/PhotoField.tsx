@@ -28,6 +28,8 @@ export function PhotoField({ label, value, onChange }: PhotoFieldProps): React.J
   const online = useIsOnline();
   const [uploading, setUploading] = useState(false);
   const [problem, setProblem] = useState<'offline' | 'failed' | null>(null);
+  // What actually went wrong, for the developer only: the user sees the translated line.
+  const [detail, setDetail] = useState<string | null>(null);
   // "Choose cover photo", not "Choose Cover photo": the label is a heading, the button a sentence.
   const name = label.toLocaleLowerCase();
 
@@ -41,14 +43,18 @@ export function PhotoField({ label, value, onChange }: PhotoFieldProps): React.J
     const picked = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 0.9,
+      // iPhones shoot HEIC, which the resizer cannot read; "compatible" hands over a JPEG.
+      preferredAssetRepresentationMode:
+        ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
     });
     const asset = picked.assets?.[0];
     if (picked.canceled || asset === undefined) return;
     setUploading(true);
     try {
       onChange(await uploadImage(asset));
-    } catch {
+    } catch (error: unknown) {
       setProblem('failed');
+      setDetail(error instanceof Error ? `${error.name}: ${error.message}` : String(error));
     } finally {
       setUploading(false);
     }
@@ -99,6 +105,7 @@ export function PhotoField({ label, value, onChange }: PhotoFieldProps): React.J
       ) : problem === 'failed' ? (
         <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
           {t('recipes:photo.failed')}
+          {__DEV__ && detail !== null ? ` (${detail})` : ''}
         </Text>
       ) : null}
     </Stack>

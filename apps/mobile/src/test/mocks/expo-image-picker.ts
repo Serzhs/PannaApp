@@ -5,3 +5,8 @@ export const launchImageLibraryAsync = jest.fn(() =>
 export const requestMediaLibraryPermissionsAsync = jest.fn(() =>
   Promise.resolve({ granted: true, status: 'granted' }),
 );
+export const UIImagePickerPreferredAssetRepresentationMode = {
+  Automatic: 'automatic',
+  Compatible: 'compatible',
+  Current: 'current',
+} as const;

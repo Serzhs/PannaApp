@@ -86,6 +86,11 @@ permissions.
 `pnpm audit` runs as part of `pnpm test` and fails on a high severity advisory, but that only catches
 what has already been reported. The judgement above is the part that catches the rest.
 
+**Uploads go through `expo-file-system`'s `File`.** Expo's fetch refuses React Native's old
+`{ uri, name, type }` form part with "Unsupported FormDataPart implementation"; a `File` from the
+file system is what it reads. And iPhones shoot HEIC, which the resizer cannot decode, so the picker
+is asked for a compatible representation, which hands over a JPEG.
+
 **Metro only sees packages the mobile workspace names.** pnpm keeps a package's own dependencies out
 of the top-level `node_modules`, and Metro does not follow the links pnpm leaves behind, so a library
 that imports a sibling package it depends on fails at launch with "unable to resolve module". Jest

@@ -28,8 +28,17 @@ export class ImagesService {
     this.dir = config.get('IMAGE_DIR', { infer: true });
   }
 
+  /** Root and name apart: Express refuses a dotfile anywhere in a path it is handed whole, and ~/.panna is one. */
+  get root(): string {
+    return this.dir;
+  }
+
+  fileNameOf(key: string): string {
+    return `${key}.jpg`;
+  }
+
   pathOf(key: string): string {
-    return join(this.dir, `${key}.jpg`);
+    return join(this.dir, this.fileNameOf(key));
   }
 
   async store(bytes: Buffer): Promise<string> {

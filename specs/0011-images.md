@@ -1,6 +1,6 @@
 # 0011: Images
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0022, 0025
 
 ## Context
@@ -79,22 +79,22 @@ All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] Uploading a 3000-pixel-wide PNG with an orientation tag stores a JPEG no wider than 1600 with
-      no EXIF, and `GET` serves it with an immutable cache header, asserted end to end.
-- [ ] A text file uploaded as `file` returns 400 `IMAGE_UNSUPPORTED` and writes nothing; a
-      malformed key returns 404 `IMAGE_NOT_FOUND`, asserted end to end.
-- [ ] `PATCH` with an unknown `coverImageKey` returns 400 naming it; with a real one the detail
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 123, mobile 953 tests.)_
+- [x] Uploading a 3000-pixel-wide PNG with an orientation tag stores a JPEG no wider than 1600 with
+      no EXIF, and `GET` serves it with an immutable cache header, asserted end to end. _(images.e2e "stores an upload shrunk, upright and stripped, and serves it for good".)_
+- [x] A text file uploaded as `file` returns 400 `IMAGE_UNSUPPORTED` and writes nothing; a
+      malformed key returns 404 `IMAGE_NOT_FOUND`, asserted end to end. _(images.e2e "refuses bytes that are not an image, and a key that names nothing"; a path with dots included.)_
+- [x] `PATCH` with an unknown `coverImageKey` returns 400 naming it; with a real one the detail
       carries it; replacing it deletes the old file; deleting the recipe deletes the cover and
-      every step photo, asserted end to end.
-- [ ] Uploading needs a session: without a token, 401, asserted end to end.
-- [ ] The photo field shows Choose when empty, uploads on pick and calls back with the key, shows
+      every step photo, asserted end to end. _(images.e2e "attaches a cover and step photos, drops the files it replaces, and all of them on delete"; Bob's PATCH is a 404 that touches no file.)_
+- [x] Uploading needs a session: without a token, 401, asserted end to end. _(images.e2e "needs a session to upload".)_
+- [x] The photo field shows Choose when empty, uploads on pick and calls back with the key, shows
       Change and Remove when set, and shows the offline message instead of picking when offline,
-      asserted in a test with the picker faked.
-- [ ] A row with a cover key renders the thumbnail and one without does not, asserted in a test.
-- [ ] On the simulator: choose a cover photo from the library on a new recipe, see it on the first
-      page, in the list and on the recipe screen.
-- [ ] The Latvian file lists every new key.
+      asserted in a test with the picker faked. _(PhotoField tests, picker and upload faked.)_
+- [x] A row with a cover key renders the thumbnail and one without does not, asserted in a test. _(RecipeRow test "shows the cover photo as a thumbnail when there is one".)_
+- [x] On the simulator: choose a cover photo from the library on a new recipe, see it on the first
+      page, in the list and on the recipe screen. _(Seen: the library opened, the flowers uploaded and previewed on the first page, then showed as a thumbnail in the list and as the header on the recipe screen. Two things surfaced on the way and are fixed: Expo's fetch needs a File part, and the simulator's photos are HEIC. Serving from `~/.panna` also needed the file sent relative to its root, since Express refuses dotfile paths; the test directory is now a dotfile path too.)_
+- [x] The Latvian file lists every new key. _(the `photo` group, `steps.photo`, `steps.photoAlt`, `common:offline.upload`; the key-parity test passes.)_
 
 ## Open questions
 
