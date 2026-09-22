@@ -9,6 +9,9 @@ import { styles } from './RecipeList.styles';
 import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorState } from '@/components/ErrorState';
+import { Text } from '@/components/Text';
+import { InProgressRow } from '@/features/cooking/components/InProgressRow';
+import type { CookRecord } from '@/features/cooking/store';
 
 export type RecipeListState = 'loading' | 'error' | 'offline' | 'ready';
 
@@ -18,6 +21,9 @@ export interface RecipeListProps {
   readonly onRetry: () => void;
   readonly onOpen: (recipe: Recipe) => void;
   readonly onCreate: () => void;
+  /** Cooks in progress, shown first (0012). */
+  readonly cooks?: readonly CookRecord[];
+  readonly onContinue?: (record: CookRecord) => void;
 }
 
 const SKELETON_ROWS = [0, 1, 2];
@@ -32,8 +38,12 @@ export function RecipeList({
   onRetry,
   onOpen,
   onCreate,
+  cooks = [],
+  onContinue,
 }: RecipeListProps): React.JSX.Element {
   const { t } = useTranslation();
+  const cookingIds = new Set(cooks.map((record) => record.recipe.id));
+  const rest = recipes.filter((recipe) => !cookingIds.has(recipe.id));
 
   if (state === 'loading') {
     return (
@@ -49,7 +59,7 @@ export function RecipeList({
     return <ErrorState variant={state === 'offline' ? 'offline' : 'failure'} onRetry={onRetry} />;
   }
 
-  if (recipes.length === 0) {
+  if (recipes.length === 0 && cooks.length === 0) {
     return (
       <EmptyState
         title={t('recipes:list.empty.title')}
@@ -61,10 +71,31 @@ export function RecipeList({
 
   return (
     <FlatList
-      data={recipes}
+      data={rest}
       keyExtractor={(recipe) => recipe.id}
       renderItem={({ item }) => <RecipeRow recipe={item} onPress={onOpen} />}
       contentContainerStyle={styles.rows}
+      ListHeaderComponent={
+        cooks.length === 0 ? null : (
+          <View style={styles.section}>
+            <Text variant="label" color="textSecondary" accessibilityRole="header">
+              {t('recipes:cook.inProgress')}
+            </Text>
+            {cooks.map((record) => (
+              <InProgressRow
+                key={record.recipe.id}
+                record={record}
+                onPress={(cook) => {
+                  onContinue?.(cook);
+                }}
+              />
+            ))}
+            <Text variant="label" color="textSecondary" accessibilityRole="header">
+              {t('recipes:cook.everythingElse')}
+            </Text>
+          </View>
+        )
+      }
     />
   );
 }

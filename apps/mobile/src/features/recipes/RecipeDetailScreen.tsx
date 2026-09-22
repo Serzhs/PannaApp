@@ -19,6 +19,7 @@ import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
+import { startCook, useCooks } from '@/features/cooking/store';
 import { useIsOnline } from '@/query/useIsOnline';
 
 export interface RecipeDetailScreenProps {
@@ -34,6 +35,7 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   const router = useRouter();
   const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
+  const cooking = useCooks().some((cook) => cook.recipe.id === recipeId);
 
   const backToList = () => {
     if (router.canGoBack()) router.back();
@@ -115,6 +117,16 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
         />
         <View style={styles.actions}>
           <Stack gap="space3">
+            {data.steps.length === 0 ? null : (
+              <Button
+                label={cooking ? t('recipes:cook.continue') : t('recipes:cook.start')}
+                onPress={() => {
+                  // The record is written here, from the recipe on screen, so the guide never fetches.
+                  if (!cooking) startCook(data);
+                  router.push({ pathname: '/recipes/[id]/cook', params: { id: recipeId } });
+                }}
+              />
+            )}
             {data.status === 'draft' ? (
               <Button
                 label={t('recipes:status.markReady')}

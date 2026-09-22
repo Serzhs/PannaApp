@@ -1,6 +1,6 @@
 # 0012: Cooking mode
 
-**Status:** Draft
+**Status:** In progress
 **Depends on:** 0010, 0011, 0022
 
 ## Context

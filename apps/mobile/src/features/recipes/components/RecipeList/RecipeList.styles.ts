@@ -7,4 +7,7 @@ export const styles = StyleSheet.create({
     gap: theme.space.space3,
     paddingVertical: theme.space.space4,
   },
+  section: {
+    gap: theme.space.space3,
+  },
 });

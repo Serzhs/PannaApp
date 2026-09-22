@@ -20,5 +20,9 @@ module.exports = {
     '^@react-native-community/netinfo$': '@react-native-community/netinfo/jest/netinfo-mock.js',
     '^expo-image-picker$': '<rootDir>/src/test/mocks/expo-image-picker.ts',
     '^expo-file-system$': '<rootDir>/src/test/mocks/expo-file-system.ts',
+    '^expo-sqlite/kv-store$': '<rootDir>/src/test/mocks/expo-sqlite-kv-store.ts',
+    '^expo-notifications$': '<rootDir>/src/test/mocks/expo-notifications.ts',
+    '^expo-keep-awake$': '<rootDir>/src/test/mocks/expo-keep-awake.ts',
+    '^expo-haptics$': '<rootDir>/src/test/mocks/expo-haptics.ts',
   },
 };

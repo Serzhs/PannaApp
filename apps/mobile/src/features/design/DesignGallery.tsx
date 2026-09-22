@@ -18,6 +18,8 @@ import { Stack } from '@/components/Stack';
 import { Tabs } from '@/components/Tabs';
 import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
+import { InProgressRow } from '@/features/cooking/components/InProgressRow';
+import { TimerBlock } from '@/features/cooking/components/TimerBlock';
 import { DurationField } from '@/features/recipes/components/DurationField';
 import { EquipmentLine } from '@/features/recipes/components/EquipmentLine';
 import { FlowChart } from '@/features/recipes/components/FlowChart';
@@ -436,6 +438,79 @@ function TabsAndServings(): React.JSX.Element {
   );
 }
 
+function Cooking(): React.JSX.Element {
+  const noop = () => undefined;
+  const base = {
+    note: null,
+    durationSeconds: null,
+    ingredientIds: [],
+    equipmentIds: [],
+    imageKey: null,
+  };
+  return (
+    <>
+      <Section title="TimerBlock">
+        <Stack gap="space4">
+          <TimerBlock
+            state={{ kind: 'idle', seconds: 1200 }}
+            onStart={noop}
+            onStop={noop}
+            onEnded={noop}
+          />
+          <TimerBlock
+            state={{ kind: 'running', endsAt: Date.now() + 5 * 60 * 1000, silent: false }}
+            onStart={noop}
+            onStop={noop}
+            onEnded={noop}
+          />
+          <TimerBlock
+            state={{ kind: 'running', endsAt: Date.now() + 9 * 60 * 1000, silent: true }}
+            onStart={noop}
+            onStop={noop}
+            onEnded={noop}
+          />
+          <TimerBlock
+            state={{ kind: 'elsewhere', stepNumber: 2, endsAt: Date.now() + 4 * 60 * 1000 }}
+            onStart={noop}
+            onStop={noop}
+            onEnded={noop}
+          />
+          <TimerBlock state={{ kind: 'done' }} onStart={noop} onStop={noop} onEnded={noop} />
+        </Stack>
+      </Section>
+      <Section title="InProgressRow">
+        <InProgressRow
+          record={{
+            recipe: {
+              id: 'g',
+              title: 'Cold beetroot soup',
+              description: null,
+              status: 'ready',
+              coverImageKey: null,
+              servings: 4,
+              totalTimeMinutes: 45,
+              createdAt: '2026-09-16T12:00:00.000Z',
+              updatedAt: '2026-09-16T12:00:00.000Z',
+              ingredients: [],
+              equipment: [],
+              steps: [
+                { id: 'a', position: 0, body: 'Boil', ...base, children: [] },
+                { id: 'b', position: 1, body: 'Roast', ...base, children: [] },
+                { id: 'c', position: 2, body: 'Blend', ...base, children: [] },
+              ],
+            },
+            startedAt: '2026-09-22T10:00:00.000Z',
+            currentStepId: 'b',
+            done: ['a'],
+            timer: null,
+          }}
+          onPress={noop}
+        />
+      </Section>
+    </>
+  );
+}
+
 function Chips(): React.JSX.Element {
   const [on, setOn] = useState(true);
   const [picked, setPicked] = useState<string[]>(['n1']);
@@ -795,6 +870,7 @@ export function DesignGallery(): React.JSX.Element {
         <Reorderables />
         <Chips />
         <TabsAndServings />
+        <Cooking />
         <NeedsLines />
         <StepPieces />
       </Stack>

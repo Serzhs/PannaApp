@@ -3,6 +3,8 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { RecipeList } from './RecipeList';
 
+import type { CookRecord } from '@/features/cooking/store';
+
 const recipe: Recipe = {
   id: '4b6c1d2e-0000-4000-8000-000000000001',
   title: 'Cold beetroot soup',
@@ -47,5 +49,49 @@ describe('RecipeList', () => {
     await render(<RecipeList state="ready" recipes={[recipe]} {...handlers} />);
     await fireEvent.press(screen.getByRole('button', { name: 'Cold beetroot soup, 4 servings' }));
     expect(handlers.onOpen).toHaveBeenCalledWith(recipe);
+  });
+
+  /** 0012: cooks in progress first, under their own heading, and no heading without any. */
+  it('puts a cook in progress first, and shows no section without one', async () => {
+    const base = {
+      note: null,
+      durationSeconds: null,
+      ingredientIds: [],
+      equipmentIds: [],
+      imageKey: null,
+    };
+    const record: CookRecord = {
+      recipe: {
+        ...recipe,
+        ingredients: [],
+        equipment: [],
+        steps: [
+          { id: 'a', position: 0, body: 'Boil', ...base, children: [] },
+          { id: 'b', position: 1, body: 'Blend', ...base, children: [] },
+        ],
+      },
+      startedAt: '2026-09-22T10:00:00.000Z',
+      currentStepId: 'b',
+      done: ['a'],
+      timer: null,
+    };
+    const onContinue = jest.fn();
+    await render(
+      <RecipeList
+        state="ready"
+        recipes={[recipe]}
+        {...handlers}
+        cooks={[record]}
+        onContinue={onContinue}
+      />,
+    );
+    expect(screen.getByRole('header', { name: 'In progress' })).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Cold beetroot soup, Step 2 of 2' }));
+    expect(onContinue).toHaveBeenCalledWith(record);
+    // The recipe being cooked is not listed twice.
+    expect(screen.queryByRole('button', { name: 'Cold beetroot soup, 4 servings' })).toBeNull();
+    await screen.unmount();
+    await render(<RecipeList state="ready" recipes={[recipe]} {...handlers} />);
+    expect(screen.queryByRole('header', { name: 'In progress' })).toBeNull();
   });
 });
