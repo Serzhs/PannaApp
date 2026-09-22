@@ -38,6 +38,7 @@ describe('NewRecipeScreen', () => {
         {
           title: 'Soup',
           servings: 2,
+          coverImageKey: null,
           ingredients: [{ name: 'Salt', note: null, amount: null, unit: null }],
           equipment: [],
         },

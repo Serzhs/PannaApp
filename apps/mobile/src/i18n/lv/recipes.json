@@ -144,7 +144,9 @@
     "cancelLine": "Atcelt",
     "editLine": "Labot",
     "edit": "Labot: {{label}}",
-    "removeFor": "Noņemt: {{label}}"
+    "removeFor": "Noņemt: {{label}}",
+    "photo": "Rezultāta foto",
+    "photoAlt": "Rezultāta foto"
   },
   "review": {
     "screen": "Pārskats",
@@ -172,5 +174,16 @@
     "chartMeanwhile": "pa to laiku {{list}}",
     "done": "Gatavs",
     "skip": "Izlaist pagaidām"
+  },
+  "photo": {
+    "cover": "Vāka foto",
+    "coverOf": "Receptes {{title}} vāka foto",
+    "choose": "Izvēlēties foto",
+    "change": "Mainīt foto",
+    "remove": "Noņemt",
+    "chooseFor": "Izvēlēties: {{label}}",
+    "changeFor": "Mainīt: {{label}}",
+    "removeFor": "Noņemt: {{label}}",
+    "failed": "Neizdevās augšupielādēt foto. Mēģini vēlreiz."
   }
 }

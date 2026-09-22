@@ -28,6 +28,7 @@ const recipe = (status: RecipeDetail['status']): RecipeDetail => ({
   title: 'Cold beetroot soup',
   description: null,
   status,
+  coverImageKey: null,
   servings: 4,
   totalTimeMinutes: null,
   createdAt: '2026-09-16T12:00:00.000Z',

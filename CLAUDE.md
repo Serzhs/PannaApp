@@ -784,6 +784,9 @@ Every one of these is a root script, so it has a run button beside it in an edit
 shows them. `pnpm dev` starts the database and applies migrations first, so it works from
 a cold machine rather than assuming something is already up.
 
+**Photos live in `~/.panna/images` by default**, outside the repo, per 0011. `IMAGE_DIR` in `.env`
+moves them. Tests use a scratch directory of their own.
+
 **`pnpm check` and `pnpm test` empty the development database.** The API's end-to-end tests run
 against the same Postgres the dev server uses and truncate every table between tests, seeded users
 included. Run `pnpm db:seed` afterwards, and sign in again in the app: the session it kept names a

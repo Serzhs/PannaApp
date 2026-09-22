@@ -26,6 +26,7 @@ import {
   stepIngredients,
   steps,
 } from '../../db/schema/index.js';
+import { ImagesService } from '../images/images.service.js';
 
 export type RecipeRow = typeof recipes.$inferSelect;
 type IngredientRow = typeof ingredients.$inferSelect;
@@ -46,6 +47,7 @@ export function toRecipe(row: RecipeRow): Recipe {
     title: row.title,
     description: row.description,
     status: row.status,
+    coverImageKey: row.coverImageKey,
     servings: row.servings,
     totalTimeMinutes: row.totalTimeMinutes,
     createdAt: row.createdAt.toISOString(),
@@ -84,6 +86,7 @@ function toNestedStep(row: StepRow, links: StepLinks): NestedStep {
     durationSeconds: row.durationSeconds,
     ingredientIds: links.ingredientIds.get(row.id) ?? [],
     equipmentIds: links.equipmentIds.get(row.id) ?? [],
+    imageKey: row.imageKey,
   };
 }
 
@@ -140,7 +143,10 @@ const PARKED = -1000;
 
 @Injectable()
 export class RecipesService {
-  constructor(private readonly database: DatabaseService) {}
+  constructor(
+    private readonly database: DatabaseService,
+    private readonly images: ImagesService,
+  ) {}
 
   /** Most recently worked on first; the id breaks ties so the order is stable. */
   async list(authorId: string): Promise<Recipe[]> {
@@ -203,6 +209,7 @@ export class RecipesService {
 
   /** The recipe and whatever lists came with it, in one transaction (0025): a bad line creates nothing. */
   async create(authorId: string, body: CreateRecipeBody): Promise<RecipeDetail> {
+    await this.checkImages({ coverImageKey: body.coverImageKey });
     return this.database.db.transaction(async (tx) => {
       const [row] = await tx
         .insert(recipes)
@@ -211,6 +218,7 @@ export class RecipesService {
           title: body.title,
           description: body.description ?? null,
           servings: body.servings,
+          coverImageKey: body.coverImageKey ?? null,
         })
         .returning();
       if (row === undefined) throw new Error('insert returned nothing');
@@ -231,7 +239,14 @@ export class RecipesService {
       steps: stepLines,
       ...meta
     } = body;
-    return this.database.db.transaction(async (tx) => {
+    await this.checkImages({ coverImageKey: meta.coverImageKey, steps: stepLines });
+    // Files are deleted only once the rows that named them are gone for good (0011).
+    const dropped: (string | null)[] = [];
+    const detail = await this.database.db.transaction(async (tx) => {
+      const [before] = await tx
+        .select({ coverImageKey: recipes.coverImageKey })
+        .from(recipes)
+        .where(eq(recipes.id, id));
       const [row] = await tx
         .update(recipes)
         // The database does not refresh updatedAt on its own, and the list is ordered by it.
@@ -239,12 +254,15 @@ export class RecipesService {
         .where(eq(recipes.id, id))
         .returning();
       if (row === undefined) return undefined;
+      if (meta.coverImageKey !== undefined && before?.coverImageKey !== meta.coverImageKey) {
+        dropped.push(before?.coverImageKey ?? null);
+      }
 
       if (ingredientLines !== undefined) await this.writeIngredients(tx, id, ingredientLines);
       if (equipmentLines !== undefined) await this.writeEquipment(tx, id, equipmentLines);
       if (stepLines === undefined) return this.readDetail(tx, row);
 
-      await this.writeSteps(tx, id, stepLines);
+      dropped.push(...(await this.writeSteps(tx, id, stepLines)));
       // Total time is derived from the main steps, per 0008, and stored so the list
       // can show it without a join.
       const stepRows = await tx.select().from(steps).where(eq(steps.recipeId, id));
@@ -255,6 +273,34 @@ export class RecipesService {
         .returning();
       return this.readDetail(tx, timed ?? row);
     });
+    await this.images.remove(dropped);
+    return detail;
+  }
+
+  /** A key with no file behind it is refused by path, like an id that is not this recipe's. */
+  private async checkImages(body: {
+    readonly coverImageKey?: string | null | undefined;
+    readonly steps?: readonly StepInput[] | undefined;
+  }): Promise<void> {
+    const fields: Record<string, string> = {};
+    const check = async (path: string, key: string | null | undefined) => {
+      if (key != null && !(await this.images.exists(key))) fields[path] = 'UNKNOWN_IMAGE';
+    };
+    await check('coverImageKey', body.coverImageKey);
+    for (const [i, main] of (body.steps ?? []).entries()) {
+      await check(`steps.${String(i)}.imageKey`, main.imageKey);
+      for (const [j, child] of (main.children ?? []).entries()) {
+        await check(`steps.${String(i)}.children.${String(j)}.imageKey`, child.imageKey);
+      }
+    }
+    if (Object.keys(fields).length > 0) {
+      throw new AppException(
+        400,
+        ERROR_CODES.VALIDATION_FAILED,
+        'A key names an image that does not exist',
+        fields,
+      );
+    }
   }
 
   /**
@@ -382,7 +428,11 @@ export class RecipesService {
    * not keep, and children the body lists elsewhere survive - which is the promotion
    * rule, expressed by the client listing them and the server never deleting a named row.
    */
-  private async writeSteps(tx: Tx, recipeId: string, lines: readonly StepInput[]): Promise<void> {
+  private async writeSteps(
+    tx: Tx,
+    recipeId: string,
+    lines: readonly StepInput[],
+  ): Promise<(string | null)[]> {
     const idsOf = async (rows: Promise<{ id: string }[]>) => new Set((await rows).map((r) => r.id));
     // The lists are written before the steps, so these are the ids a link may name after
     // this same body's deletions have happened (0010).
@@ -429,6 +479,26 @@ export class RecipesService {
     }
 
     const kept = [...seen];
+    // What the rows named before this body: a photo a deleted or re-pictured step had goes too.
+    const before = new Map(
+      (
+        await tx
+          .select({ id: steps.id, imageKey: steps.imageKey })
+          .from(steps)
+          .where(eq(steps.recipeId, recipeId))
+      ).map((r) => [r.id, r.imageKey]),
+    );
+    const dropped: (string | null)[] = [];
+    for (const [rowId, key] of before) if (!seen.has(rowId)) dropped.push(key);
+    const noteReplaced = (line: StepLine) => {
+      if (line.id === undefined) return;
+      const old = before.get(line.id) ?? null;
+      if (old !== null && old !== (line.imageKey ?? null)) dropped.push(old);
+    };
+    lines.forEach((main) => {
+      noteReplaced(main);
+      (main.children ?? []).forEach(noteReplaced);
+    });
     // Deleting a parent cascades to its children, so every kept row is detached before
     // anything is deleted, and re-attached below with its new parent.
     if (kept.length > 0) {
@@ -449,6 +519,7 @@ export class RecipesService {
         await this.writeStep(tx, recipeId, child, mainId, childPosition);
       }
     }
+    return dropped;
   }
 
   private async writeStep(
@@ -488,6 +559,7 @@ export class RecipesService {
       body: line.body,
       note: line.note ?? null,
       durationSeconds: line.durationSeconds ?? null,
+      imageKey: line.imageKey ?? null,
       updatedAt: new Date(),
     };
     if (line.id === undefined) {
@@ -503,10 +575,19 @@ export class RecipesService {
   }
 
   async remove(id: string): Promise<boolean> {
+    const keys = [
+      ...(await this.database.db
+        .select({ key: steps.imageKey })
+        .from(steps)
+        .where(eq(steps.recipeId, id))),
+    ].map((r) => r.key);
     const deleted = await this.database.db
       .delete(recipes)
       .where(eq(recipes.id, id))
-      .returning({ id: recipes.id });
-    return deleted.length > 0;
+      .returning({ coverImageKey: recipes.coverImageKey });
+    if (deleted.length === 0) return false;
+    // Cascades took the step rows with the recipe; the files follow once the delete stands.
+    await this.images.remove([...keys, ...deleted.map((r) => r.coverImageKey)]);
+    return true;
   }
 }

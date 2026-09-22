@@ -12,6 +12,7 @@ const step = (over: Partial<Step> & { id: string }): Step => ({
   durationSeconds: null,
   ingredientIds: [],
   equipmentIds: [],
+  imageKey: null,
   children: [],
   ...over,
 });
@@ -73,6 +74,7 @@ describe('StepsSection', () => {
             body: 'Blend',
             ingredientIds: ['i1', 'i2'],
             equipmentIds: ['e1'],
+            imageKey: null,
             children: [step({ id: 'b', body: 'Chop', ingredientIds: ['i2'] })],
           }),
         ]}

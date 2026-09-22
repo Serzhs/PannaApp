@@ -11,15 +11,23 @@ const description = z.string().trim().max(2000);
 const servings = z.number().int().min(1).max(100);
 const totalTimeMinutes = z.number().int().min(1).max(1440);
 
+/** 0011. Thirty-two hex characters name a file; the bytes behind a key never change. */
+export const imageKeySchema = z.string().regex(/^[a-f0-9]{32}$/);
+
+/** Where the API serves a key from. One place, so the client never builds the path itself. */
+export function imagePath(key: string): string {
+  return `/api/images/${key}`;
+}
+
 /**
- * What every recipe endpoint answers with. `authorId`, `coverImageKey` and
- * `shareToken` are deliberately absent: the caller already is the author, images are
- * 0010, and sharing state becomes visible in 0016.
+ * What every recipe endpoint answers with. `authorId` and `shareToken` are deliberately
+ * absent: the caller already is the author, and sharing state becomes visible in 0017.
  */
 export const recipeSchema = z.object({
   id: z.string().uuid(),
   title,
   description: description.nullable(),
+  coverImageKey: imageKeySchema.nullable(),
   status: recipeStatusSchema,
   servings,
   totalTimeMinutes: totalTimeMinutes.nullable(),
@@ -103,6 +111,7 @@ const stepFields = {
   durationSeconds: durationSeconds.nullable(),
   ingredientIds: linkIds,
   equipmentIds: linkIds,
+  imageKey: imageKeySchema.nullable(),
 };
 
 /** A nested step: the same fields, and nothing under it. One level, by shape. */
@@ -116,6 +125,7 @@ const stepInputFields = {
   durationSeconds: durationSeconds.nullable().optional(),
   ingredientIds: linkIds.optional(),
   equipmentIds: linkIds.optional(),
+  imageKey: imageKeySchema.nullable().optional(),
 };
 
 /** Strict, so a nested step carrying `children` is refused rather than silently flattened. */
@@ -145,6 +155,7 @@ export const createRecipeBodySchema = z
     title,
     description: description.optional(),
     servings,
+    coverImageKey: imageKeySchema.nullable().optional(),
     ingredients: z.array(ingredientInputSchema).max(MAX_INGREDIENTS).optional(),
     equipment: z.array(equipmentInputSchema).max(MAX_EQUIPMENT).optional(),
   })
@@ -160,6 +171,7 @@ export const updateRecipeBodySchema = z
     description: description.nullable(),
     status: recipeStatusSchema,
     servings,
+    coverImageKey: imageKeySchema.nullable(),
     ingredients: z.array(ingredientInputSchema).max(MAX_INGREDIENTS),
     equipment: z.array(equipmentInputSchema).max(MAX_EQUIPMENT),
     steps: z.array(stepInputSchema).max(MAX_MAIN_STEPS),
@@ -180,3 +192,6 @@ export type StepInput = z.infer<typeof stepInputSchema>;
 export type NestedStepInput = z.infer<typeof nestedStepInputSchema>;
 export type CreateRecipeBody = z.infer<typeof createRecipeBodySchema>;
 export type UpdateRecipeBody = z.infer<typeof updateRecipeBodySchema>;
+
+export const uploadedImageSchema = z.object({ key: imageKeySchema });
+export type UploadedImage = z.infer<typeof uploadedImageSchema>;

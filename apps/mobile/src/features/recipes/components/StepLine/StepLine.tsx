@@ -4,6 +4,7 @@ import type { StepDraft, StepField } from '../../steps';
 import { DurationField } from '../DurationField';
 import { LinkChips, type Linkable } from '../LinkChips';
 import { NoteField } from '../NoteField';
+import { PhotoField } from '../PhotoField';
 
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
@@ -80,6 +81,13 @@ export function StepLine({
           set({ note });
         }}
         helper={t('recipes:steps.noteHelper')}
+      />
+      <PhotoField
+        label={t('recipes:steps.photo')}
+        value={line.imageKey}
+        onChange={(imageKey) => {
+          set({ imageKey });
+        }}
       />
     </Stack>
   );

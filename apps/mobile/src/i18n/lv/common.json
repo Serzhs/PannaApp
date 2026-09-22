@@ -19,6 +19,7 @@
   },
   "offline": {
     "save": "Nav interneta savienojuma. Pieslēdzies, lai saglabātu.",
-    "delete": "Nav interneta savienojuma. Pieslēdzies, lai dzēstu."
+    "delete": "Nav interneta savienojuma. Pieslēdzies, lai dzēstu.",
+    "upload": "Tu esi bezsaistē. Pieslēdzies internetam, lai pievienotu foto."
   }
 }

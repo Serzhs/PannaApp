@@ -18,5 +18,6 @@ module.exports = {
     // Native modules, so tests get the mocks the libraries ship instead.
     '^react-native-keyboard-controller$': 'react-native-keyboard-controller/jest',
     '^@react-native-community/netinfo$': '@react-native-community/netinfo/jest/netinfo-mock.js',
+    '^expo-image-picker$': '<rootDir>/src/test/mocks/expo-image-picker.ts',
   },
 };

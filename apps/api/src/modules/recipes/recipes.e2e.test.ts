@@ -33,6 +33,7 @@ import {
 } from '../../db/schema/index.js';
 import { db } from '../../test/db.js';
 import { AuthModule } from '../auth/auth.module.js';
+import { ImagesModule } from '../images/images.module.js';
 
 import { RecipesModule } from './recipes.module.js';
 
@@ -59,6 +60,7 @@ describe('recipes, end to end', () => {
         ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true, load: [() => env] }),
         DatabaseModule,
         AuthModule.register(env),
+        ImagesModule,
         RecipesModule,
       ],
     }).compile();
@@ -128,6 +130,7 @@ describe('recipes, end to end', () => {
       expect(res.status).toBe(201);
       expect(Object.keys(res.body as object).sort()).toEqual(
         [
+          'coverImageKey',
           'createdAt',
           'description',
           'equipment',
@@ -320,6 +323,7 @@ describe('what a recipe needs, end to end', () => {
         ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true, load: [() => env] }),
         DatabaseModule,
         AuthModule.register(env),
+        ImagesModule,
         RecipesModule,
       ],
     }).compile();
@@ -531,6 +535,7 @@ describe('steps and nesting, end to end', () => {
         ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true, load: [() => env] }),
         DatabaseModule,
         AuthModule.register(env),
+        ImagesModule,
         RecipesModule,
       ],
     }).compile();
@@ -778,6 +783,7 @@ describe('step links, end to end', () => {
         ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true, load: [() => env] }),
         DatabaseModule,
         AuthModule.register(env),
+        ImagesModule,
         RecipesModule,
       ],
     }).compile();
@@ -811,6 +817,7 @@ describe('step links, end to end', () => {
     durationSeconds: step.durationSeconds,
     ingredientIds: step.ingredientIds,
     equipmentIds: step.equipmentIds,
+    imageKey: step.imageKey,
   });
   const asInput = (step: RecipeDetail['steps'][number]) => ({
     ...pick(step),

@@ -14,6 +14,7 @@ import {
   recipeDetailSchema,
   recipeListSchema,
   updateRecipeBodySchema,
+  uploadedImageSchema,
 } from './recipes.js';
 
 export const healthResponseSchema = z.object({
@@ -110,6 +111,12 @@ export const api = {
     path: '/api/recipes/:recipeId',
     response: recipeDetailSchema,
     body: updateRecipeBodySchema,
+  }),
+  /** 0011. Multipart, one field `file`; the shape of the answer is all the contract can say. */
+  uploadImage: endpoint({
+    method: 'POST',
+    path: '/api/images',
+    response: uploadedImageSchema,
   }),
   deleteRecipe: endpoint({
     method: 'DELETE',

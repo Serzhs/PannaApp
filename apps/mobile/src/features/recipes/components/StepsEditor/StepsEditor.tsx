@@ -21,6 +21,7 @@ import { StepLine } from '../StepLine';
 
 import { styles } from './StepsEditor.styles';
 
+import { imageUrl } from '@/api/images';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { ReorderableList } from '@/components/ReorderableList';
@@ -149,6 +150,7 @@ export function StepsEditor({
                   <NeedRow
                     title={line.body}
                     {...(detail === undefined ? {} : { detail })}
+                    {...(line.imageKey === null ? {} : { thumbnail: imageUrl(line.imageKey) })}
                     editLabel={t('recipes:steps.editLine')}
                     editAccessibilityLabel={t('recipes:steps.edit', { label: refOf(line) })}
                     removeLabel={t('recipes:steps.remove')}

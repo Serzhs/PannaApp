@@ -26,6 +26,7 @@ import { IngredientLine } from '@/features/recipes/components/IngredientLine';
 import { LinkChips } from '@/features/recipes/components/LinkChips';
 import { NeedRow } from '@/features/recipes/components/NeedRow';
 import { NeedsSection } from '@/features/recipes/components/NeedsSection';
+import { PhotoField } from '@/features/recipes/components/PhotoField';
 import { ServingsPicker } from '@/features/recipes/components/ServingsPicker';
 import { StepLine } from '@/features/recipes/components/StepLine';
 import { StepsEditor } from '@/features/recipes/components/StepsEditor';
@@ -518,6 +519,7 @@ function NeedsLines(): React.JSX.Element {
     optional: true,
   });
   const [unit, setUnit] = useState<IngredientDraft['unit']>('cup');
+  const [photo, setPhoto] = useState<string | null>(null);
   return (
     <>
       <Section title="IngredientLine">
@@ -539,6 +541,16 @@ function NeedsLines(): React.JSX.Element {
           <EquipmentLine
             line={{ key: 'g4', name: '', note: '', optional: false }}
             errors={{ name: true }}
+            onChange={() => undefined}
+          />
+        </Stack>
+      </Section>
+      <Section title="PhotoField">
+        <Stack gap="space4">
+          <PhotoField label="Cover photo" value={photo} onChange={setPhoto} />
+          <PhotoField
+            label="Photo of the result"
+            value={'a'.repeat(32)}
             onChange={() => undefined}
           />
         </Stack>
@@ -600,6 +612,7 @@ function StepPieces(): React.JSX.Element {
     ingredientIds: [],
     equipmentIds: [],
     during: null,
+    imageKey: null,
   });
   const [drafts, setDrafts] = useState<StepDraft[]>([
     {
@@ -610,6 +623,7 @@ function StepPieces(): React.JSX.Element {
       ingredientIds: [],
       equipmentIds: [],
       during: null,
+      imageKey: null,
     },
     {
       key: 'm2',
@@ -619,6 +633,7 @@ function StepPieces(): React.JSX.Element {
       ingredientIds: [],
       equipmentIds: [],
       during: null,
+      imageKey: null,
     },
     {
       key: 'c1',
@@ -628,6 +643,7 @@ function StepPieces(): React.JSX.Element {
       ingredientIds: [],
       equipmentIds: [],
       during: 'm2',
+      imageKey: null,
     },
     {
       key: 'm3',
@@ -637,6 +653,7 @@ function StepPieces(): React.JSX.Element {
       ingredientIds: [],
       equipmentIds: [],
       during: null,
+      imageKey: null,
     },
   ]);
   return (
@@ -703,6 +720,7 @@ function StepPieces(): React.JSX.Element {
                 durationSeconds: 600,
                 ingredientIds: ['n1'],
                 equipmentIds: [],
+                imageKey: null,
                 children: [],
               },
               {
@@ -713,6 +731,7 @@ function StepPieces(): React.JSX.Element {
                 durationSeconds: 3600,
                 ingredientIds: [],
                 equipmentIds: [],
+                imageKey: null,
                 children: [
                   {
                     id: 'r3',
@@ -722,6 +741,7 @@ function StepPieces(): React.JSX.Element {
                     durationSeconds: 120,
                     ingredientIds: [],
                     equipmentIds: [],
+                    imageKey: null,
                   },
                   {
                     id: 'r4',
@@ -731,6 +751,7 @@ function StepPieces(): React.JSX.Element {
                     durationSeconds: 540,
                     ingredientIds: [],
                     equipmentIds: [],
+                    imageKey: null,
                   },
                 ],
               },

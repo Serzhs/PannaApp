@@ -15,6 +15,8 @@ export interface StepDraft {
   readonly ingredientIds: readonly string[];
   readonly equipmentIds: readonly string[];
   readonly during: string | null;
+  /** The photo of the result, already uploaded (0011). */
+  readonly imageKey: string | null;
 }
 
 export type StepField = 'body' | 'duration' | 'links';
@@ -32,6 +34,7 @@ export function emptyStep(): StepDraft {
     ingredientIds: [],
     equipmentIds: [],
     during: null,
+    imageKey: null,
   };
 }
 
@@ -45,6 +48,7 @@ function draftOf(step: Step['children'][number], during: string | null): StepDra
     ingredientIds: step.ingredientIds,
     equipmentIds: step.equipmentIds,
     during,
+    imageKey: step.imageKey,
   };
 }
 
@@ -200,7 +204,8 @@ export function isBlankStep(draft: StepDraft): boolean {
     draft.note.trim() === '' &&
     draft.durationSeconds === null &&
     draft.ingredientIds.length === 0 &&
-    draft.equipmentIds.length === 0
+    draft.equipmentIds.length === 0 &&
+    draft.imageKey === null
   );
 }
 
@@ -228,6 +233,7 @@ export function validateSteps(drafts: readonly StepDraft[]): StepsOutcome {
       durationSeconds: draft.durationSeconds,
       ingredientIds: [...draft.ingredientIds],
       equipmentIds: [...draft.equipmentIds],
+      imageKey: draft.imageKey,
     };
   };
 

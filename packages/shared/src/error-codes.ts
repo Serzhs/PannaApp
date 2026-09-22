@@ -23,6 +23,11 @@ export const ERROR_CODES = {
 
   /** 0005. Also answers for a recipe that exists but belongs to someone else. */
   RECIPE_NOT_FOUND: 'RECIPE_NOT_FOUND',
+
+  /** 0011. The bytes uploaded are not an image the resizer can read, or no file came. */
+  IMAGE_UNSUPPORTED: 'IMAGE_UNSUPPORTED',
+  /** A malformed key answers the same as an unknown one, so nothing about the store leaks. */
+  IMAGE_NOT_FOUND: 'IMAGE_NOT_FOUND',
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];

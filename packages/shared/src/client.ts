@@ -18,6 +18,8 @@ export interface RequestOptions {
   readonly signal?: AbortSignal;
   readonly headers?: Record<string, string>;
   readonly body?: unknown;
+  /** A multipart body, for uploads (0011). The runtime sets the content type and boundary. */
+  readonly form?: FormData;
   /** Values for the `:name` segments of the endpoint's path. */
   readonly params?: Record<string, string>;
 }
@@ -48,6 +50,7 @@ export async function request<K extends EndpointName>(
       ...options.headers,
     },
     ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) }),
+    ...(options.form === undefined ? {} : { body: options.form }),
     ...(options.signal ? { signal: options.signal } : {}),
   });
 

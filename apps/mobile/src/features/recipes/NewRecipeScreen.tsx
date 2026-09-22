@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { NeedsEditor } from './components/NeedsEditor';
+import { PhotoField } from './components/PhotoField';
 import { RecipeForm } from './components/RecipeForm';
 import {
   EMPTY_NEEDS,
@@ -26,6 +27,7 @@ export function NewRecipeScreen(): React.JSX.Element {
   const { t } = useTranslation();
   const [needs, setNeeds] = useState<NeedsDraft>(EMPTY_NEEDS);
   const [needsErrors, setNeedsErrors] = useState<NeedsErrors>({});
+  const [cover, setCover] = useState<string | null>(null);
 
   useEffect(() => {
     if (create.error instanceof ApiError && create.error.body.fields !== undefined) {
@@ -49,7 +51,12 @@ export function NewRecipeScreen(): React.JSX.Element {
           const lists = validateNeeds(needs);
           if (!lists.ok) return;
           create.mutate(
-            { ...body, ingredients: lists.ingredients, equipment: lists.equipment },
+            {
+              ...body,
+              coverImageKey: cover,
+              ingredients: lists.ingredients,
+              equipment: lists.equipment,
+            },
             {
               onSuccess: (recipe) => {
                 // Replace, so back from the next page goes to the list rather than to this form.
@@ -59,6 +66,7 @@ export function NewRecipeScreen(): React.JSX.Element {
           );
         }}
       >
+        <PhotoField label={t('recipes:photo.cover')} value={cover} onChange={setCover} />
         <NeedsEditor value={needs} errors={needsErrors} onChange={setNeeds} />
       </RecipeForm>
     </Screen>

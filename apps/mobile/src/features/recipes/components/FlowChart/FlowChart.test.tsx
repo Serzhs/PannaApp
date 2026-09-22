@@ -12,6 +12,7 @@ const step = (key: string, body: string, during: string | null = null): StepDraf
   ingredientIds: [],
   equipmentIds: [],
   during,
+  imageKey: null,
 });
 
 describe('FlowChart', () => {

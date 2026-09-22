@@ -13,6 +13,7 @@ const step = (key: string, body: string, during: string | null = null): StepDraf
   ingredientIds: [],
   equipmentIds: [],
   during,
+  imageKey: null,
 });
 
 function Harness({ initial }: { readonly initial: StepDraft[] }) {

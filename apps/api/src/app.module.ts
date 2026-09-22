@@ -8,6 +8,7 @@ import { validateEnv } from './config/env.js';
 import { DatabaseModule } from './db/database.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { ImagesModule } from './modules/images/images.module.js';
 import { RecipesModule } from './modules/recipes/recipes.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 
@@ -55,6 +56,7 @@ const env = validateEnv(process.env);
     }),
     DatabaseModule,
     HealthModule,
+    ImagesModule,
     AuthModule.register(env),
     RecipesModule,
     UsersModule,

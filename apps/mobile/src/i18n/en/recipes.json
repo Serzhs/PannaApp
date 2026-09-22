@@ -143,7 +143,9 @@
     "cancelLine": "Cancel",
     "editLine": "Edit",
     "edit": "Edit {{label}}",
-    "removeFor": "Remove {{label}}"
+    "removeFor": "Remove {{label}}",
+    "photo": "Photo of the result",
+    "photoAlt": "Photo of the result"
   },
   "review": {
     "screen": "Review",
@@ -171,5 +173,16 @@
     "chartMeanwhile": "meanwhile {{list}}",
     "done": "Done",
     "skip": "Skip for now"
+  },
+  "photo": {
+    "cover": "Cover photo",
+    "coverOf": "Cover photo of {{title}}",
+    "choose": "Choose photo",
+    "change": "Change photo",
+    "remove": "Remove",
+    "chooseFor": "Choose {{label}}",
+    "changeFor": "Change {{label}}",
+    "removeFor": "Remove {{label}}",
+    "failed": "Could not upload the photo. Try again."
   }
 }

@@ -15,4 +15,12 @@ export const styles = StyleSheet.create({
     borderStartColor: theme.colors.borderSubtle,
   },
   nested: {},
+  /** Small and to one side: reading is not cooking, and the words come first. */
+  photo: {
+    width: theme.space.space12 * 3,
+    height: theme.space.space12 * 2,
+    borderRadius: theme.radius.radiusSm,
+    backgroundColor: theme.colors.surfaceRaised,
+    marginTop: theme.space.space1,
+  },
 });

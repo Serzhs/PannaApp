@@ -8,6 +8,7 @@ const recipe: Recipe = {
   title: 'Cold beetroot soup',
   description: null,
   status: 'draft',
+  coverImageKey: null,
   servings: 4,
   totalTimeMinutes: 25,
   createdAt: '2026-09-16T12:00:00.000Z',
@@ -62,5 +63,20 @@ describe('RecipeRow', () => {
     const fourDays = Date.parse('2026-09-20T12:00:00.000Z');
     await render(<RecipeRow recipe={recipe} onPress={jest.fn()} now={fourDays} />);
     expect(screen.queryByText('New')).toBeNull();
+  });
+
+  /** The criterion: a cover key renders the thumbnail, no key renders none. */
+  it('shows the cover photo as a thumbnail when there is one', async () => {
+    await render(
+      <RecipeRow
+        recipe={{ ...recipe, coverImageKey: 'c'.repeat(32) }}
+        onPress={jest.fn()}
+        now={LATER}
+      />,
+    );
+    expect(screen.getByTestId('cover-thumbnail', { includeHiddenElements: true })).toBeTruthy();
+    await screen.unmount();
+    await render(<RecipeRow recipe={recipe} onPress={jest.fn()} now={LATER} />);
+    expect(screen.queryByTestId('cover-thumbnail', { includeHiddenElements: true })).toBeNull();
   });
 });

@@ -1,11 +1,12 @@
 import type { Recipe } from '@panna/shared';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Image, View } from 'react-native';
 
 import { describeMeta, describeRecipe, isNew } from '../../format';
 
 import { styles } from './RecipeRow.styles';
 
+import { imageUrl } from '@/api/images';
 import { Card } from '@/components/Card';
 import { Skeleton } from '@/components/Skeleton';
 import { Stack } from '@/components/Stack';
@@ -33,29 +34,42 @@ export function RecipeRow({
         onPress(recipe);
       }}
     >
-      <Stack gap="space1">
-        <Stack direction="row" gap="space2" align="center">
-          <Text variant="bodyStrong" numberOfLines={1} style={styles.title}>
-            {recipe.title}
+      <Stack direction="row" gap="space3" align="center">
+        {recipe.coverImageKey === null ? null : (
+          <Image
+            source={{ uri: imageUrl(recipe.coverImageKey) }}
+            style={styles.cover}
+            // Decorative, so nothing a person can perceive names it: a test id is the honest hook.
+            testID="cover-thumbnail"
+            accessibilityIgnoresInvertColors
+            accessibilityElementsHidden
+            importantForAccessibility="no"
+          />
+        )}
+        <Stack gap="space1" style={styles.text}>
+          <Stack direction="row" gap="space2" align="center">
+            <Text variant="bodyStrong" numberOfLines={1} style={styles.title}>
+              {recipe.title}
+            </Text>
+            {recipe.status === 'draft' ? (
+              <View style={styles.chip}>
+                <Text variant="label" color="textSecondary">
+                  {t('recipes:status.draft')}
+                </Text>
+              </View>
+            ) : null}
+            {isNew(recipe, now) ? (
+              <View style={[styles.chip, styles.newChip]}>
+                <Text variant="label" color="accent">
+                  {t('recipes:status.new')}
+                </Text>
+              </View>
+            ) : null}
+          </Stack>
+          <Text variant="caption" color="textSecondary">
+            {describeMeta(recipe, t)}
           </Text>
-          {recipe.status === 'draft' ? (
-            <View style={styles.chip}>
-              <Text variant="label" color="textSecondary">
-                {t('recipes:status.draft')}
-              </Text>
-            </View>
-          ) : null}
-          {isNew(recipe, now) ? (
-            <View style={[styles.chip, styles.newChip]}>
-              <Text variant="label" color="accent">
-                {t('recipes:status.new')}
-              </Text>
-            </View>
-          ) : null}
         </Stack>
-        <Text variant="caption" color="textSecondary">
-          {describeMeta(recipe, t)}
-        </Text>
       </Stack>
     </Card>
   );

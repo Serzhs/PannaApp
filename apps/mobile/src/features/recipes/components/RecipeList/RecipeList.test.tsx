@@ -8,6 +8,7 @@ const recipe: Recipe = {
   title: 'Cold beetroot soup',
   description: null,
   status: 'ready',
+  coverImageKey: null,
   servings: 4,
   totalTimeMinutes: null,
   createdAt: '2026-09-16T12:00:00.000Z',

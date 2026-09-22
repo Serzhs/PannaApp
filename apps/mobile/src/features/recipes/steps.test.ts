@@ -23,6 +23,7 @@ const step = (key: string, body: string, during: string | null = null): StepDraf
   ingredientIds: [],
   equipmentIds: [],
   during,
+  imageKey: null,
 });
 
 /** Heat; Roast with Chop and Boil during it; Serve. */
@@ -51,6 +52,7 @@ describe('validateSteps', () => {
           durationSeconds: 600,
           ingredientIds: [],
           equipmentIds: [],
+          imageKey: null,
           children: [],
         },
         {
@@ -59,6 +61,7 @@ describe('validateSteps', () => {
           durationSeconds: null,
           ingredientIds: [],
           equipmentIds: [],
+          imageKey: null,
           children: [
             {
               body: 'Chop the dill',
@@ -66,6 +69,7 @@ describe('validateSteps', () => {
               durationSeconds: null,
               ingredientIds: [],
               equipmentIds: [],
+              imageKey: null,
             },
           ],
         },
@@ -84,7 +88,13 @@ describe('validateSteps', () => {
 
 describe('draftFromSteps', () => {
   it('lays the recipe out in reading order, each parallel step after its main one', () => {
-    const base = { note: null, durationSeconds: null, ingredientIds: [], equipmentIds: [] };
+    const base = {
+      note: null,
+      durationSeconds: null,
+      ingredientIds: [],
+      equipmentIds: [],
+      imageKey: null,
+    };
     const drafts = draftFromSteps([
       { id: 'x', position: 0, body: 'Heat', ...base, children: [] },
       {

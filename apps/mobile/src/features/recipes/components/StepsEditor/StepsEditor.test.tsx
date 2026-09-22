@@ -22,6 +22,7 @@ const saved = (key: string, body: string, during: string | null = null): StepDra
   ingredientIds: [],
   equipmentIds: [],
   during,
+  imageKey: null,
 });
 const fresh = (key: string): StepDraft => ({
   key,
@@ -31,6 +32,7 @@ const fresh = (key: string): StepDraft => ({
   ingredientIds: [],
   equipmentIds: [],
   during: null,
+  imageKey: null,
 });
 
 const rowLabels = () =>

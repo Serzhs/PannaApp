@@ -1,3 +1,6 @@
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+
 import { z } from 'zod';
 
 /**
@@ -34,6 +37,12 @@ export const envSchema = z.object({
    * out of a release bundle. See the refinement below: production plus this is a
    * configuration the API refuses to start on.
    */
+  /** 0011. Outside the repo by default, so a clone never carries someone's photos. */
+  IMAGE_DIR: z
+    .string()
+    .min(1)
+    .default(join(homedir(), '.panna', 'images')),
+
   ALLOW_DEV_SIGN_IN: z
     .enum(['true', 'false'])
     .default('false')

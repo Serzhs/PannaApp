@@ -16,7 +16,18 @@
       "package": "app.panna.mobile",
       "edgeToEdgeEnabled": true
     },
-    "plugins": ["expo-router", "expo-secure-store", "expo-web-browser"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Panna shows the photos you choose on your recipes.",
+          "cameraPermission": false
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     }

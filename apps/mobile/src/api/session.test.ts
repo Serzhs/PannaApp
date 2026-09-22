@@ -12,6 +12,7 @@ const RECIPE = {
   title: 'Soup',
   description: null,
   status: 'draft',
+  coverImageKey: null,
   servings: 2,
   totalTimeMinutes: null,
   createdAt: '2026-09-16T12:00:00.000Z',

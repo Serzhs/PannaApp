@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { FlowChart } from './components/FlowChart';
 import { FlowEditor } from './components/FlowEditor';
 import { NeedsEditor } from './components/NeedsEditor';
+import { PhotoField } from './components/PhotoField';
 import { RecipeForm, type RecipeFormValues } from './components/RecipeForm';
 import { StepsEditor } from './components/StepsEditor';
 import {
@@ -76,6 +77,7 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
   const [needsErrors, setNeedsErrors] = useState<NeedsErrors>({});
   const [steps, setSteps] = useState<StepDraft[]>(() => draftFromSteps(recipe.steps));
   const [stepErrors, setStepErrors] = useState<StepErrors>({});
+  const [cover, setCover] = useState<string | null>(recipe.coverImageKey);
   const [tab, setTab] = useState<Part>('recipe');
   const tabs: readonly Tab<Part>[] = [
     { key: 'recipe', label: t('recipes:form.tabRecipe') },
@@ -131,6 +133,7 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
               title: body.title,
               description: body.description ?? null,
               servings: body.servings,
+              coverImageKey: cover,
               ingredients: lists.ingredients,
               equipment: lists.equipment,
               steps: stepsOutcome.steps,
@@ -149,6 +152,7 @@ function EditRecipeForm({ recipe }: { readonly recipe: RecipeDetail }): React.JS
             {tab === 'recipe' ? (
               <Stack gap="space5">
                 {fields}
+                <PhotoField label={t('recipes:photo.cover')} value={cover} onChange={setCover} />
                 <NeedsEditor value={needs} errors={needsErrors} onChange={setNeeds} />
               </Stack>
             ) : tab === 'steps' ? (

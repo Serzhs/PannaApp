@@ -1,11 +1,12 @@
 import type { Equipment, Ingredient, Step } from '@panna/shared';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Image, View } from 'react-native';
 
 import { describeIngredient, formatDuration } from '../../format';
 
 import { styles } from './StepsSection.styles';
 
+import { imageUrl } from '@/api/images';
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
 import { useUnitSystem } from '@/features/units/useUnitSystem';
@@ -84,6 +85,14 @@ export function StepsSection({
           <Text variant="caption" color="textSecondary">
             {step.note}
           </Text>
+        )}
+        {step.imageKey === null ? null : (
+          <Image
+            source={{ uri: imageUrl(step.imageKey) }}
+            style={styles.photo}
+            accessibilityIgnoresInvertColors
+            accessibilityLabel={t('recipes:steps.photoAlt')}
+          />
         )}
       </View>
     );

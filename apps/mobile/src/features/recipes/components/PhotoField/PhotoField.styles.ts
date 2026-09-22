@@ -3,16 +3,16 @@ import { StyleSheet } from 'react-native';
 import { theme } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
-  body: {
-    paddingVertical: theme.space.space4,
-  },
-  cover: {
+  /** Four by three, the shape of a photo of a plate; the file is cropped to fit, never stretched. */
+  preview: {
     width: '100%',
     aspectRatio: 4 / 3,
     borderRadius: theme.radius.radiusMd,
     backgroundColor: theme.colors.surfaceRaised,
   },
   actions: {
-    marginTop: theme.space.space4,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.space.space2,
   },
 });

@@ -2,7 +2,7 @@ import { ApiError } from '@panna/shared';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Image, View } from 'react-native';
 
 import { NeedsSection } from './components/NeedsSection';
 import { StepsSection } from './components/StepsSection';
@@ -10,6 +10,7 @@ import { describeMeta } from './format';
 import { useDeleteRecipe, useRecipe, useUpdateRecipe } from './queries';
 import { styles } from './RecipeDetailScreen.styles';
 
+import { imageUrl } from '@/api/images';
 import { Button } from '@/components/Button';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { EmptyState } from '@/components/EmptyState';
@@ -89,6 +90,14 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   return (
     <Screen scroll withHeader>
       <Stack gap="space4" style={styles.body}>
+        {data.coverImageKey === null ? null : (
+          <Image
+            source={{ uri: imageUrl(data.coverImageKey) }}
+            style={styles.cover}
+            accessibilityIgnoresInvertColors
+            accessibilityLabel={t('recipes:photo.coverOf', { title: data.title })}
+          />
+        )}
         <Stack gap="space1">
           <Text variant="title" accessibilityRole="header">
             {data.title}
