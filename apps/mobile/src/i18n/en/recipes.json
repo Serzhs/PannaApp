@@ -214,6 +214,21 @@
     "replaceTitle": "Replace the running timer?",
     "replaceBody": "Only one timer runs at a time. The other step's timer will stop.",
     "replaceConfirm": "Replace it",
-    "replaceCancel": "Keep it"
+    "replaceCancel": "Keep it",
+    "checkTitle": "What you have",
+    "checkHint": "Untick to cook without it",
+    "goingWithout": "Going without",
+    "checkEquipment": "You will need",
+    "checkNothingChanges": "Nothing changes: every step still has something to do.",
+    "checkSkipped_one": "{{count}} step will be skipped",
+    "checkSkipped_other": "{{count}} steps will be skipped",
+    "checkSkippedTimed_one": "{{count}} step will be skipped · about {{minutes}} min",
+    "checkSkippedTimed_other": "{{count}} steps will be skipped · about {{minutes}} min",
+    "startCooking": "Start cooking",
+    "startWithout_one": "Start without {{count}} ingredient",
+    "startWithout_other": "Start without {{count}} ingredients",
+    "without": "Without: {{list}}",
+    "usesWithout": "{{name}} (going without)",
+    "checking": "Checking what you have"
   }
 }

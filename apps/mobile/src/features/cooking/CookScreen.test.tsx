@@ -5,7 +5,15 @@ import * as Notifications from 'expo-notifications';
 import { Alert } from 'react-native';
 
 import { CookScreen } from './CookScreen';
-import { clearCook, loadCook, saveCook, setTimer, startCook } from './store';
+import {
+  beginCooking,
+  clearCook,
+  loadCook,
+  saveCook,
+  setTimer,
+  startCook,
+  toggleExcluded,
+} from './store';
 
 import * as unitSystem from '@/features/units/useUnitSystem';
 
@@ -36,13 +44,20 @@ const recipe: RecipeDetail = {
   totalTimeMinutes: null,
   createdAt: '2026-09-16T12:00:00.000Z',
   updatedAt: '2026-09-16T12:00:00.000Z',
-  ingredients: [],
+  ingredients: [{ id: 'dill', position: 0, name: 'dill', note: null, amount: null, unit: null }],
   equipment: [],
   steps: [
     { id: 'a', position: 0, body: 'Boil', ...base, durationSeconds: 1200, children: [] },
     { id: 'b', position: 1, body: 'Roast', ...base, durationSeconds: 600, children: [] },
+    { id: 'c', position: 2, body: 'Garnish', ...base, ingredientIds: ['dill'], children: [] },
   ],
 };
+
+/** Past the check and straight onto the guide, as every 0012 test expects. */
+function cookingNow(): void {
+  const started = must(startCook(recipe));
+  saveCook(must(beginCooking(started)));
+}
 
 function must<T>(value: T | null): T {
   if (value === null) throw new Error('expected a record');
@@ -59,7 +74,7 @@ describe('CookScreen', () => {
     jest.mocked(Notifications.cancelScheduledNotificationAsync).mockClear();
     jest.mocked(KeepAwake.activateKeepAwakeAsync).mockClear();
     jest.mocked(KeepAwake.deactivateKeepAwake).mockClear();
-    startCook(recipe);
+    cookingNow();
   });
   afterEach(() => {
     clearCook(recipe.id);
@@ -113,7 +128,8 @@ describe('CookScreen', () => {
     expect(KeepAwake.activateKeepAwakeAsync).toHaveBeenCalled();
     await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
     expect(loadCook(recipe.id)?.currentStepId).toBe('b');
-    expect(screen.getByText('Step 2 of 2')).toBeTruthy();
+    expect(screen.getByText('Step 2 of 3')).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Finish' }));
     expect(loadCook(recipe.id)).toBeNull();
     expect(mockReplace).toHaveBeenCalledWith({
@@ -122,5 +138,28 @@ describe('CookScreen', () => {
     });
     await view.unmount();
     expect(KeepAwake.deactivateKeepAwake).toHaveBeenCalled();
+  });
+
+  /** 0013: Cook lands on the check; going without dill skips the garnish and says so. */
+  it('opens on the check, and shows what is left out once cooking', async () => {
+    clearCook(recipe.id);
+    startCook(recipe);
+    await render(<CookScreen recipeId={recipe.id} />);
+    expect(screen.getByRole('header', { name: 'What you have' })).toBeTruthy();
+    await fireEvent.press(screen.getByRole('checkbox', { name: 'dill' }));
+    expect(screen.getByText(/1 step will be skipped/)).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Start without 1 ingredient' }));
+    expect(screen.getByText('Without: dill')).toBeTruthy();
+    expect(screen.getByText('Step 1 of 2')).toBeTruthy();
+    expect(loadCook(recipe.id)).toEqual(
+      expect.objectContaining({ phase: 'cooking', excluded: ['dill'] }),
+    );
+  });
+
+  it('keeps a record from before the check on the guide', async () => {
+    saveCook(must(beginCooking(toggleExcluded(must(startCook(recipe)), 'dill'))));
+    await render(<CookScreen recipeId={recipe.id} />);
+    expect(screen.queryByRole('header', { name: 'What you have' })).toBeNull();
+    expect(screen.getByText('Step 1 of 2')).toBeTruthy();
   });
 });

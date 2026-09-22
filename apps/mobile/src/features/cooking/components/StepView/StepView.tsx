@@ -15,6 +15,8 @@ export interface StepViewProps {
   readonly number: number;
   readonly total: number;
   readonly done: readonly string[];
+  /** Ingredients being gone without (0013), still named in the uses line rather than dropped. */
+  readonly excluded?: readonly string[];
   readonly onDone: () => void;
   readonly onToggleMeanwhile: (stepId: string) => void;
   readonly onShowPhoto: () => void;
@@ -34,6 +36,7 @@ export function StepView({
   number,
   total,
   done,
+  excluded = [],
   onDone,
   onToggleMeanwhile,
   onShowPhoto,
@@ -42,7 +45,11 @@ export function StepView({
   const system = useUnitSystem();
   const uses = recipe.ingredients
     .filter((line) => step.ingredientIds.includes(line.id))
-    .map((line) => describeIngredient(line, system, t, i18n.language));
+    .map((line) =>
+      excluded.includes(line.id)
+        ? t('recipes:cook.usesWithout', { name: line.name })
+        : describeIngredient(line, system, t, i18n.language),
+    );
   const needs = recipe.equipment
     .filter((line) => step.equipmentIds.includes(line.id))
     .map((line) => line.name);

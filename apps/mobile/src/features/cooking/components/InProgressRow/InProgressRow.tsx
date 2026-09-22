@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Image, View } from 'react-native';
 
 import type { CookRecord } from '../../store';
-import { stepIndex } from '../../store';
+import { liveSteps, stepIndex } from '../../store';
 
 import { styles } from './InProgressRow.styles';
 
@@ -19,10 +19,13 @@ export interface InProgressRowProps {
 /** A cook in progress on the home screen: the recipe, and how far it has got (0012). */
 export function InProgressRow({ record, onPress }: InProgressRowProps): React.JSX.Element {
   const { t } = useTranslation();
-  const progress = t('recipes:cook.stepOf', {
-    number: stepIndex(record) + 1,
-    total: record.recipe.steps.length,
-  });
+  const progress =
+    record.phase === 'check'
+      ? t('recipes:cook.checking')
+      : t('recipes:cook.stepOf', {
+          number: stepIndex(record) + 1,
+          total: liveSteps(record).length,
+        });
   return (
     <Card
       accessibilityLabel={`${record.recipe.title}, ${progress}`}

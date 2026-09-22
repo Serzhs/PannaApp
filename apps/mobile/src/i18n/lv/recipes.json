@@ -215,6 +215,24 @@
     "replaceTitle": "Aizstāt darbojošos taimeri?",
     "replaceBody": "Vienlaikus darbojas tikai viens taimeris. Otra soļa taimeris apstāsies.",
     "replaceConfirm": "Aizstāt",
-    "replaceCancel": "Paturēt"
+    "replaceCancel": "Paturēt",
+    "checkTitle": "Kas tev ir",
+    "checkHint": "Noņem atzīmi, lai gatavotu bez tā",
+    "goingWithout": "Iztiksi bez tā",
+    "checkEquipment": "Būs vajadzīgs",
+    "checkNothingChanges": "Nekas nemainās: katrā solī joprojām ir ko darīt.",
+    "checkSkipped_zero": "{{count}} soļu tiks izlaisti",
+    "checkSkipped_one": "{{count}} solis tiks izlaists",
+    "checkSkipped_other": "{{count}} soļi tiks izlaisti",
+    "checkSkippedTimed_zero": "{{count}} soļu tiks izlaisti · apmēram {{minutes}} min",
+    "checkSkippedTimed_one": "{{count}} solis tiks izlaists · apmēram {{minutes}} min",
+    "checkSkippedTimed_other": "{{count}} soļi tiks izlaisti · apmēram {{minutes}} min",
+    "startCooking": "Sākt gatavot",
+    "startWithout_zero": "Sākt bez {{count}} sastāvdaļām",
+    "startWithout_one": "Sākt bez {{count}} sastāvdaļas",
+    "startWithout_other": "Sākt bez {{count}} sastāvdaļām",
+    "without": "Bez: {{list}}",
+    "usesWithout": "{{name}} (iztiec bez)",
+    "checking": "Pārbaudi, kas tev ir"
   }
 }

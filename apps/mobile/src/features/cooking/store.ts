@@ -18,10 +18,17 @@ export interface CookTimer {
 export interface CookRecord {
   readonly recipe: RecipeDetail;
   readonly startedAt: string;
+  /** The check of what you have comes first (0013); cooking is the guide. */
+  readonly phase: 'check' | 'cooking';
+  /** Ingredients being gone without, by id. Names for history come from the recipe copy. */
+  readonly excluded: readonly string[];
   readonly currentStepId: string;
   readonly done: readonly string[];
   readonly timer: CookTimer | null;
 }
+
+type MainStep = RecipeDetail['steps'][number];
+type AnyStep = MainStep | MainStep['children'][number];
 
 let cache: readonly CookRecord[] | null = null;
 const listeners = new Set<() => void>();
@@ -37,7 +44,9 @@ function readAll(): readonly CookRecord[] {
     const raw = Storage.getItemSync(key);
     if (raw === null) continue;
     try {
-      records.push(JSON.parse(raw) as CookRecord);
+      const parsed = JSON.parse(raw) as Partial<CookRecord> & Pick<CookRecord, 'recipe'>;
+      // A record from before 0013 was already cooking, with nothing left out.
+      records.push({ phase: 'cooking', excluded: [], ...parsed } as CookRecord);
     } catch {
       // A record that no longer parses is a record from a version this app cannot read.
       Storage.removeItemSync(key);
@@ -86,6 +95,8 @@ export function startCook(recipe: RecipeDetail, now: number = Date.now()): CookR
   const record: CookRecord = {
     recipe,
     startedAt: new Date(now).toISOString(),
+    phase: 'check',
+    excluded: [],
     currentStepId: first.id,
     done: [],
     timer: null,
@@ -94,12 +105,53 @@ export function startCook(recipe: RecipeDetail, now: number = Date.now()): CookR
   return record;
 }
 
-export function stepIndex(record: CookRecord): number {
-  return record.recipe.steps.findIndex((step) => step.id === record.currentStepId);
+/** A step is skipped only when it linked ingredients and every one of them is gone (0013). */
+export function isLive(step: AnyStep, excluded: readonly string[]): boolean {
+  return step.ingredientIds.length === 0 || step.ingredientIds.some((id) => !excluded.includes(id));
 }
 
-export function currentStep(record: CookRecord): RecipeDetail['steps'][number] | undefined {
-  return record.recipe.steps[stepIndex(record)];
+/** The main steps this cook actually runs over, each with only its live meanwhile steps. */
+export function liveSteps(record: CookRecord): MainStep[] {
+  return record.recipe.steps
+    .filter((step) => isLive(step, record.excluded))
+    .map((step) => ({
+      ...step,
+      children: step.children.filter((child) => isLive(child, record.excluded)),
+    }));
+}
+
+export function skippedCount(record: CookRecord): number {
+  return record.recipe.steps.length - liveSteps(record).length;
+}
+
+/** Minutes for the live main steps, the way the recipe's own total is derived. */
+export function liveMinutes(record: CookRecord): number | null {
+  const seconds = liveSteps(record)
+    .map((step) => step.durationSeconds ?? 0)
+    .reduce((sum, value) => sum + value, 0);
+  return seconds === 0 ? null : Math.ceil(seconds / 60);
+}
+
+export function toggleExcluded(record: CookRecord, ingredientId: string): CookRecord {
+  const excluded = record.excluded.includes(ingredientId)
+    ? record.excluded.filter((id) => id !== ingredientId)
+    : [...record.excluded, ingredientId];
+  return { ...record, excluded };
+}
+
+/** Leaves the check for the guide, landing on the first step that is still live. */
+export function beginCooking(record: CookRecord): CookRecord | null {
+  const first = liveSteps(record)[0];
+  if (first === undefined) return null;
+  return { ...record, phase: 'cooking', currentStepId: first.id };
+}
+
+export function stepIndex(record: CookRecord): number {
+  return liveSteps(record).findIndex((step) => step.id === record.currentStepId);
+}
+
+export function currentStep(record: CookRecord): MainStep | undefined {
+  return liveSteps(record)[stepIndex(record)];
 }
 
 export function isDone(record: CookRecord, stepId: string): boolean {
@@ -120,7 +172,7 @@ export type Advance =
 /** Done marks the current main step and moves on; on the last step the cook is over. */
 export function advance(record: CookRecord): Advance {
   const index = stepIndex(record);
-  const next = record.recipe.steps[index + 1];
+  const next = liveSteps(record)[index + 1];
   const done = isDone(record, record.currentStepId)
     ? record.done
     : [...record.done, record.currentStepId];
@@ -130,7 +182,7 @@ export function advance(record: CookRecord): Advance {
 
 /** Back only moves; what was marked stays marked. */
 export function goBack(record: CookRecord): CookRecord {
-  const previous = record.recipe.steps[stepIndex(record) - 1];
+  const previous = liveSteps(record)[stepIndex(record) - 1];
   return previous === undefined ? record : { ...record, currentStepId: previous.id };
 }
 

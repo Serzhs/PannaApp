@@ -6,20 +6,24 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 import Animated, { SlideInRight, useReducedMotion } from 'react-native-reanimated';
 
+import { CheckView } from './components/CheckView';
 import { PhotoViewer } from './components/PhotoViewer';
 import { StepView } from './components/StepView';
 import { TimerBlock, type TimerState } from './components/TimerBlock';
 import { styles } from './CookScreen.styles';
 import {
   advance,
+  beginCooking,
   clearCook,
   currentStep,
   goBack,
+  liveSteps,
   loadCook,
   saveCook,
   setTimer,
   stepIndex,
   toggleDone,
+  toggleExcluded,
   useCooks,
   type CookRecord,
 } from './store';
@@ -82,12 +86,69 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
   if (record === null) {
     return <Screen />;
   }
+  const withoutNames = record.recipe.ingredients
+    .filter((line) => record.excluded.includes(line.id))
+    .map((line) => line.name);
+  const top = (
+    <View style={styles.top}>
+      <Button
+        label={t('recipes:cook.leave')}
+        variant="ghost"
+        onPress={() => {
+          setLeaving(true);
+        }}
+      />
+      <Text variant="caption" color="textSecondary" numberOfLines={1} style={styles.title}>
+        {record.recipe.title}
+      </Text>
+    </View>
+  );
+  const leaveDialog = (
+    <ConfirmDialog
+      visible={leaving}
+      title={t('recipes:cook.leaveTitle')}
+      body={t('recipes:cook.leaveBody')}
+      confirmLabel={t('recipes:cook.stopCooking')}
+      cancelLabel={t('recipes:cook.keepPlace')}
+      destructive
+      onCancel={() => {
+        setLeaving(false);
+        landOnRecipe();
+      }}
+      onConfirm={() => {
+        setLeaving(false);
+        void cancelTimerEnd(record.timer?.notificationId ?? null);
+        clearCook(recipeId);
+        landOnRecipe();
+      }}
+    />
+  );
+
+  if (record.phase === 'check') {
+    return (
+      <Screen scroll>
+        {top}
+        <CheckView
+          record={record}
+          onToggle={(ingredientId) => {
+            saveCook(toggleExcluded(record, ingredientId));
+          }}
+          onStart={() => {
+            const cooking = beginCooking(record);
+            if (cooking !== null) saveCook(cooking);
+          }}
+        />
+        {leaveDialog}
+      </Screen>
+    );
+  }
+
   const step = currentStep(record);
   if (step === undefined) {
     return <Screen />;
   }
   const index = stepIndex(record);
-  const total = record.recipe.steps.length;
+  const total = liveSteps(record).length;
   const last = index === total - 1;
 
   const startTimer = async (target: CookRecord) => {
@@ -146,25 +207,19 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
             }
           : {
               kind: 'elsewhere',
-              stepNumber: record.recipe.steps.findIndex((s) => s.id === record.timer?.stepId) + 1,
+              stepNumber: liveSteps(record).findIndex((s) => s.id === record.timer?.stepId) + 1,
               endsAt: record.timer.endsAt,
             };
   const showTimer = step.durationSeconds !== null || timerState.kind === 'elsewhere';
 
   return (
     <Screen scroll>
-      <View style={styles.top}>
-        <Button
-          label={t('recipes:cook.leave')}
-          variant="ghost"
-          onPress={() => {
-            setLeaving(true);
-          }}
-        />
-        <Text variant="caption" color="textSecondary" numberOfLines={1} style={styles.title}>
-          {record.recipe.title}
+      {top}
+      {withoutNames.length === 0 ? null : (
+        <Text variant="caption" color="textSecondary" style={styles.without}>
+          {t('recipes:cook.without', { list: withoutNames.join(', ') })}
         </Text>
-      </View>
+      )}
       <Animated.View
         key={step.id}
         {...(reduced ? {} : { entering: SlideInRight.duration(theme.duration.durationFast) })}
@@ -176,6 +231,7 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
             number={index + 1}
             total={total}
             done={record.done}
+            excluded={record.excluded}
             onDone={onDone}
             onToggleMeanwhile={(stepId) => {
               saveCook(toggleDone(record, stepId));
@@ -218,24 +274,7 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
           setPhoto(null);
         }}
       />
-      <ConfirmDialog
-        visible={leaving}
-        title={t('recipes:cook.leaveTitle')}
-        body={t('recipes:cook.leaveBody')}
-        confirmLabel={t('recipes:cook.stopCooking')}
-        cancelLabel={t('recipes:cook.keepPlace')}
-        destructive
-        onCancel={() => {
-          setLeaving(false);
-          landOnRecipe();
-        }}
-        onConfirm={() => {
-          setLeaving(false);
-          void cancelTimerEnd(record.timer?.notificationId ?? null);
-          clearCook(recipeId);
-          landOnRecipe();
-        }}
-      />
+      {leaveDialog}
       <ConfirmDialog
         visible={replacing}
         title={t('recipes:cook.replaceTitle')}

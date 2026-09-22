@@ -75,4 +75,22 @@ describe('StepView', () => {
     await fireEvent.press(card);
     expect(onDone).toHaveBeenCalled();
   });
+
+  /** 0013: an excluded ingredient is still named, marked as gone without. */
+  it('marks an excluded ingredient in the uses line instead of dropping it', async () => {
+    await render(
+      <StepView
+        recipe={recipe}
+        step={must(recipe.steps[0])}
+        number={1}
+        total={1}
+        done={[]}
+        excluded={['i1']}
+        onDone={jest.fn()}
+        onToggleMeanwhile={jest.fn()}
+        onShowPhoto={jest.fn()}
+      />,
+    );
+    expect(screen.getByText('Uses beetroot (going without)')).toBeTruthy();
+  });
 });

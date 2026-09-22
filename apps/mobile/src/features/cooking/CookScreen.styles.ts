@@ -16,6 +16,9 @@ export const styles = StyleSheet.create({
   title: {
     flexShrink: 1,
   },
+  without: {
+    marginBottom: theme.space.space3,
+  },
   bottom: {
     marginTop: theme.space.space6,
     gap: theme.space.space2,

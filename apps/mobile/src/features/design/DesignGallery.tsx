@@ -18,6 +18,7 @@ import { Stack } from '@/components/Stack';
 import { Tabs } from '@/components/Tabs';
 import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
+import { CheckView } from '@/features/cooking/components/CheckView';
 import { InProgressRow } from '@/features/cooking/components/InProgressRow';
 import { TimerBlock } from '@/features/cooking/components/TimerBlock';
 import { DurationField } from '@/features/recipes/components/DurationField';
@@ -478,6 +479,56 @@ function Cooking(): React.JSX.Element {
           <TimerBlock state={{ kind: 'done' }} onStart={noop} onStop={noop} onEnded={noop} />
         </Stack>
       </Section>
+      <Section title="CheckView">
+        <CheckView
+          record={{
+            recipe: {
+              id: 'g2',
+              title: 'Cold beetroot soup',
+              description: null,
+              status: 'ready',
+              coverImageKey: null,
+              servings: 4,
+              totalTimeMinutes: 22,
+              createdAt: '2026-09-16T12:00:00.000Z',
+              updatedAt: '2026-09-16T12:00:00.000Z',
+              ingredients: [
+                { id: 'beet', position: 0, name: 'beetroot', note: null, amount: 500, unit: 'g' },
+                { id: 'dill', position: 1, name: 'dill', note: null, amount: null, unit: null },
+              ],
+              equipment: [{ id: 'e1', position: 0, name: 'blender', note: null, optional: false }],
+              steps: [
+                {
+                  id: 'a',
+                  position: 0,
+                  body: 'Boil',
+                  ...base,
+                  durationSeconds: 1200,
+                  ingredientIds: ['beet'],
+                  children: [],
+                },
+                {
+                  id: 'b',
+                  position: 1,
+                  body: 'Garnish',
+                  ...base,
+                  durationSeconds: 120,
+                  ingredientIds: ['dill'],
+                  children: [],
+                },
+              ],
+            },
+            startedAt: '2026-09-22T10:00:00.000Z',
+            phase: 'check',
+            excluded: ['dill'],
+            currentStepId: 'a',
+            done: [],
+            timer: null,
+          }}
+          onToggle={noop}
+          onStart={noop}
+        />
+      </Section>
       <Section title="InProgressRow">
         <InProgressRow
           record={{
@@ -500,6 +551,8 @@ function Cooking(): React.JSX.Element {
               ],
             },
             startedAt: '2026-09-22T10:00:00.000Z',
+            phase: 'cooking',
+            excluded: [],
             currentStepId: 'b',
             done: ['a'],
             timer: null,

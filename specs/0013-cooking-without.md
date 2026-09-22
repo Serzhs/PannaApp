@@ -1,6 +1,6 @@
 # 0013: Cooking without an ingredient
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0012
 
 ## Context
@@ -62,18 +62,18 @@ All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] Excluding the only ingredient of a step skips it and closes the numbering; excluding one of
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 123, mobile 1068 tests.)_
+- [x] Excluding the only ingredient of a step skips it and closes the numbering; excluding one of
       two keeps the step; a step with no links is never skipped; a meanwhile step is skipped by the
-      same rule; Done and Back move over live steps only, asserted in tests on the store.
-- [ ] The check starts with every ingredient ticked, updates the skipped count and time as one is
-      unticked, and Start moves the record to cooking with the exclusions, asserted in a test.
-- [ ] The guide shows "Without: …" when something is excluded and marks it in a live step's uses
-      line, asserted in a test.
-- [ ] A record without the new fields still opens on the guide, asserted in a test.
-- [ ] On the simulator: Cook lands on the check, untick dill, see "1 step will be skipped", Start,
-      see "Without: dill" and only two steps numbered.
-- [ ] The Latvian file lists every new key.
+      same rule; Done and Back move over live steps only, asserted in tests on the store. _(store.test "skips the steps whose every ingredient is excluded, and numbers over the rest" and "never skips a step with no links".)_
+- [x] The check starts with every ingredient ticked, updates the skipped count and time as one is
+      unticked, and Start moves the record to cooking with the exclusions, asserted in a test. _(CheckView test; CookScreen test "opens on the check, and shows what is left out once cooking".)_
+- [x] The guide shows "Without: …" when something is excluded and marks it in a live step's uses
+      line, asserted in a test. _(CookScreen test above; StepView test "marks an excluded ingredient in the uses line".)_
+- [x] A record without the new fields still opens on the guide, asserted in a test. _(store.test "reads a record from before the check as cooking with nothing excluded"; CookScreen test "keeps a record from before the check on the guide".)_
+- [x] On the simulator: Cook lands on the check, untick dill, see "1 step will be skipped", Start,
+      see "Without: dill" and only two steps numbered. _(Seen: the check with beetroot and dill ticked and the blender listed; dill unticked showed "Going without" and "1 step will be skipped · about 1 min"; Start without 1 ingredient opened the guide with "Without: dill" and "Step 1 of 2", the dill meanwhile step gone.)_
+- [x] The Latvian file lists every new key. _(the new `cook` keys, with zero, one and other forms; the key-parity test passes.)_
 
 ## Open questions
 

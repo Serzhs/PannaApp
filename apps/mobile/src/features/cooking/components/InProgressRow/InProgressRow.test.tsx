@@ -33,6 +33,8 @@ const recipe: RecipeDetail = {
 const record: CookRecord = {
   recipe,
   startedAt: '2026-09-22T10:00:00.000Z',
+  phase: 'cooking',
+  excluded: [],
   currentStepId: 'b',
   done: ['a'],
   timer: null,
