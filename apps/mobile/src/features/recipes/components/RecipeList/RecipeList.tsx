@@ -90,9 +90,11 @@ export function RecipeList({
                 }}
               />
             ))}
-            <Text variant="label" color="textSecondary" accessibilityRole="header">
-              {t('recipes:cook.everythingElse')}
-            </Text>
+            {rest.length === 0 ? null : (
+              <Text variant="label" color="textSecondary" accessibilityRole="header">
+                {t('recipes:cook.everythingElse')}
+              </Text>
+            )}
           </View>
         )
       }

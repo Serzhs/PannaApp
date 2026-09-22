@@ -17,7 +17,7 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0009](0009-review-and-ready.md)          | Review and mark as ready             | In progress   | Check a new recipe over on one page, and say when it is ready to cook.                              |
 | [0010](0010-step-links.md)                | Step links                           | Done          | Attach ingredients and equipment to the step that uses them.                                        |
 | [0011](0011-images.md)                    | Images                               | Done          | A cover photo, and a picture of how each step should look.                                          |
-| [0012](0012-cooking-mode.md)              | Cooking mode                         | In progress   | Cook a recipe, seeing what else you could do during each wait.                                      |
+| [0012](0012-cooking-mode.md)              | Cooking mode                         | Done          | Cook a recipe, seeing what else you could do during each wait.                                      |
 | 0013                                      | Cooking without an ingredient        | Not written   | Check off what you have, and cook it without the carrots.                                           |
 | 0014                                      | Recipe history                       | Not written   | See when you cooked something, and what you changed each time.                                      |
 | 0015                                      | Cook's notes                         | Not written   | Record what you learned, and see it next time you cook.                                             |

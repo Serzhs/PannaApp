@@ -1,6 +1,6 @@
 # 0012: Cooking mode
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0010, 0011, 0022
 
 ## Context
@@ -104,28 +104,28 @@ All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] Starting a cook writes a record with the whole recipe and the first step; Done moves to the
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 123, mobile 1049 tests.)_
+- [x] Starting a cook writes a record with the whole recipe and the first step; Done moves to the
       next and marks the previous; Finish on the last step clears the record, asserted in tests on
-      the store with the storage faked.
-- [ ] A meanwhile step's mark toggles without changing the current main step, asserted in a test.
-- [ ] Starting a timer schedules a notification at the step's end and records its id; Stop
+      the store with the storage faked. _(store.test "starts on the first step with the whole recipe copied, and moves on with Done".)_
+- [x] A meanwhile step's mark toggles without changing the current main step, asserted in a test. _(store.test "toggles a meanwhile step without moving the main step"; StepView test for the row.)_
+- [x] Starting a timer schedules a notification at the step's end and records its id; Stop
       cancels it; time reaching the end clears the timer, asserted with the notification module
-      faked.
-- [ ] Starting a timer while another step's runs asks first, and on yes cancels the old
-      notification and schedules the new one, asserted in a test.
-- [ ] The cooking screen renders the current step in display size, its meanwhile steps, its links
-      and a Done bar at least 80 points tall, asserted in a component test by role and name.
-- [ ] The list shows an "In progress" section first with "Step N of M" rows, and no section when
-      nothing is in progress, asserted in a test.
-- [ ] The recipe screen shows Cook for a recipe with steps, Continue cooking for one in progress,
-      and nothing for one with no steps, asserted in a test.
-- [ ] On the simulator: cook the seeded recipe two steps in, start a timer, lock the screen and see
+      faked. _(CookScreen test "starts a timer that schedules a notification, and stops it"; TimerBlock test "counts down from the end time and says so when it reaches it".)_
+- [x] Starting a timer while another step's runs asks first, and on yes cancels the old
+      notification and schedules the new one, asserted in a test. _(CookScreen test "asks before replacing another step's timer, and replaces it on yes".)_
+- [x] The cooking screen renders the current step in display size, its meanwhile steps, its links
+      and a Done bar at least 80 points tall, asserted in a component test by role and name. _(StepView test "reads the step as one Done target with its links and meanwhile rows"; the bar is 80 points in the styles.)_
+- [x] The list shows an "In progress" section first with "Step N of M" rows, and no section when
+      nothing is in progress, asserted in a test. _(RecipeList test "puts a cook in progress first, and shows no section without one".)_
+- [x] The recipe screen shows Cook for a recipe with steps, Continue cooking for one in progress,
+      and nothing for one with no steps, asserted in a test. _(RecipeDetailScreen test "offers to cook, or to continue, only when there are steps".)_
+- [x] On the simulator: cook the seeded recipe two steps in, start a timer, lock the screen and see
       the notification arrive, reopen the app from the list's In progress row and land on the same
-      step, then Finish.
-- [ ] The screen is kept awake while cooking and released on leaving, asserted in a test with the
-      keep-awake module faked.
-- [ ] The Latvian file lists every new key.
+      step, then Finish. _(Seen: Cook opened step 1 of 3, the dill ticked, the one-minute timer counted down, the phone was locked and "Step 1 is done, Boil the beetroot" arrived on the lock screen; the app was reopened from the list's In progress row and landed on step 1 with the dill still ticked and "Time is up" shown; Done, Done, Finish landed on the recipe.)_
+- [x] The screen is kept awake while cooking and released on leaving, asserted in a test with the
+      keep-awake module faked. _(CookScreen test "moves on with Done, finishes on the last step, and keeps the screen awake meanwhile".)_
+- [x] The Latvian file lists every new key. _(the `cook` group; the key-parity test passes.)_
 - _Manual follow-up, not a gate:_ a VoiceOver walkthrough of the cooking screen, checking the step
   reads as one element with its hint, the meanwhile rows announce their mark, and the timer's
   change is spoken.

@@ -91,6 +91,10 @@ what has already been reported. The judgement above is the part that catches the
 file system is what it reads. And iPhones shoot HEIC, which the resizer cannot decode, so the picker
 is asked for a compatible representation, which hands over a JPEG.
 
+**Metro caches its module map, and a stale one blames a file that exists.** "Unable to resolve module
+X from node_modules/Y" right after a native package was added, when the file is there, is the
+cache: restart Metro with `npx expo start --clear`.
+
 **Metro only sees packages the mobile workspace names.** pnpm keeps a package's own dependencies out
 of the top-level `node_modules`, and Metro does not follow the links pnpm leaves behind, so a library
 that imports a sibling package it depends on fails at launch with "unable to resolve module". Jest
