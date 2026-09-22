@@ -172,6 +172,7 @@ function Fields(): React.JSX.Element {
           placeholder="Slow roast pork"
         />
         <TextField label="With a helper" value="" helper="Shown at the top of the recipe" />
+        <TextField label="Tall, for a pasted document" value="" multiline tall />
         <TextField
           label="With an error"
           value="S"

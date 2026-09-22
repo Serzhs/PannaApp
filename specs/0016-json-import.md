@@ -1,6 +1,6 @@
 # 0016: JSON import
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0025, 0022
 
 ## Context
@@ -75,22 +75,22 @@ All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] The reader finds the document inside code fences and surrounding prose; refuses text with
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 129, mobile 1158 tests.)_
+- [x] The reader finds the document inside code fences and surrounding prose; refuses text with
       no JSON, invalid JSON, `schemaVersion: 2` and a missing title, each with its own reason,
-      asserted in a test.
-- [ ] A document with an unknown unit, a non-numeric amount, a nameless ingredient, a bodiless
+      asserted in a test. _(parse.test "reads a chatty answer, and refuses what it cannot read with a reason".)_
+- [x] A document with an unknown unit, a non-numeric amount, a nameless ingredient, a bodiless
       step and a link to an unknown name imports everything else and lists five problems; a step
-      done meanwhile nests under its step, asserted in a test.
-- [ ] A document with 101 ingredients imports 100 and says so, asserted in a test.
-- [ ] Copy prompt puts the prompt on the clipboard, and the prompt names the language, the
-      version and every unit, asserted in a test.
-- [ ] Import creates the recipe with its lists, then writes the steps with links mapped to the
+      done meanwhile nests under its step, asserted in a test. _(parse.test "keeps what it can and lists what it could not".)_
+- [x] A document with 101 ingredients imports 100 and says so, asserted in a test. _(parse.test "cuts a list at its cap and says so".)_
+- [x] Copy prompt puts the prompt on the clipboard, and the prompt names the language, the
+      version and every unit, asserted in a test. _(ImportScreen test "puts the prompt on the clipboard and says so"; prompt.test for the language, version and units.)_
+- [x] Import creates the recipe with its lists, then writes the steps with links mapped to the
       created ids, and offers to open the editor; offline it shows the message and keeps the
-      text, asserted in a test with the API faked.
-- [ ] On the simulator: paste a model-style answer with fences and a pleasantry, import, see the
-      draft with its steps and a meanwhile step on the recipe screen.
-- [ ] The Latvian file lists every new key.
+      text, asserted in a test with the API faked. _(ImportScreen tests "creates the recipe, writes the steps with mapped links..." and "refuses text with nothing to read... keeps the text offline".)_
+- [x] On the simulator: paste a model-style answer with fences and a pleasantry, import, see the
+      draft with its steps and a meanwhile step on the recipe screen. _(Seen: an answer with fences and "Enjoy!" pasted, Import, "Imported as a draft", Check it opened the editor with step 1a during step 1; the server held the draft with four ingredients, two tools, the links and the nested step.)_
+- [x] The Latvian file lists every new key. _(the `import` group and `screens.import`; the key-parity test passes.)_
 
 ## Open questions
 

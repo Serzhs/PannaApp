@@ -24,5 +24,6 @@ module.exports = {
     '^expo-notifications$': '<rootDir>/src/test/mocks/expo-notifications.ts',
     '^expo-keep-awake$': '<rootDir>/src/test/mocks/expo-keep-awake.ts',
     '^expo-haptics$': '<rootDir>/src/test/mocks/expo-haptics.ts',
+    '^expo-clipboard$': '<rootDir>/src/test/mocks/expo-clipboard.ts',
   },
 };

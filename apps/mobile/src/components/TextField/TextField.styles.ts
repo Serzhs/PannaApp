@@ -13,6 +13,10 @@ const MIN_TARGET = 44;
 const bodyText = { fontSize: theme.text.body.fontSize, fontWeight: theme.text.body.fontWeight };
 
 export const styles = StyleSheet.create({
+  tall: {
+    minHeight: theme.space.space16 * 3,
+    textAlignVertical: 'top',
+  },
   input: {
     ...bodyText,
     minHeight: MIN_TARGET,

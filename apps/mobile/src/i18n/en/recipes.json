@@ -6,7 +6,8 @@
     "edit": "Edit recipe",
     "steps": "Steps",
     "review": "Review",
-    "flow": "Flow"
+    "flow": "Flow",
+    "import": "Paste from your AI"
   },
   "header": {
     "settings": "Settings",
@@ -251,5 +252,34 @@
     "finishTitle": "Anything for next time?",
     "saveAndFinish": "Save and finish",
     "finishWithout": "Finish without a note"
+  },
+  "import": {
+    "instead": "Paste one from your AI instead",
+    "how": "Copy the prompt, give it to your AI with the recipe text, and paste back what it answers.",
+    "copyPrompt": "Copy prompt",
+    "copied": "Copied. Paste it into your AI, with the recipe.",
+    "paste": "Paste the answer here",
+    "import": "Import",
+    "failed": "Could not import the recipe. Try again.",
+    "done": "Imported as a draft",
+    "clean": "Everything was read. Check it over before you cook it.",
+    "problemsIntro": "Most of it was read. Fix these in the editor:",
+    "check": "Check it",
+    "refused": {
+      "noJson": "No recipe found in the text. Paste the whole answer from your AI.",
+      "invalidJson": "The text is not a complete document. Ask your AI to send it again.",
+      "unknownVersion": "This document is from a newer prompt. Copy the prompt again and retry.",
+      "noTitle": "The document has no title."
+    },
+    "problems": {
+      "ingredientDropped": "Ingredient {{index}} had no name and was left out.",
+      "equipmentDropped": "Equipment {{index}} had no name and was left out.",
+      "stepDropped": "Step {{index}} had a part with no instruction, which was left out.",
+      "unknownUnit": "'{{unit}}' is not a unit the app knows; {{name}} has none now.",
+      "badAmount": "The amount for {{name}} was not a number and was left out.",
+      "unknownLink": "A step named '{{name}}', which is not in the lists; the link was dropped.",
+      "tooMany": "A list was longer than {{max}} and was cut.",
+      "servingsGuessed": "No servings were given; set to 4."
+    }
   }
 }

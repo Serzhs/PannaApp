@@ -37,7 +37,7 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">274 of 291 acceptance criteria verified across 23 written specs.</p>
+<p class="summary">282 of 299 acceptance criteria verified across 24 written specs.</p>
 <div class="bar"><div style="width: 94%"></div></div>
 
 <h2>All specs</h2>
@@ -59,7 +59,7 @@
 <tr><td><a href="#spec-0013">0013</a></td><td>Cooking without an ingredient</td><td><span class="status done">Done</span></td><td>7 / 7</td><td>Check off what you have, and cook it without the carrots.</td></tr>
 <tr><td><a href="#spec-0014">0014</a></td><td>Recipe history</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>See when you cooked something, and what you changed each time.</td></tr>
 <tr><td><a href="#spec-0015">0015</a></td><td>Cook's notes</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Record what you learned, and see it next time you cook.</td></tr>
-<tr><td>0016</td><td>JSON recipe import</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Paste AI-generated JSON and get a working recipe.</td></tr>
+<tr><td><a href="#spec-0016">0016</a></td><td>JSON recipe import</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Paste AI-generated JSON and get a working recipe.</td></tr>
 <tr><td>0017</td><td>Sharing</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Share a recipe read-only by private link, and revoke it.</td></tr>
 <tr><td>0018</td><td>Avatars and the tab bar</td><td><span class="status not-written">Not written</span></td><td>–</td><td>An avatar, an editable name, and three tabs to reach things by.</td></tr>
 <tr><td>0019</td><td>Featured recipes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A searchable set of recipes we wrote, to start from.</td></tr>
@@ -1061,6 +1061,67 @@
 <p><strong>The check</strong> shows nothing new: notes are for reading with a step, not for shopping.</p>
 <p><strong>Components</strong>: a note list, and a note composer used in both places, each in its own folder</p>
 <p>with styles, test and index, with gallery entries.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian.</p>
+</details>
+</section>
+
+<section id="spec-0016">
+<h2>0016: JSON import <span class="status done">Done</span></h2>
+<p class="goal">A prompt the user can copy, and a paste box that turns their model's answer into a draft recipe, keeping everything it can read and saying what it could not.</p>
+<p class="summary">8 of 8 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. <em>(<code>pnpm check</code>: shared 9, API 129, mobile 1158 tests.)</em></li>
+<li class="done">The reader finds the document inside code fences and surrounding prose; refuses text with</li>
+<li class="done">A document with an unknown unit, a non-numeric amount, a nameless ingredient, a bodiless</li>
+<li class="done">A document with 101 ingredients imports 100 and says so, asserted in a test. <em>(parse.test "cuts a list at its cap and says so".)</em></li>
+<li class="done">Copy prompt puts the prompt on the clipboard, and the prompt names the language, the</li>
+<li class="done">Import creates the recipe with its lists, then writes the steps with links mapped to the</li>
+<li class="done">On the simulator: paste a model-style answer with fences and a pleasantry, import, see the</li>
+<li class="done">The Latvian file lists every new key. <em>(the <code>import</code> group and <code>screens.import</code>; the key-parity test passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>A prompt the user can copy, and a paste box that turns their model's answer into a draft recipe,</p>
+<p>keeping everything it can read and saying what it could not.</p>
+<h3>Out of scope</h3><li>Fetching anything. No URL is ever requested by the app or the API.</li>
+<li>Calling a model from the app. The user's own AI does the work, whichever one they have.</li>
+<li>Importing photos. The document is text; photos come from the library as before.</li>
+<li>Importing into an existing recipe. An import is always a new draft.</li>
+<li>Reading formats other than the app's own JSON document. YAML, Markdown tables and free text</li>
+<p>  are left to the model, which the prompt tells how to answer.</p>
+<h3>Data model</h3><p>None. An imported recipe is an ordinary recipe, created as a draft through the endpoints that exist.</p>
+<p><strong>The document</strong>, version 1, in <code>packages/shared</code> as <code>importDocumentSchema</code>:</p>
+<p>```</p>
+<p>{ "schemaVersion": 1, "title", "description"?, "servings",</p>
+<p>  "ingredients": [{ "name", "amount"?, "unit"?, "note"? }],</p>
+<p>  "equipment": [{ "name", "note"?, "optional"? }],</p>
+<p>  "steps": [{ "body", "note"?, "minutes"?, "ingredients"?: [name], "equipment"?: [name],</p>
+<p>              "meanwhile"?: [{ "body", "note"?, "minutes"?, "ingredients"?, "equipment"? }] }] }</p>
+<p>```</p>
+<p>Steps nest by containment, not by id, so there is no reference to check. Links name ingredients</p>
+<p>and equipment by their <code>name</code> in the same document. <code>unit</code> is one of the app's fourteen units.</p>
+<h3>API contract</h3><p>None new. The import is <code>POST /api/recipes</code> with the lists, then <code>PATCH</code> with the steps and their</p>
+<p>links, both from the app. Every cap the schemas carry applies unchanged.</p>
+<h3>UI</h3><p><strong>New recipe.</strong> The first page gains "Paste one from your AI instead" at the top, which opens the</p>
+<p>import screen, <code>(app)/recipes/import</code>.</p>
+<p><strong>Import screen.</strong> Three parts. A short line saying how it works. "Copy prompt", which puts the</p>
+<p>prompt on the clipboard and confirms it in a line under the button. A large paste box with an</p>
+<p>"Import" button under it. The prompt is in English, tells the model to write the recipe's text in</p>
+<p>the user's language, names the language, carries <code>schemaVersion: 1</code>, spells out the document with</p>
+<p>an example, explains main steps and steps done meanwhile, lists the units, and asks for the recipe</p>
+<p><strong>text</strong> rather than promising a link works.</p>
+<p><strong>Import</strong> reads the box forgivingly: the JSON is found inside code fences and prose. Then it</p>
+<p>reads what it can: a line without a name, a step without an instruction, are dropped; an unknown</p>
+<p>unit becomes none; an amount that is not a number becomes none; a link to a name not in the</p>
+<p>document is dropped; a list past its cap is cut. Each of these is a problem in a list. The recipe</p>
+<p>is created as a draft, then its steps are written, and the screen shows "Imported as a draft"</p>
+<p>with the problems, if any, and a button "Check it" that opens the edit screen. Nothing at all to</p>
+<p>read, an unknown <code>schemaVersion</code>, or no title, is refused with one line saying which.</p>
+<p>Offline, Import fails at once with the offline message and keeps the text.</p>
+<p><strong>Component</strong>: none shared. The screen is composed from existing components.</p>
 <p>All new strings go through <code>t()</code>, in English and Latvian.</p>
 </details>
 </section>

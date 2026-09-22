@@ -10,6 +10,8 @@ export interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   readonly label: string;
   readonly error?: string;
   readonly helper?: string;
+  /** A box for a whole document, not a line: the import paste box (0016). */
+  readonly tall?: boolean;
 }
 
 /**
@@ -23,6 +25,7 @@ export function TextField({
   helper,
   onFocus,
   onBlur,
+  tall = false,
   ...rest
 }: TextFieldProps): React.JSX.Element {
   const [focused, setFocused] = useState(false);
@@ -43,7 +46,7 @@ export function TextField({
         {...rest}
         accessibilityLabel={invalid ? `${label}, ${error}` : label}
         {...(helper !== undefined && !invalid ? { accessibilityHint: helper } : {})}
-        style={[styles.input, inputStyle(invalid, focused)]}
+        style={[styles.input, tall ? styles.tall : null, inputStyle(invalid, focused)]}
         onFocus={(event) => {
           setFocused(true);
           onFocus?.(event);

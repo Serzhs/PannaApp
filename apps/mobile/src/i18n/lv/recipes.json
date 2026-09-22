@@ -6,7 +6,8 @@
     "edit": "Rediģēt recepti",
     "steps": "Soļi",
     "review": "Pārskats",
-    "flow": "Gaita"
+    "flow": "Gaita",
+    "import": "Ielīmēt no MI"
   },
   "header": {
     "settings": "Iestatījumi",
@@ -256,5 +257,34 @@
     "finishTitle": "Kaut kas nākamajai reizei?",
     "saveAndFinish": "Saglabāt un pabeigt",
     "finishWithout": "Pabeigt bez piezīmes"
+  },
+  "import": {
+    "instead": "Vai ielīmē no sava MI",
+    "how": "Nokopē uzvedni, iedod to savam MI kopā ar receptes tekstu un ielīmē atpakaļ atbildi.",
+    "copyPrompt": "Kopēt uzvedni",
+    "copied": "Nokopēts. Ielīmē to savā MI kopā ar recepti.",
+    "paste": "Ielīmē atbildi šeit",
+    "import": "Importēt",
+    "failed": "Neizdevās importēt recepti. Mēģini vēlreiz.",
+    "done": "Importēts kā melnraksts",
+    "clean": "Viss tika nolasīts. Pārbaudi, pirms gatavo.",
+    "problemsIntro": "Lielākā daļa tika nolasīta. Salabo šo redaktorā:",
+    "check": "Pārbaudīt",
+    "refused": {
+      "noJson": "Tekstā nav atrasta recepte. Ielīmē visu MI atbildi.",
+      "invalidJson": "Teksts nav pilnīgs dokuments. Palūdz MI to atsūtīt vēlreiz.",
+      "unknownVersion": "Šis dokuments ir no jaunākas uzvednes. Nokopē uzvedni vēlreiz un mēģini atkal.",
+      "noTitle": "Dokumentam nav nosaukuma."
+    },
+    "problems": {
+      "ingredientDropped": "{{index}}. sastāvdaļai nebija nosaukuma, tā izlaista.",
+      "equipmentDropped": "{{index}}. rīkam nebija nosaukuma, tas izlaists.",
+      "stepDropped": "{{index}}. solim bija daļa bez norādījuma, tā izlaista.",
+      "unknownUnit": "'{{unit}}' nav lietotnei zināma mērvienība; {{name}} tagad ir bez tās.",
+      "badAmount": "Daudzums sastāvdaļai {{name}} nebija skaitlis un tika izlaists.",
+      "unknownLink": "Solis nosauca '{{name}}', kas nav sarakstos; saite noņemta.",
+      "tooMany": "Saraksts bija garāks par {{max}} un tika saīsināts.",
+      "servingsGuessed": "Porcijas nebija norādītas; iestatīts 4."
+    }
   }
 }
