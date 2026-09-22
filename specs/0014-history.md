@@ -1,6 +1,6 @@
 # 0014: Recipe history
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0013
 
 ## Context
@@ -62,21 +62,23 @@ No new components. All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] `POST` records a cook with its names, answers 201, and the same body again answers 200
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 127, mobile 1078 tests.)_
+- [x] `POST` records a cook with its names, answers 201, and the same body again answers 200
       without a second row; the recipe's `cookCount` and `lastCookedAt` follow; another user's
-      request is 404 and writes nothing, asserted end to end.
-- [ ] `finishedAt` before `startedAt`, a non-uuid `id`, and 101 names each return 400, asserted
-      end to end.
-- [ ] Finish queues the record and, online, sends it and empties the queue; offline, the record
+      request is 404 and writes nothing, asserted end to end. _(e2e "records a cook once however many times it arrives, and the recipe counts it".)_
+- [x] `finishedAt` before `startedAt`, a non-uuid `id`, and 101 names each return 400, asserted
+      end to end. _(e2e "rejects ..." for the three bodies.)_
+- [x] Finish queues the record and, online, sends it and empties the queue; offline, the record
       stays queued and is sent when the connection returns, asserted with the store and the
-      network faked.
-- [ ] A send that fails leaves the record in the queue, asserted in a test.
-- [ ] The recipe screen shows the made line from the detail, counts a queued cook, and shows
-      nothing when never made, asserted in a test.
-- [ ] On the simulator: finish a cook, see "Made once · today" on the recipe.
-- [ ] The Latvian file lists every new key.
+      network faked. _(history.test "queues a finished cook ... and sends it when online" and "keeps the record while offline or after a failed send".)_
+- [x] A send that fails leaves the record in the queue, asserted in a test. _(history.test, the failed send case; a 404 drops it instead, "drops a cook the server will never accept".)_
+- [x] The recipe screen shows the made line from the detail, counts a queued cook, and shows
+      nothing when never made, asserted in a test. _(RecipeDetailScreen test "says how often and how recently it was made, counting a cook not yet sent".)_
+- [x] On the simulator: finish a cook, see "Made once · today" on the recipe. _(Seen: Finish landed on the recipe with "Made once · today"; the server listed the cook and the detail carried the count and the time.)_
+- [x] The Latvian file lists every new key. _(the `made` group with its zero, one and other forms; the key-parity test passes.)_
 
 ## Open questions
 
-None. Decided while the author was away: abandoned cooks are not recorded.
+None. Decided while the author was away: abandoned cooks are not recorded; and a queued cook the
+server refuses for good, because the recipe is gone or the body is bad, is dropped rather than
+retried forever, while a missing connection, a missing session or a server fault keep it queued.

@@ -19,7 +19,7 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0011](0011-images.md)                    | Images                               | Done          | A cover photo, and a picture of how each step should look.                                          |
 | [0012](0012-cooking-mode.md)              | Cooking mode                         | Done          | Cook a recipe, seeing what else you could do during each wait.                                      |
 | [0013](0013-cooking-without.md)           | Cooking without an ingredient        | Done          | Check off what you have, and cook it without the carrots.                                           |
-| [0014](0014-history.md)                   | Recipe history                       | In progress   | See when you cooked something, and what you changed each time.                                      |
+| [0014](0014-history.md)                   | Recipe history                       | Done          | See when you cooked something, and what you changed each time.                                      |
 | 0015                                      | Cook's notes                         | Not written   | Record what you learned, and see it next time you cook.                                             |
 | 0016                                      | JSON recipe import                   | Not written   | Paste AI-generated JSON and get a working recipe.                                                   |
 | 0017                                      | Sharing                              | Not written   | Share a recipe read-only by private link, and revoke it.                                            |

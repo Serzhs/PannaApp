@@ -10,13 +10,9 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
 import '@/i18n';
+import { watchCookQueue } from '@/features/cooking/history';
 import { LocaleSync } from '@/i18n/LocaleSync';
-import {
-  createPersister,
-  createQueryClient,
-  persistOptions,
-  wireQueryToDevice,
-} from '@/query/client';
+import { createPersister, queryClient, persistOptions, wireQueryToDevice } from '@/query/client';
 
 /**
  * Anchors every deep link on the group's first screen, so opening a link straight into
@@ -56,16 +52,17 @@ function SessionRouter() {
 }
 
 export default function RootLayout() {
-  const [queryClient] = useState(createQueryClient);
+  const [client] = useState(queryClient);
   const [persister] = useState(createPersister);
 
   useEffect(() => wireQueryToDevice(), []);
+  useEffect(() => watchCookQueue(), []);
 
   return (
     <ErrorBoundary>
       <GestureHandlerRootView style={styles.root}>
         <PersistQueryClientProvider
-          client={queryClient}
+          client={client}
           persistOptions={{ persister, ...persistOptions }}
         >
           <KeyboardProvider>

@@ -10,6 +10,25 @@ export function isNew(recipe: Recipe, now: number = Date.now()): boolean {
   return now - Date.parse(recipe.createdAt) < NEW_FOR_MS;
 }
 
+/** "Made 6 times · last on 12 January 2026", counting cooks still waiting to be sent (0014). */
+export function describeMade(
+  count: number,
+  lastAt: string | null,
+  t: TFunction,
+  language: string,
+  now: number = Date.now(),
+): string | null {
+  if (count === 0 || lastAt === null) return null;
+  const last = Date.parse(lastAt);
+  const sameDay = new Date(last).toDateString() === new Date(now).toDateString();
+  const when = sameDay
+    ? t('recipes:made.today')
+    : t('recipes:made.lastOn', {
+        date: new Intl.DateTimeFormat(language, { dateStyle: 'long' }).format(last),
+      });
+  return `${t('recipes:made.count', { count })} · ${when}`;
+}
+
 /** What a screen reader says for a whole row, per the accessibility criteria of 0005. */
 export function describeRecipe(recipe: Recipe, t: TFunction, now: number = Date.now()): string {
   const parts = [recipe.title, t('recipes:servings', { count: recipe.servings })];

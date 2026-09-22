@@ -14,6 +14,9 @@ import {
   recipeDetailSchema,
   recipeListSchema,
   updateRecipeBodySchema,
+  cookSchema,
+  cookListSchema,
+  recordCookBodySchema,
   uploadedImageSchema,
 } from './recipes.js';
 
@@ -122,6 +125,18 @@ export const api = {
     method: 'DELETE',
     path: '/api/recipes/:recipeId',
     response: z.void(),
+  }),
+  /** 0014. Sent from the device's queue, so the same id may arrive twice and lands once. */
+  recordCook: endpoint({
+    method: 'POST',
+    path: '/api/recipes/:recipeId/cooks',
+    response: cookSchema,
+    body: recordCookBodySchema,
+  }),
+  listCooks: endpoint({
+    method: 'GET',
+    path: '/api/recipes/:recipeId/cooks',
+    response: cookListSchema,
   }),
 } as const;
 

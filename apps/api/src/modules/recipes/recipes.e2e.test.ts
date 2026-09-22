@@ -9,6 +9,8 @@ import {
   MAX_INGREDIENTS,
   MAX_MAIN_STEPS,
   MAX_NESTED_STEPS,
+  cookListSchema,
+  cookSchema,
   errorBodySchema,
   recipeDetailSchema,
   type RecipeDetail,
@@ -24,6 +26,7 @@ import { ErrorFilter } from '../../common/error.filter.js';
 import { validateEnv } from '../../config/env.js';
 import { DatabaseModule } from '../../db/database.module.js';
 import {
+  cooks,
   equipment,
   ingredients,
   recipes,
@@ -130,12 +133,14 @@ describe('recipes, end to end', () => {
       expect(res.status).toBe(201);
       expect(Object.keys(res.body as object).sort()).toEqual(
         [
+          'cookCount',
           'coverImageKey',
           'createdAt',
           'description',
           'equipment',
           'id',
           'ingredients',
+          'lastCookedAt',
           'servings',
           'status',
           'steps',
@@ -991,5 +996,97 @@ describe('step links, end to end', () => {
     expect(asError(res).code).toBe(ERROR_CODES.RECIPE_NOT_FOUND);
     const after = asDetail(await server().get(`/api/recipes/${recipe.id}`).set(as(alice)));
     expect(after.steps[0]?.ingredientIds).toEqual([]);
+  });
+});
+
+describe('recipe history, end to end', () => {
+  let app: NestExpressApplication;
+  let alice: string;
+  let bob: string;
+
+  beforeAll(async () => {
+    const env = validateEnv({ ...process.env, ALLOW_DEV_SIGN_IN: 'true' });
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true, load: [() => env] }),
+        DatabaseModule,
+        AuthModule.register(env),
+        ImagesModule,
+        RecipesModule,
+      ],
+    }).compile();
+    app = moduleRef.createNestApplication<NestExpressApplication>();
+    app.setGlobalPrefix(API_PREFIX);
+    app.useGlobalFilters(new ErrorFilter());
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  const server = () => request(app.getHttpServer());
+  const as = (token: string) => ({ Authorization: `Bearer ${token}` });
+  const asDetail = (res: request.Response) => recipeDetailSchema.parse(res.body);
+
+  async function tokenFor(email: string): Promise<string> {
+    const res = await server().post('/api/auth/dev-session').send({ email });
+    return sessionSchema.parse(res.body).accessToken;
+  }
+  async function freshRecipe(token: string): Promise<string> {
+    const res = await server().post('/api/recipes').set(as(token)).send(VALID);
+    return recipeSchema.parse(res.body).id;
+  }
+  const COOK = {
+    id: '9c6f1d2e-0000-4000-8000-000000000009',
+    startedAt: '2026-09-22T10:00:00.000Z',
+    finishedAt: '2026-09-22T10:45:00.000Z',
+    excluded: ['dill'],
+  };
+  const record = (token: string, id: string, body: object) =>
+    server().post(`/api/recipes/${id}/cooks`).set(as(token)).send(body);
+
+  beforeEach(async () => {
+    await db.insert(users).values([ALICE, BOB]);
+    alice = await tokenFor(ALICE.email);
+    bob = await tokenFor(BOB.email);
+  });
+
+  /** The criteria: 201 then 200 for the same id, the count and last date follow, a stranger gets 404. */
+  it('records a cook once however many times it arrives, and the recipe counts it', async () => {
+    const id = await freshRecipe(alice);
+    expect(asDetail(await server().get(`/api/recipes/${id}`).set(as(alice))).cookCount).toBe(0);
+
+    const first = await record(alice, id, COOK);
+    expect(first.status).toBe(201);
+    expect(cookSchema.parse(first.body)).toEqual({ ...COOK, recipeId: id });
+    const again = await record(alice, id, COOK);
+    expect(again.status).toBe(200);
+    expect(await db.select().from(cooks)).toHaveLength(1);
+
+    const detail = asDetail(await server().get(`/api/recipes/${id}`).set(as(alice)));
+    expect(detail.cookCount).toBe(1);
+    expect(detail.lastCookedAt).toBe(COOK.finishedAt);
+
+    const list = await server().get(`/api/recipes/${id}/cooks`).set(as(alice));
+    expect(cookListSchema.parse(list.body).map((c) => c.excluded)).toEqual([['dill']]);
+
+    const bobs = await record(bob, id, { ...COOK, id: '9c6f1d2e-0000-4000-8000-000000000010' });
+    expect(bobs.status).toBe(404);
+    expect(errorBodySchema.parse(bobs.body).code).toBe(ERROR_CODES.RECIPE_NOT_FOUND);
+    expect(await db.select().from(cooks)).toHaveLength(1);
+    // Nor can Bob replay Alice's id against a recipe of his own.
+    const his = await freshRecipe(bob);
+    expect((await record(bob, his, COOK)).status).toBe(404);
+  });
+
+  it.each([
+    ['a finish before the start', { ...COOK, finishedAt: '2026-09-22T09:00:00.000Z' }],
+    ['an id that is not a uuid', { ...COOK, id: 'cook-1' }],
+    ['too many names', { ...COOK, excluded: Array.from({ length: 101 }, () => 'x') }],
+  ])('rejects %s', async (_label, body) => {
+    const id = await freshRecipe(alice);
+    expect((await record(alice, id, body)).status).toBe(400);
+    expect(await db.select().from(cooks)).toHaveLength(0);
   });
 });

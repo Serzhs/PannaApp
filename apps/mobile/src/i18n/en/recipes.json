@@ -230,5 +230,11 @@
     "without": "Without: {{list}}",
     "usesWithout": "{{name}} (going without)",
     "checking": "Checking what you have"
+  },
+  "made": {
+    "count_one": "Made once",
+    "count_other": "Made {{count}} times",
+    "today": "today",
+    "lastOn": "last on {{date}}"
   }
 }

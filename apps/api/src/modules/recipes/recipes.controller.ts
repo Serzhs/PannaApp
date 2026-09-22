@@ -7,16 +7,20 @@ import {
   Patch,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import {
   createRecipeBodySchema,
+  recordCookBodySchema,
   nestPath,
   updateRecipeBodySchema,
   type CreateRecipeBody,
+  type RecordCookBody,
   type ResponseOf,
   type UpdateRecipeBody,
 } from '@panna/shared';
+import type { Response } from 'express';
 
 import { AppException } from '../../common/app-exception.js';
 import { ZodBody } from '../../common/zod-body.pipe.js';
@@ -60,6 +64,25 @@ export class RecipesController {
   @UseGuards(RecipeOwnerGuard)
   async get(@Req() request: RecipeRequest): Promise<ResponseOf<'getRecipe'>> {
     return this.recipes.detail(owned(request));
+  }
+
+  @Post(nestPath('recordCook'))
+  @UseGuards(RecipeOwnerGuard)
+  async recordCook(
+    @Req() request: RecipeRequest,
+    @Body(new ZodBody(recordCookBodySchema)) body: RecordCookBody,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<ResponseOf<'recordCook'>> {
+    const { cook, created } = await this.recipes.recordCook(owned(request).id, body);
+    // 201 the first time, 200 for the same id again: the device cannot tell and need not.
+    res.status(created ? 201 : 200);
+    return cook;
+  }
+
+  @Get(nestPath('listCooks'))
+  @UseGuards(RecipeOwnerGuard)
+  async listCooks(@Req() request: RecipeRequest): Promise<ResponseOf<'listCooks'>> {
+    return this.recipes.listCooks(owned(request).id);
   }
 
   @Patch(nestPath('updateRecipe'))

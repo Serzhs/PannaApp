@@ -63,6 +63,8 @@ describe('RecipeList', () => {
     const record: CookRecord = {
       recipe: {
         ...recipe,
+        cookCount: 0,
+        lastCookedAt: null,
         ingredients: [],
         equipment: [],
         steps: [

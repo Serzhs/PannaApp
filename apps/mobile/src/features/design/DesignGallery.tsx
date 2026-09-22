@@ -492,6 +492,8 @@ function Cooking(): React.JSX.Element {
               totalTimeMinutes: 22,
               createdAt: '2026-09-16T12:00:00.000Z',
               updatedAt: '2026-09-16T12:00:00.000Z',
+              cookCount: 0,
+              lastCookedAt: null,
               ingredients: [
                 { id: 'beet', position: 0, name: 'beetroot', note: null, amount: 500, unit: 'g' },
                 { id: 'dill', position: 1, name: 'dill', note: null, amount: null, unit: null },
@@ -542,6 +544,8 @@ function Cooking(): React.JSX.Element {
               totalTimeMinutes: 45,
               createdAt: '2026-09-16T12:00:00.000Z',
               updatedAt: '2026-09-16T12:00:00.000Z',
+              cookCount: 0,
+              lastCookedAt: null,
               ingredients: [],
               equipment: [],
               steps: [

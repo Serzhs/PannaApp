@@ -37,7 +37,7 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">258 of 275 acceptance criteria verified across 21 written specs.</p>
+<p class="summary">266 of 283 acceptance criteria verified across 22 written specs.</p>
 <div class="bar"><div style="width: 94%"></div></div>
 
 <h2>All specs</h2>
@@ -57,7 +57,7 @@
 <tr><td><a href="#spec-0011">0011</a></td><td>Images</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>A cover photo, and a picture of how each step should look.</td></tr>
 <tr><td><a href="#spec-0012">0012</a></td><td>Cooking mode</td><td><span class="status done">Done</span></td><td>11 / 11</td><td>Cook a recipe, seeing what else you could do during each wait.</td></tr>
 <tr><td><a href="#spec-0013">0013</a></td><td>Cooking without an ingredient</td><td><span class="status done">Done</span></td><td>7 / 7</td><td>Check off what you have, and cook it without the carrots.</td></tr>
-<tr><td>0014</td><td>Recipe history</td><td><span class="status not-written">Not written</span></td><td>–</td><td>See when you cooked something, and what you changed each time.</td></tr>
+<tr><td><a href="#spec-0014">0014</a></td><td>Recipe history</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>See when you cooked something, and what you changed each time.</td></tr>
 <tr><td>0015</td><td>Cook's notes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Record what you learned, and see it next time you cook.</td></tr>
 <tr><td>0016</td><td>JSON recipe import</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Paste AI-generated JSON and get a working recipe.</td></tr>
 <tr><td>0017</td><td>Sharing</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Share a recipe read-only by private link, and revoke it.</td></tr>
@@ -952,6 +952,59 @@
 <p><strong>Component</strong>: the check view, in the cooking feature, its own folder with styles, test and index,</p>
 <p>and a gallery entry with one ingredient unticked.</p>
 <p>All new strings go through <code>t()</code>, in English and Latvian.</p>
+</details>
+</section>
+
+<section id="spec-0014">
+<h2>0014: Recipe history <span class="status done">Done</span></h2>
+<p class="goal">Every finished cook is recorded, sent when there is a connection and kept until then, and the recipe screen says how often and how recently it was made.</p>
+<p class="summary">8 of 8 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. <em>(<code>pnpm check</code>: shared 9, API 127, mobile 1078 tests.)</em></li>
+<li class="done"><code>POST</code> records a cook with its names, answers 201, and the same body again answers 200</li>
+<li class="done"><code>finishedAt</code> before <code>startedAt</code>, a non-uuid <code>id</code>, and 101 names each return 400, asserted</li>
+<li class="done">Finish queues the record and, online, sends it and empties the queue; offline, the record</li>
+<li class="done">A send that fails leaves the record in the queue, asserted in a test. <em>(history.test, the failed send case; a 404 drops it instead, "drops a cook the server will never accept".)</em></li>
+<li class="done">The recipe screen shows the made line from the detail, counts a queued cook, and shows</li>
+<li class="done">On the simulator: finish a cook, see "Made once · today" on the recipe. <em>(Seen: Finish landed on the recipe with "Made once · today"; the server listed the cook and the detail carried the count and the time.)</em></li>
+<li class="done">The Latvian file lists every new key. <em>(the <code>made</code> group with its zero, one and other forms; the key-parity test passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>Every finished cook is recorded, sent when there is a connection and kept until then, and the</p>
+<p>recipe screen says how often and how recently it was made.</p>
+<h3>Out of scope</h3><li>Abandoned cooks. Stop cooking writes nothing: a row with a null <code>finishedAt</code> is allowed by the</li>
+<p>  table, and nothing here creates one. Decided here so history reads as meals, not attempts.</p>
+<li>Editing or deleting a history row. History is append-only; that is what makes the queue safe.</li>
+<li>Any other queued write. The Offline section of <code>CLAUDE.md</code> allows exactly this one.</li>
+<li>A history screen or list. The recipe screen gets one line; the rest is later.</li>
+<li>Notes. 0015 rides on the same queued record, and adds them.</li>
+<h3>Data model</h3><p><code>cooks</code> as defined in <code>CLAUDE.md</code>. <code>excluded</code> holds the names of the ingredients gone without,</p>
+<p>taken from the recipe copy at the moment of finishing, never their ids.</p>
+<p>On the device, <code>panna.cookQueue</code>: a list of finished cooks not yet acknowledged by the server,</p>
+<p>each <code>{ id, recipeId, startedAt, finishedAt, excluded }</code>. <code>id</code> is made on the device, so a record</p>
+<p>sent twice, because the answer was lost, lands once.</p>
+<h3>API contract</h3><p><strong><code>POST /api/recipes/:recipeId/cooks</code></strong>, owner only. Body `{ id, startedAt, finishedAt,</p>
+<p>excluded }<code>, strict; </code>id<code> a uuid, the times ISO strings with </code>finishedAt<code> not before </code>startedAt`,</p>
+<p><code>excluded</code> up to 100 names of up to 120 characters. Answers <code>201</code> with the cook. The same <code>id</code></p>
+<p>sent again answers <code>200</code> with the existing row and writes nothing, which is what lets the device</p>
+<p>retry blindly. Another user's recipe is <code>404 RECIPE<em>NOT</em>FOUND</code>; a bad body <code>400 VALIDATION_FAILED</code>.</p>
+<p><strong><code>GET /api/recipes/:recipeId/cooks</code></strong>, owner only, the recipe's cooks newest first, at most 50.</p>
+<p><strong><code>GET /api/recipes/:recipeId</code></strong> gains <code>cookCount</code> and <code>lastCookedAt: string | null</code>, so the recipe</p>
+<p>screen needs no second request. Both derive from <code>cooks</code> and update with each finished cook.</p>
+<p>Deleting a recipe still cascades to its cooks.</p>
+<h3>UI</h3><p><strong>Finish</strong> on the guide writes the cook to the device queue, then clears the cook as before.</p>
+<p>The queue is sent whenever the app is online and signed in: at once if it is, and otherwise the</p>
+<p>next time the connection returns or the app comes to the foreground. A sent record is dropped</p>
+<p>from the queue only when the server has answered; a failed send stays and is tried again later,</p>
+<p>never shown to the user as an error. The recipe's detail is refreshed after a successful send.</p>
+<p><strong>Recipe screen.</strong> Under the servings line, "Made 6 times · last on 12 January 2026", or "Made</p>
+<p>once · today", formatted through <code>Intl</code> in the user's language. Nothing when never made. While</p>
+<p>a cook is queued but unsent, the line counts it too, so the person who just finished sees it.</p>
+<p>No new components. All new strings go through <code>t()</code>, in English and Latvian.</p>
 </details>
 </section>
 

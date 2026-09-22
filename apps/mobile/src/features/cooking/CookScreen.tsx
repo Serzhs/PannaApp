@@ -11,6 +11,7 @@ import { PhotoViewer } from './components/PhotoViewer';
 import { StepView } from './components/StepView';
 import { TimerBlock, type TimerState } from './components/TimerBlock';
 import { styles } from './CookScreen.styles';
+import { queueFinishedCook } from './history';
 import {
   advance,
   beginCooking,
@@ -186,6 +187,7 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
     const outcome = advance(record);
     if (outcome.kind === 'finished') {
       void cancelTimerEnd(record.timer?.notificationId ?? null);
+      queueFinishedCook(record);
       clearCook(recipeId);
       landOnRecipe();
       return;

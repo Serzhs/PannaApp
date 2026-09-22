@@ -42,6 +42,14 @@ export function wireQueryToDevice(): () => void {
   };
 }
 
+let shared: QueryClient | null = null;
+
+/** The one client the app runs on, for code that is not a component (the cook queue, 0014). */
+export function queryClient(): QueryClient {
+  shared ??= createQueryClient();
+  return shared;
+}
+
 export function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {

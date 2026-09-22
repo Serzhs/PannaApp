@@ -6,7 +6,7 @@ import { Image, View } from 'react-native';
 
 import { NeedsSection } from './components/NeedsSection';
 import { StepsSection } from './components/StepsSection';
-import { describeMeta } from './format';
+import { describeMade, describeMeta } from './format';
 import { useDeleteRecipe, useRecipe, useUpdateRecipe } from './queries';
 import { styles } from './RecipeDetailScreen.styles';
 
@@ -19,6 +19,7 @@ import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
+import { queuedCooks } from '@/features/cooking/history';
 import { startCook, useCooks } from '@/features/cooking/store';
 import { useIsOnline } from '@/query/useIsOnline';
 
@@ -33,7 +34,7 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   const online = useIsOnline();
   const [statusOffline, setStatusOffline] = useState(false);
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [confirming, setConfirming] = useState(false);
   const cooking = useCooks().some((cook) => cook.recipe.id === recipeId);
 
@@ -88,6 +89,22 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   const data = recipe.data;
   const meta = [describeMeta(data, t)];
   if (data.status === 'draft') meta.push(t('recipes:status.draft'));
+  // A cook that is finished but not yet sent still counts: the person who made it is looking.
+  const pending = queuedCooks(recipeId);
+  const lastPending =
+    pending
+      .map((cook) => cook.finishedAt)
+      .sort()
+      .at(-1) ?? null;
+  const made = describeMade(
+    data.cookCount + pending.length,
+    [data.lastCookedAt, lastPending]
+      .filter((v): v is string => v !== null)
+      .sort()
+      .at(-1) ?? null,
+    t,
+    i18n.language,
+  );
 
   return (
     <Screen scroll withHeader>
@@ -107,6 +124,11 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
           <Text variant="caption" color="textSecondary">
             {meta.join(' · ')}
           </Text>
+          {made === null ? null : (
+            <Text variant="caption" color="textSecondary">
+              {made}
+            </Text>
+          )}
         </Stack>
         {data.description === null ? null : <Text variant="body">{data.description}</Text>}
         <NeedsSection ingredients={data.ingredients} equipment={data.equipment} />

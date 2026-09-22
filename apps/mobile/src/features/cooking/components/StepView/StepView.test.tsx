@@ -22,6 +22,8 @@ const recipe: RecipeDetail = {
   totalTimeMinutes: null,
   createdAt: '2026-09-16T12:00:00.000Z',
   updatedAt: '2026-09-16T12:00:00.000Z',
+  cookCount: 0,
+  lastCookedAt: null,
   ingredients: [{ id: 'i1', position: 0, name: 'beetroot', note: null, amount: 500, unit: 'g' }],
   equipment: [{ id: 'e1', position: 0, name: 'blender', note: null, optional: false }],
   steps: [

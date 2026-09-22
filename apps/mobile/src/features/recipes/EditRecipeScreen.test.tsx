@@ -30,6 +30,8 @@ const mockDetail: RecipeDetail = {
   totalTimeMinutes: null,
   createdAt: '2026-09-16T12:00:00.000Z',
   updatedAt: '2026-09-16T12:00:00.000Z',
+  cookCount: 0,
+  lastCookedAt: null,
   ingredients: [{ id: 'i', position: 0, name: 'Beetroot', note: null, amount: 500, unit: 'g' }],
   equipment: [],
   steps: [

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   ERROR_CODES,
+  type Cook,
   type CreateRecipeBody,
   type Equipment,
   type EquipmentInput,
@@ -9,16 +10,18 @@ import {
   type NestedStep,
   type Recipe,
   type RecipeDetail,
+  type RecordCookBody,
   type Step,
   type StepInput,
   type UpdateRecipeBody,
 } from '@panna/shared';
-import { and, asc, desc, eq, inArray, notInArray } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, max, notInArray } from 'drizzle-orm';
 
 import { AppException } from '../../common/app-exception.js';
 import type { Database } from '../../db/client.js';
 import { DatabaseService } from '../../db/database.service.js';
 import {
+  cooks,
   equipment,
   ingredients,
   recipes,
@@ -74,6 +77,19 @@ function toEquipment(row: EquipmentRow): Equipment {
     name: row.name,
     note: row.note,
     optional: row.optional,
+  };
+}
+
+type CookRow = typeof cooks.$inferSelect;
+
+function toCook(row: CookRow): Cook {
+  return {
+    id: row.id,
+    recipeId: row.recipeId,
+    startedAt: row.startedAt.toISOString(),
+    // Nothing here writes a null finish; a row that has one was not made by this API.
+    finishedAt: (row.finishedAt ?? row.startedAt).toISOString(),
+    excluded: row.excluded,
   };
 }
 
@@ -172,7 +188,7 @@ export class RecipesService {
   }
 
   private async readDetail(db: Database | Tx, row: RecipeRow): Promise<RecipeDetail> {
-    const [ingredientRows, equipmentRows, stepRows, ingredientLinks, equipmentLinks] =
+    const [ingredientRows, equipmentRows, stepRows, ingredientLinks, equipmentLinks, made] =
       await Promise.all([
         db
           .select()
@@ -195,6 +211,10 @@ export class RecipesService {
           .from(stepEquipment)
           .innerJoin(steps, eq(steps.id, stepEquipment.stepId))
           .where(eq(steps.recipeId, row.id)),
+        db
+          .select({ count: count(), last: max(cooks.finishedAt) })
+          .from(cooks)
+          .where(eq(cooks.recipeId, row.id)),
       ]);
     return {
       ...toRecipe(row),
@@ -204,7 +224,49 @@ export class RecipesService {
         ingredientIds: groupLinks(ingredientLinks, ingredientRows),
         equipmentIds: groupLinks(equipmentLinks, equipmentRows),
       }),
+      cookCount: made[0]?.count ?? 0,
+      lastCookedAt: made[0]?.last?.toISOString() ?? null,
     };
+  }
+
+  /**
+   * The device sends a finished cook with an id it made, and may send it again if the
+   * answer was lost (0014). The second arrival answers with the row the first one wrote.
+   */
+  async recordCook(
+    recipeId: string,
+    body: RecordCookBody,
+  ): Promise<{ cook: Cook; created: boolean }> {
+    const [existing] = await this.database.db.select().from(cooks).where(eq(cooks.id, body.id));
+    if (existing !== undefined) {
+      // An id that belongs to another recipe is a 404 here, not a leak of the other row.
+      if (existing.recipeId !== recipeId) {
+        throw new AppException(404, ERROR_CODES.RECIPE_NOT_FOUND, 'No such recipe');
+      }
+      return { cook: toCook(existing), created: false };
+    }
+    const [row] = await this.database.db
+      .insert(cooks)
+      .values({
+        id: body.id,
+        recipeId,
+        startedAt: new Date(body.startedAt),
+        finishedAt: new Date(body.finishedAt),
+        excluded: [...body.excluded],
+      })
+      .returning();
+    if (row === undefined) throw new Error('insert returned nothing');
+    return { cook: toCook(row), created: true };
+  }
+
+  async listCooks(recipeId: string): Promise<Cook[]> {
+    const rows = await this.database.db
+      .select()
+      .from(cooks)
+      .where(eq(cooks.recipeId, recipeId))
+      .orderBy(desc(cooks.startedAt))
+      .limit(50);
+    return rows.map(toCook);
   }
 
   /** The recipe and whatever lists came with it, in one transaction (0025): a bad line creates nothing. */

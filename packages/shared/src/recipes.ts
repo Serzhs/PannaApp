@@ -142,7 +142,33 @@ export const recipeDetailSchema = recipeSchema.extend({
   ingredients: z.array(ingredientSchema),
   equipment: z.array(equipmentSchema),
   steps: z.array(stepSchema),
+  /** 0014. Derived from the recipe's cooks, so the screen needs no second request. */
+  cookCount: z.number().int().min(0),
+  lastCookedAt: z.string().datetime().nullable(),
 });
+
+export const MAX_EXCLUDED = 100;
+
+/** 0014. A finished cook, as the device records it: names, never ids, so history stays what it was. */
+export const cookSchema = z.object({
+  id: z.string().uuid(),
+  recipeId: z.string().uuid(),
+  startedAt: z.string().datetime(),
+  finishedAt: z.string().datetime(),
+  excluded: z.array(z.string().min(1).max(120)).max(MAX_EXCLUDED),
+});
+
+export const recordCookBodySchema = cookSchema
+  .omit({ recipeId: true })
+  .strict()
+  .refine((body) => Date.parse(body.finishedAt) >= Date.parse(body.startedAt), {
+    path: ['finishedAt'],
+    message: 'A cook cannot finish before it starts',
+  });
+
+export const cookListSchema = z.array(cookSchema);
+export type Cook = z.infer<typeof cookSchema>;
+export type RecordCookBody = z.infer<typeof recordCookBodySchema>;
 
 /** Strict: `status` is not accepted here, because every new recipe starts as a draft. */
 /**

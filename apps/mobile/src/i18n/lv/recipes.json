@@ -234,5 +234,12 @@
     "without": "Bez: {{list}}",
     "usesWithout": "{{name}} (iztiec bez)",
     "checking": "Pārbaudi, kas tev ir"
+  },
+  "made": {
+    "count_zero": "Gatavots {{count}} reižu",
+    "count_one": "Gatavots {{count}} reizi",
+    "count_other": "Gatavots {{count}} reizes",
+    "today": "šodien",
+    "lastOn": "pēdējo reizi {{date}}"
   }
 }

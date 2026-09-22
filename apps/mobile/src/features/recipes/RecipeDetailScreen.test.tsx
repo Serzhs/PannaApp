@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { RecipeDetailScreen } from './RecipeDetailScreen';
 
+import * as history from '@/features/cooking/history';
 import { clearCook } from '@/features/cooking/store';
 import * as unitSystem from '@/features/units/useUnitSystem';
 import * as online from '@/query/useIsOnline';
@@ -35,6 +36,8 @@ const recipe = (status: RecipeDetail['status']): RecipeDetail => ({
   totalTimeMinutes: null,
   createdAt: '2026-09-16T12:00:00.000Z',
   updatedAt: '2026-09-16T12:00:00.000Z',
+  cookCount: 0,
+  lastCookedAt: null,
   ingredients: [],
   equipment: [],
   steps: [],
@@ -107,5 +110,33 @@ describe('RecipeDetailScreen status control', () => {
     mockDetail = { ...recipe('ready'), steps: [] };
     await render(<RecipeDetailScreen recipeId={mockDetail.id} />);
     expect(screen.queryByRole('button', { name: /Cook|Continue cooking/ })).toBeNull();
+  });
+
+  /** 0014: the made line from the detail, a queued cook counted, nothing when never made. */
+  it('says how often and how recently it was made, counting a cook not yet sent', async () => {
+    const queued = jest.spyOn(history, 'queuedCooks').mockReturnValue([]);
+    mockDetail = { ...recipe('ready'), cookCount: 6, lastCookedAt: '2026-01-12T18:00:00.000Z' };
+    await render(<RecipeDetailScreen recipeId={mockDetail.id} />);
+    expect(screen.getByText(/^Made 6 times · last on .*2026$/)).toBeTruthy();
+    await screen.unmount();
+
+    queued.mockReturnValue([
+      {
+        id: 'q',
+        recipeId: mockDetail.id,
+        startedAt: new Date().toISOString(),
+        finishedAt: new Date().toISOString(),
+        excluded: [],
+      },
+    ]);
+    mockDetail = recipe('ready');
+    await render(<RecipeDetailScreen recipeId={mockDetail.id} />);
+    expect(screen.getByText('Made once · today')).toBeTruthy();
+    await screen.unmount();
+
+    queued.mockReturnValue([]);
+    await render(<RecipeDetailScreen recipeId={mockDetail.id} />);
+    expect(screen.queryByText(/^Made /)).toBeNull();
+    queued.mockRestore();
   });
 });
