@@ -1,7 +1,20 @@
-import type { CreateRecipeBody, RecipeDetail, UpdateRecipeBody } from '@panna/shared';
+import type {
+  AddNoteBody,
+  CookNote,
+  CreateRecipeBody,
+  RecipeDetail,
+  UpdateRecipeBody,
+} from '@panna/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { createRecipe, deleteRecipe, getRecipe, listRecipes, updateRecipe } from './recipes.api';
+import {
+  addNote,
+  createRecipe,
+  deleteRecipe,
+  getRecipe,
+  listRecipes,
+  updateRecipe,
+} from './recipes.api';
 
 import { useAuth } from '@/features/auth/AuthProvider';
 
@@ -54,6 +67,19 @@ export function useUpdateRecipe(recipeId: string) {
     onSuccess: async (recipe: RecipeDetail) => {
       client.setQueryData(recipeKeys.detail(recipe.id), recipe);
       await client.invalidateQueries({ queryKey: recipeKeys.list() });
+    },
+  });
+}
+
+/** A note written later needs a connection (0015); the detail is refreshed so it shows at the top. */
+export function useAddNote(recipeId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: AddNoteBody) => addNote(recipeId, body),
+    onSuccess: (note: CookNote) => {
+      client.setQueryData<RecipeDetail>(recipeKeys.detail(recipeId), (current) =>
+        current === undefined ? current : { ...current, notes: [note, ...current.notes] },
+      );
     },
   });
 }

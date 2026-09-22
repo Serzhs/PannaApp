@@ -241,5 +241,20 @@
     "count_other": "Gatavots {{count}} reizes",
     "today": "šodien",
     "lastOn": "pēdējo reizi {{date}}"
+  },
+  "notes": {
+    "title": "Tavas piezīmes",
+    "empty": "Vēl nekā. Tas, ko iemācies gatavojot, nonāk šeit.",
+    "onStep": "{{number}}. solī",
+    "onThisStep": "Tavas piezīmes par šo soli",
+    "add": "Pievienot piezīmi",
+    "label": "Piezīme",
+    "helper": "Nākamajai reizei: ko mainīt, kas izdevās.",
+    "save": "Saglabāt",
+    "cancel": "Atcelt",
+    "failed": "Neizdevās saglabāt piezīmi. Mēģini vēlreiz.",
+    "finishTitle": "Kaut kas nākamajai reizei?",
+    "saveAndFinish": "Saglabāt un pabeigt",
+    "finishWithout": "Pabeigt bez piezīmes"
   }
 }

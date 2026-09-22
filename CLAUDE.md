@@ -834,7 +834,7 @@ it. Drop both patches and that setting together once Expo ships a release that b
   bundler behind Vitest cannot read, and the only community plugin bridging the two was abandoned
   in 2024. `jest-expo` applies the same transform Metro does, is what React Native Testing Library
   supports, and needs no configuration we maintain ourselves.
-- A seed script populates a known set of users and recipes for manual testing, and is never used by automated tests, which build the exact state they need.
+- A seed script populates a known set of users and recipes for manual testing, and is never used by automated tests, which build the exact state they need. Jānis gets a full beetroot soup, with photos, links, nested steps, two past cooks and notes, and a draft plov; Anna gets a bare rye bread. Running it again replaces only a bare recipe of the same title, so an older seed's stub gives way to the full one.
 - Mobile: **Jest via `jest-expo`**, with React Native Testing Library, for hooks and non-trivial components. No snapshot tests.
 - Do not write tests that only assert a mock was called.
 

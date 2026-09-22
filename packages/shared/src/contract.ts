@@ -17,6 +17,8 @@ import {
   cookSchema,
   cookListSchema,
   recordCookBodySchema,
+  addNoteBodySchema,
+  cookNoteSchema,
   uploadedImageSchema,
 } from './recipes.js';
 
@@ -132,6 +134,12 @@ export const api = {
     path: '/api/recipes/:recipeId/cooks',
     response: cookSchema,
     body: recordCookBodySchema,
+  }),
+  addNote: endpoint({
+    method: 'POST',
+    path: '/api/recipes/:recipeId/notes',
+    response: cookNoteSchema,
+    body: addNoteBodySchema,
   }),
   listCooks: endpoint({
     method: 'GET',

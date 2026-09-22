@@ -18,6 +18,8 @@ export interface QueuedCook {
   readonly startedAt: string;
   readonly finishedAt: string;
   readonly excluded: readonly string[];
+  /** Written at the finish (0015); rides with the cook so both land or both wait. */
+  readonly note?: string;
 }
 
 function readQueue(): QueuedCook[] {
@@ -45,7 +47,11 @@ export function queuedCooks(recipeId?: string): QueuedCook[] {
  * least likely, and the row cannot be recreated by asking the user to try again. The
  * id is made here so a send whose answer was lost can be repeated without a second row.
  */
-export function queueFinishedCook(record: CookRecord, now: number = Date.now()): QueuedCook {
+export function queueFinishedCook(
+  record: CookRecord,
+  note: string | null = null,
+  now: number = Date.now(),
+): QueuedCook {
   const names = record.recipe.ingredients
     .filter((line) => record.excluded.includes(line.id))
     .map((line) => line.name);
@@ -55,6 +61,7 @@ export function queueFinishedCook(record: CookRecord, now: number = Date.now()):
     startedAt: record.startedAt,
     finishedAt: new Date(now).toISOString(),
     excluded: names,
+    ...(note === null ? {} : { note }),
   };
   writeQueue([...readQueue(), cook]);
   void flushCookQueue();
@@ -74,6 +81,7 @@ async function drain(): Promise<void> {
           startedAt: cook.startedAt,
           finishedAt: cook.finishedAt,
           excluded: [...cook.excluded],
+          ...(cook.note === undefined ? {} : { note: cook.note }),
         },
       });
     } catch (error: unknown) {

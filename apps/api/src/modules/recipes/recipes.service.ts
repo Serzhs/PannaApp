@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import {
   ERROR_CODES,
+  type AddNoteBody,
   type Cook,
+  type CookNote,
   type CreateRecipeBody,
   type Equipment,
   type EquipmentInput,
@@ -21,6 +23,7 @@ import { AppException } from '../../common/app-exception.js';
 import type { Database } from '../../db/client.js';
 import { DatabaseService } from '../../db/database.service.js';
 import {
+  cookNotes,
   cooks,
   equipment,
   ingredients,
@@ -81,6 +84,17 @@ function toEquipment(row: EquipmentRow): Equipment {
 }
 
 type CookRow = typeof cooks.$inferSelect;
+type NoteRow = typeof cookNotes.$inferSelect;
+
+function toNote(row: NoteRow): CookNote {
+  return {
+    id: row.id,
+    stepId: row.stepId,
+    cookId: row.cookId,
+    body: row.body,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
 
 function toCook(row: CookRow): Cook {
   return {
@@ -188,34 +202,46 @@ export class RecipesService {
   }
 
   private async readDetail(db: Database | Tx, row: RecipeRow): Promise<RecipeDetail> {
-    const [ingredientRows, equipmentRows, stepRows, ingredientLinks, equipmentLinks, made] =
-      await Promise.all([
-        db
-          .select()
-          .from(ingredients)
-          .where(eq(ingredients.recipeId, row.id))
-          .orderBy(asc(ingredients.position)),
-        db
-          .select()
-          .from(equipment)
-          .where(eq(equipment.recipeId, row.id))
-          .orderBy(asc(equipment.position)),
-        db.select().from(steps).where(eq(steps.recipeId, row.id)),
-        db
-          .select({ stepId: stepIngredients.stepId, targetId: stepIngredients.ingredientId })
-          .from(stepIngredients)
-          .innerJoin(steps, eq(steps.id, stepIngredients.stepId))
-          .where(eq(steps.recipeId, row.id)),
-        db
-          .select({ stepId: stepEquipment.stepId, targetId: stepEquipment.equipmentId })
-          .from(stepEquipment)
-          .innerJoin(steps, eq(steps.id, stepEquipment.stepId))
-          .where(eq(steps.recipeId, row.id)),
-        db
-          .select({ count: count(), last: max(cooks.finishedAt) })
-          .from(cooks)
-          .where(eq(cooks.recipeId, row.id)),
-      ]);
+    const [
+      ingredientRows,
+      equipmentRows,
+      stepRows,
+      ingredientLinks,
+      equipmentLinks,
+      made,
+      noteRows,
+    ] = await Promise.all([
+      db
+        .select()
+        .from(ingredients)
+        .where(eq(ingredients.recipeId, row.id))
+        .orderBy(asc(ingredients.position)),
+      db
+        .select()
+        .from(equipment)
+        .where(eq(equipment.recipeId, row.id))
+        .orderBy(asc(equipment.position)),
+      db.select().from(steps).where(eq(steps.recipeId, row.id)),
+      db
+        .select({ stepId: stepIngredients.stepId, targetId: stepIngredients.ingredientId })
+        .from(stepIngredients)
+        .innerJoin(steps, eq(steps.id, stepIngredients.stepId))
+        .where(eq(steps.recipeId, row.id)),
+      db
+        .select({ stepId: stepEquipment.stepId, targetId: stepEquipment.equipmentId })
+        .from(stepEquipment)
+        .innerJoin(steps, eq(steps.id, stepEquipment.stepId))
+        .where(eq(steps.recipeId, row.id)),
+      db
+        .select({ count: count(), last: max(cooks.finishedAt) })
+        .from(cooks)
+        .where(eq(cooks.recipeId, row.id)),
+      db
+        .select()
+        .from(cookNotes)
+        .where(eq(cookNotes.recipeId, row.id))
+        .orderBy(desc(cookNotes.createdAt)),
+    ]);
     return {
       ...toRecipe(row),
       ingredients: ingredientRows.map(toIngredient),
@@ -226,7 +252,29 @@ export class RecipesService {
       }),
       cookCount: made[0]?.count ?? 0,
       lastCookedAt: made[0]?.last?.toISOString() ?? null,
+      notes: noteRows.map(toNote),
     };
+  }
+
+  /** A note from the recipe screen or the guide (0015). The step, if any, must be this recipe's. */
+  async addNote(recipeId: string, body: AddNoteBody): Promise<CookNote> {
+    if (body.stepId !== undefined) {
+      const [step] = await this.database.db
+        .select({ id: steps.id })
+        .from(steps)
+        .where(and(eq(steps.id, body.stepId), eq(steps.recipeId, recipeId)));
+      if (step === undefined) {
+        throw new AppException(400, ERROR_CODES.VALIDATION_FAILED, 'Not a step of this recipe', {
+          stepId: 'UNKNOWN_ID',
+        });
+      }
+    }
+    const [row] = await this.database.db
+      .insert(cookNotes)
+      .values({ recipeId, stepId: body.stepId ?? null, cookId: null, body: body.body })
+      .returning();
+    if (row === undefined) throw new Error('insert returned nothing');
+    return toNote(row);
   }
 
   /**
@@ -245,17 +293,26 @@ export class RecipesService {
       }
       return { cook: toCook(existing), created: false };
     }
-    const [row] = await this.database.db
-      .insert(cooks)
-      .values({
-        id: body.id,
-        recipeId,
-        startedAt: new Date(body.startedAt),
-        finishedAt: new Date(body.finishedAt),
-        excluded: [...body.excluded],
-      })
-      .returning();
-    if (row === undefined) throw new Error('insert returned nothing');
+    // The cook and its finish note land together or not at all, per the roadmap note for 0015.
+    const row = await this.database.db.transaction(async (tx) => {
+      const [inserted] = await tx
+        .insert(cooks)
+        .values({
+          id: body.id,
+          recipeId,
+          startedAt: new Date(body.startedAt),
+          finishedAt: new Date(body.finishedAt),
+          excluded: [...body.excluded],
+        })
+        .returning();
+      if (inserted === undefined) throw new Error('insert returned nothing');
+      if (body.note !== undefined && body.note !== '') {
+        await tx
+          .insert(cookNotes)
+          .values({ recipeId, stepId: null, cookId: inserted.id, body: body.note });
+      }
+      return inserted;
+    });
     return { cook: toCook(row), created: true };
   }
 

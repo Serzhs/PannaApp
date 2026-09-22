@@ -29,6 +29,8 @@ import { IngredientLine } from '@/features/recipes/components/IngredientLine';
 import { LinkChips } from '@/features/recipes/components/LinkChips';
 import { NeedRow } from '@/features/recipes/components/NeedRow';
 import { NeedsSection } from '@/features/recipes/components/NeedsSection';
+import { NoteComposer } from '@/features/recipes/components/NoteComposer';
+import { NoteList } from '@/features/recipes/components/NoteList';
 import { PhotoField } from '@/features/recipes/components/PhotoField';
 import { ServingsPicker } from '@/features/recipes/components/ServingsPicker';
 import { StepLine } from '@/features/recipes/components/StepLine';
@@ -494,6 +496,7 @@ function Cooking(): React.JSX.Element {
               updatedAt: '2026-09-16T12:00:00.000Z',
               cookCount: 0,
               lastCookedAt: null,
+              notes: [],
               ingredients: [
                 { id: 'beet', position: 0, name: 'beetroot', note: null, amount: 500, unit: 'g' },
                 { id: 'dill', position: 1, name: 'dill', note: null, amount: null, unit: null },
@@ -546,6 +549,7 @@ function Cooking(): React.JSX.Element {
               updatedAt: '2026-09-16T12:00:00.000Z',
               cookCount: 0,
               lastCookedAt: null,
+              notes: [],
               ingredients: [],
               equipment: [],
               steps: [
@@ -686,6 +690,30 @@ function NeedsLines(): React.JSX.Element {
             onChange={() => undefined}
           />
         </Stack>
+      </Section>
+      <Section title="NoteList">
+        <NoteList
+          notes={[
+            {
+              id: 'g1',
+              stepId: 's1',
+              cookId: null,
+              body: 'Small ones take 35 min',
+              createdAt: '2026-09-14T16:00:00.000Z',
+            },
+            {
+              id: 'g2',
+              stepId: null,
+              cookId: 'c1',
+              body: 'Half a lemon at the end.',
+              createdAt: '2026-08-30T17:00:00.000Z',
+            },
+          ]}
+          stepLabel={() => 'On step 1'}
+        />
+      </Section>
+      <Section title="NoteComposer">
+        <NoteComposer onSave={() => Promise.resolve()} saving={false} />
       </Section>
       <Section title="NeedRow">
         <Stack gap="space3">

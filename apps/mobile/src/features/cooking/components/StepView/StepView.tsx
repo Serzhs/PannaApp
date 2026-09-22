@@ -1,4 +1,4 @@
-import type { RecipeDetail } from '@panna/shared';
+import type { CookNote, RecipeDetail } from '@panna/shared';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
@@ -6,6 +6,8 @@ import { styles } from './StepView.styles';
 
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
+import { NoteComposer } from '@/features/recipes/components/NoteComposer';
+import { NoteList } from '@/features/recipes/components/NoteList';
 import { describeIngredient, formatDuration } from '@/features/recipes/format';
 import { useUnitSystem } from '@/features/units/useUnitSystem';
 
@@ -20,6 +22,10 @@ export interface StepViewProps {
   readonly onDone: () => void;
   readonly onToggleMeanwhile: (stepId: string) => void;
   readonly onShowPhoto: () => void;
+  /** The cook's own notes on this step, and how to add one (0015). */
+  readonly notes?: readonly CookNote[];
+  readonly onAddNote?: (body: string) => Promise<void>;
+  readonly savingNote?: boolean;
 }
 
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
@@ -40,6 +46,9 @@ export function StepView({
   onDone,
   onToggleMeanwhile,
   onShowPhoto,
+  notes = [],
+  onAddNote,
+  savingNote = false,
 }: StepViewProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
   const system = useUnitSystem();
@@ -85,6 +94,16 @@ export function StepView({
           </Text>
         )}
       </Pressable>
+
+      {onAddNote === undefined && notes.length === 0 ? null : (
+        <Stack gap="space2">
+          <Text variant="label" color="textSecondary">
+            {t('recipes:notes.onThisStep')}
+          </Text>
+          <NoteList notes={notes} />
+          {onAddNote === undefined ? null : <NoteComposer onSave={onAddNote} saving={savingNote} />}
+        </Stack>
+      )}
 
       {step.imageKey === null ? null : (
         <Pressable

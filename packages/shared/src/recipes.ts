@@ -11,6 +11,25 @@ const description = z.string().trim().max(2000);
 const servings = z.number().int().min(1).max(100);
 const totalTimeMinutes = z.number().int().min(1).max(1440);
 
+export const MAX_NOTE_LENGTH = 2000;
+const noteBody = z.string().trim().min(1).max(MAX_NOTE_LENGTH);
+
+/** 0015. What the cook learned, dated, never overwritten. */
+export const cookNoteSchema = z.object({
+  id: z.string().uuid(),
+  stepId: z.string().uuid().nullable(),
+  cookId: z.string().uuid().nullable(),
+  body: noteBody,
+  createdAt: z.string().datetime(),
+});
+
+export const addNoteBodySchema = z
+  .object({ body: noteBody, stepId: z.string().uuid().optional() })
+  .strict();
+
+export type CookNote = z.infer<typeof cookNoteSchema>;
+export type AddNoteBody = z.infer<typeof addNoteBodySchema>;
+
 /** 0011. Thirty-two hex characters name a file; the bytes behind a key never change. */
 export const imageKeySchema = z.string().regex(/^[a-f0-9]{32}$/);
 
@@ -145,6 +164,8 @@ export const recipeDetailSchema = recipeSchema.extend({
   /** 0014. Derived from the recipe's cooks, so the screen needs no second request. */
   cookCount: z.number().int().min(0),
   lastCookedAt: z.string().datetime().nullable(),
+  /** 0015. Newest first. The guide's recipe copy carries them, so a step shows them offline. */
+  notes: z.array(cookNoteSchema),
 });
 
 export const MAX_EXCLUDED = 100;
@@ -160,6 +181,8 @@ export const cookSchema = z.object({
 
 export const recordCookBodySchema = cookSchema
   .omit({ recipeId: true })
+  // 0015: a note written at the finish rides with the cook, so both land or both wait.
+  .extend({ note: z.string().trim().max(MAX_NOTE_LENGTH).optional() })
   .strict()
   .refine((body) => Date.parse(body.finishedAt) >= Date.parse(body.startedAt), {
     path: ['finishedAt'],

@@ -20,7 +20,7 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0012](0012-cooking-mode.md)              | Cooking mode                         | Done          | Cook a recipe, seeing what else you could do during each wait.                                      |
 | [0013](0013-cooking-without.md)           | Cooking without an ingredient        | Done          | Check off what you have, and cook it without the carrots.                                           |
 | [0014](0014-history.md)                   | Recipe history                       | Done          | See when you cooked something, and what you changed each time.                                      |
-| [0015](0015-cooks-notes.md)               | Cook's notes                         | In progress   | Record what you learned, and see it next time you cook.                                             |
+| [0015](0015-cooks-notes.md)               | Cook's notes                         | Done          | Record what you learned, and see it next time you cook.                                             |
 | 0016                                      | JSON recipe import                   | Not written   | Paste AI-generated JSON and get a working recipe.                                                   |
 | 0017                                      | Sharing                              | Not written   | Share a recipe read-only by private link, and revoke it.                                            |
 | 0018                                      | Avatars and the tab bar              | Not written   | An avatar, an editable name, and three tabs to reach things by.                                     |

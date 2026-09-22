@@ -1,6 +1,6 @@
 # 0015: Cook's notes
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0014
 
 ## Context
@@ -70,19 +70,19 @@ All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] Recording a cook with a note writes the note with the cook's id; the same record again
-      writes no second note; the detail lists notes newest first, asserted end to end.
-- [ ] `POST notes` writes a recipe note and a step note; a step of another recipe returns 400
-      naming `stepId`; another user's request is 404; a blank body is 400, asserted end to end.
-- [ ] Finish with text queues the cook with the note; without text, without one, asserted in a
-      test on the cook screen.
-- [ ] The recipe screen lists notes with dates and step references and adds one on Save; offline
-      it shows the message and keeps the text, asserted in a test.
-- [ ] The guide shows a step's notes under the author's note and adds one, asserted in a test.
-- [ ] On the simulator: the seeded soup shows two notes; add one from the recipe screen; cook to
-      the end and finish with a note; see three notes.
-- [ ] The Latvian file lists every new key.
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 129, mobile 1122 tests.)_
+- [x] Recording a cook with a note writes the note with the cook's id; the same record again
+      writes no second note; the detail lists notes newest first, asserted end to end. _(e2e "writes the finish note with the cook, and not again on a resend".)_
+- [x] `POST notes` writes a recipe note and a step note; a step of another recipe returns 400
+      naming `stepId`; another user's request is 404; a blank body is 400, asserted end to end. _(e2e "adds a note to the recipe or to one of its steps, and lists them newest first".)_
+- [x] Finish with text queues the cook with the note; without text, without one, asserted in a
+      test on the cook screen. _(CookScreen test "moves on with Done, finishes on the last step..."; FinishSheet test for both bars; history.test carries the note in the body.)_
+- [x] The recipe screen lists notes with dates and step references and adds one on Save; offline
+      it shows the message and keeps the text, asserted in a test. _(RecipeDetailScreen test "lists the notes and adds one"; NoteComposer tests for offline and a failed save.)_
+- [x] The guide shows a step's notes under the author's note and adds one, asserted in a test. _(StepView test "shows the notes on this step and adds one".)_
+- [x] On the simulator: the seeded soup shows two notes; add one from the recipe screen; cook to
+      the end and finish with a note; see three notes. _(Seen: two seeded notes, one dated and on step 1; a note added from the recipe screen appeared at the top; step 1 in the guide showed its note under the author's; Finish asked for a note and the recipe then listed four, the finish note on the server with the cook's id.)_
+- [x] The Latvian file lists every new key. _(the `notes` group; the key-parity test passes.)_
 
 ## Open questions
 

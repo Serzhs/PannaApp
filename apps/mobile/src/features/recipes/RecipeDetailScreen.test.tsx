@@ -1,5 +1,5 @@
 import type { RecipeDetail } from '@panna/shared';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 import { RecipeDetailScreen } from './RecipeDetailScreen';
 
@@ -9,6 +9,7 @@ import * as unitSystem from '@/features/units/useUnitSystem';
 import * as online from '@/query/useIsOnline';
 
 const mockMutate = jest.fn();
+const mockAddNote = jest.fn();
 let mockDetail: RecipeDetail;
 
 const mockPush = jest.fn();
@@ -24,6 +25,7 @@ jest.mock('./queries', () => ({
   useRecipe: () => ({ data: mockDetail, isPending: false, isError: false, refetch: jest.fn() }),
   useUpdateRecipe: () => ({ mutate: mockMutate, isPending: false, isError: false, error: null }),
   useDeleteRecipe: () => ({ mockMutate: jest.fn(), isPending: false, isError: false }),
+  useAddNote: () => ({ mutateAsync: mockAddNote, isPending: false }),
 }));
 
 const recipe = (status: RecipeDetail['status']): RecipeDetail => ({
@@ -38,6 +40,7 @@ const recipe = (status: RecipeDetail['status']): RecipeDetail => ({
   updatedAt: '2026-09-16T12:00:00.000Z',
   cookCount: 0,
   lastCookedAt: null,
+  notes: [],
   ingredients: [],
   equipment: [],
   steps: [],
@@ -138,5 +141,44 @@ describe('RecipeDetailScreen status control', () => {
     await render(<RecipeDetailScreen recipeId={mockDetail.id} />);
     expect(screen.queryByText(/^Made /)).toBeNull();
     queued.mockRestore();
+  });
+
+  /** 0015: notes with dates and step references, and one added on Save. */
+  it('lists the notes and adds one', async () => {
+    mockAddNote.mockResolvedValue(undefined);
+    mockDetail = {
+      ...recipe('ready'),
+      steps: [
+        {
+          id: 's1',
+          position: 0,
+          body: 'Boil',
+          note: null,
+          durationSeconds: null,
+          ingredientIds: [],
+          equipmentIds: [],
+          imageKey: null,
+          children: [],
+        },
+      ],
+      notes: [
+        {
+          id: 'n1',
+          stepId: 's1',
+          cookId: null,
+          body: 'Small ones take 35 min',
+          createdAt: '2026-09-14T16:00:00.000Z',
+        },
+      ],
+    };
+    await render(<RecipeDetailScreen recipeId={mockDetail.id} />);
+    expect(screen.getByRole('header', { name: 'Your notes' })).toBeTruthy();
+    expect(screen.getByText(/On step 1/)).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Add a note' }));
+    await fireEvent.changeText(screen.getByLabelText('Note'), 'Lemon at the end');
+    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(mockAddNote).toHaveBeenCalledWith({ body: 'Lemon at the end' });
+    });
   });
 });

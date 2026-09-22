@@ -5,9 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { Image, View } from 'react-native';
 
 import { NeedsSection } from './components/NeedsSection';
+import { NoteComposer } from './components/NoteComposer';
+import { NoteList } from './components/NoteList';
 import { StepsSection } from './components/StepsSection';
 import { describeMade, describeMeta } from './format';
-import { useDeleteRecipe, useRecipe, useUpdateRecipe } from './queries';
+import { useAddNote, useDeleteRecipe, useRecipe, useUpdateRecipe } from './queries';
 import { styles } from './RecipeDetailScreen.styles';
 
 import { imageUrl } from '@/api/images';
@@ -31,6 +33,7 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   const recipe = useRecipe(recipeId);
   const remove = useDeleteRecipe(recipeId);
   const status = useUpdateRecipe(recipeId);
+  const addNote = useAddNote(recipeId);
   const online = useIsOnline();
   const [statusOffline, setStatusOffline] = useState(false);
   const router = useRouter();
@@ -137,6 +140,30 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
           ingredients={data.ingredients}
           equipment={data.equipment}
         />
+        <Stack gap="space3">
+          <Text variant="heading" accessibilityRole="header">
+            {t('recipes:notes.title')}
+          </Text>
+          {data.notes.length === 0 ? (
+            <Text variant="body" color="textSecondary">
+              {t('recipes:notes.empty')}
+            </Text>
+          ) : (
+            <NoteList
+              notes={data.notes}
+              stepLabel={(stepId) => {
+                const index = data.steps.findIndex((step) => step.id === stepId);
+                return index < 0 ? null : t('recipes:notes.onStep', { number: index + 1 });
+              }}
+            />
+          )}
+          <NoteComposer
+            saving={addNote.isPending}
+            onSave={async (body) => {
+              await addNote.mutateAsync({ body });
+            }}
+          />
+        </Stack>
         <View style={styles.actions}>
           <Stack gap="space3">
             {data.steps.length === 0 ? null : (

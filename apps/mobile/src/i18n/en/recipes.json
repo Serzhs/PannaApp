@@ -236,5 +236,20 @@
     "count_other": "Made {{count}} times",
     "today": "today",
     "lastOn": "last on {{date}}"
+  },
+  "notes": {
+    "title": "Your notes",
+    "empty": "Nothing yet. What you learn while cooking goes here.",
+    "onStep": "On step {{number}}",
+    "onThisStep": "Your notes on this step",
+    "add": "Add a note",
+    "label": "Note",
+    "helper": "For next time: what to change, what worked.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "failed": "Could not save the note. Try again.",
+    "finishTitle": "Anything for next time?",
+    "saveAndFinish": "Save and finish",
+    "finishWithout": "Finish without a note"
   }
 }

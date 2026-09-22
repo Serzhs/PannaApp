@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import { Alert } from 'react-native';
 
 import { CookScreen } from './CookScreen';
+import { queuedCooks } from './history';
 import {
   beginCooking,
   clearCook,
@@ -26,6 +27,11 @@ jest.mock('expo-router', () => ({
     canGoBack: () => true,
   }),
 }));
+const mockAddNote = jest.fn();
+jest.mock('@/features/recipes/queries', () => ({
+  recipeKeys: { detail: (id: string) => ['recipes', 'detail', id] },
+  useAddNote: () => ({ mutateAsync: mockAddNote, isPending: false }),
+}));
 
 const base = {
   note: null,
@@ -46,6 +52,7 @@ const recipe: RecipeDetail = {
   updatedAt: '2026-09-16T12:00:00.000Z',
   cookCount: 0,
   lastCookedAt: null,
+  notes: [],
   ingredients: [{ id: 'dill', position: 0, name: 'dill', note: null, amount: null, unit: null }],
   equipment: [],
   steps: [
@@ -133,6 +140,10 @@ describe('CookScreen', () => {
     expect(screen.getByText('Step 2 of 3')).toBeTruthy();
     await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Finish' }));
+    // 0015: Finish asks for a note first; with one, it rides in the queued cook.
+    await fireEvent.changeText(screen.getByLabelText('Note'), 'Less salt');
+    await fireEvent.press(screen.getByRole('button', { name: 'Save and finish' }));
+    expect(queuedCooks(recipe.id).at(-1)?.note).toBe('Less salt');
     expect(loadCook(recipe.id)).toBeNull();
     expect(mockReplace).toHaveBeenCalledWith({
       pathname: '/recipes/[id]',

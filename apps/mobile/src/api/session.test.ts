@@ -19,6 +19,7 @@ const RECIPE = {
   updatedAt: '2026-09-16T12:00:00.000Z',
   cookCount: 0,
   lastCookedAt: null,
+  notes: [],
   ingredients: [],
   equipment: [],
   steps: [],

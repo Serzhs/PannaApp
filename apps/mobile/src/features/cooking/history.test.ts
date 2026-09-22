@@ -34,6 +34,7 @@ const recipe: RecipeDetail = {
   steps: [{ id: 'a', position: 0, body: 'Boil', ...base, children: [] }],
   cookCount: 0,
   lastCookedAt: null,
+  notes: [],
 };
 const record: CookRecord = {
   recipe,
@@ -60,7 +61,7 @@ describe('the cook queue', () => {
   /** The criterion: finishing queues names, not ids; online it is sent at once and the queue empties. */
   it('queues a finished cook with the names it went without and sends it when online', async () => {
     call.mockResolvedValue(undefined);
-    const cook = queueFinishedCook(record, Date.parse('2026-09-22T10:45:00.000Z'));
+    const cook = queueFinishedCook(record, 'Less salt', Date.parse('2026-09-22T10:45:00.000Z'));
     expect(cook.excluded).toEqual(['dill']);
     await flushCookQueue();
     expect(call).toHaveBeenCalledWith('recordCook', {
@@ -70,6 +71,7 @@ describe('the cook queue', () => {
         startedAt: '2026-09-22T10:00:00.000Z',
         finishedAt: '2026-09-22T10:45:00.000Z',
         excluded: ['dill'],
+        note: 'Less salt',
       },
     });
     expect(queuedCooks()).toEqual([]);

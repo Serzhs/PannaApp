@@ -7,6 +7,7 @@ import { Pressable, View } from 'react-native';
 import Animated, { SlideInRight, useReducedMotion } from 'react-native-reanimated';
 
 import { CheckView } from './components/CheckView';
+import { FinishSheet } from './components/FinishSheet';
 import { PhotoViewer } from './components/PhotoViewer';
 import { StepView } from './components/StepView';
 import { TimerBlock, type TimerState } from './components/TimerBlock';
@@ -36,6 +37,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Screen } from '@/components/Screen';
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
+import { useAddNote } from '@/features/recipes/queries';
 import { theme } from '@/styles/theme';
 
 export interface CookScreenProps {
@@ -59,6 +61,8 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
   const [replacing, setReplacing] = useState(false);
   const [timeUp, setTimeUp] = useState<string | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
+  const [finishing, setFinishing] = useState(false);
+  const addNote = useAddNote(recipeId);
 
   // A kitchen has no hand free to keep tapping the screen alive.
   useEffect(() => {
@@ -183,13 +187,19 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
     saveCook(setTimer(record, null));
   };
 
+  const finish = (note: string | null) => {
+    setFinishing(false);
+    void cancelTimerEnd(record.timer?.notificationId ?? null);
+    queueFinishedCook(record, note);
+    clearCook(recipeId);
+    landOnRecipe();
+  };
+
   const onDone = () => {
     const outcome = advance(record);
     if (outcome.kind === 'finished') {
-      void cancelTimerEnd(record.timer?.notificationId ?? null);
-      queueFinishedCook(record);
-      clearCook(recipeId);
-      landOnRecipe();
+      // The one question at the end: anything for next time? (0015)
+      setFinishing(true);
       return;
     }
     setTimeUp(null);
@@ -241,6 +251,16 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
             onShowPhoto={() => {
               if (step.imageKey !== null) setPhoto(imageUrl(step.imageKey));
             }}
+            notes={record.recipe.notes.filter((note) => note.stepId === step.id)}
+            savingNote={addNote.isPending}
+            onAddNote={async (body) => {
+              const note = await addNote.mutateAsync({ body, stepId: step.id });
+              // The copy is frozen for cooking; the note the cook just wrote joins it by hand.
+              saveCook({
+                ...record,
+                recipe: { ...record.recipe, notes: [note, ...record.recipe.notes] },
+              });
+            }}
           />
           {showTimer ? (
             <TimerBlock state={timerState} onStart={onStart} onStop={onStop} onEnded={ended} />
@@ -269,6 +289,7 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
           </Text>
         </Pressable>
       </View>
+      <FinishSheet visible={finishing} onFinish={finish} />
       <PhotoViewer
         uri={photo}
         label={t('recipes:cook.showPhoto')}

@@ -1,5 +1,5 @@
 import type { RecipeDetail } from '@panna/shared';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 import { StepView } from './StepView';
 
@@ -24,6 +24,7 @@ const recipe: RecipeDetail = {
   updatedAt: '2026-09-16T12:00:00.000Z',
   cookCount: 0,
   lastCookedAt: null,
+  notes: [],
   ingredients: [{ id: 'i1', position: 0, name: 'beetroot', note: null, amount: 500, unit: 'g' }],
   equipment: [{ id: 'e1', position: 0, name: 'blender', note: null, optional: false }],
   steps: [
@@ -94,5 +95,39 @@ describe('StepView', () => {
       />,
     );
     expect(screen.getByText('Uses beetroot (going without)')).toBeTruthy();
+  });
+
+  /** 0015: the cook's notes on this step, under the author's, and a way to add one. */
+  it('shows the notes on this step and adds one', async () => {
+    const onAddNote = jest.fn(() => Promise.resolve());
+    await render(
+      <StepView
+        recipe={recipe}
+        step={must(recipe.steps[0])}
+        number={1}
+        total={1}
+        done={[]}
+        onDone={jest.fn()}
+        onToggleMeanwhile={jest.fn()}
+        onShowPhoto={jest.fn()}
+        notes={[
+          {
+            id: 'n1',
+            stepId: 'b',
+            cookId: null,
+            body: 'Turn it twice',
+            createdAt: '2026-09-14T16:00:00.000Z',
+          },
+        ]}
+        onAddNote={onAddNote}
+      />,
+    );
+    expect(screen.getByText('Turn it twice')).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Add a note' }));
+    await fireEvent.changeText(screen.getByLabelText('Note'), 'And a third time');
+    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(onAddNote).toHaveBeenCalledWith('And a third time');
+    });
   });
 });

@@ -1,4 +1,11 @@
-import type { CreateRecipeBody, Recipe, RecipeDetail, UpdateRecipeBody } from '@panna/shared';
+import type {
+  AddNoteBody,
+  CookNote,
+  CreateRecipeBody,
+  Recipe,
+  RecipeDetail,
+  UpdateRecipeBody,
+} from '@panna/shared';
 
 import { authorizedCall } from '@/api/session';
 
@@ -19,6 +26,10 @@ export async function updateRecipe(
   body: UpdateRecipeBody,
 ): Promise<RecipeDetail> {
   return authorizedCall('updateRecipe', { params: { recipeId }, body });
+}
+
+export async function addNote(recipeId: string, body: AddNoteBody): Promise<CookNote> {
+  return authorizedCall('addNote', { params: { recipeId }, body });
 }
 
 export async function deleteRecipe(recipeId: string): Promise<void> {

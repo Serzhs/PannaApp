@@ -10,6 +10,7 @@ import {
   MAX_MAIN_STEPS,
   MAX_NESTED_STEPS,
   cookListSchema,
+  cookNoteSchema,
   cookSchema,
   errorBodySchema,
   recipeDetailSchema,
@@ -26,6 +27,7 @@ import { ErrorFilter } from '../../common/error.filter.js';
 import { validateEnv } from '../../config/env.js';
 import { DatabaseModule } from '../../db/database.module.js';
 import {
+  cookNotes,
   cooks,
   equipment,
   ingredients,
@@ -141,6 +143,7 @@ describe('recipes, end to end', () => {
           'id',
           'ingredients',
           'lastCookedAt',
+          'notes',
           'servings',
           'status',
           'steps',
@@ -1078,6 +1081,57 @@ describe('recipe history, end to end', () => {
     // Nor can Bob replay Alice's id against a recipe of his own.
     const his = await freshRecipe(bob);
     expect((await record(bob, his, COOK)).status).toBe(404);
+  });
+
+  /** 0015: the finish note rides with the cook, once. */
+  it('writes the finish note with the cook, and not again on a resend', async () => {
+    const id = await freshRecipe(alice);
+    expect((await record(alice, id, { ...COOK, note: '  Less salt next time  ' })).status).toBe(
+      201,
+    );
+    expect((await record(alice, id, { ...COOK, note: 'Less salt next time' })).status).toBe(200);
+    const notes = await db.select().from(cookNotes);
+    expect(notes).toHaveLength(1);
+    expect(notes[0]?.body).toBe('Less salt next time');
+    expect(notes[0]?.cookId).toBe(COOK.id);
+    expect(
+      (await record(alice, id, { ...COOK, id: '9c6f1d2e-0000-4000-8000-000000000011', note: '' }))
+        .status,
+    ).toBe(201);
+    expect(await db.select().from(cookNotes)).toHaveLength(1);
+  });
+
+  it('adds a note to the recipe or to one of its steps, and lists them newest first', async () => {
+    const id = await freshRecipe(alice);
+    const withStep = asDetail(
+      await server()
+        .patch(`/api/recipes/${id}`)
+        .set(as(alice))
+        .send({ steps: [{ body: 'Boil' }] }),
+    );
+    const stepId = withStep.steps[0]?.id;
+    const add = (token: string, recipe: string, body: object) =>
+      server().post(`/api/recipes/${recipe}/notes`).set(as(token)).send(body);
+
+    const first = await add(alice, id, { body: 'Squeeze a lemon in' });
+    expect(first.status).toBe(201);
+    expect(cookNoteSchema.parse(first.body).stepId).toBeNull();
+    const second = await add(alice, id, { body: 'Small ones take 35 min', stepId });
+    expect(cookNoteSchema.parse(second.body).stepId).toBe(stepId);
+
+    const detail = asDetail(await server().get(`/api/recipes/${id}`).set(as(alice)));
+    expect(detail.notes.map((n) => n.body)).toEqual([
+      'Small ones take 35 min',
+      'Squeeze a lemon in',
+    ]);
+
+    const other = await freshRecipe(alice);
+    const wrong = await add(alice, other, { body: 'x', stepId });
+    expect(wrong.status).toBe(400);
+    expect(errorBodySchema.parse(wrong.body).fields).toEqual({ stepId: 'UNKNOWN_ID' });
+    expect((await add(alice, id, { body: '   ' })).status).toBe(400);
+    expect((await add(bob, id, { body: 'mine' })).status).toBe(404);
+    expect(await db.select().from(cookNotes)).toHaveLength(2);
   });
 
   it.each([

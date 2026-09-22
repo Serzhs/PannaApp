@@ -13,10 +13,12 @@ import {
 import {
   createRecipeBodySchema,
   recordCookBodySchema,
+  addNoteBodySchema,
   nestPath,
   updateRecipeBodySchema,
   type CreateRecipeBody,
   type RecordCookBody,
+  type AddNoteBody,
   type ResponseOf,
   type UpdateRecipeBody,
 } from '@panna/shared';
@@ -77,6 +79,15 @@ export class RecipesController {
     // 201 the first time, 200 for the same id again: the device cannot tell and need not.
     res.status(created ? 201 : 200);
     return cook;
+  }
+
+  @Post(nestPath('addNote'))
+  @UseGuards(RecipeOwnerGuard)
+  async addNote(
+    @Req() request: RecipeRequest,
+    @Body(new ZodBody(addNoteBodySchema)) body: AddNoteBody,
+  ): Promise<ResponseOf<'addNote'>> {
+    return this.recipes.addNote(owned(request).id, body);
   }
 
   @Get(nestPath('listCooks'))

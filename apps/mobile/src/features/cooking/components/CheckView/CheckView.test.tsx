@@ -27,6 +27,7 @@ const recipe: RecipeDetail = {
   updatedAt: '2026-09-16T12:00:00.000Z',
   cookCount: 0,
   lastCookedAt: null,
+  notes: [],
   ingredients: [
     { id: 'beet', position: 0, name: 'beetroot', note: null, amount: 500, unit: 'g' },
     { id: 'dill', position: 1, name: 'dill', note: null, amount: null, unit: null },

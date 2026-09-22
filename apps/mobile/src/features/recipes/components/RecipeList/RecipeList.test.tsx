@@ -65,6 +65,7 @@ describe('RecipeList', () => {
         ...recipe,
         cookCount: 0,
         lastCookedAt: null,
+        notes: [],
         ingredients: [],
         equipment: [],
         steps: [
