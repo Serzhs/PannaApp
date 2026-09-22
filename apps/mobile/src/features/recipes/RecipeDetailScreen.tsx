@@ -106,24 +106,22 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
         />
         <View style={styles.actions}>
           <Stack gap="space3">
-            <Button
-              label={
-                data.status === 'draft'
-                  ? t('recipes:status.markReady')
-                  : t('recipes:status.backToDraft')
-              }
-              variant="secondary"
-              loading={status.isPending}
-              onPress={() => {
-                // A write attempted offline fails at once and changes nothing, per CLAUDE.md.
-                if (!online) {
-                  setStatusOffline(true);
-                  return;
-                }
-                setStatusOffline(false);
-                status.mutate({ status: data.status === 'draft' ? 'ready' : 'draft' });
-              }}
-            />
+            {data.status === 'draft' ? (
+              <Button
+                label={t('recipes:status.markReady')}
+                variant="secondary"
+                loading={status.isPending}
+                onPress={() => {
+                  // A write attempted offline fails at once and changes nothing, per CLAUDE.md.
+                  if (!online) {
+                    setStatusOffline(true);
+                    return;
+                  }
+                  setStatusOffline(false);
+                  status.mutate({ status: 'ready' });
+                }}
+              />
+            ) : null}
             <Button
               label={t('recipes:detail.edit')}
               variant="secondary"

@@ -2,7 +2,7 @@ import type { Recipe } from '@panna/shared';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { describeMeta, describeRecipe } from '../../format';
+import { describeMeta, describeRecipe, isNew } from '../../format';
 
 import { styles } from './RecipeRow.styles';
 
@@ -14,15 +14,21 @@ import { Text } from '@/components/Text';
 export interface RecipeRowProps {
   readonly recipe: Recipe;
   readonly onPress: (recipe: Recipe) => void;
+  /** The clock, so a test can say what day it is. */
+  readonly now?: number;
 }
 
 /** One stop for a screen reader: title, servings, time and status in one label. */
-export function RecipeRow({ recipe, onPress }: RecipeRowProps): React.JSX.Element {
+export function RecipeRow({
+  recipe,
+  onPress,
+  now = Date.now(),
+}: RecipeRowProps): React.JSX.Element {
   const { t } = useTranslation();
 
   return (
     <Card
-      accessibilityLabel={describeRecipe(recipe, t)}
+      accessibilityLabel={describeRecipe(recipe, t, now)}
       onPress={() => {
         onPress(recipe);
       }}
@@ -36,6 +42,13 @@ export function RecipeRow({ recipe, onPress }: RecipeRowProps): React.JSX.Elemen
             <View style={styles.chip}>
               <Text variant="label" color="textSecondary">
                 {t('recipes:status.draft')}
+              </Text>
+            </View>
+          ) : null}
+          {isNew(recipe, now) ? (
+            <View style={[styles.chip, styles.newChip]}>
+              <Text variant="label" color="accent">
+                {t('recipes:status.new')}
               </Text>
             </View>
           ) : null}

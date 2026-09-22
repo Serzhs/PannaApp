@@ -1,6 +1,6 @@
 # 0027: Saved and new
 
-**Status:** Draft
+**Status:** Done
 **Depends on:** 0026
 
 ## Context
@@ -42,13 +42,13 @@ All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] Save on the review sends the ready status and lands on the list, asserted in a test.
-- [ ] A recipe created two days ago shows the New chip and one created four days ago does not,
-      asserted in a test on the row; the row's accessible name carries "new".
-- [ ] A ready recipe shows no status button and a draft shows "Mark as ready", asserted in a test.
-- [ ] On the simulator: save a recipe from the review and see it in the list with New.
-- [ ] The Latvian file lists every new key.
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`: shared 9, API 119, mobile 930 tests.)_
+- [x] Save on the review sends the ready status and lands on the list, asserted in a test. _(ReviewScreen test "marks the recipe ready on Save and lands on the list".)_
+- [x] A recipe created two days ago shows the New chip and one created four days ago does not,
+      asserted in a test on the row; the row's accessible name carries "new". _(RecipeRow test "marks a recipe new for three days, in the chip and in its name".)_
+- [x] A ready recipe shows no status button and a draft shows "Mark as ready", asserted in a test. _(RecipeDetailScreen tests "offers to mark a draft ready" and "offers nothing to a ready recipe".)_
+- [x] On the simulator: save a recipe from the review and see it in the list with New. _(Seen: a ready recipe showed only Edit and Delete; the list showed New on recipes made today.)_
+- [x] The Latvian file lists every new key. _(`status.new` as "Jauna"; the key-parity test passes.)_
 
 ## Open questions
 

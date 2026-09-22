@@ -24,6 +24,7 @@ export interface ReviewScreenProps {
 /**
  * The last page of the create flow: the recipe as a reader will see it, then what to do
  * with it (0026). Save marks it ready, Close puts it aside as a draft, Delete throws it away.
+ * All three land on the list (0027), where the recipe shows up as new.
  */
 export function ReviewScreen({ recipeId }: ReviewScreenProps): React.JSX.Element {
   const { t } = useTranslation();
@@ -35,9 +36,6 @@ export function ReviewScreen({ recipeId }: ReviewScreenProps): React.JSX.Element
   const [triedOffline, setTriedOffline] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
-  const landOnRecipe = () => {
-    router.replace({ pathname: '/recipes/[id]', params: { id: recipeId } });
-  };
   const landOnList = () => {
     router.replace('/');
   };
@@ -65,7 +63,7 @@ export function ReviewScreen({ recipeId }: ReviewScreenProps): React.JSX.Element
       return;
     }
     setTriedOffline(false);
-    update.mutate({ status: 'ready' }, { onSuccess: landOnRecipe });
+    update.mutate({ status: 'ready' }, { onSuccess: landOnList });
   };
   const askToDelete = () => {
     if (!online) {

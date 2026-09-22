@@ -3,13 +3,21 @@ import type { TFunction } from 'i18next';
 
 import { formatAmount } from '@/features/units/format';
 
+const NEW_FOR_MS = 3 * 24 * 60 * 60 * 1000;
+
+/** A recipe made in the last three days is new (0027): long enough to find it again, short enough to mean it. */
+export function isNew(recipe: Recipe, now: number = Date.now()): boolean {
+  return now - Date.parse(recipe.createdAt) < NEW_FOR_MS;
+}
+
 /** What a screen reader says for a whole row, per the accessibility criteria of 0005. */
-export function describeRecipe(recipe: Recipe, t: TFunction): string {
+export function describeRecipe(recipe: Recipe, t: TFunction, now: number = Date.now()): string {
   const parts = [recipe.title, t('recipes:servings', { count: recipe.servings })];
   if (recipe.totalTimeMinutes !== null) {
     parts.push(t('recipes:minutes', { count: recipe.totalTimeMinutes }));
   }
   if (recipe.status === 'draft') parts.push(t('recipes:status.draft').toLowerCase());
+  if (isNew(recipe, now)) parts.push(t('recipes:status.new').toLowerCase());
   return parts.join(', ');
 }
 

@@ -78,17 +78,14 @@ describe('ReviewScreen', () => {
     expect(screen.getByText('It stays in your recipes as a draft.')).toBeTruthy();
   });
 
-  it('marks the recipe ready on Save and lands on it', async () => {
+  it('marks the recipe ready on Save and lands on the list', async () => {
     mockMutate.mockImplementation((_body: unknown, options: { onSuccess: () => void }) => {
       options.onSuccess();
     });
     await render(<ReviewScreen recipeId={mockDetail.id} />);
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
     expect(mockMutate).toHaveBeenCalledWith({ status: 'ready' }, expect.anything());
-    expect(mockReplace).toHaveBeenCalledWith({
-      pathname: '/recipes/[id]',
-      params: { id: mockDetail.id },
-    });
+    expect(mockReplace).toHaveBeenCalledWith('/');
   });
 
   it('sends nothing on Close and lands on the list', async () => {

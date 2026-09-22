@@ -20,8 +20,8 @@
   "status": {
     "draft": "Melnraksts",
     "markReady": "Atzīmēt kā gatavu",
-    "backToDraft": "Atpakaļ uz melnrakstu",
-    "failed": "Neizdevās mainīt statusu. Mēģini vēlreiz."
+    "failed": "Neizdevās mainīt statusu. Mēģini vēlreiz.",
+    "new": "Jauna"
   },
   "list": {
     "loading": "Ielādē receptes",

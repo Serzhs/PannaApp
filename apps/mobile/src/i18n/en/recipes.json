@@ -19,8 +19,8 @@
   "status": {
     "draft": "Draft",
     "markReady": "Mark as ready",
-    "backToDraft": "Back to draft",
-    "failed": "Could not change the status. Try again."
+    "failed": "Could not change the status. Try again.",
+    "new": "New"
   },
   "list": {
     "loading": "Loading recipes",

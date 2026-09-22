@@ -57,15 +57,13 @@ describe('RecipeDetailScreen status control', () => {
     expect(mockMutate).toHaveBeenCalledWith({ status: 'ready' });
   });
 
-  it('offers to take a ready recipe back to draft', async () => {
+  /** 0027: once ready, a recipe is only ever edited, never put back. */
+  it('offers nothing to a ready recipe in place of the status button', async () => {
     mockDetail = recipe('ready');
     await render(<RecipeDetailScreen recipeId={mockDetail.id} />);
-    expect(screen.queryByText('Draft')).toBeNull();
-    await fireEvent.press(screen.getByRole('button', { name: 'Back to draft' }));
-    expect(mockMutate).toHaveBeenCalledWith({ status: 'draft' });
+    expect(screen.queryByRole('button', { name: /Mark as ready|Back to draft/ })).toBeNull();
   });
 
-  /** The criterion: offline, nothing is sent and the message says so. */
   it('sends nothing offline and says so', async () => {
     mockDetail = recipe('draft');
     isOnline.mockReturnValue(false);

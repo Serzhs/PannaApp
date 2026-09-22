@@ -13,4 +13,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
+  newChip: {
+    borderColor: theme.colors.accent,
+  },
 });
