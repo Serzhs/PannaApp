@@ -1,6 +1,8 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
+import { dirname } from 'node:path';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { config } from 'dotenv';
 import { and, eq } from 'drizzle-orm';
@@ -32,19 +34,18 @@ const SEED_USERS = [
 ] as const;
 
 const IMAGE_DIR = process.env.IMAGE_DIR ?? join(homedir(), '.panna', 'images');
+const PHOTOS_DIR = join(dirname(fileURLToPath(import.meta.url)), 'seed-photos');
 
-/** A flat colour stands in for a photo: enough to see where a picture goes. */
-async function seedImage(key: string, colour: string, wide: boolean): Promise<string> {
+/**
+ * Real photographs, from seed-photos/ (see ATTRIBUTION.md there), put through the same
+ * resize and strip an upload gets, so the seed looks like what a user would have.
+ */
+async function seedImage(key: string, file: string): Promise<string> {
   await mkdir(IMAGE_DIR, { recursive: true });
-  const bytes = await sharp({
-    create: {
-      width: wide ? 1600 : 1200,
-      height: wide ? 1200 : 1200,
-      channels: 3,
-      background: colour,
-    },
-  })
-    .jpeg({ quality: 80 })
+  const bytes = await sharp(await readFile(join(PHOTOS_DIR, file)))
+    .rotate()
+    .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 82, mozjpeg: true })
     .toBuffer();
   await writeFile(join(IMAGE_DIR, `${key}.jpg`), bytes);
   return key;
@@ -91,8 +92,8 @@ async function seedBeetrootSoup(db: Database, authorId: string): Promise<void> {
   const title = 'Cold beetroot soup';
   if (await hasRecipe(db, authorId, title)) return;
 
-  const cover = await seedImage('a1b2c3d4e5f60718293a4b5c6d7e8f90', '#a8324b', true);
-  const stepPhoto = await seedImage('0f1e2d3c4b5a69788796a5b4c3d2e1f0', '#d98c3f', false);
+  const cover = await seedImage('a1b2c3d4e5f60718293a4b5c6d7e8f90', 'soup.jpg');
+  const stepPhoto = await seedImage('0f1e2d3c4b5a69788796a5b4c3d2e1f0', 'grated.jpg');
 
   const [recipe] = await db
     .insert(recipes)
@@ -340,7 +341,10 @@ async function seedPlov(db: Database, authorId: string): Promise<void> {
 async function seedRyeBread(db: Database, authorId: string): Promise<void> {
   const title = "Grandmother's rye bread";
   if (await hasRecipe(db, authorId, title)) return;
-  await db.insert(recipes).values({ authorId, title, servings: 1, status: 'ready' });
+  const cover = await seedImage('c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6', 'bread.jpg');
+  await db
+    .insert(recipes)
+    .values({ authorId, title, servings: 1, status: 'ready', coverImageKey: cover });
   console.log(`seeded ${title}`);
 }
 
