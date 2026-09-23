@@ -29,5 +29,9 @@
     "empty": "Enter a name.",
     "tooLong": "Keep the name under 80 characters."
   },
-  "designGallery": "Design gallery"
+  "designGallery": "Design gallery",
+  "knuckleHint": {
+    "showAgain": "Show the knuckle hint again",
+    "willShow": "It will show the next time you cook."
+  }
 }

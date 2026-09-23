@@ -232,7 +232,10 @@
     "startWithout_other": "Start without {{count}} ingredients",
     "without": "Without: {{list}}",
     "usesWithout": "{{name}} (going without)",
-    "checking": "Checking what you have"
+    "checking": "Checking what you have",
+    "hintTitle": "Tap with a knuckle",
+    "hintBody": "Your knuckles stay cleaner than your fingertips, and every button here is big enough to hit with one.",
+    "hintGotIt": "Got it"
   },
   "made": {
     "count_one": "Made once",

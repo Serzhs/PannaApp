@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react-nativ
 import { YouScreen } from './YouScreen';
 
 import * as images from '@/api/images';
+import { knuckleHintSeen, markKnuckleHintSeen } from '@/features/cooking/hint';
 import * as online from '@/query/useIsOnline';
 
 const mockMutate = jest.fn();
@@ -99,5 +100,15 @@ describe('YouScreen', () => {
       expect(screen.getByText('Could not add the photo. Try again.')).toBeTruthy();
     });
     expect(mockMutate).not.toHaveBeenCalled();
+  });
+
+  /** 0028: the way to see the knuckle hint again, and a line saying when. */
+  it('clears the knuckle hint so it shows on the next cook', async () => {
+    mockUser = user(null);
+    markKnuckleHintSeen();
+    await render(<YouScreen />);
+    await fireEvent.press(screen.getByRole('button', { name: 'Show the knuckle hint again' }));
+    expect(knuckleHintSeen()).toBe(false);
+    expect(screen.getByText('It will show the next time you cook.')).toBeTruthy();
   });
 });

@@ -20,6 +20,7 @@ import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import { CheckView } from '@/features/cooking/components/CheckView';
 import { InProgressRow } from '@/features/cooking/components/InProgressRow';
+import { KnuckleHint } from '@/features/cooking/components/KnuckleHint';
 import { TimerBlock } from '@/features/cooking/components/TimerBlock';
 import { DurationField } from '@/features/recipes/components/DurationField';
 import { EquipmentLine } from '@/features/recipes/components/EquipmentLine';
@@ -483,6 +484,9 @@ function Cooking(): React.JSX.Element {
           />
           <TimerBlock state={{ kind: 'done' }} onStart={noop} onStop={noop} onEnded={noop} />
         </Stack>
+      </Section>
+      <Section title="KnuckleHint">
+        <KnuckleHint onDismiss={noop} />
       </Section>
       <Section title="CheckView">
         <CheckView

@@ -15,6 +15,7 @@ import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { resetKnuckleHint } from '@/features/cooking/hint';
 import {
   deviceLanguageTags,
   deviceMeasurementSystem,
@@ -34,6 +35,7 @@ export function YouScreen(): React.JSX.Element {
   const update = useUpdateMe();
   const [name, setName] = useState(user?.displayName ?? '');
   const [nameProblem, setNameProblem] = useState<'empty' | 'tooLong' | null>(null);
+  const [hintReset, setHintReset] = useState(false);
 
   const deviceLocale = resolveLocale(null, deviceLanguageTags());
   const deviceUnits = resolveUnitSystem(null, deviceMeasurementSystem());
@@ -128,6 +130,21 @@ export function YouScreen(): React.JSX.Element {
             update.mutate({ unitSystem });
           }}
         />
+        <Stack gap="space2">
+          <Button
+            label={t('settings:knuckleHint.showAgain')}
+            variant="secondary"
+            onPress={() => {
+              resetKnuckleHint();
+              setHintReset(true);
+            }}
+          />
+          {hintReset ? (
+            <Text variant="caption" color="textSecondary" accessibilityLiveRegion="polite">
+              {t('settings:knuckleHint.willShow')}
+            </Text>
+          ) : null}
+        </Stack>
         {update.isError ? (
           <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
             {t('settings:saveFailed')}

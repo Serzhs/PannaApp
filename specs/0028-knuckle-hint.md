@@ -1,6 +1,6 @@
 # 0028: The knuckle hint
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0012, 0018
 
 ## Context
@@ -21,8 +21,10 @@ shows again unless they ask for it from the You tab.
 - Sound. Cook mode has no audio in either direction.
 - A per-recipe or per-account memory. Whether the hint was seen lives on the device, like cooking
   progress, and does not follow the person to another phone.
-- An illustration asset or an animation library. The hand is the fist emoji the system already
-  draws, moved by Reanimated; nothing is bundled and nothing is added to the dependencies.
+- An illustration asset or an animation library. The hand is drawn from four circles and a
+  rounded block, moved by Reanimated; nothing is bundled and nothing is added to the dependencies.
+  It was going to be the fist emoji, but the simulator's font has no colour emoji and showed a
+  box, and a picture that depends on a font is a picture that will fail somewhere.
 - Showing the hint mid-cook. It appears on entering cook mode, on the check of what you have,
   before any step.
 - Haptics. The hint is not something the person did, so nothing buzzes.
@@ -62,18 +64,22 @@ one-folder-per-component layout under the cooking feature, with an entry in the 
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] Opening cook mode with the flag unset shows the heading and body and the Got it button;
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`:
+      shared 9, API 137, mobile 1271 tests.)_
+- [x] Opening cook mode with the flag unset shows the heading and body and the Got it button;
       pressing Got it hides it and sets the flag; opening again shows nothing; leaving without
-      pressing leaves the flag unset, asserted in a test.
-- [ ] With reduce motion on the hint shows the same words and the still picture, asserted in a
-      test.
-- [ ] The You screen's "Show the knuckle hint again" clears the flag and shows its line, asserted
-      in a test.
-- [ ] The motion literal test finds no duration written in the component.
-- [ ] On the simulator: Cook shows the hint, Got it dismisses it, leaving and cooking again shows
-      none; You, show again, Cook shows it once more.
-- [ ] The Latvian file lists every new key.
+      pressing leaves the flag unset, asserted in a test. _(`shows the knuckle hint the first time,
+and never after Got it` in CookScreen.test.tsx, and hint.test.ts for the flag.)_
+- [x] With reduce motion on the hint shows the same words and the still picture, asserted in a
+      test. _(KnuckleHint.test.tsx.)_
+- [x] The You screen's "Show the knuckle hint again" clears the flag and shows its line, asserted
+      in a test. _(YouScreen.test.tsx.)_
+- [x] The motion literal test finds no duration written in the component. _(no-literals.test.ts
+      passes over it.)_
+- [x] On the simulator: Cook shows the hint, Got it dismisses it, leaving and cooking again shows
+      none; You, show again, Cook shows it once more. _(Done on the iPhone 17 Pro simulator, 23
+      September 2026.)_
+- [x] The Latvian file lists every new key. _(The key-parity test in i18n passes.)_
 
 Manual follow-up, not gating: a VoiceOver pass over the hint, per the Accessibility section of
 CLAUDE.md, checking the picture is skipped and the words and button are read in that order.
