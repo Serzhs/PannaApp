@@ -4,6 +4,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react-nativ
 import { RecipeForm } from './RecipeForm';
 import { recipeFormSchema } from './schema';
 
+import * as online from '@/query/useIsOnline';
+
 describe('recipeFormSchema', () => {
   it('turns the text of the inputs into the body the API accepts', () => {
     const body = recipeFormSchema.parse({
@@ -115,5 +117,22 @@ describe('RecipeForm', () => {
       <RecipeForm submitLabel="Save draft" submitting error={null} onSubmit={jest.fn()} />,
     );
     expect(screen.getByRole('button', { name: 'Save draft' })).toBeBusy();
+  });
+
+  /** 0007: offline, nothing is sent, the input stays, and the message says why. */
+  it('sends nothing offline, keeps what was typed, and says so', async () => {
+    const isOnline = jest.spyOn(online, 'useIsOnline').mockReturnValue(false);
+    const onSubmit = jest.fn();
+    await render(
+      <RecipeForm submitLabel="Save draft" submitting={false} error={null} onSubmit={onSubmit} />,
+    );
+    await fireEvent.changeText(screen.getByLabelText('Title'), 'Soup');
+    await fireEvent.press(screen.getByRole('button', { name: 'Save draft' }));
+    await waitFor(() => {
+      expect(screen.getByText(/You are offline/)).toBeTruthy();
+    });
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Title')).toHaveProp('value', 'Soup');
+    isOnline.mockRestore();
   });
 });

@@ -1,6 +1,6 @@
 # 0007: Ingredients and equipment
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0005, 0006
 
 **Changed by 0025:** the lists are written on the first page of creating, together with the title and servings, and on the Recipe tab when editing; the separate page is gone.
@@ -118,10 +118,18 @@ All new strings go through `t()`, in English and Latvian, and the lint rule from
 - [x] A line moves with the move up and move down buttons, asserted in a test, and by dragging its handle, seen on the simulator. The first line has no move up and the last no move down. _(Buttons tested; the drag seen on the simulator, and the first and last lines lack their button in both.)_
 - [x] After the basics of a new recipe are saved, the app continues to "What you need" for that draft; Done saves the lists and lands on the recipe, and Skip lands on the recipe with both lists empty. _(Verified on the simulator.)_
 - [x] Typing `1/2` as an amount marks the line rather than saving, and `1.5` saves as 1.5. _(Tested at the validator, which the screens run before sending.)_
-- [ ] Saving with a blank ingredient name marks that line and sends nothing, and saving offline keeps every line typed and shows the offline message. _(The blank name is tested at the validator. **Offline not verified**: it needs the simulator's network cut.)_
+- [x] Saving with a blank ingredient name marks that line and sends nothing, and saving offline keeps every line typed and shows the offline message. _(The blank name is refused in the line's own card since 0023, tested in NeedsEditor.test.tsx. Offline: `sends nothing offline, keeps what was typed, and says so` in RecipeForm.test.tsx, added on close-out, since cutting the simulator's network is not something this machine can do without cutting its own.)_
 - [x] Every new component appears in the design gallery in every state, and the unit picker lists all fourteen units grouped by dimension in both languages. _(Entries added; the picker's fourteen units and three groups are tested.)_
 - [x] The Latvian file lists every new key, and switching language changes the section headings, the unit names and the word "optional". _(The key test passes; the Latvian words are a draft for the owner to correct, as 0006 decided.)_
 - _Manual follow-up, not a gate:_ A VoiceOver or TalkBack walkthrough of the recipe screen's new section and of the edit screen's lists, checking that each line reads as one element and that moving a line is announced.
+
+## Closed out
+
+The lists have been reshaped twice since this was built: 0023 settles each line in its own card
+with Add and Remove, and 0025 puts ingredients and equipment on the same page as the recipe's
+basics. The criteria above describe the behaviour, which held through both; the words "What you
+need" as a separate page no longer match the app, and 0025 is the spec for what does. Marked
+Done on 23 September 2026.
 
 ## Open questions
 

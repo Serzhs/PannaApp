@@ -50,6 +50,12 @@ All new strings go through `t()`, in English and Latvian.
 - [x] On the simulator: save a recipe from the review and see it in the list with New. _(Seen: a ready recipe showed only Edit and Delete; the list showed New on recipes made today.)_
 - [x] The Latvian file lists every new key. _(`status.new` as "Jauna"; the key-parity test passes.)_
 
+## Closed out, later
+
+With the tab bar (0018) the list is the root of a stack, and a replace from the review left a
+second list on top of the first, with a back button to itself. Save, Close and Delete now pop
+to the root instead. Noted here on 23 September 2026.
+
 ## Open questions
 
 None.

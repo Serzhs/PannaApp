@@ -9,12 +9,12 @@ import * as online from '@/query/useIsOnline';
 
 const mockMutate = jest.fn();
 const mockRemove = jest.fn();
-const mockReplace = jest.fn();
+const mockDismissAll = jest.fn();
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({
     push: jest.fn(),
-    replace: mockReplace,
+    dismissAll: mockDismissAll,
     back: jest.fn(),
     canGoBack: () => true,
   }),
@@ -67,7 +67,7 @@ describe('ReviewScreen', () => {
   beforeEach(() => {
     mockMutate.mockReset();
     mockRemove.mockReset();
-    mockReplace.mockReset();
+    mockDismissAll.mockReset();
     isOnline.mockReturnValue(true);
   });
 
@@ -92,7 +92,7 @@ describe('ReviewScreen', () => {
     await render(<ReviewScreen recipeId={mockDetail.id} />);
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
     expect(mockMutate).toHaveBeenCalledWith({ status: 'ready' }, expect.anything());
-    expect(mockReplace).toHaveBeenCalledWith('/');
+    expect(mockDismissAll).toHaveBeenCalled();
   });
 
   it('sends nothing on Close and lands on the list', async () => {
@@ -100,7 +100,7 @@ describe('ReviewScreen', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
     expect(mockMutate).not.toHaveBeenCalled();
     expect(mockRemove).not.toHaveBeenCalled();
-    expect(mockReplace).toHaveBeenCalledWith('/');
+    expect(mockDismissAll).toHaveBeenCalled();
   });
 
   it('asks before deleting, then deletes and lands on the list', async () => {
@@ -118,7 +118,7 @@ describe('ReviewScreen', () => {
       confirm.onPress?.();
     });
     expect(mockRemove).toHaveBeenCalledTimes(1);
-    expect(mockReplace).toHaveBeenCalledWith('/');
+    expect(mockDismissAll).toHaveBeenCalled();
     alert.mockRestore();
   });
 

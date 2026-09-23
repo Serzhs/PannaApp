@@ -1,6 +1,6 @@
 # 0008: Steps and nesting
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0006, 0007
 
 **Changed by 0022:** nesting moved out of the step cards to the Flow view; the steps editor is a flat list.
@@ -120,10 +120,16 @@ All new strings go through `t()`, in English and Latvian.
 - [x] The recipe screen reads each step as one element carrying its number, body, timing and note, asserted by querying the accessible name. _(Tested.)_
 - [x] The total time field is absent from the create and edit forms, asserted in a test, and the recipe screen's total is the derived one. _(Tested, and seen on the simulator.)_
 - [x] In the app, adding a main step, nesting a step under it, promoting it back, moving steps within a level and removing a main step with nested steps all behave as the UI section says, and saving shows the result on the recipe screen without a manual refresh. _(Adding, nesting, removing and saving seen on the simulator; nesting, promoting, moving and removing with promotion are tested in the editor. A blank step is marked in place, also seen.)_
-- [ ] After "What you need" in the create flow, the app continues to "Steps"; Done saves and lands on the recipe; Skip lands on the recipe with no steps. _(Built and wired; **not walked on the simulator** in this pass, the edit screen was.)_
+- [x] After "What you need" in the create flow, the app continues to "Steps"; Done saves and lands on the recipe; Skip lands on the recipe with no steps. _(Superseded by 0025 and 0026: the page before Steps is now the recipe with its lists, Done continues to Flow and then Review, and Review's Save lands on the list. Walked on the iPhone 17 Pro simulator on 23 September 2026 as the app now is: basics and Salt, Continue, a step linked to Salt, Done, Flow, Done, Review showing all of it, Save.)_
 - [x] Every new component appears in the design gallery in every state. _(Entries added.)_
 - [x] The Latvian file lists every new key, and switching language changes the section headings and the meanwhile label. _(The key test passes; the Latvian is a draft for the owner to correct, as 0006 decided.)_
 - _Manual follow-up, not a gate:_ A VoiceOver or TalkBack walkthrough of the recipe screen's steps and of the editor, checking that a nested step announces its parent and that nesting and promoting are announced.
+
+## Closed out
+
+Nesting is no longer done in the steps editor: 0022 writes steps flat and moves "during what" to
+its own Flow page, and 0024 settles each step like a list line. The API rules above are
+unchanged and still tested. Marked Done on 23 September 2026.
 
 ## Open questions
 

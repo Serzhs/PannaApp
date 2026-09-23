@@ -1,6 +1,6 @@
 # 0009: Review and mark as ready
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0008
 
 **Changed by 0027:** "Back to draft" is gone; a ready recipe is only edited.
@@ -48,13 +48,19 @@ All new strings go through `t()`, in English and Latvian.
 ## Acceptance criteria
 
 - [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(Passes.)_
-- [ ] After "Steps" in the create flow the app continues to the review page, which shows the title, servings, total time, description, ingredients, equipment and steps that were entered. _(The review page is tested with a recipe that has a description, an ingredient and a step. The hand-off from Steps is wired; **the flow was not walked on the simulator** in this pass.)_
-- [x] Done with the switch off lands on the recipe still as a draft; Done with the switch on lands on the recipe marked ready, and the list shows no Draft chip for it, without a manual refresh. _(Tested: off sends nothing and lands on the recipe; on sends `ready`. The list follows through the cache update 0005 established.)_
-- [x] "Mark as ready" on the recipe screen sends `status: ready`, the screen and the list update without a refresh, and "Back to draft" reverses it, asserted in a component test with the mutation stubbed and seen on the simulator. _(Tested with the mutation stubbed, and seen on the simulator.)_
+- [x] After "Steps" in the create flow the app continues to the review page, which shows the title, servings, total time, description, ingredients, equipment and steps that were entered. _(Since 0025 the Flow page sits between Steps and Review. Walked on the iPhone 17 Pro simulator on 23 September 2026: the review showed the title, servings, the ingredient, "No equipment listed" and the step with what it uses.)_
+- [x] Done with the switch off lands on the recipe still as a draft; Done with the switch on lands on the recipe marked ready, and the list shows no Draft chip for it, without a manual refresh. _(Tested at the time. Superseded by 0026 and 0027: the switch is gone, Save marks ready and lands on the list, Close keeps the draft. ReviewScreen.test.tsx covers the current buttons.)_
+- [x] "Mark as ready" on the recipe screen sends `status: ready`, the screen and the list update without a refresh, and "Back to draft" reverses it, asserted in a component test with the mutation stubbed and seen on the simulator. _(Tested with the mutation stubbed, and seen on the simulator. "Back to draft" was removed by 0027: once ready, a recipe is only edited. RecipeDetailScreen.test.tsx asserts its absence.)_
 - [x] Marking a recipe ready while offline sends nothing, shows the offline message, and leaves the status unchanged, asserted in a test. _(Tested on both the recipe screen and the review page.)_
 - [x] The switch and the control are found by role and name in tests, and the switch reports its state through `accessibilityState`. _(They are; the switch is the platform's own, which reports its state.)_
 - [x] The Latvian file lists every new key. _(The key test passes; the Latvian is a draft for the owner to correct.)_
 - _Manual follow-up, not a gate:_ A VoiceOver or TalkBack walkthrough of the review page, checking that the switch announces its state and that Done says what it will do.
+
+## Closed out
+
+0026 replaced the switch with Save, Close and Delete, and 0027 removed "Back to draft" and made
+Save land on the list. The criteria are kept as written, with notes saying which later spec
+changed each one. Marked Done on 23 September 2026.
 
 ## Open questions
 

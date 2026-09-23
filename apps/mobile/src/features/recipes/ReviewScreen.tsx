@@ -37,7 +37,9 @@ export function ReviewScreen({ recipeId }: ReviewScreenProps): React.JSX.Element
   const [confirming, setConfirming] = useState(false);
 
   const landOnList = () => {
-    router.replace('/');
+    // Pop back to the list at the root of the tab's stack (0027); a replace here would leave
+    // a second list on top of the first now that the list is a tab (0018).
+    router.dismissAll();
   };
 
   if (recipe.data === undefined) {
