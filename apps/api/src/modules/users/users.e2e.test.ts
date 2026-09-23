@@ -1,3 +1,5 @@
+import { readdir } from 'node:fs/promises';
+
 import { ConfigModule } from '@nestjs/config';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
@@ -7,7 +9,9 @@ import {
   errorBodySchema,
   sessionSchema,
   sessionUserSchema,
+  uploadedImageSchema,
 } from '@panna/shared';
+import sharp from 'sharp';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
@@ -17,6 +21,7 @@ import { DatabaseModule } from '../../db/database.module.js';
 import { users } from '../../db/schema/index.js';
 import { db } from '../../test/db.js';
 import { AuthModule } from '../auth/auth.module.js';
+import { ImagesModule } from '../images/images.module.js';
 
 import { UsersModule } from './users.module.js';
 
@@ -36,6 +41,7 @@ describe('me, end to end', () => {
         ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true, load: [() => env] }),
         DatabaseModule,
         AuthModule.register(env),
+        ImagesModule,
         UsersModule,
       ],
     }).compile();
@@ -58,10 +64,59 @@ describe('me, end to end', () => {
     token = sessionSchema.parse(res.body).accessToken;
   });
 
-  it('starts with both preferences null, meaning follow the device', async () => {
+  it('starts with both preferences null, meaning follow the device, and no avatar', async () => {
     const me = asUser(await server().get('/api/me').set(as()));
     expect(me.locale).toBeNull();
     expect(me.unitSystem).toBeNull();
+    expect(me.avatarImageKey).toBeNull();
+  });
+
+  async function photo(): Promise<string> {
+    const bytes = await sharp({
+      create: { width: 40, height: 40, channels: 3, background: '#3a5' },
+    })
+      .png()
+      .toBuffer();
+    const res = await server().post('/api/images').set(as()).attach('file', bytes, 'me.png');
+    return uploadedImageSchema.parse(res.body).key;
+  }
+
+  /** 0018: set, carried by sign-in, replaced with the old file gone, cleared with the last gone. */
+  it('stores an avatar, replaces it, clears it, and removes the files it no longer needs', async () => {
+    const dir = String(process.env.IMAGE_DIR);
+    const first = await photo();
+    const set = await server().patch('/api/me').set(as()).send({ avatarImageKey: first });
+    expect(set.status).toBe(200);
+    expect(asUser(set).avatarImageKey).toBe(first);
+    const signIn = await server().post('/api/auth/dev-session').send({ email: SEEDED.email });
+    expect(sessionSchema.parse(signIn.body).user.avatarImageKey).toBe(first);
+
+    const second = await photo();
+    const replaced = asUser(
+      await server().patch('/api/me').set(as()).send({ avatarImageKey: second }),
+    );
+    expect(replaced.avatarImageKey).toBe(second);
+    let files = await readdir(dir);
+    expect(files).toContain(`${second}.jpg`);
+    expect(files).not.toContain(`${first}.jpg`);
+
+    const cleared = asUser(
+      await server().patch('/api/me').set(as()).send({ avatarImageKey: null }),
+    );
+    expect(cleared.avatarImageKey).toBeNull();
+    files = await readdir(dir);
+    expect(files).not.toContain(`${second}.jpg`);
+  });
+
+  it('refuses an avatar key with no file behind it, by field', async () => {
+    const res = await server()
+      .patch('/api/me')
+      .set(as())
+      .send({ avatarImageKey: 'f'.repeat(32) });
+    expect(res.status).toBe(400);
+    expect(asError(res).code).toBe(ERROR_CODES.VALIDATION_FAILED);
+    expect(asError(res).fields).toEqual({ avatarImageKey: 'UNKNOWN_IMAGE' });
+    expect(asUser(await server().get('/api/me').set(as())).avatarImageKey).toBeNull();
   });
 
   it('stores a locale and a unit system, and GET /api/me reflects them', async () => {

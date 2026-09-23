@@ -72,8 +72,11 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
     };
   }, []);
 
+  // Cook mode sits above the tabs (0018), so leaving pops it and lands where the tab was,
+  // which is the recipe. Replacing would land in the tab's stack with nothing beneath.
   const landOnRecipe = useCallback(() => {
-    router.replace({ pathname: '/recipes/[id]', params: { id: recipeId } });
+    if (router.canGoBack()) router.back();
+    else router.replace({ pathname: '/recipes/[id]', params: { id: recipeId } });
   }, [router, recipeId]);
 
   useEffect(() => {

@@ -1,1 +1,1 @@
-export { ListHeaderTitle, NewRecipeButton, SettingsButton } from './ListHeader';
+export { ListHeaderTitle, NewRecipeButton } from './ListHeader';

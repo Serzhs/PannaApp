@@ -21,5 +21,9 @@
     "save": "You are offline. Connect to the internet to save.",
     "delete": "You are offline. Connect to the internet to delete.",
     "upload": "You are offline. Connect to the internet to add a photo."
+  },
+  "tabs": {
+    "recipes": "Recipes",
+    "you": "You"
   }
 }

@@ -1,11 +1,10 @@
-import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image, View } from 'react-native';
 
 import { styles } from './PhotoField.styles';
 
-import { imageUrl, uploadImage } from '@/api/images';
+import { imageUrl, pickImage, uploadImage } from '@/api/images';
 import { Button } from '@/components/Button';
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
@@ -40,15 +39,8 @@ export function PhotoField({ label, value, onChange }: PhotoFieldProps): React.J
       return;
     }
     setProblem(null);
-    const picked = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      quality: 0.9,
-      // iPhones shoot HEIC, which the resizer cannot read; "compatible" hands over a JPEG.
-      preferredAssetRepresentationMode:
-        ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
-    });
-    const asset = picked.assets?.[0];
-    if (picked.canceled || asset === undefined) return;
+    const asset = await pickImage();
+    if (asset === null) return;
     setUploading(true);
     try {
       onChange(await uploadImage(asset));

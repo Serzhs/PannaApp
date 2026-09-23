@@ -37,8 +37,8 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">290 of 307 acceptance criteria verified across 25 written specs.</p>
-<div class="bar"><div style="width: 94%"></div></div>
+<p class="summary">297 of 314 acceptance criteria verified across 26 written specs.</p>
+<div class="bar"><div style="width: 95%"></div></div>
 
 <h2>All specs</h2>
 <table>
@@ -61,7 +61,7 @@
 <tr><td><a href="#spec-0015">0015</a></td><td>Cook's notes</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Record what you learned, and see it next time you cook.</td></tr>
 <tr><td><a href="#spec-0016">0016</a></td><td>JSON recipe import</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Paste AI-generated JSON and get a working recipe.</td></tr>
 <tr><td><a href="#spec-0017">0017</a></td><td>Sharing</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Share a recipe read-only by private link, and revoke it.</td></tr>
-<tr><td>0018</td><td>Avatars and the tab bar</td><td><span class="status not-written">Not written</span></td><td>–</td><td>An avatar, an editable name, and three tabs to reach things by.</td></tr>
+<tr><td><a href="#spec-0018">0018</a></td><td>Avatars and the tab bar</td><td><span class="status done">Done</span></td><td>7 / 7</td><td>An avatar, an editable name, and three tabs to reach things by.</td></tr>
 <tr><td>0019</td><td>Featured recipes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A searchable set of recipes we wrote, to start from.</td></tr>
 <tr><td><a href="#spec-0020">0020</a></td><td>Simpler editing</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>No temperature field, the note behind a button, lines moved by buttons.</td></tr>
 <tr><td><a href="#spec-0021">0021</a></td><td>Move buttons in the card</td><td><span class="status \1in-progress">\1In progress</span></td><td>6 / 6</td><td>The move arrows sit on the card's first line, with words beside them.</td></tr>
@@ -1190,6 +1190,80 @@
 <p>override in <code>app.config.ts</code> replaced the whole URL type list. It now lists both, which means</p>
 <p>a prebuild and a rebuild for this spec.</p>
 <p>All new strings go through <code>t()</code>, in English and Latvian.</p>
+</details>
+</section>
+
+<section id="spec-0018">
+<h2>0018: Avatars and the tab bar <span class="status done">Done</span></h2>
+<p class="goal">The app gets a tab bar, and the You tab shows an avatar and a name the person can change.</p>
+<p class="summary">7 of 7 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. _(<code>pnpm check</code>:</li>
+<li class="done"><code>PATCH /api/me</code> with an uploaded key stores it and answers the user with it; with null it</li>
+<li class="done">Sign-in and <code>GET /api/me</code> carry <code>avatarImageKey</code>, asserted end to end. _(The same two tests,</li>
+<li class="done">The You screen shows the name, the email, and the first letter when there is no photo, and</li>
+<li class="done">The list header no longer offers Settings, asserted in a test. <em>(ListHeader.test.tsx.)</em></li>
+<li class="done">On the simulator: the tab bar shows on the list, on a recipe and on the You tab, and is</li>
+<li class="done">The Latvian file lists every new key. <em>(The key-parity test in i18n passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>The app gets a tab bar, and the You tab shows an avatar and a name the person can change.</p>
+<h3>Out of scope</h3><li>Featured recipes. Decided on approval: two tabs now, and 0019 adds the Featured tab together</li>
+<p>  with its content, so nothing ships empty.</p>
+<li>Changing the email, linking a second provider, or deleting the account.</li>
+<li>Showing the avatar anywhere but the You tab: not on the recipe list header, not on a shared</li>
+<p>  recipe, not on a cook. One place first.</p>
+<li>Cropping, rotating or editing the photo beyond what the system picker offers. The picker's own</li>
+<p>  square crop is enough.</p>
+<li>The knuckle hint's "show again" entry, which 0028 adds to this tab.</li>
+<li>Any change to the sign-in screen or to what a provider sends.</li>
+<h3>Data model</h3><p>Nothing new. <code>users.avatarImageKey</code> (varchar 255, nullable) is written for the first time. The</p>
+<p>file behind it is stored, resized and stripped exactly like a recipe photo (0011), and is deleted</p>
+<p>when replaced or removed, so nothing leaks on disk.</p>
+<h3>API contract</h3><p><strong><code>PATCH /api/me</code></strong> (0006) accepts one more field: <code>avatarImageKey</code>, an image key or null. The</p>
+<p>key must name an upload that exists, checked the same way a recipe's <code>coverImageKey</code> is; an</p>
+<p>unknown one is <code>400 VALIDATION<em>FAILED</code> with <code>fields.avatarImageKey: UNKNOWN</em>IMAGE</code>. Setting a new</p>
+<p>key or null removes the previous file after the row is written, never before. Uploading goes</p>
+<p>through the existing <code>POST /api/images</code>.</p>
+<p>The session user (<code>sessionUserSchema</code>) gains <code>avatarImageKey: string | null</code>, so sign-in,</p>
+<p>refresh, <code>GET /api/me</code> and this endpoint all carry it. The mobile client renders it through</p>
+<p><code>GET /api/images/:key</code> like any other key.</p>
+<p>No new endpoints, no new error codes.</p>
+<h3>UI</h3><p><strong>Tab bar.</strong> Two tabs at the bottom of every screen: Recipes and You, each with an icon and a</p>
+<p>label. Each tab keeps its own stack, so opening a</p>
+<p>recipe from the list keeps the bar, as CLAUDE.md asks. The one exception is cook mode, which sits</p>
+<p>above the tabs and hides the bar, because that screen needs the bottom of the display for the</p>
+<p>done bar. The iOS swipe back and the Android back button work inside a tab as they do today.</p>
+<p>The Settings button leaves the list header; the You tab is where that went. New stays in the</p>
+<p>header of the list.</p>
+<p><strong>Recipes tab.</strong> The list and everything stacked on it today: new, import, detail, edit, steps,</p>
+<p>flow, review, and the shared screen a link opens.</p>
+<p><strong>You tab.</strong> From the top:</p>
+<li>The avatar, a circle. With no photo it shows the first letter of the name, so the space is</li>
+<p>  never blank. Under it "Change photo", and "Remove photo" when there is one. Choosing a photo</p>
+<p>  uploads it at once and saves the key, with the same offline and failure lines as a recipe</p>
+<p>  photo (0011).</p>
+<li>The name, in a field with Save. Blank is refused before anything is sent; the same 1 to 80</li>
+<p>  character rule the API enforces. Saving replaces the stored user, so the list header changes</p>
+<p>  with it.</p>
+<li>Language and Units, exactly as settings has them today.</li>
+<li>Sign out.</li>
+<li>In a development build only, a way into the design gallery, which today is reachable only by</li>
+<p>  typing its path.</p>
+<p>The email is shown under the name, read-only, so the person can see which account this is.</p>
+<p>Two things found while building. Hermes, the JavaScript engine in the app, has no</p>
+<p><code>Intl.Segmenter</code>, so the avatar's initial is the first code point rather than the first grapheme.</p>
+<p>And a screen above the tabs, which is only cook mode, must leave by popping back: replacing from</p>
+<p>there lands in the tab's stack with nothing beneath it, and the back button is gone.</p>
+<p>The tab bar and the tab icons come from <code>@react-navigation/bottom-tabs</code> through Expo Router's</p>
+<p>own <code>Tabs</code>, and <code>@expo/vector-icons</code>, both Expo's standard choices and both widely used. They</p>
+<p>are added as direct dependencies of the mobile app, per the Metro note in CLAUDE.md.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian. The You screen's components follow</p>
+<p>the one-folder-per-component layout.</p>
 </details>
 </section>
 

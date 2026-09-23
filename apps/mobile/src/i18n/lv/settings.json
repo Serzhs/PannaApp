@@ -1,5 +1,5 @@
 {
-  "screen": "Iestatījumi",
+  "screen": "Tu",
   "language": {
     "title": "Valoda",
     "device": "Ierīces ({{resolved}})",
@@ -13,5 +13,21 @@
     "imperial": "Imperiālās"
   },
   "saveFailed": "Neizdevās saglabāt iestatījumu. Mēģini vēlreiz.",
-  "signOut": "Izrakstīties"
+  "signOut": "Izrakstīties",
+  "email": "Pierakstījies kā {{email}}",
+  "avatar": {
+    "photoOf": "{{name}} foto",
+    "noPhoto": "Vēl nav foto",
+    "choose": "Izvēlēties foto",
+    "change": "Mainīt foto",
+    "remove": "Noņemt foto",
+    "failed": "Neizdevās pievienot foto. Mēģini vēlreiz."
+  },
+  "name": {
+    "label": "Vārds",
+    "save": "Saglabāt vārdu",
+    "empty": "Ievadi vārdu.",
+    "tooLong": "Vārds nedrīkst pārsniegt 80 rakstzīmes."
+  },
+  "designGallery": "Dizaina galerija"
 }

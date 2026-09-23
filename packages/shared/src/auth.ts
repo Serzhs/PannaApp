@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { imageKeySchema } from './recipes.js';
 import { unitSystemSchema } from './units.js';
 
 export const authProviderSchema = z.enum(['google', 'apple']);
@@ -13,10 +14,15 @@ export type Locale = z.infer<typeof localeSchema>;
  * What the app knows about the signed-in person. `locale` and `unitSystem` are null
  * until chosen, which means "follow the device" and is not the same as any value.
  */
+/** One rule for the name, shared by sign-in, settings and the You screen's own check (0018). */
+export const displayNameSchema = z.string().trim().min(1).max(80);
+
 export const sessionUserSchema = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
   displayName: z.string(),
+  /** 0018. Null until a photo is chosen; the file behind it lives with the recipe photos. */
+  avatarImageKey: imageKeySchema.nullable(),
   locale: localeSchema.nullable(),
   unitSystem: unitSystemSchema.nullable(),
 });
@@ -24,7 +30,8 @@ export const sessionUserSchema = z.object({
 /** Any subset, never nothing. Null on the two preferences restores "follow the device". */
 export const updateMeBodySchema = z
   .object({
-    displayName: z.string().trim().min(1).max(80),
+    displayName: displayNameSchema,
+    avatarImageKey: imageKeySchema.nullable(),
     locale: localeSchema.nullable(),
     unitSystem: unitSystemSchema.nullable(),
   })
@@ -51,7 +58,7 @@ export const signInBodySchema = z
     provider: authProviderSchema,
     idToken: z.string().min(1),
     nonce: z.string().min(1),
-    displayName: z.string().trim().min(1).max(80).optional(),
+    displayName: displayNameSchema.optional(),
   })
   .strict();
 

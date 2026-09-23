@@ -1,6 +1,6 @@
 # 0018: Avatars and the tab bar
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0006, 0011
 
 ## Context
@@ -79,6 +79,11 @@ flow, review, and the shared screen a link opens.
 
 The email is shown under the name, read-only, so the person can see which account this is.
 
+Two things found while building. Hermes, the JavaScript engine in the app, has no
+`Intl.Segmenter`, so the avatar's initial is the first code point rather than the first grapheme.
+And a screen above the tabs, which is only cook mode, must leave by popping back: replacing from
+there lands in the tab's stack with nothing beneath it, and the back button is gone.
+
 The tab bar and the tab icons come from `@react-navigation/bottom-tabs` through Expo Router's
 own `Tabs`, and `@expo/vector-icons`, both Expo's standard choices and both widely used. They
 are added as direct dependencies of the mobile app, per the Metro note in CLAUDE.md.
@@ -88,20 +93,25 @@ the one-folder-per-component layout.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] `PATCH /api/me` with an uploaded key stores it and answers the user with it; with null it
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`:
+      shared 9, API 134, mobile 1202 tests.)_
+- [x] `PATCH /api/me` with an uploaded key stores it and answers the user with it; with null it
       clears it; an unknown key is 400 with `fields.avatarImageKey: UNKNOWN_IMAGE`; replacing or
       clearing removes the old file from disk and leaves the new one, asserted end to end.
-- [ ] Sign-in and `GET /api/me` carry `avatarImageKey`, asserted end to end.
-- [ ] The You screen shows the name, the email, and the first letter when there is no photo, and
+      _(`stores an avatar, replaces it, clears it, and removes the files it no longer needs` and
+      `refuses an avatar key with no file behind it, by field` in users.e2e.test.ts.)_
+- [x] Sign-in and `GET /api/me` carry `avatarImageKey`, asserted end to end. _(The same two tests,
+      and `starts with both preferences null, meaning follow the device, and no avatar`.)_
+- [x] The You screen shows the name, the email, and the first letter when there is no photo, and
       the photo when there is; Save sends the trimmed name and a blank name is refused without a
       request; Change photo uploads then saves the key; Remove photo sends null, asserted in a
-      test.
-- [ ] The list header no longer offers Settings, asserted in a test.
-- [ ] On the simulator: the tab bar shows on the list, on a recipe and on the You tab, and is
+      test. _(YouScreen.test.tsx, four tests.)_
+- [x] The list header no longer offers Settings, asserted in a test. _(ListHeader.test.tsx.)_
+- [x] On the simulator: the tab bar shows on the list, on a recipe and on the You tab, and is
       gone in cook mode; a photo chosen on You appears as the avatar and survives a cold start;
-      a changed name shows on the list header.
-- [ ] The Latvian file lists every new key.
+      a changed name shows on the list header. _(Done on the iPhone 17 Pro simulator, 23 September 2026. Leaving cook mode now pops back to the recipe rather than replacing it, since a replace
+      from above the tabs left the recipes stack with nothing beneath.)_
+- [x] The Latvian file lists every new key. _(The key-parity test in i18n passes.)_
 
 Manual follow-up, not gating: a VoiceOver walkthrough of the tab bar and the You screen, per the
 Accessibility section of CLAUDE.md.

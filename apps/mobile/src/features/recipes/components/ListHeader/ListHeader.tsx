@@ -26,21 +26,6 @@ export function ListHeaderTitle(): React.JSX.Element {
   );
 }
 
-/** Sign out lives in settings from 0006, so the header offers the way there. */
-export function SettingsButton(): React.JSX.Element {
-  const router = useRouter();
-  const { t } = useTranslation();
-  return (
-    <Button
-      label={t('recipes:header.settings')}
-      variant="ghost"
-      onPress={() => {
-        router.push('/settings');
-      }}
-    />
-  );
-}
-
 export function NewRecipeButton(): React.JSX.Element {
   const router = useRouter();
   const { t } = useTranslation();

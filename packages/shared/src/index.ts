@@ -16,6 +16,7 @@ export {
   refreshBodySchema,
   sessionSchema,
   sessionUserSchema,
+  displayNameSchema,
   signInBodySchema,
   tokenPairSchema,
   localeSchema,

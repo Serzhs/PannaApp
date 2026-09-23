@@ -39,6 +39,8 @@ import { StepsSection } from '@/features/recipes/components/StepsSection';
 import { UnitPicker } from '@/features/recipes/components/UnitPicker';
 import { move, type EquipmentDraft, type IngredientDraft } from '@/features/recipes/needs';
 import type { StepDraft } from '@/features/recipes/steps';
+import { Avatar } from '@/features/settings/components/Avatar';
+import { AvatarField } from '@/features/settings/components/AvatarField';
 import { contrast } from '@/styles/contrast';
 import { textStyles, theme } from '@/styles/theme';
 import { primitives, type SemanticColor, type SpaceName } from '@/styles/tokens';
@@ -694,6 +696,13 @@ function NeedsLines(): React.JSX.Element {
             value={'a'.repeat(32)}
             onChange={() => undefined}
           />
+        </Stack>
+      </Section>
+      <Section title="Avatar">
+        <Stack gap="space4" align="center">
+          <Avatar name="Jānis" imageKey={null} accessibilityLabel="No photo yet" />
+          <Avatar name="Anna" imageKey={'a'.repeat(32)} accessibilityLabel="Photo of Anna" />
+          <AvatarField name="Jānis" value={null} onChange={() => undefined} />
         </Stack>
       </Section>
       <Section title="NoteList">

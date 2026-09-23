@@ -1,5 +1,5 @@
 {
-  "screen": "Settings",
+  "screen": "You",
   "language": {
     "title": "Language",
     "device": "Device ({{resolved}})",
@@ -13,5 +13,21 @@
     "imperial": "Imperial"
   },
   "saveFailed": "Could not save the setting. Try again.",
-  "signOut": "Sign out"
+  "signOut": "Sign out",
+  "email": "Signed in as {{email}}",
+  "avatar": {
+    "photoOf": "Photo of {{name}}",
+    "noPhoto": "No photo yet",
+    "choose": "Choose photo",
+    "change": "Change photo",
+    "remove": "Remove photo",
+    "failed": "Could not add the photo. Try again."
+  },
+  "name": {
+    "label": "Name",
+    "save": "Save name",
+    "empty": "Enter a name.",
+    "tooLong": "Keep the name under 80 characters."
+  },
+  "designGallery": "Design gallery"
 }

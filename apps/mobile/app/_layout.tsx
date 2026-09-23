@@ -43,7 +43,7 @@ function SessionRouter() {
     const inAuthGroup = segments[0] === '(auth)';
     if (session === null && !inAuthGroup) {
       // A share link opened signed out comes back here once signed in (0017).
-      if (segments[1] === 'shared' && params.token !== undefined) {
+      if ((segments as string[]).includes('shared') && params.token !== undefined) {
         pendingLink.current = {
           token: params.token,
           ...(params.api === undefined ? {} : { api: params.api }),
@@ -54,8 +54,8 @@ function SessionRouter() {
     if (session !== null && inAuthGroup) {
       const link = pendingLink.current;
       pendingLink.current = null;
-      router.replace('/(app)');
-      if (link !== null) router.push({ pathname: '/(app)/shared/[token]', params: link });
+      router.replace('/');
+      if (link !== null) router.push({ pathname: '/shared/[token]', params: link });
     }
   }, [session, segments, router, params.token, params.api]);
 

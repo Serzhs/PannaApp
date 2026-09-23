@@ -16,6 +16,7 @@ export const SESSION_USER_COLUMNS = {
   id: users.id,
   email: users.email,
   displayName: users.displayName,
+  avatarImageKey: users.avatarImageKey,
   locale: users.locale,
   unitSystem: users.unitSystem,
 } as const;

@@ -91,6 +91,9 @@ what has already been reported. The judgement above is the part that catches the
 file system is what it reads. And iPhones shoot HEIC, which the resizer cannot decode, so the picker
 is asked for a compatible representation, which hands over a JPEG.
 
+**Hermes has no `Intl.Segmenter`.** `Intl` is otherwise there for dates, numbers and plurals, but
+anything needing graphemes has to make do with code points or ship a library.
+
 **Metro caches its module map, and a stale one blames a file that exists.** "Unable to resolve module
 X from node_modules/Y" right after a native package was added, when the file is there, is the
 cache: restart Metro with `npx expo start --clear`.
@@ -665,11 +668,15 @@ picking one for both.
 
 Three tabs, and screens that stack inside them.
 
-| Tab      | Screen                  | What it is for                                                       |
-| -------- | ----------------------- | -------------------------------------------------------------------- |
-| Recipes  | `(app)/(tabs)/index`    | Yours. In progress at the top, then everything else, drafts chipped. |
-| Featured | `(app)/(tabs)/featured` | Recipes we wrote, to start from. Searchable; nothing user-generated. |
-| You      | `(app)/(tabs)/you`      | Your avatar and name, language, units, sign out.                     |
+| Tab      | Screen                         | What it is for                                                              |
+| -------- | ------------------------------ | --------------------------------------------------------------------------- |
+| Recipes  | `(app)/(tabs)/(recipes)/index` | Yours. In progress at the top, then everything else, drafts chipped.        |
+| Featured | `(app)/(tabs)/featured`        | Recipes we wrote, to start from (0019). Searchable; nothing user-generated. |
+| You      | `(app)/(tabs)/you/index`       | Your avatar and name, language, units, sign out.                            |
+
+Each tab is its own stack, so a recipe opened from the list keeps the bar. Cook mode is the one
+screen in the outer stack above the tabs, and it leaves by popping back: a replace from up there
+lands in the tab's stack with nothing beneath it.
 
 Stacked on top of whichever tab you are in:
 

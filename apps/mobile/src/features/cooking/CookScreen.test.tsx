@@ -19,11 +19,12 @@ import {
 import * as unitSystem from '@/features/units/useUnitSystem';
 
 const mockReplace = jest.fn();
+const mockBack = jest.fn();
 jest.mock('expo-router', () => ({
   useRouter: () => ({
     push: jest.fn(),
     replace: mockReplace,
-    back: jest.fn(),
+    back: mockBack,
     canGoBack: () => true,
   }),
 }));
@@ -81,6 +82,7 @@ describe('CookScreen', () => {
   });
   beforeEach(() => {
     mockReplace.mockReset();
+    mockBack.mockReset();
     jest.mocked(Notifications.scheduleNotificationAsync).mockClear();
     jest.mocked(Notifications.cancelScheduledNotificationAsync).mockClear();
     jest.mocked(KeepAwake.activateKeepAwakeAsync).mockClear();
@@ -147,10 +149,9 @@ describe('CookScreen', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Save and finish' }));
     expect(queuedCooks(recipe.id).at(-1)?.note).toBe('Less salt');
     expect(loadCook(recipe.id)).toBeNull();
-    expect(mockReplace).toHaveBeenCalledWith({
-      pathname: '/recipes/[id]',
-      params: { id: recipe.id },
-    });
+    // 0018: cook mode sits above the tabs, so leaving pops back to the recipe beneath.
+    expect(mockBack).toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
     await view.unmount();
     expect(KeepAwake.deactivateKeepAwake).toHaveBeenCalled();
   });
