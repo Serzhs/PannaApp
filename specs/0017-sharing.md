@@ -88,18 +88,18 @@ All new strings go through `t()`, in English and Latvian.
       shared 9, API 132, mobile 1173 tests.)_
 - [x] Share on a ready recipe answers a 12-character token and a `panna://` url, the same token
       again on a second call; on a draft, 409; another user's recipe, 404, asserted end to end. _(`makes one link per recipe, only when ready,
-  only for its owner` in recipes.e2e.test.ts.)_
+only for its owner` in recipes.e2e.test.ts.)_
 - [x] `GET /api/shared/:token` needs no session and returns the recipe without notes or cook
       counts; after revoke it is 404; a made-up token is 404, asserted end to end. _(`serves a shared recipe to anyone with the
-  token, and nothing once revoked`.)_
+token, and nothing once revoked`.)_
 - [x] Save copies the recipe to the caller as a draft with every ingredient, piece of equipment,
       step, nesting and link intact under new ids, with photos under new keys and
       `sourceRecipeId` set; the original's cooks and notes are not copied; deleting the original
       leaves the copy whole with its photos, asserted end to end. _(`copies a shared recipe to
-  whoever saves it, and the copy survives the original`.)_
+whoever saves it, and the copy survives the original`.)_
 - [x] The recipe screen shows Share for a ready recipe and nothing for a draft; Stop sharing asks
       and revokes, asserted in a test. _(`shares a ready recipe through the platform sheet, and
-  stops sharing after asking` in RecipeDetailScreen.test.tsx.)_
+stops sharing after asking` in RecipeDetailScreen.test.tsx.)_
 - [x] The shared screen shows the recipe and "Add to my recipes", and lands on the copy; a
       revoked link shows the no-longer-works state, asserted in a test. _(SharedScreen.test.tsx.)_
 - [x] On the simulator: share the soup as Jānis, open the link as Anna, add it, see it in Anna's
