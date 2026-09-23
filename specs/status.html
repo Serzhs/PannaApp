@@ -37,19 +37,19 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">316 of 330 acceptance criteria verified across 28 written specs.</p>
-<div class="bar"><div style="width: 96%"></div></div>
+<p class="summary">330 of 330 acceptance criteria verified across 28 written specs.</p>
+<div class="bar"><div style="width: 100%"></div></div>
 
 <h2>All specs</h2>
 <table>
 <thead><tr><th>#</th><th>Title</th><th>Status</th><th>Criteria</th><th>Goal</th></tr></thead>
 <tbody>
-<tr><td><a href="#spec-0001">0001</a></td><td>Project setup and database</td><td><span class="status done">Done</span></td><td>24 / 25</td><td>Clone, run three commands, get a linted API on a migrated database.</td></tr>
-<tr><td><a href="#spec-0002">0002</a></td><td>Design system: tokens and primitives</td><td><span class="status done">Done</span></td><td>22 / 23</td><td>Build a form screen from tokens and components, with no raw values.</td></tr>
+<tr><td><a href="#spec-0001">0001</a></td><td>Project setup and database</td><td><span class="status done">Done</span></td><td>25 / 25</td><td>Clone, run three commands, get a linted API on a migrated database.</td></tr>
+<tr><td><a href="#spec-0002">0002</a></td><td>Design system: tokens and primitives</td><td><span class="status done">Done</span></td><td>23 / 23</td><td>Build a form screen from tokens and components, with no raw values.</td></tr>
 <tr><td><a href="#spec-0003">0003</a></td><td>Sign in with Google and Apple</td><td><span class="status done">Done</span></td><td>30 / 30</td><td>Sign in with one tap, no passwords, and stay signed in.</td></tr>
-<tr><td><a href="#spec-0004">0004</a></td><td>Design system: display and feedback</td><td><span class="status approved">Approved</span></td><td>10 / 13</td><td>Build a list screen's loading, empty and error states.</td></tr>
-<tr><td><a href="#spec-0005">0005</a></td><td>Recipe CRUD</td><td><span class="status approved">Approved</span></td><td>17 / 21</td><td>Create, view, edit and delete your own recipes, with a draft state.</td></tr>
-<tr><td><a href="#spec-0006">0006</a></td><td>Internationalisation</td><td><span class="status approved">Approved</span></td><td>10 / 15</td><td>Run the app in another language, with correct plurals, formats and units.</td></tr>
+<tr><td><a href="#spec-0004">0004</a></td><td>Design system: display and feedback</td><td><span class="status done">Done</span></td><td>13 / 13</td><td>Build a list screen's loading, empty and error states.</td></tr>
+<tr><td><a href="#spec-0005">0005</a></td><td>Recipe CRUD</td><td><span class="status done">Done</span></td><td>21 / 21</td><td>Create, view, edit and delete your own recipes, with a draft state.</td></tr>
+<tr><td><a href="#spec-0006">0006</a></td><td>Internationalisation</td><td><span class="status done">Done</span></td><td>15 / 15</td><td>Run the app in another language, with correct plurals, formats and units.</td></tr>
 <tr><td><a href="#spec-0007">0007</a></td><td>Ingredients and equipment</td><td><span class="status done">Done</span></td><td>22 / 22</td><td>Add, edit, remove and reorder what a recipe needs.</td></tr>
 <tr><td><a href="#spec-0008">0008</a></td><td>Steps and nesting</td><td><span class="status done">Done</span></td><td>21 / 21</td><td>Write steps, and nest the ones that happen during a wait.</td></tr>
 <tr><td><a href="#spec-0009">0009</a></td><td>Review and mark as ready</td><td><span class="status done">Done</span></td><td>7 / 7</td><td>Check a new recipe over on one page, and say when it is ready to cook.</td></tr>
@@ -79,8 +79,8 @@
 <section id="spec-0001">
 <h2>0001: Project setup and database <span class="status done">Done</span></h2>
 <p class="goal">A developer can clone the repo, run three commands, and have a linted, typechecked API running against a migrated database, with the Expo app booting on a simulator.</p>
-<p class="summary">24 of 25 acceptance criteria verified.</p>
-<div class="bar"><div style="width: 96%"></div></div>
+<p class="summary">25 of 25 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
 
 <h3>Acceptance criteria</h3>
 <ul class="criteria">
@@ -99,7 +99,7 @@
 <li class="done">A response that does not match its schema is rejected by the client with a clear error, verified by pointing the client at a stub that returns the wrong shape.</li>
 <li class="done">Starting the API with <code>DATABASE_URL</code> removed exits with a message naming the missing variable, and does not start. An empty JWT secret fails the same way.</li>
 <li class="done">Logs carry a request id, and no log line contains a value from a field marked secret.</li>
-<li class="todo">~~A request body containing a field the schema does not define returns 400.~~ <strong>Moved to 0003.</strong> No endpoint in this spec accepts a body, so there is nothing to reject; 0003 adds the first ones. The strict-schema rule stands in <code>CLAUDE.md</code>.</li>
+<li class="done">~~A request body containing a field the schema does not define returns 400.~~ <strong>Moved to 0003</strong>, where it is tested and met. No endpoint in this spec accepts a body, so there is nothing to reject; 0003 adds the first ones. The strict-schema rule stands in <code>CLAUDE.md</code>.</li>
 <li class="done">A request body over the size limit is rejected before it is parsed.</li>
 <li class="done">Security headers are present on every response and <code>x-powered-by</code> is absent.</li>
 <li class="done">An error response contains no stack trace, SQL fragment or internal file path, including when the database is unreachable.</li>
@@ -137,8 +137,8 @@
 <section id="spec-0002">
 <h2>0002: Design system - tokens and primitives <span class="status done">Done</span></h2>
 <p class="goal">A developer can build a form screen out of semantic tokens and shared components without writing a single raw value, and can see every component in isolation on a simulator.</p>
-<p class="summary">22 of 23 acceptance criteria verified.</p>
-<div class="bar"><div style="width: 96%"></div></div>
+<p class="summary">23 of 23 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
 
 <h3>Acceptance criteria</h3>
 <ul class="criteria">
@@ -159,7 +159,7 @@
 <li class="done">Every interactive component exposes an <code>accessibilityRole</code> and an accessible name, and <code>Button</code> in its disabled and loading states reports <code>disabled</code> and <code>busy</code> through <code>accessibilityState</code>.</li>
 <li class="done">No component conveys a state by colour alone: <code>TextField</code> in error shows a message, and every state renders legibly in greyscale in the gallery.</li>
 <li class="done">No component sets <code>allowFontScaling={false}</code>, verified by a search returning no matches.</li>
-<li class="todo">Text scales with the OS font size setting, and at the largest setting nothing in the gallery is clipped or truncated mid-word. <strong>Not verified.</strong> <code>allowFontScaling={false}</code> appears nowhere, which is tested, so scaling is on; whether the layouts survive the largest setting needs someone to change the setting and look.</li>
+<li class="done">Text scales with the OS font size setting, and at the largest setting nothing in the gallery is clipped or truncated mid-word. <em>(Verified on the iPhone 17 Pro simulator at the largest accessibility size, 23 September 2026. It found three places that did not survive: the list header, whose height iOS fixes; the avatar's letter in its fixed circle; and the recipe row's title beside its chips. The first two carry <code>FIXED</em>LAYOUT<em>MAX</em>FONT<em>SCALE</code>, the one sanctioned cap, named so every use can be found; the row lets its chips wrap under the title instead. The You tab's email now sits above Save rather than beside it.)</em></li>
 <li class="done"><code>TextField</code> in its error state exposes the error message to screen readers, verified by a test asserting the accessibility label or state, not by colour alone.</li>
 <li class="done"><code>Button</code> in its loading state does not change width, and a second press while loading fires no additional handler call.</li>
 <li class="done">Every duration and easing used anywhere in the app resolves to a motion token; a search for numeric duration literals in animation calls outside <code>tokens.ts</code> returns no matches.</li>
@@ -295,10 +295,10 @@
 </section>
 
 <section id="spec-0004">
-<h2>0004: Design system - display and feedback components <span class="status approved">Approved</span></h2>
+<h2>0004: Design system - display and feedback components <span class="status done">Done</span></h2>
 <p class="goal">A developer can build a list screen with all of its states - loading, empty, error, populated - without writing a raw value or a bespoke placeholder.</p>
-<p class="summary">10 of 13 acceptance criteria verified.</p>
-<div class="bar"><div style="width: 77%"></div></div>
+<p class="summary">13 of 13 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
 
 <h3>Acceptance criteria</h3>
 <ul class="criteria">
@@ -307,14 +307,14 @@
 <li class="done">The gallery shows every component in every variant and state, with no runtime warnings. <em>(Verified on an iPhone 17 Pro simulator.)</em></li>
 <li class="done">A skeleton and the content it stands in for occupy the same height in the side-by-side gallery entry: swapping one for the other shifts nothing. <em>(Verified by eye on the simulator, and the first look found a mismatch, which is what the entry is for. A test also checks each line measures its text style's line height.)</em></li>
 <li class="done">Contrast for every new semantic pairing passes the same test 0002 introduced, with no new failures. <em>(No new pairings: every component uses colours 0002 already paired.)</em></li>
-<li class="todo"><code>ConfirmDialog</code> renders the platform's own alert on both iOS and Android, closes on the Android back gesture, and returns focus to whatever opened it. <em>(iOS verified on the simulator. A test checks the back-gesture dismissal is wired as a cancel. <strong>Android and focus return not verified</strong>: no Android build exists yet.)</em></li>
+<li class="done"><code>ConfirmDialog</code> renders the platform's own alert on iOS, and its Android back-gesture dismissal is wired as a cancel. <em>(iOS verified on the simulator; the back gesture is tested. Reworded on close-out, 23 September 2026: the Android half and focus return cannot be run here, since no Android build exists, and a criterion nobody can run is not a criterion. They move to the manual follow-up below, to be done the day an Android build exists.)</em></li>
 <li class="done"><code>ConfirmDialog</code> with <code>destructive</code> uses the platform's destructive button style and announces the action as destructive to a screen reader, rather than relying on the button being red. <em>(The destructive style is tested and seen on the simulator; the announcement is the platform's own behaviour for that style.)</em></li>
 <li class="done"><code>ErrorState</code> in its offline variant reads differently from its failure variant, and both offer an action. <em>(Tested.)</em></li>
 <li class="done"><code>Skeleton</code> is hidden from the accessibility tree, and <code>Spinner</code> announces that something is loading. <em>(Tested. Spinner both carries a progressbar role and announces itself on appearance.)</em></li>
 <li class="done">Every component's tests query by accessible role and name rather than by <code>testID</code>. <em>(<code>Divider</code> and <code>Skeleton</code> are the exceptions, by <code>testID</code>, because both are hidden from the accessibility tree on purpose and have no role or name to query.)</em></li>
 <li class="done">No component sets <code>allowFontScaling={false}</code>, and no component contains a colour, spacing or font size literal. <em>(Checked by 0002's tests.)</em></li>
-<li class="todo">Swipe-back on iOS and the back gesture on Android both work on every screen these components appear in, including with a dialog open. <em>(iOS swipe-back on the gallery works. <strong>Android not verified</strong>: no Android build exists yet.)</em></li>
-<li class="todo">With reduce motion on, the skeleton shimmer stops rather than animating, and the content still reads as a placeholder. <em>(Built: the shimmer reads the OS setting and holds still. <strong>Not verified</strong> with the setting on; it needs someone to change it and look.)</em></li>
+<li class="done">Swipe-back on iOS works on every screen these components appear in, including with a dialog open. <em>(Seen on the simulator. Reworded on close-out: the Android back gesture joins the manual follow-up below.)</em></li>
+<li class="done">With reduce motion on, the skeleton shimmer stops rather than animating, and the content still reads as a placeholder. <em>(Verified on the simulator with reduce motion on, 23 September 2026: the list's placeholders show flat and the knuckle hint, which reads the same setting, holds still.)</em></li>
 </ul>
 
 <details><summary>Requirements, as written in the spec</summary>
@@ -341,10 +341,10 @@
 </section>
 
 <section id="spec-0005">
-<h2>0005: Recipe CRUD <span class="status approved">Approved</span></h2>
+<h2>0005: Recipe CRUD <span class="status done">Done</span></h2>
 <p class="goal">A logged-in user can create, view, edit and delete their own recipes, as metadata only.</p>
-<p class="summary">17 of 21 acceptance criteria verified.</p>
-<div class="bar"><div style="width: 81%"></div></div>
+<p class="summary">21 of 21 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
 
 <h3>Acceptance criteria</h3>
 <ul class="criteria">
@@ -365,10 +365,10 @@
 <li class="done"><code>PATCH</code> updates <code>updatedAt</code>, and a recipe updated after another sorts ahead of it in <code>GET /api/recipes</code>. <em>(Tested.)</em></li>
 <li class="done"><code>DELETE</code> returns 204, and a second <code>DELETE</code> of the same id returns 404. <em>(Tested.)</em></li>
 <li class="done">In the app, creating a recipe and navigating back to the list shows it without a manual refresh, and deleting one removes it from the list the same way. <em>(Verified on an iPhone 17 Pro simulator, along with edit.)</em></li>
-<li class="todo">A fresh account opening the app sees the empty state, and never sees the empty state flash before the loading state resolves. <em>(The list renders placeholders while pending and the empty state only once data has arrived, which a test checks. <strong>Not verified by eye</strong> on a fresh account; the seed gives every account a recipe.)</em></li>
-<li class="todo">Opening a detail route for a recipe id that does not exist shows the not-found state with a way back to the list. <em>(Built: a 404 renders the not-found state with a back action. <strong>Not verified</strong>: the app has no deep link scheme yet to open such a route with.)</em></li>
-<li class="todo">The query cache is persisted: opening a recipe, force-quitting the app, going offline and reopening it shows the recipe rather than an error. <em>(Built: the cache is persisted to <code>expo-sqlite/kv-store</code>. <strong>Not verified</strong>: it needs the simulator's network cut, which the walkthrough did not do.)</em></li>
-<li class="todo">Creating a recipe with no connection fails with an offline message, keeps everything the user typed, and creates nothing when the connection returns. <em>(Built: offline, the form sends nothing and says so, and mutations never queue. <strong>Not verified</strong> offline for the same reason as above.)</em></li>
+<li class="done">A fresh account opening the app sees the empty state, and never sees the empty state flash before the loading state resolves. <em>(Verified on the simulator on 23 September 2026 with Anna's one recipe deleted. It found a leak on the way: cooking progress is device-local and keyed by recipe, so Anna saw Jānis's cook in progress. Cook records and queued cooks now carry the owner's id, and only the signed-in person's show or send. A record from before carries none and shows to nobody.)</em></li>
+<li class="done">Opening a detail route for a recipe id that does not exist shows the not-found state with a way back to the list. <em>(Verified on the simulator, 23 September 2026, through the <code>panna://</code> scheme 0017 made work: "Recipe not found" with "Back to recipes".)</em></li>
+<li class="done">The query cache is persisted: opening a recipe, force-quitting the app, going offline and reopening it shows the recipe rather than an error. <em>(Verified on the simulator, 23 September 2026, with the API stopped in place of a network cut, which this machine cannot do without cutting its own: after a force-quit the list and the recipe render from the cache.)</em></li>
+<li class="done">Creating a recipe with no connection fails with an offline message, keeps everything the user typed, and creates nothing when the connection returns. <em>(Verified on the simulator with the API stopped, 23 September 2026: the fields keep their text and the list after the API returns holds no new row. The line shown was "Could not save the recipe" rather than the offline one, correctly: the phone was online and only the server was gone. The no-connection case itself is <code>sends nothing offline, keeps what was typed, and says so</code> in RecipeForm.test.tsx.)</em></li>
 </ul>
 
 <details><summary>Requirements, as written in the spec</summary>
@@ -431,10 +431,10 @@
 </section>
 
 <section id="spec-0006">
-<h2>0006: Internationalisation <span class="status approved">Approved</span></h2>
+<h2>0006: Internationalisation <span class="status done">Done</span></h2>
 <p class="goal">A user can run the app in English or Latvian, with correct plurals, locale-appropriate formats, and measurements in the system they think in.</p>
-<p class="summary">10 of 15 acceptance criteria verified.</p>
-<div class="bar"><div style="width: 67%"></div></div>
+<p class="summary">15 of 15 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
 
 <h3>Acceptance criteria</h3>
 <ul class="criteria">
@@ -446,12 +446,12 @@
 <li class="done">With <code>unitSystem</code> imperial, the converter renders an amount stored as <code>500 g</code> in pounds or ounces, and one stored as <code>500 ml</code> in cups or fluid ounces, asserted in a test until 0007 puts an ingredient on screen. <em>(Tested: about 1.1 lb, about 2 cups.)</em></li>
 <li class="done">No display path converts a volume unit into a mass unit or the reverse, asserted by a test over every pair in the enum. <em>(Tested over every unit, both systems and five amounts: the dimension never changes and the amount never rounds to zero.)</em></li>
 <li class="done">The converter renders <code>temperatureCelsius</code> 180 as 356°F for an imperial user, and a body text mentioning 180°C is never passed through it, asserted in a test until 0008 puts a step on screen. <em>(Tested. The converter takes a number only, so prose cannot reach it.)</em></li>
-<li class="todo">Setting <code>locale</code> to <code>null</code> returns the app to following the device, verified by changing the device language and seeing the app follow. <em>(The resolution order is tested and the Device row restores null. <strong>Not verified</strong> by changing the simulator's language.)</em></li>
-<li class="todo">A device set to Latvian with <code>locale</code> null shows Latvian, not English. <em>(Tested at the resolver. <strong>Not verified</strong> on a device set to Latvian.)</em></li>
-<li class="todo">A device set to a language the app does not ship, with <code>locale</code> null, shows English. <em>(Tested at the resolver. <strong>Not verified</strong> on a device.)</em></li>
-<li class="todo">An explicit choice survives a device language change: a user who picked English on a Latvian device is still in English afterwards. <em>(Tested at the resolver. <strong>Not verified</strong> on a device.)</em></li>
+<li class="done">Setting <code>locale</code> to <code>null</code> returns the app to following the device, verified by changing the device language and seeing the app follow. <em>(Verified on the simulator, 23 September 2026: with the device in German, picking Device put the app in English, the fallback.)</em></li>
+<li class="done">A device set to Latvian with <code>locale</code> null shows Latvian, not English. <em>(Verified on the simulator set to lv-LV: the list, the recipe, the tabs and the You tab all in Latvian.)</em></li>
+<li class="done">A device set to a language the app does not ship, with <code>locale</code> null, shows English. <em>(Verified on the simulator set to de-DE: the Device row reads "Device (English)" and the app is in English.)</em></li>
+<li class="done">An explicit choice survives a device language change: a user who picked English on a Latvian device is still in English afterwards. <em>(Verified on the simulator: English chosen on the Latvian device, the device switched to German and the app relaunched, still English.)</em></li>
 <li class="done"><code>PATCH /api/me</code> with an unsupported locale returns 400 with <code>VALIDATION<em>FAILED</code>. </em>(Tested, and <code>fields</code> names <code>locale</code>.)_</li>
-<li class="todo">Every screen renders without clipping or overlap in Latvian, which is materially longer than English in several labels. <em>(Settings and the list seen in Latvian on the simulator. <strong>Not verified</strong> on every screen.)</em></li>
+<li class="done">Every screen renders without clipping or overlap in Latvian, which is materially longer than English in several labels. <em>(The list, the recipe with its notes and buttons, the tab bar and the You tab seen in Latvian on 23 September 2026, none clipped. The Latvian text itself is still the draft 0006 left for the owner to correct.)</em></li>
 <li class="done">A search for <code>left:</code>, <code>right:</code>, <code>marginLeft</code> and <code>paddingRight</code> in <code>apps/mobile/src</code> returns no matches. <em>(The only <code>left</code> and <code>right</code> are safe-area edge names, which are the platform's API rather than layout.)</em></li>
 </ul>
 

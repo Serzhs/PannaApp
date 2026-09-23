@@ -12,6 +12,10 @@ export const styles = StyleSheet.create({
     borderRadius: theme.radius.radiusSm,
     backgroundColor: theme.colors.surfaceRaised,
   },
+  /** At the largest font sizes the chips drop under the title rather than squeezing it. */
+  titleRow: {
+    flexWrap: 'wrap',
+  },
   title: {
     flexShrink: 1,
   },

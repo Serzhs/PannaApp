@@ -10,6 +10,8 @@ export interface ButtonProps extends Omit<PressableProps, 'children' | 'style'> 
   readonly label: string;
   readonly variant?: ButtonVariant;
   readonly loading?: boolean;
+  /** Only for a button inside a layout that cannot stretch; see FIXED_LAYOUT_MAX_FONT_SCALE. */
+  readonly maxFontSizeMultiplier?: number;
 }
 
 export function Button({
@@ -18,6 +20,7 @@ export function Button({
   loading = false,
   disabled,
   onPress,
+  maxFontSizeMultiplier,
   ...rest
 }: ButtonProps): React.JSX.Element {
   // Pressable types `disabled` as boolean | null, and null is not "off" to the styles.
@@ -33,7 +36,11 @@ export function Button({
       onPress={blocked ? undefined : onPress}
       style={({ pressed }) => [styles.base, buttonStyle(variant, pressed, isDisabled)]}
     >
-      <Text variant="bodyStrong" style={labelStyle(variant, isDisabled, loading)}>
+      <Text
+        variant="bodyStrong"
+        style={labelStyle(variant, isDisabled, loading)}
+        {...(maxFontSizeMultiplier === undefined ? {} : { maxFontSizeMultiplier })}
+      >
         {label}
       </Text>
       {loading ? (

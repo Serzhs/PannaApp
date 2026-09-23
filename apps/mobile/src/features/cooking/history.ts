@@ -4,7 +4,7 @@ import * as Crypto from 'expo-crypto';
 import Storage from 'expo-sqlite/kv-store';
 import { AppState } from 'react-native';
 
-import type { CookRecord } from './store';
+import { cookOwner, type CookRecord } from './store';
 
 import { authorizedCall } from '@/api/session';
 import { recipeKeys } from '@/features/recipes/queries';
@@ -20,6 +20,8 @@ export interface QueuedCook {
   readonly excluded: readonly string[];
   /** Written at the finish (0015); rides with the cook so both land or both wait. */
   readonly note?: string;
+  /** Whose cook: sent only under that person's session, never the next person's on this phone. */
+  readonly userId?: string | null;
 }
 
 function readQueue(): QueuedCook[] {
@@ -62,6 +64,7 @@ export function queueFinishedCook(
     finishedAt: new Date(now).toISOString(),
     excluded: names,
     ...(note === null ? {} : { note }),
+    userId: record.userId ?? null,
   };
   writeQueue([...readQueue(), cook]);
   void flushCookQueue();
@@ -73,6 +76,8 @@ let flushing: Promise<void> | null = null;
 async function drain(): Promise<void> {
   for (const cook of readQueue()) {
     if (!onlineManager.isOnline()) return;
+    // Another person's cook waits for them to sign back in; it must not ride this token.
+    if ((cook.userId ?? null) !== cookOwner()) continue;
     try {
       await authorizedCall('recordCook', {
         params: { recipeId: cook.recipeId },

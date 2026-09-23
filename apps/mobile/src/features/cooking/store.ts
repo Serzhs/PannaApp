@@ -25,6 +25,12 @@ export interface CookRecord {
   readonly currentStepId: string;
   readonly done: readonly string[];
   readonly timer: CookTimer | null;
+  /**
+   * Whose cook this is. Progress lives on the device, and a phone can be signed into by
+   * more than one person over time; a record shows only to the person who started it.
+   * Absent on records from before this field, which then show to nobody signed in.
+   */
+  readonly userId?: string | null;
 }
 
 type MainStep = RecipeDetail['steps'][number];
@@ -32,6 +38,22 @@ type AnyStep = MainStep | MainStep['children'][number];
 
 let cache: readonly CookRecord[] | null = null;
 const listeners = new Set<() => void>();
+let owner: string | null = null;
+
+/** The signed-in person, or null. Set by the session; every read and start goes through it. */
+export function setCookOwner(userId: string | null): void {
+  if (owner === userId) return;
+  owner = userId;
+  publish();
+}
+
+export function cookOwner(): string | null {
+  return owner;
+}
+
+function owned(record: CookRecord): boolean {
+  return (record.userId ?? null) === owner;
+}
 
 function keyOf(recipeId: string): string {
   return `${PREFIX}${recipeId}`;
@@ -46,7 +68,8 @@ function readAll(): readonly CookRecord[] {
     try {
       const parsed = JSON.parse(raw) as Partial<CookRecord> & Pick<CookRecord, 'recipe'>;
       // A record from before 0013 was already cooking, with nothing left out.
-      records.push({ phase: 'cooking', excluded: [], ...parsed } as CookRecord);
+      const record = { phase: 'cooking', excluded: [], ...parsed } as CookRecord;
+      if (owned(record)) records.push(record);
     } catch {
       // A record that no longer parses is a record from a version this app cannot read.
       Storage.removeItemSync(key);
@@ -100,6 +123,7 @@ export function startCook(recipe: RecipeDetail, now: number = Date.now()): CookR
     currentStepId: first.id,
     done: [],
     timer: null,
+    userId: owner,
   };
   saveCook(record);
   return record;

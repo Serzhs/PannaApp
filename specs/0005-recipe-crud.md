@@ -1,6 +1,6 @@
 # 0005: Recipe CRUD
 
-**Status:** Approved
+**Status:** Done
 **Depends on:** 0003, 0004
 
 **Changed by 0025:** the first page of creating also carries the lists and continues to the steps; servings is picked from a row; the edit screen is three tabs.
@@ -118,10 +118,10 @@ All four screens follow the `CLAUDE.md` mobile conventions: logic in `src/featur
 - [x] `PATCH` updates `updatedAt`, and a recipe updated after another sorts ahead of it in `GET /api/recipes`. _(Tested.)_
 - [x] `DELETE` returns 204, and a second `DELETE` of the same id returns 404. _(Tested.)_
 - [x] In the app, creating a recipe and navigating back to the list shows it without a manual refresh, and deleting one removes it from the list the same way. _(Verified on an iPhone 17 Pro simulator, along with edit.)_
-- [ ] A fresh account opening the app sees the empty state, and never sees the empty state flash before the loading state resolves. _(The list renders placeholders while pending and the empty state only once data has arrived, which a test checks. **Not verified by eye** on a fresh account; the seed gives every account a recipe.)_
-- [ ] Opening a detail route for a recipe id that does not exist shows the not-found state with a way back to the list. _(Built: a 404 renders the not-found state with a back action. **Not verified**: the app has no deep link scheme yet to open such a route with.)_
-- [ ] The query cache is persisted: opening a recipe, force-quitting the app, going offline and reopening it shows the recipe rather than an error. _(Built: the cache is persisted to `expo-sqlite/kv-store`. **Not verified**: it needs the simulator's network cut, which the walkthrough did not do.)_
-- [ ] Creating a recipe with no connection fails with an offline message, keeps everything the user typed, and creates nothing when the connection returns. _(Built: offline, the form sends nothing and says so, and mutations never queue. **Not verified** offline for the same reason as above.)_
+- [x] A fresh account opening the app sees the empty state, and never sees the empty state flash before the loading state resolves. _(Verified on the simulator on 23 September 2026 with Anna's one recipe deleted. It found a leak on the way: cooking progress is device-local and keyed by recipe, so Anna saw Jānis's cook in progress. Cook records and queued cooks now carry the owner's id, and only the signed-in person's show or send. A record from before carries none and shows to nobody.)_
+- [x] Opening a detail route for a recipe id that does not exist shows the not-found state with a way back to the list. _(Verified on the simulator, 23 September 2026, through the `panna://` scheme 0017 made work: "Recipe not found" with "Back to recipes".)_
+- [x] The query cache is persisted: opening a recipe, force-quitting the app, going offline and reopening it shows the recipe rather than an error. _(Verified on the simulator, 23 September 2026, with the API stopped in place of a network cut, which this machine cannot do without cutting its own: after a force-quit the list and the recipe render from the cache.)_
+- [x] Creating a recipe with no connection fails with an offline message, keeps everything the user typed, and creates nothing when the connection returns. _(Verified on the simulator with the API stopped, 23 September 2026: the fields keep their text and the list after the API returns holds no new row. The line shown was "Could not save the recipe" rather than the offline one, correctly: the phone was online and only the server was gone. The no-connection case itself is `sends nothing offline, keeps what was typed, and says so` in RecipeForm.test.tsx.)_
 - _Manual follow-up, not a gate:_ A VoiceOver or TalkBack walkthrough of the list, create, detail and edit screens reaches every control in a sensible order. Each recipe row is one element announcing title, servings and time together, not four separate stops, and the delete confirmation announces itself and returns focus to the list afterwards.
 
 ## Open questions

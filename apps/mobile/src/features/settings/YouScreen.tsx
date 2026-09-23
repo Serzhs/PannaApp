@@ -1,8 +1,7 @@
 import { displayNameSchema, type Locale, type UnitSystem } from '@panna/shared';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
 
 import { AvatarField } from './components/AvatarField';
 import { ChoiceList } from './components/ChoiceList';
@@ -35,6 +34,10 @@ export function YouScreen(): React.JSX.Element {
   const update = useUpdateMe();
   const [name, setName] = useState(user?.displayName ?? '');
   const [nameProblem, setNameProblem] = useState<'empty' | 'tooLong' | null>(null);
+  // The session is read from the keychain after the first render, so the field follows the name in.
+  useEffect(() => {
+    setName(user?.displayName ?? '');
+  }, [user?.displayName]);
   const [hintReset, setHintReset] = useState(false);
 
   const deviceLocale = resolveLocale(null, deviceLanguageTags());
@@ -99,8 +102,8 @@ export function YouScreen(): React.JSX.Element {
               onSubmitEditing={saveName}
               {...(nameProblem === null ? {} : { error: t(`settings:name.${nameProblem}`) })}
             />
-            <View style={styles.saveRow}>
-              <Text variant="caption" color="textSecondary" style={styles.email}>
+            <Stack gap="space2">
+              <Text variant="caption" color="textSecondary">
                 {t('settings:email', { email: user.email })}
               </Text>
               <Button
@@ -109,7 +112,7 @@ export function YouScreen(): React.JSX.Element {
                 loading={update.isPending}
                 onPress={saveName}
               />
-            </View>
+            </Stack>
           </Stack>
         )}
         <ChoiceList

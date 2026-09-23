@@ -21,6 +21,14 @@ export const textStyles = {
 export type TextStyleName = keyof typeof textStyles;
 
 /**
+ * The one sanctioned cap on font scaling (CLAUDE.md, Accessibility): for a layout that
+ * genuinely cannot stretch, such as the native navigation header, whose height iOS fixes.
+ * Every use is a design bug with a deadline, not a solution, and names this constant so
+ * they can all be found.
+ */
+export const FIXED_LAYOUT_MAX_FONT_SCALE = 1.6;
+
+/**
  * One theme, imported directly rather than passed through a provider. A provider only
  * earns its keep when a second theme can be switched to at runtime, and dark mode is
  * out of scope for 0002. Swapping to one later changes this module and nothing else,

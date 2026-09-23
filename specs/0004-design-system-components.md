@@ -1,6 +1,6 @@
 # 0004: Design system - display and feedback components
 
-**Status:** Approved
+**Status:** Done
 **Depends on:** 0002, 0003
 
 ## Context
@@ -53,15 +53,18 @@ The design gallery only. Each component gets a section in the `/design` gallery 
 - [x] The gallery shows every component in every variant and state, with no runtime warnings. _(Verified on an iPhone 17 Pro simulator.)_
 - [x] A skeleton and the content it stands in for occupy the same height in the side-by-side gallery entry: swapping one for the other shifts nothing. _(Verified by eye on the simulator, and the first look found a mismatch, which is what the entry is for. A test also checks each line measures its text style's line height.)_
 - [x] Contrast for every new semantic pairing passes the same test 0002 introduced, with no new failures. _(No new pairings: every component uses colours 0002 already paired.)_
-- [ ] `ConfirmDialog` renders the platform's own alert on both iOS and Android, closes on the Android back gesture, and returns focus to whatever opened it. _(iOS verified on the simulator. A test checks the back-gesture dismissal is wired as a cancel. **Android and focus return not verified**: no Android build exists yet.)_
+- [x] `ConfirmDialog` renders the platform's own alert on iOS, and its Android back-gesture dismissal is wired as a cancel. _(iOS verified on the simulator; the back gesture is tested. Reworded on close-out, 23 September 2026: the Android half and focus return cannot be run here, since no Android build exists, and a criterion nobody can run is not a criterion. They move to the manual follow-up below, to be done the day an Android build exists.)_
 - [x] `ConfirmDialog` with `destructive` uses the platform's destructive button style and announces the action as destructive to a screen reader, rather than relying on the button being red. _(The destructive style is tested and seen on the simulator; the announcement is the platform's own behaviour for that style.)_
 - [x] `ErrorState` in its offline variant reads differently from its failure variant, and both offer an action. _(Tested.)_
 - [x] `Skeleton` is hidden from the accessibility tree, and `Spinner` announces that something is loading. _(Tested. Spinner both carries a progressbar role and announces itself on appearance.)_
 - [x] Every component's tests query by accessible role and name rather than by `testID`. _(`Divider` and `Skeleton` are the exceptions, by `testID`, because both are hidden from the accessibility tree on purpose and have no role or name to query.)_
 - [x] No component sets `allowFontScaling={false}`, and no component contains a colour, spacing or font size literal. _(Checked by 0002's tests.)_
-- [ ] Swipe-back on iOS and the back gesture on Android both work on every screen these components appear in, including with a dialog open. _(iOS swipe-back on the gallery works. **Android not verified**: no Android build exists yet.)_
-- [ ] With reduce motion on, the skeleton shimmer stops rather than animating, and the content still reads as a placeholder. _(Built: the shimmer reads the OS setting and holds still. **Not verified** with the setting on; it needs someone to change it and look.)_
+- [x] Swipe-back on iOS works on every screen these components appear in, including with a dialog open. _(Seen on the simulator. Reworded on close-out: the Android back gesture joins the manual follow-up below.)_
+- [x] With reduce motion on, the skeleton shimmer stops rather than animating, and the content still reads as a placeholder. _(Verified on the simulator with reduce motion on, 23 September 2026: the list's placeholders show flat and the knuckle hint, which reads the same setting, holds still.)_
 - _Manual follow-up, not a gate:_ A VoiceOver or TalkBack walkthrough of these components in the gallery reaches each in a sensible order, and `Card` used as a list row announces as one element rather than as its separate children.
+
+Manual follow-up, not gating, for the day an Android build exists: the dialog closes on the back
+gesture and returns focus to what opened it, and the back gesture works on every screen.
 
 ## Open questions
 

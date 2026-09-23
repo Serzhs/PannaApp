@@ -9,6 +9,7 @@ import {
   skippedCount,
   toggleExcluded,
   clearCook,
+  setCookOwner,
   goBack,
   loadCook,
   saveCook,
@@ -186,5 +187,19 @@ describe('the cook store', () => {
     saveCook(old as unknown as typeof started);
     expect(loadCook(recipe.id)?.phase).toBe('cooking');
     expect(loadCook(recipe.id)?.excluded).toEqual([]);
+  });
+
+  /** Progress is device-local: a cook shows only to the person who started it. */
+  it('shows a cook only to the person who started it', () => {
+    setCookOwner('janis');
+    const record = startCook(recipe);
+    expect(record?.userId).toBe('janis');
+    expect(loadCook(recipe.id)).not.toBeNull();
+    setCookOwner('anna');
+    expect(loadCook(recipe.id)).toBeNull();
+    setCookOwner('janis');
+    expect(loadCook(recipe.id)).not.toBeNull();
+    clearCook(recipe.id);
+    setCookOwner(null);
   });
 });

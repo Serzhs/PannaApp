@@ -100,7 +100,7 @@ The Expo app boots to a single placeholder screen. It uses plain React Native st
 - [x] A response that does not match its schema is rejected by the client with a clear error, verified by pointing the client at a stub that returns the wrong shape.
 - [x] Starting the API with `DATABASE_URL` removed exits with a message naming the missing variable, and does not start. An empty JWT secret fails the same way.
 - [x] Logs carry a request id, and no log line contains a value from a field marked secret.
-- [ ] ~~A request body containing a field the schema does not define returns 400.~~ **Moved to 0003.** No endpoint in this spec accepts a body, so there is nothing to reject; 0003 adds the first ones. The strict-schema rule stands in `CLAUDE.md`.
+- [x] ~~A request body containing a field the schema does not define returns 400.~~ **Moved to 0003**, where it is tested and met. No endpoint in this spec accepts a body, so there is nothing to reject; 0003 adds the first ones. The strict-schema rule stands in `CLAUDE.md`.
 - [x] A request body over the size limit is rejected before it is parsed.
 - [x] Security headers are present on every response and `x-powered-by` is absent.
 - [x] An error response contains no stack trace, SQL fragment or internal file path, including when the database is unreachable.

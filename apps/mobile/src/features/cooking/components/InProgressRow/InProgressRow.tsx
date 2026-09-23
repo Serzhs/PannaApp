@@ -44,7 +44,7 @@ export function InProgressRow({ record, onPress }: InProgressRowProps): React.JS
           />
         )}
         <View style={styles.text}>
-          <Text variant="bodyStrong" numberOfLines={1}>
+          <Text variant="bodyStrong" numberOfLines={2}>
             {record.recipe.title}
           </Text>
           <Text variant="caption" color="accent">

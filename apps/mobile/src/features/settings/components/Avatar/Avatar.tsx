@@ -4,6 +4,7 @@ import { styles } from './Avatar.styles';
 
 import { imageUrl } from '@/api/images';
 import { Text } from '@/components/Text';
+import { FIXED_LAYOUT_MAX_FONT_SCALE } from '@/styles/theme';
 
 export interface AvatarProps {
   readonly name: string;
@@ -35,7 +36,8 @@ export function Avatar({ name, imageKey, accessibilityLabel }: AvatarProps): Rea
       accessibilityRole="image"
       accessibilityLabel={accessibilityLabel}
     >
-      <Text variant="display" color="accent">
+      {/* The circle is a fixed size, so the letter inside it cannot grow past its rim. */}
+      <Text variant="display" color="accent" maxFontSizeMultiplier={FIXED_LAYOUT_MAX_FONT_SCALE}>
         {initial}
       </Text>
     </View>

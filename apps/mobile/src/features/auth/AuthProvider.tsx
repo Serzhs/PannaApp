@@ -12,6 +12,7 @@ import {
 } from './session.store';
 
 import { onTokensChanged, setTokens } from '@/api/session';
+import { setCookOwner } from '@/features/cooking/store';
 
 interface AuthState {
   /** Null once the check has run and found nothing; undefined while it is still running. */
@@ -90,6 +91,12 @@ export function AuthProvider({ children }: { readonly children: React.ReactNode 
     );
     await saveUser(user);
   }, []);
+
+  // Cooking progress is device-local and keyed by recipe; the owner keeps one person's
+  // cooks from showing to the next person who signs in on this phone.
+  useEffect(() => {
+    setCookOwner(session?.user.id ?? null);
+  }, [session?.user.id]);
 
   const value = useMemo<AuthState>(
     () => ({ session, user: session?.user ?? null, signIn, signOut, updateUser }),

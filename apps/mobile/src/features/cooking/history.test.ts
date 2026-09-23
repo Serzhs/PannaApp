@@ -3,7 +3,7 @@ import { ApiError } from '@panna/shared';
 import { onlineManager } from '@tanstack/react-query';
 
 import { flushCookQueue, queueFinishedCook, queuedCooks } from './history';
-import type { CookRecord } from './store';
+import { setCookOwner, type CookRecord } from './store';
 
 import * as session from '@/api/session';
 
@@ -113,5 +113,20 @@ describe('the cook queue', () => {
     );
     await flushCookQueue();
     expect(queuedCooks()).toEqual([]);
+  });
+
+  /** Another person's cook waits on this phone until they sign back in; it never rides this token. */
+  it("leaves another person's queued cook alone until they are the one signed in", async () => {
+    call.mockResolvedValue(undefined);
+    queueFinishedCook({ ...record, userId: 'janis' });
+    setCookOwner('anna');
+    await flushCookQueue();
+    expect(call).not.toHaveBeenCalled();
+    expect(queuedCooks(recipe.id)).toHaveLength(1);
+    setCookOwner('janis');
+    await flushCookQueue();
+    expect(call).toHaveBeenCalledTimes(1);
+    expect(queuedCooks(recipe.id)).toEqual([]);
+    setCookOwner(null);
   });
 });

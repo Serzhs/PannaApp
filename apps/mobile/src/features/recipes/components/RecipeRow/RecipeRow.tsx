@@ -50,8 +50,8 @@ export function RecipeRow({
           />
         )}
         <Stack gap="space1" style={styles.text}>
-          <Stack direction="row" gap="space2" align="center">
-            <Text variant="bodyStrong" numberOfLines={1} style={styles.title}>
+          <Stack direction="row" gap="space2" align="center" style={styles.titleRow}>
+            <Text variant="bodyStrong" numberOfLines={2} style={styles.title}>
               {recipe.title}
             </Text>
             {!plain && recipe.status === 'draft' ? (
