@@ -54,7 +54,9 @@ function SessionRouter() {
     if (session !== null && inAuthGroup) {
       const link = pendingLink.current;
       pendingLink.current = null;
-      router.replace('/');
+      // The group path, not '/': from the auth group a bare '/' can land inside a stack
+      // that already exists and leave the sign-in screen where it was (0018).
+      router.replace('/(app)/(tabs)/(recipes)');
       if (link !== null) router.push({ pathname: '/shared/[token]', params: link });
     }
   }, [session, segments, router, params.token, params.api]);
