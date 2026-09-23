@@ -39,7 +39,7 @@ Numbers run in build order, and each spec depends only on lower-numbered ones. T
 nothing below 0007 is written yet and the order has been kept tidy; it will stop being true the first
 time something has to be inserted after a spec is approved.
 
-A number is fixed once its spec is **Approved**.\1In progress specs can still be renumbered, because nothing
+A number is fixed once its spec is **Approved**.In progress specs can still be renumbered, because nothing
 has been built against them yet and a tidy order is worth more than an untouched number. Once a spec
 is approved its number never changes and is never reused.
 
@@ -269,7 +269,7 @@ Copy this into `specs/NNNN-slug.md`.
 ```markdown
 # NNNN: Title
 
-**Status:**\1In progress
+**Status:**In progress
 **Depends on:** NNNN (or none)
 
 ## Context
