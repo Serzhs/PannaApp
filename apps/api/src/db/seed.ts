@@ -289,6 +289,7 @@ async function seedBeetrootSoup(db: Database, authorId: string): Promise<void> {
 async function seedPlov(db: Database, authorId: string): Promise<void> {
   const title = 'Plov';
   if (await hasRecipe(db, authorId, title)) return;
+  const cover = await seedImage('5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b', 'plov.jpg');
   const [recipe] = await db
     .insert(recipes)
     .values({
@@ -297,6 +298,7 @@ async function seedPlov(db: Database, authorId: string): Promise<void> {
       description: 'Still working this one out.',
       servings: 6,
       status: 'draft',
+      coverImageKey: cover,
     })
     .returning();
   if (!recipe) throw new Error('insert returned nothing');
