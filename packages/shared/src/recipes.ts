@@ -11,6 +11,9 @@ const description = z.string().trim().max(2000);
 const servings = z.number().int().min(1).max(100);
 const totalTimeMinutes = z.number().int().min(1).max(1440);
 
+/** 0017. Twelve characters from a URL-safe alphabet: 72 bits, which is not guessable. */
+export const shareTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{12}$/);
+
 export const MAX_NOTE_LENGTH = 2000;
 const noteBody = z.string().trim().min(1).max(MAX_NOTE_LENGTH);
 
@@ -166,7 +169,22 @@ export const recipeDetailSchema = recipeSchema.extend({
   lastCookedAt: z.string().datetime().nullable(),
   /** 0015. Newest first. The guide's recipe copy carries them, so a step shows them offline. */
   notes: z.array(cookNoteSchema),
+  /** 0017. Null until shared; null again once revoked. */
+  shareToken: shareTokenSchema.nullable(),
+  /** 0017. Where a copy came from, or null; set null if the original goes. */
+  sourceRecipeId: z.string().uuid().nullable(),
 });
+
+/** 0017. What a reader sees: the recipe without the author's own history and notes. */
+export const sharedRecipeSchema = recipeSchema.extend({
+  ingredients: z.array(ingredientSchema),
+  equipment: z.array(equipmentSchema),
+  steps: z.array(stepSchema),
+  authorName: z.string(),
+});
+export const shareLinkSchema = z.object({ token: shareTokenSchema, url: z.string().url() });
+export type SharedRecipe = z.infer<typeof sharedRecipeSchema>;
+export type ShareLink = z.infer<typeof shareLinkSchema>;
 
 export const MAX_EXCLUDED = 100;
 

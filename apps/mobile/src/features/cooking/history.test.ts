@@ -35,6 +35,8 @@ const recipe: RecipeDetail = {
   cookCount: 0,
   lastCookedAt: null,
   notes: [],
+  shareToken: null,
+  sourceRecipeId: null,
 };
 const record: CookRecord = {
   recipe,

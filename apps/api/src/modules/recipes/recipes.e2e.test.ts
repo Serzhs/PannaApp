@@ -1,3 +1,5 @@
+import { readdir } from 'node:fs/promises';
+
 import { ConfigModule } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import type { NestExpressApplication } from '@nestjs/platform-express';
@@ -11,6 +13,9 @@ import {
   MAX_NESTED_STEPS,
   cookListSchema,
   cookNoteSchema,
+  sharedRecipeSchema,
+  shareLinkSchema,
+  uploadedImageSchema,
   cookSchema,
   errorBodySchema,
   recipeDetailSchema,
@@ -20,6 +25,7 @@ import {
   sessionSchema,
 } from '@panna/shared';
 import { eq } from 'drizzle-orm';
+import sharp from 'sharp';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
@@ -39,6 +45,7 @@ import {
 import { db } from '../../test/db.js';
 import { AuthModule } from '../auth/auth.module.js';
 import { ImagesModule } from '../images/images.module.js';
+import { SharingModule } from '../sharing/sharing.module.js';
 
 import { RecipesModule } from './recipes.module.js';
 
@@ -145,6 +152,8 @@ describe('recipes, end to end', () => {
           'lastCookedAt',
           'notes',
           'servings',
+          'shareToken',
+          'sourceRecipeId',
           'status',
           'steps',
           'title',
@@ -1142,5 +1151,206 @@ describe('recipe history, end to end', () => {
     const id = await freshRecipe(alice);
     expect((await record(alice, id, body)).status).toBe(400);
     expect(await db.select().from(cooks)).toHaveLength(0);
+  });
+});
+
+describe('sharing, end to end', () => {
+  let app: NestExpressApplication;
+  let alice: string;
+  let bob: string;
+  const dir = String(process.env.IMAGE_DIR);
+
+  beforeAll(async () => {
+    const env = validateEnv({ ...process.env, ALLOW_DEV_SIGN_IN: 'true' });
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true, load: [() => env] }),
+        DatabaseModule,
+        AuthModule.register(env),
+        ImagesModule,
+        RecipesModule,
+        SharingModule,
+      ],
+    }).compile();
+    app = moduleRef.createNestApplication<NestExpressApplication>();
+    app.setGlobalPrefix(API_PREFIX);
+    app.useGlobalFilters(new ErrorFilter());
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  const server = () => request(app.getHttpServer());
+  const as = (token: string) => ({ Authorization: `Bearer ${token}` });
+  const asDetail = (res: request.Response) => recipeDetailSchema.parse(res.body);
+  const asError = (res: request.Response) => errorBodySchema.parse(res.body);
+
+  async function tokenFor(email: string): Promise<string> {
+    const res = await server().post('/api/auth/dev-session').send({ email });
+    return sessionSchema.parse(res.body).accessToken;
+  }
+  async function photo(token: string): Promise<string> {
+    const bytes = await sharp({
+      create: { width: 40, height: 30, channels: 3, background: '#a33' },
+    })
+      .png()
+      .toBuffer();
+    const res = await server().post('/api/images').set(as(token)).attach('file', bytes, 'p.png');
+    return uploadedImageSchema.parse(res.body).key;
+  }
+  /** A ready recipe with a photo, lists, a nested step and links, cooked once with a note. */
+  async function fullRecipe(token: string): Promise<RecipeDetail> {
+    const cover = await photo(token);
+    const created = asDetail(
+      await server()
+        .post('/api/recipes')
+        .set(as(token))
+        .send({
+          ...VALID,
+          coverImageKey: cover,
+          ingredients: [{ name: 'Beetroot', amount: 500, unit: 'g' }, { name: 'Dill' }],
+          equipment: [{ name: 'Pot' }],
+        }),
+    );
+    const [beet, dill] = created.ingredients.map((i) => i.id);
+    const pot = created.equipment[0]?.id;
+    const stepPhoto = await photo(token);
+    const withSteps = asDetail(
+      await server()
+        .patch(`/api/recipes/${created.id}`)
+        .set(as(token))
+        .send({
+          status: 'ready',
+          steps: [
+            {
+              body: 'Boil',
+              durationSeconds: 600,
+              ingredientIds: [beet],
+              equipmentIds: [pot],
+              imageKey: stepPhoto,
+              children: [{ body: 'Chop', ingredientIds: [dill] }],
+            },
+            { body: 'Serve' },
+          ],
+        }),
+    );
+    await server().post(`/api/recipes/${created.id}/cooks`).set(as(token)).send({
+      id: '9c6f1d2e-0000-4000-8000-000000000021',
+      startedAt: '2026-09-22T10:00:00.000Z',
+      finishedAt: '2026-09-22T10:45:00.000Z',
+      excluded: [],
+      note: 'Mine alone',
+    });
+    return asDetail(await server().get(`/api/recipes/${withSteps.id}`).set(as(token)));
+  }
+
+  beforeEach(async () => {
+    await db.insert(users).values([ALICE, BOB]);
+    alice = await tokenFor(ALICE.email);
+    bob = await tokenFor(BOB.email);
+  });
+
+  /** The criteria: a token and a url, the same again; a draft is 409; a stranger 404. */
+  it('makes one link per recipe, only when ready, only for its owner', async () => {
+    const recipe = await fullRecipe(alice);
+    const first = await server().post(`/api/recipes/${recipe.id}/share`).set(as(alice));
+    expect(first.status).toBe(200);
+    const link = shareLinkSchema.parse(first.body);
+    expect(link.token).toMatch(/^[A-Za-z0-9_-]{12}$/);
+    expect(link.url).toBe(`panna://shared/${link.token}?api=http%3A%2F%2Flocalhost%3A3000`);
+    const again = shareLinkSchema.parse(
+      (await server().post(`/api/recipes/${recipe.id}/share`).set(as(alice))).body,
+    );
+    expect(again.token).toBe(link.token);
+    expect(
+      asDetail(await server().get(`/api/recipes/${recipe.id}`).set(as(alice))).shareToken,
+    ).toBe(link.token);
+
+    const draft = asDetail(await server().post('/api/recipes').set(as(alice)).send(VALID));
+    const refused = await server().post(`/api/recipes/${draft.id}/share`).set(as(alice));
+    expect(refused.status).toBe(409);
+    expect(asError(refused).code).toBe(ERROR_CODES.RECIPE_NOT_READY);
+    expect((await server().post(`/api/recipes/${recipe.id}/share`).set(as(bob))).status).toBe(404);
+  });
+
+  /** The criteria: no session needed, no notes or counts, 404 after revoke and for a made-up token. */
+  it('serves a shared recipe to anyone with the token, and nothing once revoked', async () => {
+    const recipe = await fullRecipe(alice);
+    const { token } = shareLinkSchema.parse(
+      (await server().post(`/api/recipes/${recipe.id}/share`).set(as(alice))).body,
+    );
+    const res = await server().get(`/api/shared/${token}`);
+    expect(res.status).toBe(200);
+    const shared = sharedRecipeSchema.parse(res.body);
+    expect(shared.authorName).toBe('Alice');
+    expect(shared.title).toBe(recipe.title);
+    expect(shared.steps[0]?.children[0]?.body).toBe('Chop');
+    expect(res.body).not.toHaveProperty('notes');
+    expect(res.body).not.toHaveProperty('cookCount');
+    expect(res.body).not.toHaveProperty('shareToken');
+
+    expect((await server().delete(`/api/recipes/${recipe.id}/share`).set(as(alice))).status).toBe(
+      204,
+    );
+    const gone = await server().get(`/api/shared/${token}`);
+    expect(gone.status).toBe(404);
+    expect(asError(gone).code).toBe(ERROR_CODES.SHARE_NOT_FOUND);
+    expect((await server().get('/api/shared/not-a-real-1')).status).toBe(404);
+    // Sharing again is a new link.
+    const fresh = shareLinkSchema.parse(
+      (await server().post(`/api/recipes/${recipe.id}/share`).set(as(alice))).body,
+    );
+    expect(fresh.token).not.toBe(token);
+  });
+
+  /** The criterion: the copy is whole under new ids and new photo keys, and outlives the original. */
+  it('copies a shared recipe to whoever saves it, and the copy survives the original', async () => {
+    const recipe = await fullRecipe(alice);
+    const { token } = shareLinkSchema.parse(
+      (await server().post(`/api/recipes/${recipe.id}/share`).set(as(alice))).body,
+    );
+    expect((await server().post(`/api/shared/${token}/save`)).status).toBe(401);
+    const saved = await server().post(`/api/shared/${token}/save`).set(as(bob));
+    expect(saved.status).toBe(201);
+    const copy = asDetail(saved);
+    expect(copy.id).not.toBe(recipe.id);
+    expect(copy.status).toBe('draft');
+    expect(copy.sourceRecipeId).toBe(recipe.id);
+    expect(copy.shareToken).toBeNull();
+    expect(copy.title).toBe(recipe.title);
+    expect(copy.ingredients.map((i) => [i.name, i.amount, i.unit])).toEqual([
+      ['Beetroot', 500, 'g'],
+      ['Dill', null, null],
+    ]);
+    expect(copy.equipment.map((e) => e.name)).toEqual(['Pot']);
+    expect(copy.steps.map((s) => [s.body, s.children.map((c) => c.body)])).toEqual([
+      ['Boil', ['Chop']],
+      ['Serve', []],
+    ]);
+    // Links point at the copy's own rows.
+    expect(copy.steps[0]?.ingredientIds).toEqual([copy.ingredients[0]?.id]);
+    expect(copy.steps[0]?.equipmentIds).toEqual([copy.equipment[0]?.id]);
+    expect(copy.steps[0]?.children[0]?.ingredientIds).toEqual([copy.ingredients[1]?.id]);
+    // Photos are new files, and the author's history stays the author's.
+    expect(copy.coverImageKey).not.toBe(recipe.coverImageKey);
+    expect(copy.steps[0]?.imageKey).not.toBe(recipe.steps[0]?.imageKey);
+    expect(copy.cookCount).toBe(0);
+    expect(copy.notes).toEqual([]);
+    expect(await db.select().from(cooks)).toHaveLength(1);
+    expect(await db.select().from(cookNotes)).toHaveLength(1);
+    // Bob sees it in his list and Alice does not.
+    expect(
+      recipeListSchema.parse((await server().get('/api/recipes').set(as(bob))).body),
+    ).toHaveLength(1);
+
+    expect((await server().delete(`/api/recipes/${recipe.id}`).set(as(alice))).status).toBe(204);
+    const after = asDetail(await server().get(`/api/recipes/${copy.id}`).set(as(bob)));
+    expect(after.sourceRecipeId).toBeNull();
+    expect(after.steps).toHaveLength(2);
+    const files = await readdir(dir);
+    expect(files).toContain(`${String(copy.coverImageKey)}.jpg`);
+    expect(files).not.toContain(`${String(recipe.coverImageKey)}.jpg`);
   });
 });

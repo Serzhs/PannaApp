@@ -53,6 +53,8 @@ const recipe: RecipeDetail = {
   cookCount: 0,
   lastCookedAt: null,
   notes: [],
+  shareToken: null,
+  sourceRecipeId: null,
   ingredients: [{ id: 'dill', position: 0, name: 'dill', note: null, amount: null, unit: null }],
   equipment: [],
   steps: [

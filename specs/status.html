@@ -37,7 +37,7 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">282 of 299 acceptance criteria verified across 24 written specs.</p>
+<p class="summary">290 of 307 acceptance criteria verified across 25 written specs.</p>
 <div class="bar"><div style="width: 94%"></div></div>
 
 <h2>All specs</h2>
@@ -60,7 +60,7 @@
 <tr><td><a href="#spec-0014">0014</a></td><td>Recipe history</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>See when you cooked something, and what you changed each time.</td></tr>
 <tr><td><a href="#spec-0015">0015</a></td><td>Cook's notes</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Record what you learned, and see it next time you cook.</td></tr>
 <tr><td><a href="#spec-0016">0016</a></td><td>JSON recipe import</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Paste AI-generated JSON and get a working recipe.</td></tr>
-<tr><td>0017</td><td>Sharing</td><td><span class="status not-written">Not written</span></td><td>–</td><td>Share a recipe read-only by private link, and revoke it.</td></tr>
+<tr><td><a href="#spec-0017">0017</a></td><td>Sharing</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Share a recipe read-only by private link, and revoke it.</td></tr>
 <tr><td>0018</td><td>Avatars and the tab bar</td><td><span class="status not-written">Not written</span></td><td>–</td><td>An avatar, an editable name, and three tabs to reach things by.</td></tr>
 <tr><td>0019</td><td>Featured recipes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A searchable set of recipes we wrote, to start from.</td></tr>
 <tr><td><a href="#spec-0020">0020</a></td><td>Simpler editing</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>No temperature field, the note behind a button, lines moved by buttons.</td></tr>
@@ -1126,6 +1126,73 @@
 </details>
 </section>
 
+<section id="spec-0017">
+<h2>0017: Sharing <span class="status done">Done</span></h2>
+<p class="goal">An author can share a recipe by a private link and revoke it; a reader with the app opens the link read-only and can keep a copy of their own.</p>
+<p class="summary">8 of 8 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. _(<code>pnpm check</code>:</li>
+<li class="done">Share on a ready recipe answers a 12-character token and a <code>panna://</code> url, the same token</li>
+<li class="done"><code>GET /api/shared/:token</code> needs no session and returns the recipe without notes or cook</li>
+<li class="done">Save copies the recipe to the caller as a draft with every ingredient, piece of equipment,</li>
+<li class="done">The recipe screen shows Share for a ready recipe and nothing for a draft; Stop sharing asks</li>
+<li class="done">The shared screen shows the recipe and "Add to my recipes", and lands on the copy; a</li>
+<li class="done">On the simulator: share the soup as Jānis, open the link as Anna, add it, see it in Anna's</li>
+<li class="done">The Latvian file lists every new key. <em>(The key-parity test in i18n passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>An author can share a recipe by a private link and revoke it; a reader with the app opens the</p>
+<p>link read-only and can keep a copy of their own.</p>
+<h3>Out of scope</h3><li>Hosting. The link carries the API's address; a reader who cannot reach it sees the offline</li>
+<p>  state, not an explanation.</p>
+<li>Universal links, an App Store fallback, or a web page. The link is a <code>panna://</code> link, which</li>
+<p>  opens the app when it is installed and does nothing elsewhere.</p>
+<li>Cooking from a link. A reader cooks their own copy, so <code>cooks</code> keeps needing no <code>userId</code>.</li>
+<li>Reviving a revoked link. Revoked is gone; sharing again makes a new token and a new link.</li>
+<li>Comments, likes, or anything the author can see about who opened it.</li>
+<li>Sharing a draft. Only a ready recipe gets a link.</li>
+<h3>Data model</h3><p><code>recipes.shareToken</code>, 12 characters from a URL-safe alphabet, unique, null until shared.</p>
+<p><code>recipes.sourceRecipeId</code> records where a copy came from, and is set null if the original goes.</p>
+<p><strong>The copy</strong> made by Add to my recipes: a new recipe owned by the reader, <code>draft</code>, with the title,</p>
+<p>description, servings, ingredients, equipment, steps with their nesting, and both link tables,</p>
+<p>every id remapped inside one transaction. Photos are copied to new keys, decided on approval, so</p>
+<p>the author deleting theirs cannot break the copy. Not copied: <code>shareToken</code>, <code>featured</code>, <code>cooks</code>,</p>
+<p><code>cook_notes</code>.</p>
+<h3>API contract</h3><p><strong><code>POST /api/recipes/:recipeId/share</code></strong>, owner only. Makes a token if the recipe has none, and</p>
+<p>answers <code>200 { token, url }</code> either way. A draft is <code>409 RECIPE<em>NOT</em>READY</code>.</p>
+<p><strong><code>DELETE /api/recipes/:recipeId/share</code></strong>, owner only, nulls the token, <code>204</code>, whether or not</p>
+<p>one existed.</p>
+<p><strong><code>GET /api/shared/:token</code></strong>, unauthenticated, rate limited to 30 a minute per address. The</p>
+<p>recipe detail without <code>cookCount</code>, <code>lastCookedAt</code> and <code>notes</code>, which are the author's own, plus</p>
+<p><code>authorName</code>. An unknown or revoked token is <code>404 SHARE<em>NOT</em>FOUND</code>.</p>
+<p><strong><code>POST /api/shared/:token/save</code></strong>, authenticated. Makes the copy and answers <code>201</code> with the</p>
+<p>new recipe detail. Saving your own shared recipe is allowed and makes a copy like any other.</p>
+<p>Unknown token, <code>404 SHARE<em>NOT</em>FOUND</code>.</p>
+<p><strong><code>GET /api/recipes/:recipeId</code></strong> gains <code>shareToken: string | null</code>, so the recipe screen knows</p>
+<p>whether a link exists, and <code>sourceRecipeId</code>, so it can say "Saved from a link".</p>
+<p><code>url</code> is <code>panna://shared/&lt;token&gt;?api=&lt;the API's public origin&gt;</code>, built from a new</p>
+<p><code>PUBLIC<em>API</em>URL</code> in <code>.env</code>, which defaults to <code>http://localhost:3000</code>; the roadmap's hosting</p>
+<p>question is the value of that one variable.</p>
+<h3>UI</h3><p><strong>Recipe screen.</strong> A ready recipe shows "Share" under Cook. Pressing it makes the link if needed</p>
+<p>and opens the platform's share sheet with it. Under the button, once shared, a line "Shared by</p>
+<p>link" and "Stop sharing", which asks first and revokes. A draft shows nothing. A recipe with a</p>
+<p><code>sourceRecipeId</code> shows "Saved from a link" in its meta line.</p>
+<p><strong>Opening a link.</strong> <code>panna://shared/&lt;token&gt;</code> opens <code>(app)/shared/[token]</code>, signed in or not;</p>
+<p>signed out, the sign-in screen comes first and the link is kept. The screen reads the recipe</p>
+<p>through the <code>api</code> in the link, shows it exactly as the recipe screen does, headed by "Shared by</p>
+<p>Anna", with one button, "Add to my recipes", and no Cook, Edit or Delete. Adding lands on the</p>
+<p>copy's recipe screen. A revoked link shows "This link no longer works".</p>
+<p>The <code>panna</code> scheme was in <code>app.json</code> but never reached the built app: the Google sign-in</p>
+<p>override in <code>app.config.ts</code> replaced the whole URL type list. It now lists both, which means</p>
+<p>a prebuild and a rebuild for this spec.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian.</p>
+</details>
+</section>
+
 <section id="spec-0020">
 <h2>0020: Simpler editing <span class="status done">Done</span></h2>
 <p class="goal">The editor shows a field only when it is wanted, and lines move with buttons alone.</p>
@@ -1504,7 +1571,7 @@
 </details>
 </section>
 
-<p class="generated">Generated from <code>specs/*.md</code> by <code>pnpm specs:status</code> on 2026-09-22. Edit the specs, not this page.</p>
+<p class="generated">Generated from <code>specs/*.md</code> by <code>pnpm specs:status</code> on 2026-09-23. Edit the specs, not this page.</p>
 </main>
 </body>
 </html>

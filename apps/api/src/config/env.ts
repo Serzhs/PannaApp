@@ -37,6 +37,9 @@ export const envSchema = z.object({
    * out of a release bundle. See the refinement below: production plus this is a
    * configuration the API refuses to start on.
    */
+  /** 0017. What a share link tells the reader's app to talk to. The hosting question is this value. */
+  PUBLIC_API_URL: z.string().url().default('http://localhost:3000'),
+
   /** 0011. Outside the repo by default, so a clone never carries someone's photos. */
   IMAGE_DIR: z
     .string()

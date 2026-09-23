@@ -90,6 +90,20 @@ export class RecipesController {
     return this.recipes.addNote(owned(request).id, body);
   }
 
+  @Post(nestPath('shareRecipe'))
+  @HttpCode(200)
+  @UseGuards(RecipeOwnerGuard)
+  async share(@Req() request: RecipeRequest): Promise<ResponseOf<'shareRecipe'>> {
+    return this.recipes.share(owned(request));
+  }
+
+  @Delete(nestPath('unshareRecipe'))
+  @HttpCode(204)
+  @UseGuards(RecipeOwnerGuard)
+  async unshare(@Req() request: RecipeRequest): Promise<ResponseOf<'unshareRecipe'>> {
+    await this.recipes.unshare(owned(request).id);
+  }
+
   @Get(nestPath('listCooks'))
   @UseGuards(RecipeOwnerGuard)
   async listCooks(@Req() request: RecipeRequest): Promise<ResponseOf<'listCooks'>> {

@@ -28,6 +28,8 @@ const recipe: RecipeDetail = {
   cookCount: 0,
   lastCookedAt: null,
   notes: [],
+  shareToken: null,
+  sourceRecipeId: null,
   ingredients: [
     { id: 'beet', position: 0, name: 'beetroot', note: null, amount: 500, unit: 'g' },
     { id: 'dill', position: 1, name: 'dill', note: null, amount: null, unit: null },

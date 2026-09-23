@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { ImagesModule } from './modules/images/images.module.js';
 import { RecipesModule } from './modules/recipes/recipes.module.js';
+import { SharingModule } from './modules/sharing/sharing.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 
 const ENV_FILE = '../../.env';
@@ -59,6 +60,7 @@ const env = validateEnv(process.env);
     ImagesModule,
     AuthModule.register(env),
     RecipesModule,
+    SharingModule,
     UsersModule,
   ],
 })

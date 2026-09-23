@@ -1,5 +1,6 @@
 import type { RecipeDetail } from '@panna/shared';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { Alert, Share } from 'react-native';
 
 import { RecipeDetailScreen } from './RecipeDetailScreen';
 
@@ -10,6 +11,8 @@ import * as online from '@/query/useIsOnline';
 
 const mockMutate = jest.fn();
 const mockAddNote = jest.fn();
+const mockShare = jest.fn();
+const mockUnshare = jest.fn();
 let mockDetail: RecipeDetail;
 
 const mockPush = jest.fn();
@@ -26,6 +29,8 @@ jest.mock('./queries', () => ({
   useUpdateRecipe: () => ({ mutate: mockMutate, isPending: false, isError: false, error: null }),
   useDeleteRecipe: () => ({ mockMutate: jest.fn(), isPending: false, isError: false }),
   useAddNote: () => ({ mutateAsync: mockAddNote, isPending: false }),
+  useShareRecipe: () => ({ mutate: mockShare, isPending: false }),
+  useUnshareRecipe: () => ({ mutate: mockUnshare, isPending: false }),
 }));
 
 const recipe = (status: RecipeDetail['status']): RecipeDetail => ({
@@ -41,6 +46,8 @@ const recipe = (status: RecipeDetail['status']): RecipeDetail => ({
   cookCount: 0,
   lastCookedAt: null,
   notes: [],
+  shareToken: null,
+  sourceRecipeId: null,
   ingredients: [],
   equipment: [],
   steps: [],
@@ -180,5 +187,38 @@ describe('RecipeDetailScreen status control', () => {
     await waitFor(() => {
       expect(mockAddNote).toHaveBeenCalledWith({ body: 'Lemon at the end' });
     });
+  });
+
+  /** 0017: Share on a ready recipe opens the sheet with the link; nothing on a draft; Stop sharing asks. */
+  it('shares a ready recipe through the platform sheet, and stops sharing after asking', async () => {
+    const sheet = jest.spyOn(Share, 'share').mockResolvedValue({ action: 'sharedAction' });
+    mockShare.mockImplementation(
+      (_body: unknown, options: { onSuccess: (link: unknown) => void }) => {
+        options.onSuccess({ token: 'abcdefghijkl', url: 'panna://shared/abcdefghijkl?api=x' });
+      },
+    );
+    mockDetail = { ...recipe('ready'), shareToken: 'abcdefghijkl' };
+    await render(<RecipeDetailScreen recipeId={mockDetail.id} />);
+    await fireEvent.press(screen.getByRole('button', { name: 'Share' }));
+    expect(sheet).toHaveBeenCalledWith(
+      expect.objectContaining({ url: 'panna://shared/abcdefghijkl?api=x' }),
+    );
+    expect(screen.getByText('Shared by link')).toBeTruthy();
+
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    await fireEvent.press(screen.getByRole('button', { name: 'Stop sharing' }));
+    expect(mockUnshare).not.toHaveBeenCalled();
+    const buttons = alert.mock.calls.at(-1)?.[2];
+    await act(() => {
+      buttons?.find((b) => b.text === 'Stop sharing')?.onPress?.();
+    });
+    expect(mockUnshare).toHaveBeenCalled();
+    alert.mockRestore();
+    sheet.mockRestore();
+    await screen.unmount();
+
+    mockDetail = recipe('draft');
+    await render(<RecipeDetailScreen recipeId={mockDetail.id} />);
+    expect(screen.queryByRole('button', { name: 'Share' })).toBeNull();
   });
 });

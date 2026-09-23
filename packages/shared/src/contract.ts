@@ -19,6 +19,8 @@ import {
   recordCookBodySchema,
   addNoteBodySchema,
   cookNoteSchema,
+  sharedRecipeSchema,
+  shareLinkSchema,
   uploadedImageSchema,
 } from './recipes.js';
 
@@ -140,6 +142,28 @@ export const api = {
     path: '/api/recipes/:recipeId/notes',
     response: cookNoteSchema,
     body: addNoteBodySchema,
+  }),
+  /** 0017. The link is made once and answered every time; revoking nulls it. */
+  shareRecipe: endpoint({
+    method: 'POST',
+    path: '/api/recipes/:recipeId/share',
+    response: shareLinkSchema,
+  }),
+  unshareRecipe: endpoint({
+    method: 'DELETE',
+    path: '/api/recipes/:recipeId/share',
+    response: z.void(),
+  }),
+  /** Unauthenticated: the token is the permission. */
+  getShared: endpoint({
+    method: 'GET',
+    path: '/api/shared/:token',
+    response: sharedRecipeSchema,
+  }),
+  saveShared: endpoint({
+    method: 'POST',
+    path: '/api/shared/:token/save',
+    response: recipeDetailSchema,
   }),
   listCooks: endpoint({
     method: 'GET',

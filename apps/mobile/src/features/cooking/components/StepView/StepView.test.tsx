@@ -25,6 +25,8 @@ const recipe: RecipeDetail = {
   cookCount: 0,
   lastCookedAt: null,
   notes: [],
+  shareToken: null,
+  sourceRecipeId: null,
   ingredients: [{ id: 'i1', position: 0, name: 'beetroot', note: null, amount: 500, unit: 'g' }],
   equipment: [{ id: 'e1', position: 0, name: 'blender', note: null, optional: false }],
   steps: [

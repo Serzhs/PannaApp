@@ -1,4 +1,7 @@
+import { randomBytes } from 'node:crypto';
+
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   ERROR_CODES,
   type AddNoteBody,
@@ -13,6 +16,8 @@ import {
   type Recipe,
   type RecipeDetail,
   type RecordCookBody,
+  type SharedRecipe,
+  type ShareLink,
   type Step,
   type StepInput,
   type UpdateRecipeBody,
@@ -20,12 +25,14 @@ import {
 import { and, asc, count, desc, eq, inArray, max, notInArray } from 'drizzle-orm';
 
 import { AppException } from '../../common/app-exception.js';
+import type { Env } from '../../config/env.js';
 import type { Database } from '../../db/client.js';
 import { DatabaseService } from '../../db/database.service.js';
 import {
   cookNotes,
   cooks,
   equipment,
+  users,
   ingredients,
   recipes,
   stepEquipment,
@@ -173,10 +180,15 @@ const PARKED = -1000;
 
 @Injectable()
 export class RecipesService {
+  private readonly publicApiUrl: string;
+
   constructor(
     private readonly database: DatabaseService,
     private readonly images: ImagesService,
-  ) {}
+    config: ConfigService<Env, true>,
+  ) {
+    this.publicApiUrl = config.get('PUBLIC_API_URL', { infer: true });
+  }
 
   /** Most recently worked on first; the id breaks ties so the order is stable. */
   async list(authorId: string): Promise<Recipe[]> {
@@ -253,7 +265,186 @@ export class RecipesService {
       cookCount: made[0]?.count ?? 0,
       lastCookedAt: made[0]?.last?.toISOString() ?? null,
       notes: noteRows.map(toNote),
+      shareToken: row.shareToken,
+      sourceRecipeId: row.sourceRecipeId,
     };
+  }
+
+  /** The link is made once; asking again answers the same one (0017). Only a ready recipe gets one. */
+  async share(row: RecipeRow): Promise<ShareLink> {
+    if (row.status !== 'ready') {
+      throw new AppException(
+        409,
+        ERROR_CODES.RECIPE_NOT_READY,
+        'Only a ready recipe can be shared',
+      );
+    }
+    let token = row.shareToken;
+    if (token === null) {
+      token = randomBytes(9).toString('base64url');
+      await this.database.db
+        .update(recipes)
+        .set({ shareToken: token })
+        .where(eq(recipes.id, row.id));
+    }
+    const url = new URL('panna://shared/' + token);
+    url.searchParams.set('api', this.publicApiUrl);
+    return { token, url: url.toString() };
+  }
+
+  /** Revoked is gone: sharing again makes a different token, and anything sent stops working. */
+  async unshare(id: string): Promise<void> {
+    await this.database.db.update(recipes).set({ shareToken: null }).where(eq(recipes.id, id));
+  }
+
+  async findShared(token: string): Promise<SharedRecipe | undefined> {
+    const [found] = await this.database.db
+      .select({ recipe: recipes, authorName: users.displayName })
+      .from(recipes)
+      .innerJoin(users, eq(users.id, recipes.authorId))
+      .where(eq(recipes.shareToken, token))
+      .limit(1);
+    if (found === undefined) return undefined;
+    const detail = await this.readDetail(this.database.db, found.recipe);
+    // The author's history and notes are theirs alone, and never travel.
+    const shared = {
+      id: detail.id,
+      title: detail.title,
+      description: detail.description,
+      status: detail.status,
+      coverImageKey: detail.coverImageKey,
+      servings: detail.servings,
+      totalTimeMinutes: detail.totalTimeMinutes,
+      createdAt: detail.createdAt,
+      updatedAt: detail.updatedAt,
+      ingredients: detail.ingredients,
+      equipment: detail.equipment,
+      steps: detail.steps,
+    };
+    return { ...shared, authorName: found.authorName };
+  }
+
+  /**
+   * Add to my recipes (0017): a new recipe the reader owns, every id remapped, in one
+   * transaction. Photos are copied to new keys, so the author deleting theirs cannot
+   * break the copy. A half-copied recipe is worse than a failed copy, hence the one transaction;
+   * the files are copied first, and dropped again if the rows fail.
+   */
+  async saveShared(token: string, newOwnerId: string): Promise<RecipeDetail | undefined> {
+    const [source] = await this.database.db
+      .select()
+      .from(recipes)
+      .where(eq(recipes.shareToken, token))
+      .limit(1);
+    if (source === undefined) return undefined;
+    const original = await this.readDetail(this.database.db, source);
+
+    const copiedKeys: string[] = [];
+    const copyImage = async (key: string | null): Promise<string | null> => {
+      if (key === null) return null;
+      const fresh = await this.images.duplicate(key);
+      if (fresh !== null) copiedKeys.push(fresh);
+      return fresh;
+    };
+    const cover = await copyImage(original.coverImageKey);
+    const stepImages = new Map<string, string | null>();
+    for (const step of original.steps) {
+      stepImages.set(step.id, await copyImage(step.imageKey));
+      for (const child of step.children) stepImages.set(child.id, await copyImage(child.imageKey));
+    }
+
+    try {
+      return await this.database.db.transaction(async (tx) => {
+        const [row] = await tx
+          .insert(recipes)
+          .values({
+            authorId: newOwnerId,
+            sourceRecipeId: source.id,
+            title: original.title,
+            description: original.description,
+            servings: original.servings,
+            totalTimeMinutes: original.totalTimeMinutes,
+            coverImageKey: cover,
+          })
+          .returning();
+        if (row === undefined) throw new Error('insert returned nothing');
+
+        const ingredientIds = new Map<string, string>();
+        for (const line of original.ingredients) {
+          const [inserted] = await tx
+            .insert(ingredients)
+            .values({
+              recipeId: row.id,
+              position: line.position,
+              name: line.name,
+              note: line.note,
+              amount: line.amount === null ? null : String(line.amount),
+              unit: line.unit,
+            })
+            .returning({ id: ingredients.id });
+          if (inserted === undefined) throw new Error('insert returned nothing');
+          ingredientIds.set(line.id, inserted.id);
+        }
+        const equipmentIds = new Map<string, string>();
+        for (const line of original.equipment) {
+          const [inserted] = await tx
+            .insert(equipment)
+            .values({
+              recipeId: row.id,
+              position: line.position,
+              name: line.name,
+              note: line.note,
+              optional: line.optional,
+            })
+            .returning({ id: equipment.id });
+          if (inserted === undefined) throw new Error('insert returned nothing');
+          equipmentIds.set(line.id, inserted.id);
+        }
+        const remap = (ids: readonly string[], map: Map<string, string>) =>
+          ids.map((id) => map.get(id)).filter((id): id is string => id !== undefined);
+        const copyStep = async (
+          step: Step | NestedStep,
+          parentStepId: string | null,
+        ): Promise<string> => {
+          const [inserted] = await tx
+            .insert(steps)
+            .values({
+              recipeId: row.id,
+              parentStepId,
+              position: step.position,
+              body: step.body,
+              note: step.note,
+              durationSeconds: step.durationSeconds,
+              imageKey: stepImages.get(step.id) ?? null,
+            })
+            .returning({ id: steps.id });
+          if (inserted === undefined) throw new Error('insert returned nothing');
+          const linkedIngredients = remap(step.ingredientIds, ingredientIds);
+          const linkedEquipment = remap(step.equipmentIds, equipmentIds);
+          if (linkedIngredients.length > 0) {
+            await tx
+              .insert(stepIngredients)
+              .values(
+                linkedIngredients.map((ingredientId) => ({ stepId: inserted.id, ingredientId })),
+              );
+          }
+          if (linkedEquipment.length > 0) {
+            await tx
+              .insert(stepEquipment)
+              .values(linkedEquipment.map((equipmentId) => ({ stepId: inserted.id, equipmentId })));
+          }
+          return inserted.id;
+        };
+        for (const step of original.steps) {
+          const mainId = await copyStep(step, null);
+          for (const child of step.children) await copyStep(child, mainId);
+        }
+        return this.readDetail(tx, row);
+      });
+    } catch (error: unknown) {
+      await this.images.remove(copiedKeys);
+      throw error;
+    }
   }
 
   /** A note from the recipe screen or the guide (0015). The step, if any, must be this recipe's. */

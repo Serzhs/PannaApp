@@ -24,6 +24,11 @@ export const ERROR_CODES = {
   /** 0005. Also answers for a recipe that exists but belongs to someone else. */
   RECIPE_NOT_FOUND: 'RECIPE_NOT_FOUND',
 
+  /** 0017. Only a ready recipe gets a link. */
+  RECIPE_NOT_READY: 'RECIPE_NOT_READY',
+  /** 0017. An unknown or revoked token: the two are the same to a reader, on purpose. */
+  SHARE_NOT_FOUND: 'SHARE_NOT_FOUND',
+
   /** 0011. The bytes uploaded are not an image the resizer can read, or no file came. */
   IMAGE_UNSUPPORTED: 'IMAGE_UNSUPPORTED',
   /** A malformed key answers the same as an unknown one, so nothing about the store leaks. */

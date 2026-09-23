@@ -33,6 +33,8 @@ const created: RecipeDetail = {
   cookCount: 0,
   lastCookedAt: null,
   notes: [],
+  shareToken: null,
+  sourceRecipeId: null,
 };
 
 const DOC = JSON.stringify({

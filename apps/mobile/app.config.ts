@@ -26,6 +26,11 @@ const withModulesFromSource = (config: ExpoConfig): ExpoConfig =>
     return podfile;
   });
 
+function ownSchemes(scheme: ExpoConfig['scheme']): string[] {
+  if (scheme === undefined) return [];
+  return typeof scheme === 'string' ? [scheme] : scheme;
+}
+
 export default ({ config }: ConfigContext): ExpoConfig =>
   withModulesFromSource({
     ...config,
@@ -37,10 +42,17 @@ export default ({ config }: ConfigContext): ExpoConfig =>
         ...config.ios?.infoPlist,
         // Google sends the person back to the app on its reversed client id. Without the
         // scheme registered, the sign-in sheet finishes and nothing receives the answer.
+        // Setting this replaces the list Expo would build, so the app's own scheme, which
+        // share links use (0017), has to be listed here again or it silently disappears.
         ...(googleIosClientId.length > 0
           ? {
               CFBundleURLTypes: [
-                { CFBundleURLSchemes: [googleIosClientId.split('.').reverse().join('.')] },
+                {
+                  CFBundleURLSchemes: [
+                    ...ownSchemes(config.scheme),
+                    googleIosClientId.split('.').reverse().join('.'),
+                  ],
+                },
               ],
             }
           : {}),

@@ -13,6 +13,9 @@ import {
   deleteRecipe,
   getRecipe,
   listRecipes,
+  saveShared,
+  shareRecipe,
+  unshareRecipe,
   updateRecipe,
 } from './recipes.api';
 
@@ -80,6 +83,42 @@ export function useAddNote(recipeId: string) {
       client.setQueryData<RecipeDetail>(recipeKeys.detail(recipeId), (current) =>
         current === undefined ? current : { ...current, notes: [note, ...current.notes] },
       );
+    },
+  });
+}
+
+/** 0017. The link, made once; the detail learns the token so the screen can say it is shared. */
+export function useShareRecipe(recipeId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => shareRecipe(recipeId),
+    onSuccess: (link) => {
+      client.setQueryData<RecipeDetail>(recipeKeys.detail(recipeId), (current) =>
+        current === undefined ? current : { ...current, shareToken: link.token },
+      );
+    },
+  });
+}
+
+export function useUnshareRecipe(recipeId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => unshareRecipe(recipeId),
+    onSuccess: () => {
+      client.setQueryData<RecipeDetail>(recipeKeys.detail(recipeId), (current) =>
+        current === undefined ? current : { ...current, shareToken: null },
+      );
+    },
+  });
+}
+
+export function useSaveShared() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (token: string) => saveShared(token),
+    onSuccess: async (copy: RecipeDetail) => {
+      client.setQueryData(recipeKeys.detail(copy.id), copy);
+      await client.invalidateQueries({ queryKey: recipeKeys.list() });
     },
   });
 }

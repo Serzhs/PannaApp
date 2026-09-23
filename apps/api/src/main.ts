@@ -11,6 +11,7 @@ import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module.js';
 import { ErrorFilter } from './common/error.filter.js';
 import type { Env } from './config/env.js';
+import { sharedReadLimit } from './modules/sharing/sharing.controller.js';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -29,6 +30,7 @@ async function bootstrap(): Promise<void> {
   app.use(
     rateLimit({ windowMs: 60_000, limit: 100, standardHeaders: 'draft-7', legacyHeaders: false }),
   );
+  app.use(`/${API_PREFIX}/shared`, sharedReadLimit);
   app.getHttpAdapter().getInstance().disable('x-powered-by');
   app.enableCors({ origin: false });
   app.useGlobalFilters(new ErrorFilter());

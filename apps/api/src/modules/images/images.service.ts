@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -58,6 +58,14 @@ export class ImagesService {
     const key = randomBytes(16).toString('hex');
     await writeFile(this.pathOf(key), out, { flag: 'wx' });
     return key;
+  }
+
+  /** A second file under a new key (0017), so two recipes never share one. Null when the source is gone. */
+  async duplicate(key: string): Promise<string | null> {
+    if (!(await this.exists(key))) return null;
+    const fresh = randomBytes(16).toString('hex');
+    await copyFile(this.pathOf(key), this.pathOf(fresh));
+    return fresh;
   }
 
   async exists(key: string): Promise<boolean> {

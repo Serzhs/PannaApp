@@ -15,6 +15,8 @@ export interface StepsSectionProps {
   readonly steps: readonly Step[];
   readonly ingredients: readonly Ingredient[];
   readonly equipment: readonly Equipment[];
+  /** Where a shared recipe's photos live (0017); the own API when absent. */
+  readonly imageBaseUrl?: string;
 }
 
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
@@ -27,6 +29,7 @@ export function StepsSection({
   steps,
   ingredients,
   equipment,
+  imageBaseUrl,
 }: StepsSectionProps): React.JSX.Element {
   const { t, i18n } = useTranslation();
   const system = useUnitSystem();
@@ -88,7 +91,12 @@ export function StepsSection({
         )}
         {step.imageKey === null ? null : (
           <Image
-            source={{ uri: imageUrl(step.imageKey) }}
+            source={{
+              uri:
+                imageBaseUrl === undefined
+                  ? imageUrl(step.imageKey)
+                  : `${imageBaseUrl}/api/images/${step.imageKey}`,
+            }}
             style={styles.photo}
             accessibilityIgnoresInvertColors
             accessibilityLabel={t('recipes:steps.photoAlt')}

@@ -7,6 +7,10 @@ import {
   SettingsButton,
 } from '@/features/recipes/components/ListHeader';
 
+// A link opened cold, or kept across sign-in, lands on the shared screen with the list
+// beneath it, so there is somewhere to go back to (0017).
+export const unstable_settings = { initialRouteName: 'index' };
+
 export default function AppLayout() {
   const { t } = useTranslation();
   return (
@@ -22,6 +26,7 @@ export default function AppLayout() {
       />
       <Stack.Screen name="recipes/new" options={{ title: t('recipes:screens.new') }} />
       <Stack.Screen name="recipes/import" options={{ title: t('recipes:screens.import') }} />
+      <Stack.Screen name="shared/[token]" options={{ title: t('recipes:screens.shared') }} />
       <Stack.Screen name="recipes/[id]/index" options={{ title: t('recipes:screens.detail') }} />
       <Stack.Screen name="recipes/[id]/edit" options={{ title: t('recipes:screens.edit') }} />
       <Stack.Screen name="recipes/[id]/steps" options={{ title: t('recipes:screens.steps') }} />

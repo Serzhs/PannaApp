@@ -38,6 +38,8 @@ const mockDetail: RecipeDetail = {
   cookCount: 0,
   lastCookedAt: null,
   notes: [],
+  shareToken: null,
+  sourceRecipeId: null,
   ingredients: [{ id: 'i', position: 0, name: 'Beetroot', note: null, amount: 500, unit: 'g' }],
   equipment: [],
   steps: [

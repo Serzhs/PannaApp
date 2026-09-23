@@ -11,5 +11,6 @@ import { RecipesService } from './recipes.service.js';
   imports: [DatabaseModule, ImagesModule],
   controllers: [RecipesController],
   providers: [RecipesService, RecipeOwnerGuard],
+  exports: [RecipesService],
 })
 export class RecipesModule {}

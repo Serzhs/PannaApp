@@ -7,7 +7,8 @@
     "steps": "Soļi",
     "review": "Pārskats",
     "flow": "Gaita",
-    "import": "Ielīmēt no MI"
+    "import": "Ielīmēt no MI",
+    "shared": "Kopīgota recepte"
   },
   "header": {
     "settings": "Iestatījumi",
@@ -286,5 +287,20 @@
       "tooMany": "Saraksts bija garāks par {{max}} un tika saīsināts.",
       "servingsGuessed": "Porcijas nebija norādītas; iestatīts 4."
     }
+  },
+  "share": {
+    "share": "Dalīties",
+    "sharedByLink": "Kopīgots ar saiti",
+    "stop": "Pārtraukt dalīšanos",
+    "stopTitle": "Pārtraukt dalīties ar šo recepti?",
+    "stopBody": "Saite pārstās darboties visiem, kam to nosūtīji. Daloties atkal, tiks izveidota jauna saite.",
+    "stopConfirm": "Pārtraukt",
+    "stopCancel": "Turpināt dalīties",
+    "savedFromLink": "Saglabāts no saites",
+    "sharedBy": "Dalījās {{name}}",
+    "add": "Pievienot manām receptēm",
+    "saveFailed": "Neizdevās pievienot recepti. Mēģini vēlreiz.",
+    "goneTitle": "Šī saite vairs nedarbojas",
+    "goneBody": "Tas, kurš dalījās, ir pārtraucis dalīties, vai arī saite bija nepareiza."
   }
 }

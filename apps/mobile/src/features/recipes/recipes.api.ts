@@ -4,6 +4,7 @@ import type {
   CreateRecipeBody,
   Recipe,
   RecipeDetail,
+  ShareLink,
   UpdateRecipeBody,
 } from '@panna/shared';
 
@@ -30,6 +31,18 @@ export async function updateRecipe(
 
 export async function addNote(recipeId: string, body: AddNoteBody): Promise<CookNote> {
   return authorizedCall('addNote', { params: { recipeId }, body });
+}
+
+export async function shareRecipe(recipeId: string): Promise<ShareLink> {
+  return authorizedCall('shareRecipe', { params: { recipeId } });
+}
+
+export async function unshareRecipe(recipeId: string): Promise<void> {
+  await authorizedCall('unshareRecipe', { params: { recipeId } });
+}
+
+export async function saveShared(token: string): Promise<RecipeDetail> {
+  return authorizedCall('saveShared', { params: { token } });
 }
 
 export async function deleteRecipe(recipeId: string): Promise<void> {

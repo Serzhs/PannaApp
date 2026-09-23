@@ -20,6 +20,8 @@ const RECIPE = {
   cookCount: 0,
   lastCookedAt: null,
   notes: [],
+  shareToken: null,
+  sourceRecipeId: null,
   ingredients: [],
   equipment: [],
   steps: [],

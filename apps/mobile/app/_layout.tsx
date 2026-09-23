@@ -1,7 +1,7 @@
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useGlobalSearchParams, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -34,14 +34,30 @@ function SessionRouter() {
   const segments = useSegments();
   const router = useRouter();
   const { t } = useTranslation();
+  const params = useGlobalSearchParams<{ token?: string; api?: string }>();
+  const pendingLink = useRef<{ token: string; api?: string } | null>(null);
 
   useEffect(() => {
     if (session === undefined) return;
 
     const inAuthGroup = segments[0] === '(auth)';
-    if (session === null && !inAuthGroup) router.replace('/(auth)');
-    if (session !== null && inAuthGroup) router.replace('/(app)');
-  }, [session, segments, router]);
+    if (session === null && !inAuthGroup) {
+      // A share link opened signed out comes back here once signed in (0017).
+      if (segments[1] === 'shared' && params.token !== undefined) {
+        pendingLink.current = {
+          token: params.token,
+          ...(params.api === undefined ? {} : { api: params.api }),
+        };
+      }
+      router.replace('/(auth)');
+    }
+    if (session !== null && inAuthGroup) {
+      const link = pendingLink.current;
+      pendingLink.current = null;
+      router.replace('/(app)');
+      if (link !== null) router.push({ pathname: '/(app)/shared/[token]', params: link });
+    }
+  }, [session, segments, router, params.token, params.api]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

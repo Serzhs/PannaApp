@@ -7,7 +7,8 @@
     "steps": "Steps",
     "review": "Review",
     "flow": "Flow",
-    "import": "Paste from your AI"
+    "import": "Paste from your AI",
+    "shared": "Shared recipe"
   },
   "header": {
     "settings": "Settings",
@@ -281,5 +282,20 @@
       "tooMany": "A list was longer than {{max}} and was cut.",
       "servingsGuessed": "No servings were given; set to 4."
     }
+  },
+  "share": {
+    "share": "Share",
+    "sharedByLink": "Shared by link",
+    "stop": "Stop sharing",
+    "stopTitle": "Stop sharing this recipe?",
+    "stopBody": "The link stops working for everyone you sent it to. Sharing again makes a new link.",
+    "stopConfirm": "Stop sharing",
+    "stopCancel": "Keep sharing",
+    "savedFromLink": "Saved from a link",
+    "sharedBy": "Shared by {{name}}",
+    "add": "Add to my recipes",
+    "saveFailed": "Could not add the recipe. Try again.",
+    "goneTitle": "This link no longer works",
+    "goneBody": "The person who shared it has stopped sharing, or the link was wrong."
   }
 }

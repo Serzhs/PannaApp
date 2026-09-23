@@ -2,14 +2,21 @@ import { ApiError } from '@panna/shared';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, View } from 'react-native';
+import { Image, Platform, Share, View } from 'react-native';
 
 import { NeedsSection } from './components/NeedsSection';
 import { NoteComposer } from './components/NoteComposer';
 import { NoteList } from './components/NoteList';
 import { StepsSection } from './components/StepsSection';
 import { describeMade, describeMeta } from './format';
-import { useAddNote, useDeleteRecipe, useRecipe, useUpdateRecipe } from './queries';
+import {
+  useAddNote,
+  useDeleteRecipe,
+  useRecipe,
+  useShareRecipe,
+  useUnshareRecipe,
+  useUpdateRecipe,
+} from './queries';
 import { styles } from './RecipeDetailScreen.styles';
 
 import { imageUrl } from '@/api/images';
@@ -34,6 +41,9 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   const remove = useDeleteRecipe(recipeId);
   const status = useUpdateRecipe(recipeId);
   const addNote = useAddNote(recipeId);
+  const share = useShareRecipe(recipeId);
+  const unshare = useUnshareRecipe(recipeId);
+  const [unsharing, setUnsharing] = useState(false);
   const online = useIsOnline();
   const [statusOffline, setStatusOffline] = useState(false);
   const router = useRouter();
@@ -92,6 +102,7 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   const data = recipe.data;
   const meta = [describeMeta(data, t)];
   if (data.status === 'draft') meta.push(t('recipes:status.draft'));
+  if (data.sourceRecipeId !== null) meta.push(t('recipes:share.savedFromLink'));
   // A cook that is finished but not yet sent still counts: the person who made it is looking.
   const pending = queuedCooks(recipeId);
   const lastPending =
@@ -192,6 +203,45 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
                 }}
               />
             ) : null}
+            {data.status === 'ready' ? (
+              <Stack gap="space2">
+                <Button
+                  label={t('recipes:share.share')}
+                  variant="secondary"
+                  loading={share.isPending}
+                  onPress={() => {
+                    if (!online) {
+                      setStatusOffline(true);
+                      return;
+                    }
+                    setStatusOffline(false);
+                    share.mutate(undefined, {
+                      onSuccess: (link) => {
+                        // The platform's own sheet. iOS wants a url, Android a message; both is two links.
+                        void Share.share(
+                          Platform.OS === 'ios' ? { url: link.url } : { message: link.url },
+                        );
+                      },
+                    });
+                  }}
+                />
+                {data.shareToken === null ? null : (
+                  <View style={styles.sharedRow}>
+                    <Text variant="caption" color="textSecondary">
+                      {t('recipes:share.sharedByLink')}
+                    </Text>
+                    <Button
+                      label={t('recipes:share.stop')}
+                      variant="ghost"
+                      loading={unshare.isPending}
+                      onPress={() => {
+                        setUnsharing(true);
+                      }}
+                    />
+                  </View>
+                )}
+              </Stack>
+            ) : null}
             <Button
               label={t('recipes:detail.edit')}
               variant="secondary"
@@ -224,6 +274,21 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
           </Text>
         ) : null}
       </Stack>
+      <ConfirmDialog
+        visible={unsharing}
+        title={t('recipes:share.stopTitle')}
+        body={t('recipes:share.stopBody')}
+        confirmLabel={t('recipes:share.stopConfirm')}
+        cancelLabel={t('recipes:share.stopCancel')}
+        destructive
+        onCancel={() => {
+          setUnsharing(false);
+        }}
+        onConfirm={() => {
+          setUnsharing(false);
+          unshare.mutate();
+        }}
+      />
       <ConfirmDialog
         visible={confirming}
         title={t('recipes:detail.confirmDelete.title')}
