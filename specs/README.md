@@ -24,7 +24,7 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 | [0016](0016-json-import.md)               | JSON recipe import                   | Done          | Paste AI-generated JSON and get a working recipe.                                                   |
 | [0017](0017-sharing.md)                   | Sharing                              | Done          | Share a recipe read-only by private link, and revoke it.                                            |
 | [0018](0018-avatars-and-tabs.md)          | Avatars and the tab bar              | Done          | An avatar, an editable name, and three tabs to reach things by.                                     |
-| 0019                                      | Featured recipes                     | Not written   | A searchable set of recipes we wrote, to start from.                                                |
+| [0019](0019-featured.md)                  | Featured recipes                     | In progress   | A searchable set of recipes we wrote, to start from.                                                |
 | [0020](0020-simpler-editing.md)           | Simpler editing                      | Done          | No temperature field, the note behind a button, lines moved by buttons.                             |
 | [0021](0021-move-buttons-in-the-card.md)  | Move buttons in the card             | \1In progress | The move arrows sit on the card's first line, with words beside them.                               |
 | [0022](0022-flow.md)                      | Flow                                 | Done          | Write steps flat, then say what runs during what on a Flow page with a chart.                       |
