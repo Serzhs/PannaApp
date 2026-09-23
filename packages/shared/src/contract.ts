@@ -165,6 +165,22 @@ export const api = {
     path: '/api/shared/:token/save',
     response: recipeDetailSchema,
   }),
+  /** 0019. Recipes we wrote, readable by anyone signed in; saving copies like a share. */
+  listFeatured: endpoint({
+    method: 'GET',
+    path: '/api/featured',
+    response: recipeListSchema,
+  }),
+  getFeatured: endpoint({
+    method: 'GET',
+    path: '/api/featured/:recipeId',
+    response: sharedRecipeSchema,
+  }),
+  saveFeatured: endpoint({
+    method: 'POST',
+    path: '/api/featured/:recipeId/save',
+    response: recipeDetailSchema,
+  }),
   listCooks: endpoint({
     method: 'GET',
     path: '/api/recipes/:recipeId/cooks',

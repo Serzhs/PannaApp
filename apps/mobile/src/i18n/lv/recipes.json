@@ -8,7 +8,9 @@
     "review": "Pārskats",
     "flow": "Gaita",
     "import": "Ielīmēt no MI",
-    "shared": "Kopīgota recepte"
+    "shared": "Kopīgota recepte",
+    "featured": "Izceltās",
+    "featuredRecipe": "Recepte"
   },
   "header": {
     "new": "Jauna",
@@ -301,5 +303,18 @@
     "saveFailed": "Neizdevās pievienot recepti. Mēģini vēlreiz.",
     "goneTitle": "Šī saite vairs nedarbojas",
     "goneBody": "Tas, kurš dalījās, ir pārtraucis dalīties, vai arī saite bija nepareiza."
+  },
+  "featured": {
+    "search": "Meklēt izceltajās receptēs",
+    "by": "No {{name}}",
+    "loading": "Ielādē izceltās receptes",
+    "noMatch": {
+      "title": "Nekas neatbilst",
+      "body": "Pamēģini īsāku vārdu."
+    },
+    "empty": {
+      "title": "Vēl nekā nav",
+      "body": "Izceltās receptes parādīsies šeit."
+    }
   }
 }

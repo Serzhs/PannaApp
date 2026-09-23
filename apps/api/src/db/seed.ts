@@ -31,6 +31,8 @@ config({ path: '../../.env' });
 const SEED_USERS = [
   { email: 'janis@example.com', displayName: 'Jānis' },
   { email: 'anna@example.com', displayName: 'Anna' },
+  /** Owns the featured recipes (0019): the ones we wrote, marked here and nowhere else. */
+  { email: 'panna@example.com', displayName: 'Panna' },
 ] as const;
 
 const IMAGE_DIR = process.env.IMAGE_DIR ?? join(homedir(), '.panna', 'images');
@@ -350,18 +352,290 @@ async function seedRyeBread(db: Database, authorId: string): Promise<void> {
   console.log(`seeded ${title}`);
 }
 
+interface FeaturedStep {
+  readonly body: string;
+  readonly note?: string;
+  readonly minutes?: number;
+  readonly uses?: readonly string[];
+  readonly needs?: readonly string[];
+  readonly meanwhile?: readonly FeaturedStep[];
+}
+interface FeaturedSpec {
+  readonly title: string;
+  readonly description: string;
+  readonly servings: number;
+  readonly imageKey: string;
+  readonly photo: string;
+  readonly ingredients: readonly {
+    readonly name: string;
+    readonly amount?: number;
+    readonly unit?: 'g' | 'kg' | 'ml' | 'l' | 'tsp' | 'tbsp' | 'piece' | 'pinch';
+    readonly note?: string;
+  }[];
+  readonly equipment: readonly { readonly name: string; readonly optional?: boolean }[];
+  readonly steps: readonly FeaturedStep[];
+}
+
+/** One of ours (0019): ready, featured, with a real photo, and nothing about it a person wrote. */
+async function seedFeatured(db: Database, authorId: string, spec: FeaturedSpec): Promise<void> {
+  if (await hasRecipe(db, authorId, spec.title)) return;
+  const cover = await seedImage(spec.imageKey, spec.photo);
+  // The API sums the main steps on every write; a direct insert has to do the same.
+  const totalTimeMinutes = spec.steps.reduce((sum, step) => sum + (step.minutes ?? 0), 0);
+  const [recipe] = await db
+    .insert(recipes)
+    .values({
+      authorId,
+      title: spec.title,
+      description: spec.description,
+      servings: spec.servings,
+      totalTimeMinutes: totalTimeMinutes === 0 ? null : totalTimeMinutes,
+      status: 'ready',
+      featured: true,
+      coverImageKey: cover,
+    })
+    .returning();
+  if (!recipe) throw new Error('insert returned nothing');
+  const lines = await db
+    .insert(ingredients)
+    .values(
+      spec.ingredients.map((line, position) => ({
+        recipeId: recipe.id,
+        position,
+        name: line.name,
+        amount: line.amount === undefined ? null : String(line.amount),
+        unit: line.unit ?? null,
+        note: line.note ?? null,
+      })),
+    )
+    .returning();
+  const tools =
+    spec.equipment.length === 0
+      ? []
+      : await db
+          .insert(equipment)
+          .values(
+            spec.equipment.map((tool, position) => ({
+              recipeId: recipe.id,
+              position,
+              name: tool.name,
+              note: null,
+              optional: tool.optional ?? false,
+            })),
+          )
+          .returning();
+  const idOf = (name: string, rows: readonly { id: string; name: string }[]) => {
+    const row = rows.find((r) => r.name === name);
+    if (row === undefined) throw new Error(`${spec.title}: no ${name}`);
+    return row.id;
+  };
+  const write = async (step: FeaturedStep, position: number, parentStepId: string | null) => {
+    const [row] = await db
+      .insert(steps)
+      .values({
+        recipeId: recipe.id,
+        position,
+        body: step.body,
+        note: step.note ?? null,
+        durationSeconds: step.minutes === undefined ? null : step.minutes * 60,
+        parentStepId,
+      })
+      .returning();
+    if (!row) throw new Error('insert returned nothing');
+    const uses = (step.uses ?? []).map((name) => idOf(name, lines));
+    const needs = (step.needs ?? []).map((name) => idOf(name, tools));
+    if (uses.length > 0) {
+      await db
+        .insert(stepIngredients)
+        .values(uses.map((ingredientId) => ({ stepId: row.id, ingredientId })));
+    }
+    if (needs.length > 0) {
+      await db
+        .insert(stepEquipment)
+        .values(needs.map((equipmentId) => ({ stepId: row.id, equipmentId })));
+    }
+    for (const [i, child] of (step.meanwhile ?? []).entries()) await write(child, i, row.id);
+  };
+  for (const [i, step] of spec.steps.entries()) await write(step, i, null);
+  console.log(`seeded ${spec.title} (featured)`);
+}
+
+const FEATURED: readonly FeaturedSpec[] = [
+  {
+    title: 'Grey peas with bacon',
+    description:
+      'Pelēkie zirņi ar speķi: the Latvian winter supper. Soak the peas the night before and the rest is patience.',
+    servings: 4,
+    imageKey: 'd0e1f2a3b4c5d6e7f8091a2b3c4d5e6f',
+    photo: 'peas.jpg',
+    ingredients: [
+      { name: 'dried grey peas', amount: 500, unit: 'g', note: 'soaked overnight' },
+      { name: 'smoked bacon', amount: 200, unit: 'g', note: 'streaky, in one piece' },
+      { name: 'onions', amount: 2 },
+      { name: 'butter', amount: 30, unit: 'g' },
+      { name: 'salt' },
+      { name: 'kefir', note: 'to drink alongside' },
+    ],
+    equipment: [{ name: 'large pot' }, { name: 'frying pan' }],
+    steps: [
+      {
+        body: 'Soak the peas overnight in plenty of cold water',
+        note: 'They double in size. Use a bigger bowl than looks right. Untimed: it is the night before.',
+        uses: ['dried grey peas'],
+      },
+      {
+        body: 'Drain, cover with fresh water and simmer until soft',
+        note: 'Salt only at the end, or the skins stay tough.',
+        minutes: 90,
+        uses: ['dried grey peas'],
+        needs: ['large pot'],
+        meanwhile: [
+          { body: 'Dice the bacon and the onions', uses: ['smoked bacon', 'onions'] },
+          {
+            body: 'Fry the bacon until crisp, then soften the onions in its fat with the butter',
+            minutes: 10,
+            uses: ['smoked bacon', 'onions', 'butter'],
+            needs: ['frying pan'],
+          },
+        ],
+      },
+      {
+        body: 'Drain the peas, keeping a cup of the cooking water',
+        uses: ['dried grey peas'],
+      },
+      {
+        body: 'Stir the bacon and onions through the peas, salt, and loosen with a little of the water',
+        uses: ['salt'],
+      },
+      { body: 'Serve hot, with a glass of kefir', uses: ['kefir'] },
+    ],
+  },
+  {
+    title: 'Sklandrausis',
+    description:
+      'Open rye tarts from Kurzeme with a layer of potato under a layer of sweet carrot. Small, and better slightly warm.',
+    servings: 8,
+    imageKey: 'e1f2a3b4c5d6e7f8091a2b3c4d5e6f70',
+    photo: 'sklandrausis.jpg',
+    ingredients: [
+      { name: 'rye flour', amount: 300, unit: 'g' },
+      { name: 'water', amount: 150, unit: 'ml', note: 'warm' },
+      { name: 'butter', amount: 50, unit: 'g', note: 'melted' },
+      { name: 'salt', amount: 1, unit: 'tsp' },
+      { name: 'potatoes', amount: 400, unit: 'g' },
+      { name: 'carrots', amount: 500, unit: 'g' },
+      { name: 'eggs', amount: 2 },
+      { name: 'sour cream', amount: 100, unit: 'ml', note: 'plus a little to glaze' },
+      { name: 'sugar', amount: 2, unit: 'tbsp' },
+      { name: 'caraway seeds', amount: 1, unit: 'tsp' },
+    ],
+    equipment: [
+      { name: 'rolling pin' },
+      { name: 'baking tray' },
+      { name: 'potato masher' },
+      { name: 'round cutter', optional: true },
+    ],
+    steps: [
+      {
+        body: 'Mix the rye flour, salt, warm water and melted butter into a stiff dough, and let it rest',
+        note: 'Rye has no stretch. It should feel like clay, not like bread dough.',
+        minutes: 30,
+        uses: ['rye flour', 'water', 'butter', 'salt'],
+        meanwhile: [
+          {
+            body: 'Boil the potatoes and mash them with one egg and a spoon of sour cream',
+            minutes: 25,
+            uses: ['potatoes', 'eggs', 'sour cream'],
+            needs: ['potato masher'],
+          },
+          {
+            body: 'Boil the carrots and mash them with the sugar, the other egg, the rest of the sour cream and the caraway',
+            minutes: 25,
+            uses: ['carrots', 'sugar', 'eggs', 'sour cream', 'caraway seeds'],
+            needs: ['potato masher'],
+          },
+        ],
+      },
+      {
+        body: 'Roll the dough thin, cut rounds the size of a saucer and pinch the edges up into a rim',
+        uses: ['rye flour'],
+        needs: ['rolling pin', 'round cutter'],
+      },
+      {
+        body: 'Spread potato in each, then carrot on top, right to the rim',
+        uses: ['potatoes', 'carrots'],
+        needs: ['baking tray'],
+      },
+      {
+        body: 'Bake at 200 degrees until the rims are firm and the carrot has set',
+        minutes: 20,
+        needs: ['baking tray'],
+      },
+      {
+        body: 'Brush with sour cream while hot and let them cool a little',
+        uses: ['sour cream'],
+      },
+    ],
+  },
+  {
+    title: 'Pankūkas',
+    description:
+      'Thin pancakes, the everyday kind. Eaten with jam, with sour cream, or rolled around whatever is in the fridge.',
+    servings: 4,
+    imageKey: 'f2a3b4c5d6e7f8091a2b3c4d5e6f7081',
+    photo: 'pancakes.jpg',
+    ingredients: [
+      { name: 'eggs', amount: 2 },
+      { name: 'milk', amount: 500, unit: 'ml' },
+      { name: 'plain flour', amount: 250, unit: 'g' },
+      { name: 'sugar', amount: 1, unit: 'tbsp' },
+      { name: 'salt', amount: 1, unit: 'pinch' },
+      { name: 'butter', amount: 30, unit: 'g', note: 'melted, plus more for the pan' },
+      { name: 'jam', note: 'to serve' },
+    ],
+    equipment: [{ name: 'frying pan' }, { name: 'whisk' }, { name: 'ladle' }],
+    steps: [
+      {
+        body: 'Whisk the eggs with the sugar and salt, then whisk in the milk',
+        uses: ['eggs', 'sugar', 'salt', 'milk'],
+        needs: ['whisk'],
+      },
+      {
+        body: 'Whisk in the flour until smooth, then the melted butter, and let the batter rest',
+        note: 'Resting lets the flour swell, which is what stops the first pancake tearing.',
+        minutes: 20,
+        uses: ['plain flour', 'butter'],
+        needs: ['whisk'],
+        meanwhile: [
+          { body: 'Heat the pan until a drop of water skips across it', needs: ['frying pan'] },
+        ],
+      },
+      {
+        body: 'Fry thin pancakes, a small ladle at a time, about a minute a side',
+        note: 'Tilt the pan as you pour so the batter runs to the edge.',
+        minutes: 15,
+        uses: ['butter'],
+        needs: ['frying pan', 'ladle'],
+      },
+      { body: 'Serve warm, with jam', uses: ['jam'] },
+    ],
+  },
+];
+
 async function main(): Promise<void> {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error('DATABASE_URL is not set. Copy .env.example to .env.');
 
   const { sql, db } = createDatabase(url, 2);
 
-  const [janisSeed, annaSeed] = SEED_USERS;
+  const [janisSeed, annaSeed, pannaSeed] = SEED_USERS;
   const janis = await ensureUser(db, janisSeed);
   const anna = await ensureUser(db, annaSeed);
+  const panna = await ensureUser(db, pannaSeed);
   await seedBeetrootSoup(db, janis);
   await seedPlov(db, janis);
   await seedRyeBread(db, anna);
+  for (const spec of FEATURED) await seedFeatured(db, panna, spec);
 
   await sql.end();
 }

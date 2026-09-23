@@ -20,7 +20,7 @@ function icon(name: IconName) {
   };
 }
 
-/** Two tabs for now; 0019 adds Featured with its content, so nothing ships empty (0018). */
+/** Three tabs (0018, 0019): yours, ours, you. */
 export default function TabsLayout() {
   const { t } = useTranslation();
   return (
@@ -35,6 +35,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="(recipes)"
         options={{ title: t('common:tabs.recipes'), tabBarIcon: icon('book-outline') }}
+      />
+      <Tabs.Screen
+        name="featured"
+        options={{ title: t('common:tabs.featured'), tabBarIcon: icon('star-outline') }}
       />
       <Tabs.Screen
         name="you"

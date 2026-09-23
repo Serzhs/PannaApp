@@ -1,6 +1,6 @@
 # 0019: Featured recipes
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0017, 0018
 
 ## Context
@@ -82,27 +82,39 @@ the featured screens; the data source is the only difference.
 All new strings go through `t()`, in English and Latvian. New components follow the
 one-folder-per-component layout.
 
+Found while building: the seed inserts rows directly, so it has to sum the main steps' minutes
+into `totalTimeMinutes` itself, which the API does on every write. And the overnight soak in the
+grey peas is untimed, or the recipe reads as thirteen hours.
+
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] `GET /api/featured` lists featured ready recipes only, ordered by title; a featured draft
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`:
+      shared 9, API 137, mobile 1248 tests.)_
+- [x] `GET /api/featured` lists featured ready recipes only, ordered by title; a featured draft
       and an unfeatured ready recipe are absent; `q` with a typo still finds the title; a blank
-      `q` is no filter; an over-long `q` is 400; no session is 401, asserted end to end.
-- [ ] `GET /api/featured/:id` answers the read-only shape for a featured recipe to a user who
+      `q` is no filter; an over-long `q` is 400; no session is 401, asserted end to end. _(`lists the
+featured ready recipes by title, and searches by title with a typo` in featured.e2e.test.ts.)_
+- [x] `GET /api/featured/:id` answers the read-only shape for a featured recipe to a user who
       does not own it, without notes or cook counts, and 404 for an unfeatured recipe of another
-      user, asserted end to end.
-- [ ] `POST /api/featured/:id/save` copies the recipe to the caller as a draft with lists, steps,
+      user, asserted end to end. _(`serves a featured recipe read-only to anyone signed in, and
+hides the rest`.)_
+- [x] `POST /api/featured/:id/save` copies the recipe to the caller as a draft with lists, steps,
       nesting, links and photos under new ids and keys, `sourceRecipeId` set, and 404 for an
-      unfeatured id, asserted end to end.
-- [ ] The featured list shows the rows without chips, filters through the query after a pause,
+      unfeatured id, asserted end to end. _(`copies a featured recipe to whoever saves it`; the copy
+      code is one method shared with 0017.)_
+- [x] The featured list shows the rows without chips, filters through the query after a pause,
       shows "Nothing matches" for an empty result, and opens a row, asserted in a test.
-- [ ] The featured recipe screen shows the recipe headed "By Panna" with only "Add to my
-      recipes", and lands on the copy, asserted in a test.
-- [ ] The seed creates Panna's three featured recipes with photos, and `pnpm db:seed` twice
-      leaves three, asserted by running it.
-- [ ] On the simulator: the Featured tab lists the three with photos; searching `pankukas`
-      finds the pancakes; opening one and adding it puts it in Jānis's list with its photo.
-- [ ] The Latvian file lists every new key.
+      _(FeaturedScreen.test.tsx, and the plain row in RecipeRow.test.tsx.)_
+- [x] The featured recipe screen shows the recipe headed "By Panna" with only "Add to my
+      recipes", and lands on the copy, asserted in a test. _(FeaturedRecipeScreen.test.tsx.)_
+- [x] The seed creates Panna's three featured recipes with photos, and `pnpm db:seed` twice
+      leaves three, asserted by running it. _(Run twice on 23 September 2026: three seeded, then
+      none.)_
+- [x] On the simulator: the Featured tab lists the three with photos; searching `pankukas`
+      finds the pancakes; opening one and adding it puts it in Jānis's list with its photo. _(Done on
+      the iPhone 17 Pro simulator, 23 September 2026. After adding, the Featured tab pops back to
+      its list and the copy opens in the Recipes tab, where it now lives.)_
+- [x] The Latvian file lists every new key. _(The key-parity test in i18n passes.)_
 
 Manual follow-up, not gating: a VoiceOver walkthrough of the Featured tab and the search field,
 per the Accessibility section of CLAUDE.md.

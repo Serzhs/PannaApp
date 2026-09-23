@@ -183,6 +183,10 @@ export const sharedRecipeSchema = recipeSchema.extend({
   authorName: z.string(),
 });
 export const shareLinkSchema = z.object({ token: shareTokenSchema, url: z.string().url() });
+
+/** 0019. Title search only; blank is no filter. Strict, like every other input. */
+export const featuredQuerySchema = z.object({ q: z.string().trim().max(80).optional() }).strict();
+export type FeaturedQuery = z.infer<typeof featuredQuerySchema>;
 export type SharedRecipe = z.infer<typeof sharedRecipeSchema>;
 export type ShareLink = z.infer<typeof shareLinkSchema>;
 

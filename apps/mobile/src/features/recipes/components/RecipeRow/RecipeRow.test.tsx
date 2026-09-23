@@ -79,4 +79,15 @@ describe('RecipeRow', () => {
     await render(<RecipeRow recipe={recipe} onPress={jest.fn()} now={LATER} />);
     expect(screen.queryByTestId('cover-thumbnail', { includeHiddenElements: true })).toBeNull();
   });
+
+  /** 0019: a featured row carries no chip and no status in its name, however new it is. */
+  it('drops the chips and the status when plain', async () => {
+    const today = Date.parse('2026-09-16T13:00:00.000Z');
+    await render(<RecipeRow recipe={recipe} onPress={jest.fn()} now={today} plain />);
+    expect(screen.queryByText('Draft')).toBeNull();
+    expect(screen.queryByText('New')).toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Cold beetroot soup, 4 servings, 25 min' }),
+    ).toBeTruthy();
+  });
 });

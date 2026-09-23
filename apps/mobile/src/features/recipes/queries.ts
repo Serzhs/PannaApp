@@ -31,7 +31,7 @@ export const recipeKeys = {
  * False for the one render between signing out and leaving the group, so the queries
  * are paused then rather than fired with no session behind them.
  */
-function useSignedIn(): boolean {
+export function useSignedIn(): boolean {
   const { session } = useAuth();
   return session !== null && session !== undefined;
 }

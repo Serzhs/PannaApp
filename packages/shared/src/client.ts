@@ -22,6 +22,14 @@ export interface RequestOptions {
   readonly form?: FormData;
   /** Values for the `:name` segments of the endpoint's path. */
   readonly params?: Record<string, string>;
+  /** The query string, encoded here so a caller never builds one by hand (0019). */
+  readonly query?: Record<string, string>;
+}
+
+function withQuery(path: string, query: Record<string, string> | undefined): string {
+  if (query === undefined) return path;
+  const encoded = new URLSearchParams(query).toString();
+  return encoded.length === 0 ? path : `${path}?${encoded}`;
 }
 
 /** Every `:name` in the path is replaced, and a missing value is a bug rather than a 404. */
@@ -43,7 +51,8 @@ export async function request<K extends EndpointName>(
   options: RequestOptions,
 ): Promise<ResponseOf<K>> {
   const endpoint = api[name];
-  const response = await fetch(`${options.baseUrl}${fillPath(endpoint.path, options.params)}`, {
+  const path = withQuery(fillPath(endpoint.path, options.params), options.query);
+  const response = await fetch(`${options.baseUrl}${path}`, {
     method: endpoint.method,
     headers: {
       ...(options.body === undefined ? {} : { 'content-type': 'application/json' }),

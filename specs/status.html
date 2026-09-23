@@ -37,7 +37,7 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">297 of 314 acceptance criteria verified across 26 written specs.</p>
+<p class="summary">306 of 323 acceptance criteria verified across 27 written specs.</p>
 <div class="bar"><div style="width: 95%"></div></div>
 
 <h2>All specs</h2>
@@ -62,7 +62,7 @@
 <tr><td><a href="#spec-0016">0016</a></td><td>JSON recipe import</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Paste AI-generated JSON and get a working recipe.</td></tr>
 <tr><td><a href="#spec-0017">0017</a></td><td>Sharing</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Share a recipe read-only by private link, and revoke it.</td></tr>
 <tr><td><a href="#spec-0018">0018</a></td><td>Avatars and the tab bar</td><td><span class="status done">Done</span></td><td>7 / 7</td><td>An avatar, an editable name, and three tabs to reach things by.</td></tr>
-<tr><td>0019</td><td>Featured recipes</td><td><span class="status not-written">Not written</span></td><td>–</td><td>A searchable set of recipes we wrote, to start from.</td></tr>
+<tr><td><a href="#spec-0019">0019</a></td><td>Featured recipes</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>A searchable set of recipes we wrote, to start from.</td></tr>
 <tr><td><a href="#spec-0020">0020</a></td><td>Simpler editing</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>No temperature field, the note behind a button, lines moved by buttons.</td></tr>
 <tr><td><a href="#spec-0021">0021</a></td><td>Move buttons in the card</td><td><span class="status \1in-progress">\1In progress</span></td><td>6 / 6</td><td>The move arrows sit on the card's first line, with words beside them.</td></tr>
 <tr><td><a href="#spec-0022">0022</a></td><td>Flow</td><td><span class="status done">Done</span></td><td>9 / 9</td><td>Write steps flat, then say what runs during what on a Flow page with a chart.</td></tr>
@@ -1264,6 +1264,79 @@
 <p>are added as direct dependencies of the mobile app, per the Metro note in CLAUDE.md.</p>
 <p>All new strings go through <code>t()</code>, in English and Latvian. The You screen's components follow</p>
 <p>the one-folder-per-component layout.</p>
+</details>
+</section>
+
+<section id="spec-0019">
+<h2>0019: Featured recipes <span class="status done">Done</span></h2>
+<p class="goal">A signed-in person can browse and search the recipes we wrote, read one, and keep a copy.</p>
+<p class="summary">9 of 9 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. _(<code>pnpm check</code>:</li>
+<li class="done"><code>GET /api/featured</code> lists featured ready recipes only, ordered by title; a featured draft</li>
+<li class="done"><code>GET /api/featured/:id</code> answers the read-only shape for a featured recipe to a user who</li>
+<li class="done"><code>POST /api/featured/:id/save</code> copies the recipe to the caller as a draft with lists, steps,</li>
+<li class="done">The featured list shows the rows without chips, filters through the query after a pause,</li>
+<li class="done">The featured recipe screen shows the recipe headed "By Panna" with only "Add to my</li>
+<li class="done">The seed creates Panna's three featured recipes with photos, and <code>pnpm db:seed</code> twice</li>
+<li class="done">On the simulator: the Featured tab lists the three with photos; searching <code>pankukas</code></li>
+<li class="done">The Latvian file lists every new key. <em>(The key-parity test in i18n passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>A signed-in person can browse and search the recipes we wrote, read one, and keep a copy.</p>
+<h3>Out of scope</h3><li>Any way to set <code>featured</code> from the app or the API. It is set in the database by hand, and</li>
+<p>  the seed sets it for the recipes it writes.</p>
+<li>Rankings: no "most copied", no "latest". Both were rankings over a stream of posts that does</li>
+<p>  not exist.</p>
+<li>Searching your own recipes. The search box lives on Featured only; your list is short enough</li>
+<p>  to scroll, and a search there is its own spec if it ever earns one.</p>
+<li>Searching ingredients, descriptions or steps. Title only, as the roadmap decided.</li>
+<li>Cooking a featured recipe without keeping it first. Cooking needs the recipe in your list, so</li>
+<p>  <code>cooks</code> keeps needing no <code>userId</code>.</p>
+<li>Categories, tags, or a hero image on the tab. A list with a search box.</li>
+<li>Photos of the featured recipes coming from anywhere but the seed. They are development data</li>
+<p>  with the same attribution file as the rest.</p>
+<h3>Data model</h3><p>Nothing new. <code>recipes.featured</code> (boolean, default false, indexed) is read for the first time.</p>
+<p>The trigram extension <code>pg_trgm</code> was created in the first migration for this; no index is added,</p>
+<p>because the featured set is a handful of rows and a sequential scan is the right plan.</p>
+<p><strong>The seed</strong> gains a fourth user, Panna (<code>panna@example.com</code>), who owns three featured, ready</p>
+<p>recipes with a real photo each, attributed in <code>seed-photos/ATTRIBUTION.md</code>: grey peas with</p>
+<p>bacon, sklandrausis, and pancakes. They are Latvian classics because the second language is</p>
+<p>Latvian, and the seed's other recipes already are.</p>
+<h3>API contract</h3><p>All three need a session. A featured recipe is readable by anyone signed in, so ownership plays</p>
+<p>no part; an id that is not featured answers <code>404 RECIPE<em>NOT</em>FOUND</code>, the same body as an id that</p>
+<p>does not exist.</p>
+<p><strong><code>GET /api/featured?q=</code></strong>. The featured recipes with status <code>ready</code>, as the list shape</p>
+<p>(<code>recipeSchema</code>), ordered by title. With <code>q</code>, only titles that contain it or are near it by</p>
+<p>trigram similarity, nearest first, so <code>pankukas</code> finds <code>Pankūkas</code>. <code>q</code> is trimmed and capped</p>
+<p>at 80 characters; blank means no filter. A malformed query is <code>400 VALIDATION_FAILED</code>.</p>
+<p><strong><code>GET /api/featured/:recipeId</code></strong>. The recipe as a reader sees it: <code>sharedRecipeSchema</code>, which</p>
+<p>is the detail without the author's cooks and notes, plus <code>authorName</code>.</p>
+<p><strong><code>POST /api/featured/:recipeId/save</code></strong>. The same copy as saving a shared recipe (0017): a new</p>
+<p>draft owned by the caller, every id remapped, photos copied to new keys, <code>sourceRecipeId</code> set,</p>
+<p>answered <code>201</code> with the detail. The copy code is shared with 0017, not duplicated.</p>
+<p>Error codes: <code>VALIDATION<em>FAILED</code>, <code>RECIPE</em>NOT<em>FOUND</code>, and the usual <code>AUTH</em>*</code> for a missing session.</p>
+<h3>UI</h3><p><strong>Tab bar.</strong> A third tab, Featured, between Recipes and You, with its own stack.</p>
+<p><strong>Featured list.</strong> A search field at the top, then the recipes as rows like your own list, with</p>
+<p>the photo, the title, servings and time, and no chips: nothing here is a draft and nothing is</p>
+<p>new. Typing filters after a short pause, so a request is not sent per keystroke. States: loading;</p>
+<p>the list; an empty search, "Nothing matches"; an empty tab with no search, "Nothing here yet",</p>
+<p>which only a database with no featured rows shows; offline with a cached list shows the list;</p>
+<p>offline with nothing cached, or a failed request, shows the usual error state with Retry.</p>
+<p><strong>Featured recipe.</strong> Opening a row shows the recipe read-only, exactly as a shared recipe is</p>
+<p>shown (0017), headed by "By Panna" from <code>authorName</code>, with one button, "Add to my recipes",</p>
+<p>and no Cook, Edit or Delete. Adding lands on the copy's recipe screen, which carries "Saved from</p>
+<p>a link" as any copy does. The read-only screen is one component used by both the shared and</p>
+<p>the featured screens; the data source is the only difference.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian. New components follow the</p>
+<p>one-folder-per-component layout.</p>
+<p>Found while building: the seed inserts rows directly, so it has to sum the main steps' minutes</p>
+<p>into <code>totalTimeMinutes</code> itself, which the API does on every write. And the overnight soak in the</p>
+<p>grey peas is untimed, or the recipe reads as thirteen hours.</p>
 </details>
 </section>
 

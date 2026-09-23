@@ -22,7 +22,20 @@ import {
   type StepInput,
   type UpdateRecipeBody,
 } from '@panna/shared';
-import { and, asc, count, desc, eq, inArray, max, notInArray } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  max,
+  notInArray,
+  or,
+  sql,
+  type SQL,
+} from 'drizzle-orm';
 
 import { AppException } from '../../common/app-exception.js';
 import type { Env } from '../../config/env.js';
@@ -200,6 +213,30 @@ export class RecipesService {
     return rows.map(toRecipe);
   }
 
+  /**
+   * The recipes we wrote (0019): featured and ready, by title. With a query, titles that
+   * contain it or come near it by trigram, nearest first, so a typo still finds the dish.
+   * The set is a handful of rows, so no index and no ranking beyond that.
+   */
+  async listFeatured(q: string | undefined): Promise<Recipe[]> {
+    const featured = and(eq(recipes.featured, true), eq(recipes.status, 'ready'));
+    if (q === undefined || q.length === 0) {
+      const rows = await this.database.db
+        .select()
+        .from(recipes)
+        .where(featured)
+        .orderBy(asc(recipes.title));
+      return rows.map(toRecipe);
+    }
+    const nearness = sql<number>`word_similarity(${q}, ${recipes.title})`;
+    const rows = await this.database.db
+      .select()
+      .from(recipes)
+      .where(and(featured, or(ilike(recipes.title, `%${q}%`), sql`${nearness} > 0.3`)))
+      .orderBy(desc(nearness), asc(recipes.title));
+    return rows.map(toRecipe);
+  }
+
   async findOwned(id: string, authorId: string): Promise<RecipeRow | undefined> {
     const [row] = await this.database.db
       .select()
@@ -298,11 +335,22 @@ export class RecipesService {
   }
 
   async findShared(token: string): Promise<SharedRecipe | undefined> {
+    return this.findReadOnly(eq(recipes.shareToken, token));
+  }
+
+  /** A featured recipe is readable by anyone signed in (0019); a draft stays the author's. */
+  async findFeatured(id: string): Promise<SharedRecipe | undefined> {
+    return this.findReadOnly(
+      and(eq(recipes.id, id), eq(recipes.featured, true), eq(recipes.status, 'ready')),
+    );
+  }
+
+  private async findReadOnly(where: SQL | undefined): Promise<SharedRecipe | undefined> {
     const [found] = await this.database.db
       .select({ recipe: recipes, authorName: users.displayName })
       .from(recipes)
       .innerJoin(users, eq(users.id, recipes.authorId))
-      .where(eq(recipes.shareToken, token))
+      .where(where)
       .limit(1);
     if (found === undefined) return undefined;
     const detail = await this.readDetail(this.database.db, found.recipe);
@@ -336,7 +384,19 @@ export class RecipesService {
       .from(recipes)
       .where(eq(recipes.shareToken, token))
       .limit(1);
-    if (source === undefined) return undefined;
+    return source === undefined ? undefined : this.copyRecipe(source, newOwnerId);
+  }
+
+  async saveFeatured(id: string, newOwnerId: string): Promise<RecipeDetail | undefined> {
+    const [source] = await this.database.db
+      .select()
+      .from(recipes)
+      .where(and(eq(recipes.id, id), eq(recipes.featured, true), eq(recipes.status, 'ready')))
+      .limit(1);
+    return source === undefined ? undefined : this.copyRecipe(source, newOwnerId);
+  }
+
+  private async copyRecipe(source: RecipeRow, newOwnerId: string): Promise<RecipeDetail> {
     const original = await this.readDetail(this.database.db, source);
 
     const copiedKeys: string[] = [];

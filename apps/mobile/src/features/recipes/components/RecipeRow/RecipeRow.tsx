@@ -17,6 +17,8 @@ export interface RecipeRowProps {
   readonly onPress: (recipe: Recipe) => void;
   /** The clock, so a test can say what day it is. */
   readonly now?: number;
+  /** No chips: a featured recipe (0019) is nobody's draft and nobody's news. */
+  readonly plain?: boolean;
 }
 
 /** One stop for a screen reader: title, servings, time and status in one label. */
@@ -24,12 +26,13 @@ export function RecipeRow({
   recipe,
   onPress,
   now = Date.now(),
+  plain = false,
 }: RecipeRowProps): React.JSX.Element {
   const { t } = useTranslation();
 
   return (
     <Card
-      accessibilityLabel={describeRecipe(recipe, t, now)}
+      accessibilityLabel={describeRecipe(recipe, t, now, plain)}
       onPress={() => {
         onPress(recipe);
       }}
@@ -51,14 +54,14 @@ export function RecipeRow({
             <Text variant="bodyStrong" numberOfLines={1} style={styles.title}>
               {recipe.title}
             </Text>
-            {recipe.status === 'draft' ? (
+            {!plain && recipe.status === 'draft' ? (
               <View style={styles.chip}>
                 <Text variant="label" color="textSecondary">
                   {t('recipes:status.draft')}
                 </Text>
               </View>
             ) : null}
-            {isNew(recipe, now) ? (
+            {!plain && isNew(recipe, now) ? (
               <View style={[styles.chip, styles.newChip]}>
                 <Text variant="label" color="accent">
                   {t('recipes:status.new')}

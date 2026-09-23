@@ -30,13 +30,19 @@ export function describeMade(
 }
 
 /** What a screen reader says for a whole row, per the accessibility criteria of 0005. */
-export function describeRecipe(recipe: Recipe, t: TFunction, now: number = Date.now()): string {
+export function describeRecipe(
+  recipe: Recipe,
+  t: TFunction,
+  now: number = Date.now(),
+  plain = false,
+): string {
   const parts = [recipe.title, t('recipes:servings', { count: recipe.servings })];
   if (recipe.totalTimeMinutes !== null) {
     parts.push(t('recipes:minutes', { count: recipe.totalTimeMinutes }));
   }
-  if (recipe.status === 'draft') parts.push(t('recipes:status.draft').toLowerCase());
-  if (isNew(recipe, now)) parts.push(t('recipes:status.new').toLowerCase());
+  // A featured row (0019) is never a draft and never new: nothing about it is the reader's.
+  if (!plain && recipe.status === 'draft') parts.push(t('recipes:status.draft').toLowerCase());
+  if (!plain && isNew(recipe, now)) parts.push(t('recipes:status.new').toLowerCase());
   return parts.join(', ');
 }
 

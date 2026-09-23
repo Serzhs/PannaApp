@@ -8,7 +8,9 @@
     "review": "Review",
     "flow": "Flow",
     "import": "Paste from your AI",
-    "shared": "Shared recipe"
+    "shared": "Shared recipe",
+    "featured": "Featured",
+    "featuredRecipe": "Recipe"
   },
   "header": {
     "new": "New",
@@ -296,5 +298,18 @@
     "saveFailed": "Could not add the recipe. Try again.",
     "goneTitle": "This link no longer works",
     "goneBody": "The person who shared it has stopped sharing, or the link was wrong."
+  },
+  "featured": {
+    "search": "Search featured recipes",
+    "by": "By {{name}}",
+    "loading": "Loading featured recipes",
+    "noMatch": {
+      "title": "Nothing matches",
+      "body": "Try a shorter word."
+    },
+    "empty": {
+      "title": "Nothing here yet",
+      "body": "Featured recipes appear here."
+    }
   }
 }

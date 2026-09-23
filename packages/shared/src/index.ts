@@ -67,6 +67,8 @@ export {
   shareTokenSchema,
   sharedRecipeSchema,
   shareLinkSchema,
+  featuredQuerySchema,
+  type FeaturedQuery,
   type SharedRecipe,
   type ShareLink,
   type CookNote,
