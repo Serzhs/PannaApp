@@ -44,6 +44,10 @@ export function RecipeList({
   const { t } = useTranslation();
   const cookingIds = new Set(cooks.map((record) => record.recipe.id));
   const rest = recipes.filter((recipe) => !cookingIds.has(recipe.id));
+  // Drafts sit apart (0033): a half-written recipe is not a dinner you could cook tonight.
+  const ready = rest.filter((recipe) => recipe.status === 'ready');
+  const drafts = rest.filter((recipe) => recipe.status === 'draft');
+  const headed = cooks.length > 0 || drafts.length > 0;
 
   if (state === 'loading') {
     return (
@@ -71,12 +75,30 @@ export function RecipeList({
 
   return (
     <FlatList
-      data={rest}
+      data={ready}
       keyExtractor={(recipe) => recipe.id}
       renderItem={({ item }) => <RecipeRow recipe={item} onPress={onOpen} />}
       contentContainerStyle={styles.rows}
+      ListFooterComponent={
+        drafts.length === 0 ? null : (
+          <View style={styles.section}>
+            <Text variant="label" color="textSecondary" accessibilityRole="header">
+              {t('recipes:list.drafts')}
+            </Text>
+            {drafts.map((draft) => (
+              <RecipeRow key={draft.id} recipe={draft} onPress={onOpen} noStatusChip />
+            ))}
+          </View>
+        )
+      }
       ListHeaderComponent={
-        cooks.length === 0 ? null : (
+        cooks.length === 0 ? (
+          headed && ready.length > 0 ? (
+            <Text variant="label" color="textSecondary" accessibilityRole="header">
+              {t('recipes:list.ready')}
+            </Text>
+          ) : null
+        ) : (
           <View style={styles.section}>
             <Text variant="label" color="textSecondary" accessibilityRole="header">
               {t('recipes:cook.inProgress')}
@@ -90,14 +112,15 @@ export function RecipeList({
                 }}
               />
             ))}
-            {rest.length === 0 ? null : (
+            {ready.length === 0 ? null : (
               <Text variant="label" color="textSecondary" accessibilityRole="header">
-                {t('recipes:cook.everythingElse')}
+                {t('recipes:list.ready')}
               </Text>
             )}
           </View>
         )
       }
+      ListHeaderComponentStyle={cooks.length === 0 ? undefined : styles.headed}
     />
   );
 }

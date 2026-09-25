@@ -10,4 +10,7 @@ export const styles = StyleSheet.create({
   section: {
     gap: theme.space.space3,
   },
+  headed: {
+    marginBottom: theme.space.space3,
+  },
 });

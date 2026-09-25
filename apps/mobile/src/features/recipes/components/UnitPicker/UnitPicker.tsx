@@ -1,11 +1,12 @@
 import { COUNT_UNITS, MASS_UNITS, VOLUME_UNITS, type Unit } from '@panna/shared';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Pressable, View } from 'react-native';
+import { Modal, View } from 'react-native';
 
 import { styles } from './UnitPicker.styles';
 
 import { Button } from '@/components/Button';
+import { Chip } from '@/components/Chip';
 import { Screen } from '@/components/Screen';
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
@@ -23,10 +24,13 @@ const GROUPS = [
   { dimension: 'count', units: COUNT_UNITS },
 ] as const;
 
+/** The units a kitchen reaches for nine times in ten (0033); the rest sit behind Other. */
+const COMMON: readonly Unit[] = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'piece'];
+
 /**
- * The fourteen units, grouped by dimension so a cook looking for "cup" is not reading
- * past "kg". Opens as its own sheet: a wheel or a dropdown would need a native picker
- * per platform for a list this short, and a sheet works the same on both.
+ * A row of chips for the common units, and Other for the full sheet of fourteen grouped
+ * by dimension. A unit chosen from the sheet shows selected in Other's place, so what is
+ * chosen is always on screen.
  */
 export function UnitPicker({
   value,
@@ -35,7 +39,8 @@ export function UnitPicker({
 }: UnitPickerProps): React.JSX.Element {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const label = value === null ? t('recipes:needs.unitNone') : t(`units:${value}`, { count: 1 });
+  const name = (unit: Unit) => t(`units:${unit}`, { count: 1 });
+  const uncommon = value !== null && !COMMON.includes(value);
 
   const choose = (unit: Unit | null) => {
     onChange(unit);
@@ -43,27 +48,43 @@ export function UnitPicker({
   };
 
   return (
-    <View>
-      <Text
-        variant="label"
-        color="textSecondary"
-        accessibilityElementsHidden
-        importantForAccessibility="no"
-      >
+    <Stack gap="space1">
+      <Text variant="label" color="textSecondary">
         {t('recipes:needs.unit')}
       </Text>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`${t('recipes:needs.unit')}, ${label}`}
-        accessibilityState={{ disabled, expanded: open }}
-        disabled={disabled}
-        onPress={() => {
-          setOpen(true);
-        }}
-        style={styles.field}
-      >
-        <Text variant="body">{label}</Text>
-      </Pressable>
+      <View style={styles.row} accessibilityRole="radiogroup">
+        <Chip
+          role="radio"
+          label={t('recipes:needs.unitNone')}
+          selected={value === null}
+          disabled={disabled}
+          onPress={() => {
+            onChange(null);
+          }}
+        />
+        {COMMON.map((unit) => (
+          <Chip
+            key={unit}
+            role="radio"
+            label={name(unit)}
+            selected={value === unit}
+            disabled={disabled}
+            onPress={() => {
+              onChange(unit);
+            }}
+          />
+        ))}
+        <Chip
+          role="radio"
+          label={uncommon ? name(value) : t('recipes:needs.unitOther')}
+          accessibilityHint={t('recipes:needs.unitOtherHint')}
+          selected={uncommon}
+          disabled={disabled}
+          onPress={() => {
+            setOpen(true);
+          }}
+        />
+      </View>
       <Modal
         visible={open}
         animationType="slide"
@@ -87,10 +108,7 @@ export function UnitPicker({
               <ChoiceList
                 key={group.dimension}
                 title={t(`units:dimension.${group.dimension}`)}
-                choices={group.units.map((unit) => ({
-                  value: unit,
-                  label: t(`units:${unit}`, { count: 1 }),
-                }))}
+                choices={group.units.map((unit) => ({ value: unit, label: name(unit) }))}
                 value={value}
                 onChange={choose}
               />
@@ -105,6 +123,6 @@ export function UnitPicker({
           </Stack>
         </Screen>
       </Modal>
-    </View>
+    </Stack>
   );
 }

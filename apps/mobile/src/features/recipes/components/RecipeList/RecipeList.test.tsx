@@ -101,4 +101,18 @@ describe('RecipeList', () => {
     await render(<RecipeList state="ready" recipes={[recipe]} {...handlers} />);
     expect(screen.queryByRole('header', { name: 'In progress' })).toBeNull();
   });
+
+  /** 0033: drafts under their own heading after the ready ones, without a Draft chip. */
+  it('puts drafts under a Drafts heading after the ready recipes', async () => {
+    const draft: Recipe = { ...recipe, id: 'd', title: 'Half a plov', status: 'draft' };
+    await render(<RecipeList state="ready" recipes={[draft, recipe]} {...handlers} />);
+    const headers = screen.getAllByRole('header').map((h) => h.props.children as string);
+    expect(headers).toEqual(['Recipes', 'Drafts']);
+    expect(screen.queryByText('Draft')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Half a plov, 4 servings, draft' })).toBeTruthy();
+    await screen.unmount();
+
+    await render(<RecipeList state="ready" recipes={[recipe]} {...handlers} />);
+    expect(screen.queryByRole('header')).toBeNull();
+  });
 });

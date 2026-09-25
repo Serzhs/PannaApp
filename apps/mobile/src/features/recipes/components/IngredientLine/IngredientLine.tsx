@@ -1,12 +1,9 @@
 import type { Unit } from '@panna/shared';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
 
 import type { IngredientDraft, LineField } from '../../needs';
 import { NoteField } from '../NoteField';
 import { UnitPicker } from '../UnitPicker';
-
-import { styles } from './IngredientLine.styles';
 
 import { Stack } from '@/components/Stack';
 import { TextField } from '@/components/TextField';
@@ -38,27 +35,21 @@ export function IngredientLine({
         }}
         {...(errors.name ? { error: t('recipes:needs.errors.name') } : {})}
       />
-      <View style={styles.amountRow}>
-        <View style={styles.amount}>
-          <TextField
-            label={t('recipes:needs.amount')}
-            value={line.amount}
-            onChangeText={(amount) => {
-              set({ amount });
-            }}
-            keyboardType="decimal-pad"
-            {...(errors.amount ? { error: t('recipes:needs.errors.amount') } : {})}
-          />
-        </View>
-        <View style={styles.unit}>
-          <UnitPicker
-            value={line.unit}
-            onChange={(unit: Unit | null) => {
-              set({ unit });
-            }}
-          />
-        </View>
-      </View>
+      <TextField
+        label={t('recipes:needs.amount')}
+        value={line.amount}
+        onChangeText={(amount) => {
+          set({ amount });
+        }}
+        keyboardType="decimal-pad"
+        {...(errors.amount ? { error: t('recipes:needs.errors.amount') } : {})}
+      />
+      <UnitPicker
+        value={line.unit}
+        onChange={(unit: Unit | null) => {
+          set({ unit });
+        }}
+      />
       {errors.unit ? (
         <TextField
           label={t('recipes:needs.unit')}

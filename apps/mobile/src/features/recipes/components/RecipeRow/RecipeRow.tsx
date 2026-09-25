@@ -19,6 +19,8 @@ export interface RecipeRowProps {
   readonly now?: number;
   /** No chips: a featured recipe (0019) is nobody's draft and nobody's news. */
   readonly plain?: boolean;
+  /** No Draft chip, because the row sits under a Drafts heading (0033); the name keeps it. */
+  readonly noStatusChip?: boolean;
 }
 
 /** One stop for a screen reader: title, servings, time and status in one label. */
@@ -27,6 +29,7 @@ export function RecipeRow({
   onPress,
   now = Date.now(),
   plain = false,
+  noStatusChip = false,
 }: RecipeRowProps): React.JSX.Element {
   const { t } = useTranslation();
 
@@ -54,7 +57,7 @@ export function RecipeRow({
             <Text variant="bodyStrong" numberOfLines={2} style={styles.title}>
               {recipe.title}
             </Text>
-            {!plain && recipe.status === 'draft' ? (
+            {!plain && !noStatusChip && recipe.status === 'draft' ? (
               <View style={styles.chip}>
                 <Text variant="label" color="textSecondary">
                   {t('recipes:status.draft')}

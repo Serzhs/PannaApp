@@ -1,6 +1,6 @@
 # 0033: Drafts apart, and unit chips
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0023, 0027
 
 ## Context
@@ -43,20 +43,24 @@ cup or clove, shows as a selected chip in Other's place with its own name, so th
 is always visible. Other opens the sheet the field used to open, with every unit under its
 dimension. The chips are a radio group, one per unit, named by the unit.
 
-All new strings go through `t()`, in English and Latvian. No new components: `UnitPicker`
+The unit chips take the full width under the amount rather than sharing a row with it: nine
+chips do not fit beside a field. All new strings go through `t()`, in English and Latvian. No new components: `UnitPicker`
 changes shape and the list gains a section.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] The list shows drafts under a Drafts heading after the ready recipes, no heading when
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`:
+      shared 9, API 138, mobile 1361 tests.)_
+- [x] The list shows drafts under a Drafts heading after the ready recipes, no heading when
       there are no drafts, and no Draft chip on a row under that heading, asserted in a test.
-- [ ] The unit field shows the eight chips and Other; tapping a chip reports the unit; Other
+      _(`puts drafts under a Drafts heading after the ready recipes` in RecipeList.test.tsx.)_
+- [x] The unit field shows the eight chips and Other; tapping a chip reports the unit; Other
       opens the sheet; a unit outside the row shows selected in Other's place, asserted in a
-      test.
-- [ ] On the simulator: the list shows Plovs under Drafts; an ingredient card shows the chips;
-      tapping "g" selects it; Other opens the sheet and choosing "cup" shows it selected.
-- [ ] The Latvian file lists every new key.
+      test. _(Three tests in UnitPicker.test.tsx.)_
+- [x] On the simulator: the list shows Plovs under Drafts; an ingredient card shows the chips;
+      tapping "g" selects it; Other opens the sheet and choosing "cup" shows it selected. _(Done on
+      the iPhone 17 Pro simulator, 25 September 2026, in Latvian: "krūze" took Cita's place.)_
+- [x] The Latvian file lists every new key. _(The key-parity test in i18n passes.)_
 
 ## Open questions
 

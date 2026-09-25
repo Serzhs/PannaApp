@@ -32,7 +32,9 @@
       "title": "No recipes yet",
       "body": "Write one down, and it is here the next time you cook.",
       "action": "New recipe"
-    }
+    },
+    "drafts": "Drafts",
+    "ready": "Recipes"
   },
   "detail": {
     "loading": "Loading recipe",
@@ -106,7 +108,9 @@
     "cancelLine": "Cancel",
     "editLine": "Edit",
     "edit": "Edit {{name}}",
-    "removeLine": "Remove"
+    "removeLine": "Remove",
+    "unitOther": "Other",
+    "unitOtherHint": "Opens every unit"
   },
   "steps": {
     "title": "Steps",
@@ -194,7 +198,6 @@
     "start": "Cook",
     "continue": "Continue cooking",
     "inProgress": "In progress",
-    "everythingElse": "Everything else",
     "stepOf": "Step {{number}} of {{total}}",
     "doneHint": "Tap to mark this step done",
     "meanwhileStep": "{{letter}}. {{body}}",

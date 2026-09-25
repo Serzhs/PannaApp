@@ -33,7 +33,9 @@
       "title": "Vēl nav recepšu",
       "body": "Pieraksti kādu, un tā būs šeit, kad nākamreiz gatavosi.",
       "action": "Jauna recepte"
-    }
+    },
+    "drafts": "Melnraksti",
+    "ready": "Receptes"
   },
   "detail": {
     "loading": "Ielādē recepti",
@@ -107,7 +109,9 @@
     "cancelLine": "Atcelt",
     "editLine": "Labot",
     "edit": "Labot {{name}}",
-    "removeLine": "Noņemt"
+    "removeLine": "Noņemt",
+    "unitOther": "Cita",
+    "unitOtherHint": "Atver visas mērvienības"
   },
   "steps": {
     "title": "Soļi",
@@ -195,7 +199,6 @@
     "start": "Gatavot",
     "continue": "Turpināt gatavot",
     "inProgress": "Tiek gatavots",
-    "everythingElse": "Pārējās",
     "stepOf": "{{number}}. solis no {{total}}",
     "doneHint": "Pieskaries, lai atzīmētu soli kā paveiktu",
     "meanwhileStep": "{{letter}}. {{body}}",
