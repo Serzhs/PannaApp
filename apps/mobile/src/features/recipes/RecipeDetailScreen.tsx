@@ -2,13 +2,14 @@ import { ApiError } from '@panna/shared';
 import { Stack as RouteStack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, Platform, Pressable, Share, View } from 'react-native';
+import { Image, Platform, Share, View } from 'react-native';
 
 import { CookBar } from './components/CookBar';
+import { FactTile } from './components/FactTile';
 import { NeedsSection } from './components/NeedsSection';
 import { NoteList } from './components/NoteList';
 import { StepsSection } from './components/StepsSection';
-import { describeMade, describeMeta } from './format';
+import { describeMade } from './format';
 import {
   useDeleteRecipe,
   useRecipe,
@@ -21,6 +22,7 @@ import { styles } from './RecipeDetailScreen.styles';
 import { imageUrl } from '@/api/images';
 import { showActionMenu, type MenuAction } from '@/components/ActionMenu';
 import { Button } from '@/components/Button';
+import { Card } from '@/components/Card';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorState } from '@/components/ErrorState';
@@ -100,9 +102,10 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   }
 
   const data = recipe.data;
-  const meta = [describeMeta(data, t)];
-  if (data.status === 'draft') meta.push(t('recipes:status.draft'));
-  if (data.sourceRecipeId !== null) meta.push(t('recipes:share.savedFromLink'));
+  const badges = [
+    data.status === 'draft' ? t('recipes:status.draft') : null,
+    data.sourceRecipeId !== null ? t('recipes:share.savedFromLink') : null,
+  ].filter((part): part is string => part !== null);
   // A cook that is finished but not yet sent still counts: the person who made it is looking.
   const pending = queuedCooks(recipeId);
   const lastPending =
@@ -110,6 +113,20 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
       .map((cook) => cook.finishedAt)
       .sort()
       .at(-1) ?? null;
+  // The tile has room for a short date; the spoken label keeps the full "last on" line.
+  const lastAt =
+    [data.lastCookedAt, lastPending]
+      .filter((v): v is string => v !== null)
+      .sort()
+      .at(-1) ?? null;
+  const lastMade =
+    lastAt === null
+      ? null
+      : new Date(lastAt).toDateString() === new Date().toDateString()
+        ? t('recipes:made.today')
+        : new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(
+            Date.parse(lastAt),
+          );
   const made = describeMade(
     data.cookCount + pending.length,
     [data.lastCookedAt, lastPending]
@@ -221,7 +238,7 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
           ),
         }}
       />
-      <Stack gap="space4" style={styles.body}>
+      <Stack gap="space6" style={styles.body}>
         {data.coverImageKey === null ? null : (
           <Image
             source={{ uri: imageUrl(data.coverImageKey) }}
@@ -230,30 +247,46 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
             accessibilityLabel={t('recipes:photo.coverOf', { title: data.title })}
           />
         )}
-        <Stack gap="space1">
-          <Text variant="title" accessibilityRole="header">
+        <Stack gap="space3">
+          <Text variant="display" accessibilityRole="header">
             {data.title}
           </Text>
-          <Text variant="caption" color="textSecondary">
-            {meta.join(' · ')}
-          </Text>
-          {made === null ? null : cooked ? (
-            <Pressable
-              accessibilityRole="link"
-              accessibilityLabel={made}
-              accessibilityHint={t('recipes:history.openHint')}
-              onPress={openHistory}
-              hitSlop={styles.madeHitSlop.margin}
-            >
-              <Text variant="caption" color="accent">
-                {made} ›
-              </Text>
-            </Pressable>
-          ) : (
-            <Text variant="caption" color="textSecondary">
-              {made}
-            </Text>
+          {badges.length === 0 ? null : (
+            <View style={styles.badges}>
+              {badges.map((badge) => (
+                <View key={badge} style={styles.badge}>
+                  <Text variant="label" color="textSecondary">
+                    {badge}
+                  </Text>
+                </View>
+              ))}
+            </View>
           )}
+          <View style={styles.facts}>
+            <FactTile
+              icon="people-outline"
+              text={t('recipes:servings', { count: data.servings })}
+              accessibilityLabel={t('recipes:servings', { count: data.servings })}
+            />
+            {data.totalTimeMinutes === null ? null : (
+              <FactTile
+                icon="time-outline"
+                text={t('recipes:minutes', { count: data.totalTimeMinutes })}
+                accessibilityLabel={t('recipes:minutes', { count: data.totalTimeMinutes })}
+              />
+            )}
+            {made === null ? null : (
+              <FactTile
+                icon="repeat-outline"
+                text={made.split(' · ')[0] ?? made}
+                {...(lastMade === null ? {} : { detail: lastMade })}
+                accessibilityLabel={made}
+                {...(cooked
+                  ? { onPress: openHistory, accessibilityHint: t('recipes:history.openHint') }
+                  : {})}
+              />
+            )}
+          </View>
         </Stack>
         {data.description === null ? null : <Text variant="body">{data.description}</Text>}
         <NeedsSection ingredients={data.ingredients} equipment={data.equipment} />
@@ -263,18 +296,20 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
           equipment={data.equipment}
         />
         {data.notes.length === 0 ? null : (
-          <Stack gap="space3">
-            <Text variant="heading" accessibilityRole="header">
-              {t('recipes:notes.title')}
-            </Text>
-            <NoteList
-              notes={data.notes}
-              stepLabel={(stepId) => {
-                const index = data.steps.findIndex((step) => step.id === stepId);
-                return index < 0 ? null : t('recipes:notes.onStep', { number: index + 1 });
-              }}
-            />
-          </Stack>
+          <Card>
+            <Stack gap="space3">
+              <Text variant="heading" accessibilityRole="header">
+                {t('recipes:notes.title')}
+              </Text>
+              <NoteList
+                notes={data.notes}
+                stepLabel={(stepId) => {
+                  const index = data.steps.findIndex((step) => step.id === stepId);
+                  return index < 0 ? null : t('recipes:notes.onStep', { number: index + 1 });
+                }}
+              />
+            </Stack>
+          </Card>
         )}
         {statusOffline && !online ? (
           <Text variant="caption" color="danger" accessibilityLiveRegion="polite">

@@ -7,9 +7,9 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   cover: {
-    width: theme.space.space12,
-    height: theme.space.space12,
-    borderRadius: theme.radius.radiusSm,
+    width: theme.space.space16,
+    height: theme.space.space16,
+    borderRadius: theme.radius.radiusMd,
     backgroundColor: theme.colors.surfaceRaised,
   },
   /** At the largest font sizes the chips drop under the title rather than squeezing it. */
@@ -28,5 +28,6 @@ export const styles = StyleSheet.create({
   },
   newChip: {
     borderColor: theme.colors.accent,
+    backgroundColor: theme.colors.accentMuted,
   },
 });

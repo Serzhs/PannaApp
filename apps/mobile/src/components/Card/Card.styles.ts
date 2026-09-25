@@ -7,8 +7,7 @@ export const styles = StyleSheet.create({
     padding: theme.space.space4,
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.radiusMd,
-    borderWidth: 1,
-    borderColor: theme.colors.borderSubtle,
+    ...theme.shadow.card,
   },
   pressed: {
     opacity: 0.85,

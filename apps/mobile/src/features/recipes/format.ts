@@ -65,6 +65,19 @@ export function describeMeta(recipe: Recipe, t: TFunction): string {
   return parts.join(' · ');
 }
 
+/** "500 g", "about 1 cup", "2", or null for an unmeasured line: the amount in the reader's units. */
+export function describeAmount(
+  line: Ingredient,
+  system: UnitSystem,
+  t: TFunction,
+  language: string,
+): string | null {
+  if (line.amount === null) return null;
+  return line.unit === null
+    ? new Intl.NumberFormat(language, { maximumFractionDigits: 2 }).format(line.amount)
+    : formatAmount(line.amount, line.unit, system, t, language);
+}
+
 /** "500 g beetroot", or just "beetroot" for an unmeasured line: the amount in the reader's units. */
 export function describeIngredient(
   line: Ingredient,
@@ -72,10 +85,6 @@ export function describeIngredient(
   t: TFunction,
   language: string,
 ): string {
-  if (line.amount === null) return line.name;
-  const amount =
-    line.unit === null
-      ? new Intl.NumberFormat(language, { maximumFractionDigits: 2 }).format(line.amount)
-      : formatAmount(line.amount, line.unit, system, t, language);
-  return `${amount} ${line.name}`;
+  const amount = describeAmount(line, system, t, language);
+  return amount === null ? line.name : `${amount} ${line.name}`;
 }

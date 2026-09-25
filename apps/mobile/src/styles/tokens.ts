@@ -20,44 +20,41 @@ const space = {
 
 const radius = {
   radiusNone: 0,
-  radiusSm: 4,
-  radiusMd: 8,
-  radiusLg: 16,
+  radiusSm: 6,
+  radiusMd: 12,
+  radiusLg: 20,
   radiusFull: 9999,
 } as const;
 
 /**
- * A warm neutral rather than a blue-grey, because every screen in this app sits
- * behind photographs of food. `neutral500` is picked to clear 3:1 against both
- * `neutral0` and `neutral100`, since it is the colour control boundaries use.
+ * Warm neutrals with a cream ground and a terracotta accent (0031): every screen sits
+ * behind photographs of food, and the app should feel like a kitchen, not a form. Each
+ * pair the contrast test checks clears its ratio; the test is the proof.
  */
 const color = {
   neutral0: '#FFFFFF',
-  neutral50: '#FAFAF9',
-  neutral100: '#F5F5F4',
-  neutral200: '#E7E5E4',
-  neutral300: '#D6D3D1',
-  neutral400: '#A8A29E',
-  neutral500: '#918A84',
-  neutral600: '#78716C',
-  neutral700: '#57534E',
-  neutral800: '#292524',
-  neutral900: '#1C1917',
+  neutral50: '#FBF6EF',
+  neutral100: '#F6EFE6',
+  neutral200: '#EADFD4',
+  neutral300: '#D9CCBE',
+  neutral400: '#A89B8F',
+  neutral500: '#8A7D72',
+  neutral600: '#6F6357',
+  neutral700: '#5E524A',
+  neutral800: '#3A302A',
+  neutral900: '#2A211C',
 
-  // Placeholder until a brand colour is chosen. Deliberately dark enough to pass
-  // 4.5:1 as text on a light surface and to carry white text as a fill, so the
-  // component set does not have to change when a real accent replaces it.
-  accent100: '#EAF0F5',
-  accent300: '#9DB4C7',
-  accent500: '#4A6D8C',
-  accent700: '#2F4759',
+  accent100: '#FBE9E1',
+  accent300: '#E4A58E',
+  accent500: '#B8472A',
+  accent700: '#8E3520',
 
   red100: '#FDECEA',
   red600: '#B03027',
   red700: '#8F241D',
 
   green100: '#E7F3EE',
-  green600: '#24654A',
+  green600: '#2E6B4C',
 
   amber100: '#FBF1E0',
   amber700: '#7A4F0C',
@@ -100,6 +97,20 @@ const easing = {
   easeAccelerate: [0.3, 0, 1, 1],
 } as const;
 
+/**
+ * A card lifts off the cream ground by a soft shadow rather than a border (0031). The
+ * colour is the darkest neutral at low opacity, so it warms with the palette.
+ */
+const shadow = {
+  shadowSoft: {
+    shadowColor: '#2A211C',
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+  },
+} as const;
+
 /** Anything the finger drags or presses, where a fixed duration feels detached. */
 const spring = {
   springPress: { damping: 18, stiffness: 240, mass: 1 },
@@ -114,6 +125,7 @@ export const primitives = {
   duration,
   easing,
   spring,
+  shadow,
 } as const;
 
 /**
@@ -122,9 +134,9 @@ export const primitives = {
  */
 export const semantics = {
   color: {
-    background: color.neutral100,
+    background: color.neutral50,
     surface: color.neutral0,
-    surfaceRaised: color.neutral50,
+    surfaceRaised: color.neutral100,
     overlay: color.scrim,
 
     textPrimary: color.neutral900,
@@ -153,6 +165,7 @@ export const semantics = {
   duration,
   easing,
   spring,
+  shadow: { card: shadow.shadowSoft },
 } as const;
 
 export type SemanticColor = keyof typeof semantics.color;

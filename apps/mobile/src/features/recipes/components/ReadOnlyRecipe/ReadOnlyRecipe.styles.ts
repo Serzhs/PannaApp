@@ -6,10 +6,14 @@ export const styles = StyleSheet.create({
   body: {
     paddingVertical: theme.space.space4,
   },
+  facts: {
+    flexDirection: 'row',
+    gap: theme.space.space2,
+  },
   cover: {
     width: '100%',
     aspectRatio: 4 / 3,
-    borderRadius: theme.radius.radiusMd,
+    borderRadius: theme.radius.radiusLg,
     backgroundColor: theme.colors.surfaceRaised,
   },
 });

@@ -1,6 +1,6 @@
 # 0031: A warm look
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0002, 0004, 0029
 
 ## Context
@@ -80,18 +80,30 @@ colours. Chips in the accent tint; the tab bar's active colour is the accent.
 `FactTile`, `IngredientRow`, `StepCard` follow the one-folder-per-component layout under the
 recipes feature, with gallery entries. No new strings except "optional" reused.
 
+Three adjustments on the first look. At the largest text size a fixed amount column broke
+"600 g" into "60" over "0 g"; the row now wraps, so the name drops under the amount instead. The equipment card has no amounts, so it has no amount
+column: an empty column read as an indent. And the made tile shows a short date under the
+count; the full "last on" line is what a screen reader hears.
+
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces,
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces,
       including the contrast test over the new tokens and the literal test over the new styles.
-- [ ] The recipe screen renders the facts row, the ingredient rows with the amount column, the
+      _(`pnpm check`: shared 9, API 138, mobile 1355 tests. The contrast test passes over the new
+      palette; the generator that wrote the tokens asserted every pair first.)_
+- [x] The recipe screen renders the facts row, the ingredient rows with the amount column, the
       numbered step cards and the tinted note; every existing accessible name in
       NeedsSection.test.tsx and StepsSection.test.tsx still resolves, asserted in a test.
-- [ ] The facts row omits the time when there is none and the made tile when never made,
-      asserted in a test.
-- [ ] On the simulator: the list, the recipe, the featured tab, the You tab, an editor and cook
+      _(FactTile, IngredientRow and StepCard each have a test; the section tests keep every
+      accessible label. Three assertions there queried by joined text, "500 g Beetroot" and
+      "Step 1", which the amount column and the number circle now split; they query by label.)_
+- [x] The facts row omits the time when there is none and the made tile when never made,
+      asserted in a test. _(`says how often and how recently it was made` in
+      RecipeDetailScreen.test.tsx: the made tile is the link when there is a cook and absent when
+      not; the time tile follows the fixture's null total.)_
+- [x] On the simulator: the list, the recipe, the featured tab, the You tab, an editor and cook
       mode all carry the warm palette; the recipe screen reads as modules; nothing is clipped at
-      the largest text size.
+      the largest text size. _(Done on the iPhone 17 Pro simulator, 25 September 2026.)_
 
 Manual follow-up, not gating: look at every screen with a fresh eye a day later. Colour is a
 thing one stops seeing after an hour.

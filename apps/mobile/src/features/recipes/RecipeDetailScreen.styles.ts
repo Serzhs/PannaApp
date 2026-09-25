@@ -9,14 +9,26 @@ export const styles = StyleSheet.create({
   cover: {
     width: '100%',
     aspectRatio: 4 / 3,
-    borderRadius: theme.radius.radiusMd,
+    borderRadius: theme.radius.radiusLg,
     backgroundColor: theme.colors.surfaceRaised,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  madeHitSlop: {
-    margin: theme.space.space2,
+  facts: {
+    flexDirection: 'row',
+    gap: theme.space.space2,
+  },
+  badges: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.space.space2,
+  },
+  badge: {
+    paddingHorizontal: theme.space.space2,
+    borderRadius: theme.radius.radiusFull,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
 });

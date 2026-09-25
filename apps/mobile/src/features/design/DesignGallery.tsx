@@ -27,9 +27,11 @@ import { CookBar } from '@/features/recipes/components/CookBar';
 import { CookCard } from '@/features/recipes/components/CookCard';
 import { DurationField } from '@/features/recipes/components/DurationField';
 import { EquipmentLine } from '@/features/recipes/components/EquipmentLine';
+import { FactTile } from '@/features/recipes/components/FactTile';
 import { FlowChart } from '@/features/recipes/components/FlowChart';
 import { FlowEditor } from '@/features/recipes/components/FlowEditor';
 import { IngredientLine } from '@/features/recipes/components/IngredientLine';
+import { IngredientRow } from '@/features/recipes/components/IngredientRow';
 import { LinkChips } from '@/features/recipes/components/LinkChips';
 import { NeedRow } from '@/features/recipes/components/NeedRow';
 import { NeedsSection } from '@/features/recipes/components/NeedsSection';
@@ -43,6 +45,7 @@ import {
   QuickPicks,
 } from '@/features/recipes/components/QuickPicks';
 import { ServingsPicker } from '@/features/recipes/components/ServingsPicker';
+import { StepCard } from '@/features/recipes/components/StepCard';
 import { StepLine } from '@/features/recipes/components/StepLine';
 import { StepsEditor } from '@/features/recipes/components/StepsEditor';
 import { StepsSection } from '@/features/recipes/components/StepsSection';
@@ -822,8 +825,56 @@ function NeedsLines(): React.JSX.Element {
       <Section title="UnitPicker">
         <UnitPicker value={unit} onChange={setUnit} />
       </Section>
-      <Section title="NeedsSection">
+      <Section title="FactTile">
+        <View style={styles.factRow}>
+          <FactTile icon="people-outline" text="4 servings" accessibilityLabel="4 servings" />
+          <FactTile icon="time-outline" text="65 min" accessibilityLabel="65 min" />
+          <FactTile
+            icon="repeat-outline"
+            text="Made 2 times"
+            detail="last on 14 September"
+            accessibilityLabel="Made 2 times, last on 14 September"
+            onPress={() => undefined}
+          />
+        </View>
+      </Section>
+      <Section title="IngredientRow">
         <Card>
+          <IngredientRow
+            amount="500 g"
+            name="beetroot"
+            note="raw, leaves cut off"
+            accessibilityLabel="500 g beetroot, raw, leaves cut off"
+          />
+          <IngredientRow
+            amount={null}
+            name="salt"
+            note="to taste"
+            accessibilityLabel="salt, to taste"
+          />
+          <IngredientRow
+            amount={null}
+            name="Blender"
+            note={null}
+            tag="optional"
+            accessibilityLabel="Blender, optional"
+            last
+          />
+        </Card>
+      </Section>
+      <Section title="StepCard">
+        <StepCard
+          number="3"
+          body="Simmer until the lamb is tender"
+          when="40 min"
+          uses="Uses 600 g lamb shoulder"
+          needs="Needs heavy pot with a lid"
+          note="It should taste a little too salty: the rice takes salt from it."
+          accessibilityLabel="Step 3. Simmer until the lamb is tender"
+        />
+      </Section>
+      <Section title="NeedsSection">
+        <View>
           <NeedsSection
             ingredients={[
               { id: 'n1', position: 0, name: 'kefir', amount: 250, unit: 'ml', note: 'cold' },
@@ -835,10 +886,8 @@ function NeedsLines(): React.JSX.Element {
               { id: 'e2', position: 1, name: 'Grater', note: 'the fine side', optional: true },
             ]}
           />
-        </Card>
-        <Card>
-          <NeedsSection ingredients={[]} equipment={[]} />
-        </Card>
+        </View>
+        <NeedsSection ingredients={[]} equipment={[]} />
       </Section>
     </>
   );

@@ -41,6 +41,7 @@ export const theme = {
   duration: semantics.duration,
   easing: semantics.easing,
   spring: semantics.spring,
+  shadow: semantics.shadow,
   text: textStyles,
 } as const;
 

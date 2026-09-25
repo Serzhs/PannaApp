@@ -1,8 +1,8 @@
 import type { SharedRecipe } from '@panna/shared';
 import { useTranslation } from 'react-i18next';
-import { Image } from 'react-native';
+import { Image, View } from 'react-native';
 
-import { describeMeta } from '../../format';
+import { FactTile } from '../FactTile';
 import { NeedsSection } from '../NeedsSection';
 import { StepsSection } from '../StepsSection';
 
@@ -45,7 +45,7 @@ export function ReadOnlyRecipe({
         : `${imageBaseUrl}/api/images/${recipe.coverImageKey}`;
 
   return (
-    <Stack gap="space4" style={styles.body}>
+    <Stack gap="space6" style={styles.body}>
       {cover === null ? null : (
         <Image
           source={{ uri: cover }}
@@ -54,16 +54,27 @@ export function ReadOnlyRecipe({
           accessibilityLabel={t('recipes:photo.coverOf', { title: recipe.title })}
         />
       )}
-      <Stack gap="space1">
-        <Text variant="caption" color="accent">
+      <Stack gap="space3">
+        <Text variant="label" color="accent">
           {headline}
         </Text>
-        <Text variant="title" accessibilityRole="header">
+        <Text variant="display" accessibilityRole="header">
           {recipe.title}
         </Text>
-        <Text variant="caption" color="textSecondary">
-          {describeMeta(recipe, t)}
-        </Text>
+        <View style={styles.facts}>
+          <FactTile
+            icon="people-outline"
+            text={t('recipes:servings', { count: recipe.servings })}
+            accessibilityLabel={t('recipes:servings', { count: recipe.servings })}
+          />
+          {recipe.totalTimeMinutes === null ? null : (
+            <FactTile
+              icon="time-outline"
+              text={t('recipes:minutes', { count: recipe.totalTimeMinutes })}
+              accessibilityLabel={t('recipes:minutes', { count: recipe.totalTimeMinutes })}
+            />
+          )}
+        </View>
       </Stack>
       {recipe.description === null ? null : <Text variant="body">{recipe.description}</Text>}
       <NeedsSection ingredients={recipe.ingredients} equipment={recipe.equipment} />

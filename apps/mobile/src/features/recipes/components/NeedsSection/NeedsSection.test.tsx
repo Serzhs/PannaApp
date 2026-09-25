@@ -40,7 +40,8 @@ describe('NeedsSection', () => {
         equipment={[]}
       />,
     );
-    expect(screen.getByText('about 1 cup Kefir')).toBeTruthy();
+    expect(screen.getByLabelText('about 1 cup Kefir')).toBeTruthy();
+    expect(screen.getByText('about 1 cup')).toBeTruthy();
 
     system.mockReturnValue('metric');
     await view.rerender(
@@ -49,7 +50,7 @@ describe('NeedsSection', () => {
         equipment={[]}
       />,
     );
-    expect(screen.getByText('250 ml Kefir')).toBeTruthy();
+    expect(screen.getByLabelText('250 ml Kefir')).toBeTruthy();
   });
 
   it('shows a bare count and an unmeasured ingredient plainly', async () => {
@@ -63,8 +64,8 @@ describe('NeedsSection', () => {
         equipment={[]}
       />,
     );
-    expect(screen.getByText('2 eggs')).toBeTruthy();
-    expect(screen.getByText('salt')).toBeTruthy();
+    expect(screen.getByLabelText('2 eggs')).toBeTruthy();
+    expect(screen.getByLabelText('salt')).toBeTruthy();
   });
 
   /** The criterion: one element per line, carrying amount, unit, name and note. */
@@ -85,7 +86,7 @@ describe('NeedsSection', () => {
   it('says optional in words and names empty lists', async () => {
     system.mockReturnValue('metric');
     await render(<NeedsSection ingredients={[]} equipment={[equipment({ optional: true })]} />);
-    expect(screen.getByText('Grater (optional)')).toBeTruthy();
+    expect(screen.getByText('optional')).toBeTruthy();
     expect(screen.getByLabelText('Grater, optional')).toBeTruthy();
     expect(screen.getByText('No ingredients yet.')).toBeTruthy();
   });

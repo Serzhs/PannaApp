@@ -40,11 +40,11 @@ describe('StepsSection', () => {
         ]}
       />,
     );
-    expect(screen.getByText('Step 1')).toBeTruthy();
+    expect(screen.getByLabelText(/^Step 1\./)).toBeTruthy();
     expect(screen.getByText('10 min')).toBeTruthy();
     expect(screen.getByText('Meanwhile')).toBeTruthy();
-    expect(screen.getByText('Step 2a, during step 2')).toBeTruthy();
-    expect(screen.getByText('Step 2b, during step 2')).toBeTruthy();
+    expect(screen.getByLabelText(/^Step 2a, during step 2\./)).toBeTruthy();
+    expect(screen.getByLabelText(/^Step 2b, during step 2\./)).toBeTruthy();
   });
 
   it('reads each step as one element with its number, body, and note', async () => {

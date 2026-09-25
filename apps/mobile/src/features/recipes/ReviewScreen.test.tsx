@@ -76,7 +76,7 @@ describe('ReviewScreen', () => {
     expect(screen.getByRole('header', { name: 'Cold beetroot soup' })).toBeTruthy();
     expect(screen.getByText('4 servings · 25 min')).toBeTruthy();
     expect(screen.getByText('Chilled, pink.')).toBeTruthy();
-    expect(screen.getByText('500 g Beetroot')).toBeTruthy();
+    expect(screen.getByLabelText('500 g Beetroot')).toBeTruthy();
     expect(screen.getByText('Roast')).toBeTruthy();
     expect(screen.queryByRole('switch')).toBeNull();
     expect(screen.getByRole('button', { name: 'Save' })).toBeTruthy();
