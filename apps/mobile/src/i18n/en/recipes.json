@@ -326,12 +326,24 @@
       "body": "Cook it once, and what you learn goes here."
     }
   },
-  "quickSteps": {
-    "title": "Common steps",
+  "quick": {
+    "steps": "Common steps",
+    "ingredients": "Common ingredients",
+    "equipment": "Common equipment",
     "boilWater": "Boil water",
     "heatPan": "Heat the pan",
     "heatOven": "Heat the oven",
     "chopOnions": "Chop the onions",
-    "season": "Season with salt and pepper"
+    "season": "Season with salt and pepper",
+    "salt": "Salt",
+    "water": "Water",
+    "oil": "Olive oil",
+    "onion": "Onion",
+    "garlic": "Garlic",
+    "pot": "Pot",
+    "pan": "Frying pan",
+    "knife": "Knife",
+    "board": "Chopping board",
+    "bowl": "Bowl"
   }
 }

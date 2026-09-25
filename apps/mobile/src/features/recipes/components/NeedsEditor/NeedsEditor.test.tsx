@@ -79,4 +79,18 @@ describe('NeedsEditor', () => {
     expect(screen.getByLabelText(/^Amount \(optional\), Amount is a number/)).toBeTruthy();
     expect(screen.queryByLabelText('500 g Beetroot')).toBeNull();
   });
+
+  /** 0030: common ingredients and tools above a fresh card, gone once it has a name. */
+  it('offers the common ingredients and tools above a new card until it has a name', async () => {
+    await render(<Harness />);
+    await fireEvent.press(screen.getByRole('button', { name: 'Add ingredient' }));
+    await fireEvent.press(screen.getByRole('checkbox', { name: 'Garlic' }));
+    expect(screen.getByLabelText(/^Name/)).toHaveProp('value', 'Garlic');
+    expect(screen.queryByRole('checkbox', { name: 'Salt' })).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: 'Add Garlic' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Add equipment' }));
+    await fireEvent.press(screen.getByRole('checkbox', { name: 'Frying pan' }));
+    expect(screen.getByLabelText(/^Name/)).toHaveProp('value', 'Frying pan');
+    expect(screen.queryByRole('checkbox', { name: 'Pot' })).toBeNull();
+  });
 });

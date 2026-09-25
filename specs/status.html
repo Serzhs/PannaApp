@@ -1845,40 +1845,45 @@
 </section>
 
 <section id="spec-0030">
-<h2>0030: Quick steps <span class="status done">Done</span></h2>
-<p class="goal">A new step offers the most common kitchen actions as a row of chips, and tapping one fills the instruction in so the author only has to say what changes.</p>
+<h2>0030: Quick picks <span class="status done">Done</span></h2>
+<p class="goal">A new step, ingredient or piece of equipment offers the most common ones as a row of chips, and tapping one fills the name or the instruction in so the author only has to say what changes.</p>
 <p class="summary">4 of 4 acceptance criteria verified.</p>
 <div class="bar"><div style="width: 100%"></div></div>
 
 <h3>Acceptance criteria</h3>
 <ul class="criteria">
 <li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. _(<code>pnpm check</code>:</li>
-<li class="done">A new step's card shows the five chips; tapping one fills the instruction with its text</li>
-<li class="done">The English and Latvian files each list five, and the key-parity test passes. _(The list is a</li>
+<li class="done">A new step shows the five chips above its card; tapping one fills the instruction with its text</li>
+<li class="done">The English and Latvian files each list five of each kind, and the key-parity test passes. _(The list is a</li>
 <li class="done">On the simulator: Add step on the plov shows the chips; tapping "Heat the pan" fills the</li>
 </ul>
 
 <details><summary>Requirements, as written in the spec</summary>
-<h3>Goal</h3><p>A new step offers the most common kitchen actions as a row of chips, and tapping one fills the</p>
-<p>instruction in so the author only has to say what changes.</p>
+<h3>Goal</h3><p>A new step, ingredient or piece of equipment offers the most common ones as a row of chips,</p>
+<p>and tapping one fills the name or the instruction in so the author only has to say what changes.</p>
 <h3>Out of scope</h3><li>Guessing steps from the ingredients, or any suggestion that depends on the recipe.</li>
 <li>Chips on an existing step, or once the author has started typing. They are a way in, not</li>
 <p>  an editor.</p>
 <li>Filling in the time, the linked lines or the note. A chip writes the instruction; the rest is</li>
 <p>  the author's, since "boil the water" means a different pot every time.</p>
 <li>Learning from what the author writes, or a list the author edits. The list is fixed.</li>
-<li>Chips for the recipe's own ingredients and tools. Linking is what Uses and Needs do.</li>
+<li>Chips on a step for the recipe's own ingredients and tools. Linking is what Uses and Needs do.</li>
 <h3>Data model</h3><p>Nothing. The list is a constant in the app, in both languages.</p>
 <h3>API contract</h3><p>No endpoints, no changes.</p>
-<h3>UI</h3><p><strong>In a new step's card</strong>, above the instruction field, a heading "Common steps" and a row of</p>
-<p>chips that wraps: Boil water, Heat the pan, Heat the oven, Chop the onions, Season with salt</p>
+<h3>UI</h3><p><strong>Above a new step's card</strong>, outside it, a heading "Common steps" and a row of chips that</p>
+<p>wraps: Boil water, Heat the pan, Heat the oven, Chop the onions, Season with salt</p>
 <p>and pepper. Five, decided on approval: start slow, and add more once these earn their place.</p>
 <p>The Latvian file carries its own wording, not a translation word for word.</p>
-<p>Tapping a chip puts its text in the instruction field, puts the cursor at the end so the author</p>
-<p>can carry on, and the row goes away. The row is also gone once the author types anything into</p>
+<p><strong>Above a new ingredient's card</strong>, the same for the five most common ingredients: Salt, Water,</p>
+<p>Olive oil, Onion, Garlic; and <strong>above a new piece of equipment's card</strong>: Pot, Frying pan, Knife,</p>
+<p>Chopping board, Bowl. Added on the first look, once the step chips were seen. A chip fills the</p>
+<p>name and nothing else.</p>
+<p>Tapping a chip puts its text in the field and the row goes away. The row sits</p>
+<p>outside the card, decided after the first look: the card is the step, and a way into it is not</p>
+<p>part of it. The row is also gone once the author types anything into</p>
 <p>the field, and it is never shown on a step that already has an instruction, which is every</p>
 <p>existing step. A chip is a button named by its text.</p>
-<p><code>QuickSteps</code> follows the one-folder-per-component layout under the recipes feature, with a</p>
+<p><code>QuickPicks</code>, one component for all three lists, follows the one-folder-per-component layout under the recipes feature, with a</p>
 <p>gallery entry. All new strings go through <code>t()</code>, in English and Latvian.</p>
 </details>
 </section>

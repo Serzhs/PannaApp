@@ -36,7 +36,12 @@ import { NeedsSection } from '@/features/recipes/components/NeedsSection';
 import { NoteComposer } from '@/features/recipes/components/NoteComposer';
 import { NoteList } from '@/features/recipes/components/NoteList';
 import { PhotoField } from '@/features/recipes/components/PhotoField';
-import { QuickSteps } from '@/features/recipes/components/QuickSteps';
+import {
+  QUICK_EQUIPMENT,
+  QUICK_INGREDIENTS,
+  QUICK_STEPS,
+  QuickPicks,
+} from '@/features/recipes/components/QuickPicks';
 import { ServingsPicker } from '@/features/recipes/components/ServingsPicker';
 import { StepLine } from '@/features/recipes/components/StepLine';
 import { StepsEditor } from '@/features/recipes/components/StepsEditor';
@@ -905,8 +910,16 @@ function StepPieces(): React.JSX.Element {
           />
         </Stack>
       </Section>
-      <Section title="QuickSteps">
-        <QuickSteps onPick={() => undefined} />
+      <Section title="QuickPicks">
+        <Stack gap="space4">
+          <QuickPicks title="Common steps" options={QUICK_STEPS} onPick={() => undefined} />
+          <QuickPicks
+            title="Common ingredients"
+            options={QUICK_INGREDIENTS}
+            onPick={() => undefined}
+          />
+          <QuickPicks title="Common equipment" options={QUICK_EQUIPMENT} onPick={() => undefined} />
+        </Stack>
       </Section>
       <Section title="StepLine">
         <Card>

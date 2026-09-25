@@ -18,6 +18,7 @@ import {
 import { EquipmentLine } from '../EquipmentLine';
 import { IngredientLine } from '../IngredientLine';
 import { NeedRow } from '../NeedRow';
+import { QUICK_EQUIPMENT, QUICK_INGREDIENTS, QuickPicks } from '../QuickPicks';
 
 import { styles } from './NeedsEditor.styles';
 
@@ -142,44 +143,61 @@ export function NeedsEditor({ value, errors, onChange }: NeedsEditorProps): Reac
               settle(line.key);
               setIngredients(value.ingredients.filter((_, i) => i !== index));
             };
+            // A null snapshot is a line being written from nothing. The common ones (0030)
+            // sit above its card, outside it: a way in, not a field.
             return (
-              <Card>
-                <Stack gap="space3">
-                  {controls}
-                  {snapshot === undefined ? (
-                    <NeedRow
-                      title={ingredientTitle(line)}
-                      {...(line.note.trim() === '' ? {} : { detail: line.note })}
-                      editLabel={t('recipes:needs.editLine')}
-                      editAccessibilityLabel={t('recipes:needs.edit', { name: line.name })}
-                      removeLabel={t('recipes:needs.removeLine')}
-                      removeAccessibilityLabel={t('recipes:needs.remove', { name: line.name })}
-                      onEdit={() => {
-                        reopen(line);
-                      }}
-                      onRemove={remove}
-                    />
-                  ) : (
-                    <>
-                      <IngredientLine line={line} errors={errorsFor(line.key)} onChange={replace} />
-                      {actions(
-                        line,
-                        snapshot === null,
-                        () => {
-                          add(line, checkIngredient(line));
-                        },
-                        () => {
-                          if (snapshot === null) remove();
-                          else {
-                            replace(snapshot as IngredientDraft);
-                            settle(line.key);
-                          }
-                        },
-                      )}
-                    </>
-                  )}
-                </Stack>
-              </Card>
+              <Stack gap="space3">
+                {snapshot === null && line.name === '' ? (
+                  <QuickPicks
+                    title={t('recipes:quick.ingredients')}
+                    options={QUICK_INGREDIENTS}
+                    onPick={(name) => {
+                      replace({ ...line, name });
+                    }}
+                  />
+                ) : null}
+                <Card>
+                  <Stack gap="space3">
+                    {controls}
+                    {snapshot === undefined ? (
+                      <NeedRow
+                        title={ingredientTitle(line)}
+                        {...(line.note.trim() === '' ? {} : { detail: line.note })}
+                        editLabel={t('recipes:needs.editLine')}
+                        editAccessibilityLabel={t('recipes:needs.edit', { name: line.name })}
+                        removeLabel={t('recipes:needs.removeLine')}
+                        removeAccessibilityLabel={t('recipes:needs.remove', { name: line.name })}
+                        onEdit={() => {
+                          reopen(line);
+                        }}
+                        onRemove={remove}
+                      />
+                    ) : (
+                      <>
+                        <IngredientLine
+                          line={line}
+                          errors={errorsFor(line.key)}
+                          onChange={replace}
+                        />
+                        {actions(
+                          line,
+                          snapshot === null,
+                          () => {
+                            add(line, checkIngredient(line));
+                          },
+                          () => {
+                            if (snapshot === null) remove();
+                            else {
+                              replace(snapshot as IngredientDraft);
+                              settle(line.key);
+                            }
+                          },
+                        )}
+                      </>
+                    )}
+                  </Stack>
+                </Card>
+              </Stack>
             );
           }}
         />
@@ -214,44 +232,61 @@ export function NeedsEditor({ value, errors, onChange }: NeedsEditorProps): Reac
               settle(line.key);
               setEquipment(value.equipment.filter((_, i) => i !== index));
             };
+            // A null snapshot is a line being written from nothing. The common ones (0030)
+            // sit above its card, outside it: a way in, not a field.
             return (
-              <Card>
-                <Stack gap="space3">
-                  {controls}
-                  {snapshot === undefined ? (
-                    <NeedRow
-                      title={equipmentTitle(line)}
-                      {...(line.note.trim() === '' ? {} : { detail: line.note })}
-                      editLabel={t('recipes:needs.editLine')}
-                      editAccessibilityLabel={t('recipes:needs.edit', { name: line.name })}
-                      removeLabel={t('recipes:needs.removeLine')}
-                      removeAccessibilityLabel={t('recipes:needs.remove', { name: line.name })}
-                      onEdit={() => {
-                        reopen(line);
-                      }}
-                      onRemove={remove}
-                    />
-                  ) : (
-                    <>
-                      <EquipmentLine line={line} errors={errorsFor(line.key)} onChange={replace} />
-                      {actions(
-                        line,
-                        snapshot === null,
-                        () => {
-                          add(line, checkEquipment(line));
-                        },
-                        () => {
-                          if (snapshot === null) remove();
-                          else {
-                            replace(snapshot as EquipmentDraft);
-                            settle(line.key);
-                          }
-                        },
-                      )}
-                    </>
-                  )}
-                </Stack>
-              </Card>
+              <Stack gap="space3">
+                {snapshot === null && line.name === '' ? (
+                  <QuickPicks
+                    title={t('recipes:quick.equipment')}
+                    options={QUICK_EQUIPMENT}
+                    onPick={(name) => {
+                      replace({ ...line, name });
+                    }}
+                  />
+                ) : null}
+                <Card>
+                  <Stack gap="space3">
+                    {controls}
+                    {snapshot === undefined ? (
+                      <NeedRow
+                        title={equipmentTitle(line)}
+                        {...(line.note.trim() === '' ? {} : { detail: line.note })}
+                        editLabel={t('recipes:needs.editLine')}
+                        editAccessibilityLabel={t('recipes:needs.edit', { name: line.name })}
+                        removeLabel={t('recipes:needs.removeLine')}
+                        removeAccessibilityLabel={t('recipes:needs.remove', { name: line.name })}
+                        onEdit={() => {
+                          reopen(line);
+                        }}
+                        onRemove={remove}
+                      />
+                    ) : (
+                      <>
+                        <EquipmentLine
+                          line={line}
+                          errors={errorsFor(line.key)}
+                          onChange={replace}
+                        />
+                        {actions(
+                          line,
+                          snapshot === null,
+                          () => {
+                            add(line, checkEquipment(line));
+                          },
+                          () => {
+                            if (snapshot === null) remove();
+                            else {
+                              replace(snapshot as EquipmentDraft);
+                              settle(line.key);
+                            }
+                          },
+                        )}
+                      </>
+                    )}
+                  </Stack>
+                </Card>
+              </Stack>
             );
           }}
         />

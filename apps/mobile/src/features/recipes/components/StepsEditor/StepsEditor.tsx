@@ -17,7 +17,7 @@ import {
 } from '../../steps';
 import type { Linkable } from '../LinkChips';
 import { NeedRow } from '../NeedRow';
-import { QuickSteps } from '../QuickSteps';
+import { QUICK_STEPS, QuickPicks } from '../QuickPicks';
 import { StepLine } from '../StepLine';
 
 import { styles } from './StepsEditor.styles';
@@ -134,7 +134,9 @@ export function StepsEditor({
           return (
             <Stack gap="space3">
               {snapshot === null && line.body === '' ? (
-                <QuickSteps
+                <QuickPicks
+                  title={t('recipes:quick.steps')}
+                  options={QUICK_STEPS}
                   onPick={(body) => {
                     set(line.key, { ...line, body });
                   }}
