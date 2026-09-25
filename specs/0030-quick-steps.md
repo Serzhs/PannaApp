@@ -35,13 +35,14 @@ No endpoints, no changes.
 
 ## UI
 
-**In a new step's card**, above the instruction field, a heading "Common steps" and a row of
-chips that wraps: Boil water, Heat the pan, Heat the oven, Chop the onions, Season with salt
+**Above a new step's card**, outside it, a heading "Common steps" and a row of chips that
+wraps: Boil water, Heat the pan, Heat the oven, Chop the onions, Season with salt
 and pepper. Five, decided on approval: start slow, and add more once these earn their place.
 The Latvian file carries its own wording, not a translation word for word.
 
-Tapping a chip puts its text in the instruction field, puts the cursor at the end so the author
-can carry on, and the row goes away. The row is also gone once the author types anything into
+Tapping a chip puts its text in the instruction field and the row goes away. The row sits
+outside the card, decided after the first look: the card is the step, and a way into it is not
+part of it. The row is also gone once the author types anything into
 the field, and it is never shown on a step that already has an instruction, which is every
 existing step. A chip is a button named by its text.
 
@@ -52,7 +53,7 @@ gallery entry. All new strings go through `t()`, in English and Latvian.
 
 - [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`:
       shared 9, API 138, mobile 1313 tests.)_
-- [x] A new step's card shows the five chips; tapping one fills the instruction with its text
+- [x] A new step shows the five chips above its card; tapping one fills the instruction with its text
       and the chips go; typing into the empty field also removes them; a step opened for editing
       with text shows none, asserted in a test. _(QuickSteps.test.tsx and `offers the common steps on a
 fresh step until there is an instruction` in StepLine.test.tsx.)_

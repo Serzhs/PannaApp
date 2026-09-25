@@ -55,7 +55,7 @@
   },
   "form": {
     "title": "Nosaukums",
-    "description": "Apraksts",
+    "description": "Apraksts (pēc izvēles)",
     "servings": "Porcijas",
     "totalTime": "Kopējais laiks, minūtēs",
     "totalTimeHelper": "Atstāj tukšu, ja vēl neesi drošs.",
@@ -85,9 +85,9 @@
     "moveDown": "Pārvietot {{name}} lejup",
     "unnamed": "rinda bez nosaukuma",
     "name": "Nosaukums",
-    "amount": "Daudzums",
+    "amount": "Daudzums (pēc izvēles)",
     "unit": "Mērvienība",
-    "note": "Piezīme",
+    "note": "Piezīme (pēc izvēles)",
     "noteHelper": "Viss, kas nav nosaukums: parastie, ne pašuzrūgstošie.",
     "unitNone": "Nav",
     "unitPicker": "Mērvienība",
@@ -116,9 +116,9 @@
     "number": "{{number}}. solis",
     "nestedNumber": "{{number}}{{letter}}. solis, {{number}}. soļa laikā",
     "body": "Norādījums",
-    "note": "Piezīme",
+    "note": "Piezīme (pēc izvēles)",
     "noteHelper": "Padoms, kamēr to dari: neļauj ķiplokiem apbrūnēt.",
-    "duration": "Laiks",
+    "duration": "Laiks (pēc izvēles)",
     "untimed": "Bez laika",
     "clearTime": "Notīrīt",
     "setTime": "Iestatīt",
@@ -150,7 +150,7 @@
     "editLine": "Labot",
     "edit": "Labot: {{label}}",
     "removeFor": "Noņemt: {{label}}",
-    "photo": "Rezultāta foto",
+    "photo": "Rezultāta foto (pēc izvēles)",
     "photoAlt": "Rezultāta foto"
   },
   "review": {
@@ -181,7 +181,7 @@
     "skip": "Izlaist pagaidām"
   },
   "photo": {
-    "cover": "Vāka foto",
+    "cover": "Vāka foto (pēc izvēles)",
     "coverOf": "Receptes {{title}} vāka foto",
     "choose": "Izvēlēties foto",
     "change": "Mainīt foto",

@@ -54,7 +54,7 @@
   },
   "form": {
     "title": "Title",
-    "description": "Description",
+    "description": "Description (optional)",
     "servings": "Servings",
     "totalTime": "Total time, minutes",
     "totalTimeHelper": "Leave empty if you are not sure yet.",
@@ -84,9 +84,9 @@
     "moveDown": "Move {{name}} down",
     "unnamed": "unnamed line",
     "name": "Name",
-    "amount": "Amount",
+    "amount": "Amount (optional)",
     "unit": "Unit",
-    "note": "Note",
+    "note": "Note (optional)",
     "noteHelper": "Anything that is not the name: plain, not self-raising.",
     "unitNone": "None",
     "unitPicker": "Unit",
@@ -115,9 +115,9 @@
     "number": "Step {{number}}",
     "nestedNumber": "Step {{number}}{{letter}}, during step {{number}}",
     "body": "Instruction",
-    "note": "Note",
+    "note": "Note (optional)",
     "noteHelper": "A tip for while you do it: do not let the garlic brown.",
-    "duration": "Time",
+    "duration": "Time (optional)",
     "untimed": "Not timed",
     "clearTime": "Clear",
     "setTime": "Set",
@@ -149,7 +149,7 @@
     "editLine": "Edit",
     "edit": "Edit {{label}}",
     "removeFor": "Remove {{label}}",
-    "photo": "Photo of the result",
+    "photo": "Photo of the result (optional)",
     "photoAlt": "Photo of the result"
   },
   "review": {
@@ -180,7 +180,7 @@
     "skip": "Skip for now"
   },
   "photo": {
-    "cover": "Cover photo",
+    "cover": "Cover photo (optional)",
     "coverOf": "Cover photo of {{title}}",
     "choose": "Choose photo",
     "change": "Change photo",

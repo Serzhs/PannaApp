@@ -27,7 +27,7 @@ describe('NeedsEditor', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Add unnamed line' }));
     expect(screen.getByLabelText('Name, Give the line a name.')).toBeTruthy();
     await fireEvent.changeText(screen.getByLabelText(/^Name/), 'Beetroot');
-    await fireEvent.changeText(screen.getByLabelText('Amount'), '2');
+    await fireEvent.changeText(screen.getByLabelText('Amount (optional)'), '2');
     await fireEvent.press(screen.getByRole('button', { name: 'Add Beetroot' }));
     expect(screen.queryByLabelText(/^Name/)).toBeNull();
     expect(screen.getByLabelText('2 Beetroot')).toBeTruthy();
@@ -76,7 +76,7 @@ describe('NeedsEditor', () => {
 
   it('reopens a settled line when the save flags it', async () => {
     await render(<NeedsEditor value={TWO} errors={{ a: { amount: true } }} onChange={jest.fn()} />);
-    expect(screen.getByLabelText(/^Amount, Amount is a number/)).toBeTruthy();
+    expect(screen.getByLabelText(/^Amount \(optional\), Amount is a number/)).toBeTruthy();
     expect(screen.queryByLabelText('500 g Beetroot')).toBeNull();
   });
 });

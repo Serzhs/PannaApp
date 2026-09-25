@@ -5,7 +5,6 @@ import { DurationField } from '../DurationField';
 import { LinkChips, type Linkable } from '../LinkChips';
 import { NoteField } from '../NoteField';
 import { PhotoField } from '../PhotoField';
-import { QuickSteps } from '../QuickSteps';
 
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
@@ -18,8 +17,6 @@ export interface StepLineProps {
   /** The recipe's own lines, which are all a step may point at (0010). */
   readonly ingredients: readonly Linkable[];
   readonly equipment: readonly Linkable[];
-  /** A step being written from nothing (0030): the common steps show until there is text. */
-  readonly fresh?: boolean;
 }
 
 /** One step as the author writes it: the instruction, how long, what it uses, then the tip. */
@@ -29,7 +26,6 @@ export function StepLine({
   onChange,
   ingredients,
   equipment,
-  fresh = false,
 }: StepLineProps): React.JSX.Element {
   const { t } = useTranslation();
   const set = (patch: Partial<StepDraft>) => {
@@ -38,13 +34,6 @@ export function StepLine({
 
   return (
     <Stack gap="space2">
-      {fresh && line.body === '' ? (
-        <QuickSteps
-          onPick={(body) => {
-            set({ body });
-          }}
-        />
-      ) : null}
       <TextField
         label={t('recipes:steps.body')}
         value={line.body}

@@ -17,6 +17,7 @@ import {
 } from '../../steps';
 import type { Linkable } from '../LinkChips';
 import { NeedRow } from '../NeedRow';
+import { QuickSteps } from '../QuickSteps';
 import { StepLine } from '../StepLine';
 
 import { styles } from './StepsEditor.styles';
@@ -128,89 +129,101 @@ export function StepsEditor({
         renderItem={(line, _index, controls) => {
           const snapshot = open[line.key];
           const detail = detailOf(line);
+          // A null snapshot is a step being written from nothing. The common steps (0030)
+          // sit above its card, outside it: a way in, not a field.
           return (
-            <Card>
-              <Stack gap="space3">
-                <View style={styles.header}>
-                  <Stack gap="space0">
-                    <Text variant="label" color="textSecondary">
-                      {labelOf(line)}
-                    </Text>
-                    {line.during === null ? null : (
-                      <Text variant="caption" color="textSecondary">
-                        {t('recipes:steps.during', {
-                          number: numberOf(value, line.during)?.number ?? '',
-                        })}
+            <Stack gap="space3">
+              {snapshot === null && line.body === '' ? (
+                <QuickSteps
+                  onPick={(body) => {
+                    set(line.key, { ...line, body });
+                  }}
+                />
+              ) : null}
+              <Card>
+                <Stack gap="space3">
+                  <View style={styles.header}>
+                    <Stack gap="space0">
+                      <Text variant="label" color="textSecondary">
+                        {labelOf(line)}
                       </Text>
-                    )}
-                  </Stack>
-                  {controls}
-                </View>
-                {snapshot === undefined ? (
-                  <NeedRow
-                    title={line.body}
-                    {...(detail === undefined ? {} : { detail })}
-                    {...(line.imageKey === null ? {} : { thumbnail: imageUrl(line.imageKey) })}
-                    editLabel={t('recipes:steps.editLine')}
-                    editAccessibilityLabel={t('recipes:steps.edit', { label: refOf(line) })}
-                    removeLabel={t('recipes:steps.remove')}
-                    removeAccessibilityLabel={t('recipes:steps.removeFor', { label: refOf(line) })}
-                    onEdit={() => {
-                      setOpen((current) => ({ ...current, [line.key]: line }));
-                    }}
-                    onRemove={() => {
-                      remove(line.key);
-                    }}
-                  />
-                ) : (
-                  <>
-                    <StepLine
-                      line={line}
-                      ingredients={ingredients}
-                      equipment={equipment}
-                      errors={errorsFor(line.key)}
-                      fresh={snapshot === null}
-                      onChange={(next) => {
-                        set(line.key, next);
+                      {line.during === null ? null : (
+                        <Text variant="caption" color="textSecondary">
+                          {t('recipes:steps.during', {
+                            number: numberOf(value, line.during)?.number ?? '',
+                          })}
+                        </Text>
+                      )}
+                    </Stack>
+                    {controls}
+                  </View>
+                  {snapshot === undefined ? (
+                    <NeedRow
+                      title={line.body}
+                      {...(detail === undefined ? {} : { detail })}
+                      {...(line.imageKey === null ? {} : { thumbnail: imageUrl(line.imageKey) })}
+                      editLabel={t('recipes:steps.editLine')}
+                      editAccessibilityLabel={t('recipes:steps.edit', { label: refOf(line) })}
+                      removeLabel={t('recipes:steps.remove')}
+                      removeAccessibilityLabel={t('recipes:steps.removeFor', {
+                        label: refOf(line),
+                      })}
+                      onEdit={() => {
+                        setOpen((current) => ({ ...current, [line.key]: line }));
+                      }}
+                      onRemove={() => {
+                        remove(line.key);
                       }}
                     />
-                    <View style={styles.actions}>
-                      <Button
-                        label={t('recipes:steps.cancelLine')}
-                        variant="ghost"
-                        onPress={() => {
-                          if (snapshot === null) remove(line.key);
-                          else {
-                            set(line.key, snapshot);
+                  ) : (
+                    <>
+                      <StepLine
+                        line={line}
+                        ingredients={ingredients}
+                        equipment={equipment}
+                        errors={errorsFor(line.key)}
+                        onChange={(next) => {
+                          set(line.key, next);
+                        }}
+                      />
+                      <View style={styles.actions}>
+                        <Button
+                          label={t('recipes:steps.cancelLine')}
+                          variant="ghost"
+                          onPress={() => {
+                            if (snapshot === null) remove(line.key);
+                            else {
+                              set(line.key, snapshot);
+                              settle(line.key);
+                            }
+                          }}
+                        />
+                        <Button
+                          label={
+                            snapshot === null
+                              ? t('recipes:steps.addLine')
+                              : t('recipes:steps.saveLine')
+                          }
+                          accessibilityLabel={
+                            snapshot === null
+                              ? t('recipes:steps.addLineFor', { label: refOf(line) })
+                              : t('recipes:steps.saveLineFor', { label: refOf(line) })
+                          }
+                          onPress={() => {
+                            const found = checkStep(line);
+                            if (Object.keys(found).length > 0) {
+                              setChecked((current) => ({ ...current, [line.key]: found }));
+                              return;
+                            }
                             settle(line.key);
-                          }
-                        }}
-                      />
-                      <Button
-                        label={
-                          snapshot === null
-                            ? t('recipes:steps.addLine')
-                            : t('recipes:steps.saveLine')
-                        }
-                        accessibilityLabel={
-                          snapshot === null
-                            ? t('recipes:steps.addLineFor', { label: refOf(line) })
-                            : t('recipes:steps.saveLineFor', { label: refOf(line) })
-                        }
-                        onPress={() => {
-                          const found = checkStep(line);
-                          if (Object.keys(found).length > 0) {
-                            setChecked((current) => ({ ...current, [line.key]: found }));
-                            return;
-                          }
-                          settle(line.key);
-                        }}
-                      />
-                    </View>
-                  </>
-                )}
-              </Stack>
-            </Card>
+                          }}
+                        />
+                      </View>
+                    </>
+                  )}
+                </Stack>
+              </Card>
+            </Stack>
           );
         }}
       />

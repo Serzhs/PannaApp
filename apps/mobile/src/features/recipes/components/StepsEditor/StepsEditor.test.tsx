@@ -121,4 +121,16 @@ describe('StepsEditor', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Move Roast up' }));
     expect(rowLabels()).toEqual(['Roast', 'Boil', 'Chop', 'Heat']);
   });
+
+  /** 0030: the common steps above a fresh step's card, gone once it has text, absent on an edit. */
+  it('offers the common steps above a new step until it has an instruction', async () => {
+    await render(<Harness />);
+    await fireEvent.press(screen.getByRole('button', { name: 'Add step' }));
+    await fireEvent.press(screen.getByRole('checkbox', { name: 'Heat the pan' }));
+    expect(screen.getByLabelText('Instruction')).toHaveProp('value', 'Heat the pan');
+    expect(screen.queryByRole('checkbox', { name: 'Heat the pan' })).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: 'Add step 1' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Edit step 1' }));
+    expect(screen.queryByRole('checkbox', { name: 'Boil water' })).toBeNull();
+  });
 });
