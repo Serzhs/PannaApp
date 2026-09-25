@@ -263,7 +263,6 @@
     "finishWithout": "Pabeigt bez piezīmes"
   },
   "import": {
-    "instead": "Vai ielīmē no sava MI",
     "how": "Nokopē uzvedni, iedod to savam MI kopā ar receptes tekstu un ielīmē atpakaļ atbildi.",
     "copyPrompt": "Kopēt uzvedni",
     "copied": "Nokopēts. Ielīmē to savā MI kopā ar recepti.",
@@ -350,5 +349,9 @@
     "knife": "Nazis",
     "board": "Dēlītis",
     "bowl": "Bļoda"
+  },
+  "newMenu": {
+    "write": "Rakstīšu pats",
+    "paste": "Ielīmēt no sava MI"
   }
 }

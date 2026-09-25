@@ -1,6 +1,6 @@
 # 0032: The New menu
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0016, 0029
 
 ## Context
@@ -40,13 +40,17 @@ All new strings go through `t()`, in English and Latvian. No new components.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] New opens the menu with the two actions; each lands on its screen; the manual form no
-      longer carries the import link, asserted in tests.
-- [ ] The empty list's button opens the same menu, asserted in a test.
-- [ ] On the simulator: New shows the sheet; "Paste from your AI" opens the import screen;
-      "Write it myself" opens the form without the link.
-- [ ] The Latvian file lists every new key.
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`:
+      shared 9, API 138, mobile 1360 tests.)_
+- [x] New opens the menu with the two actions; each lands on its screen; the manual form no
+      longer carries the import link, asserted in tests. _(`opens a menu on New` in
+      ListHeader.test.tsx, `carries no link to the import screen` in NewRecipeScreen.test.tsx.)_
+- [x] The empty list's button opens the same menu, asserted in a test. _(The list's `onCreate` is the
+      same hook; RecipeList.test.tsx asserts the button calls it.)_
+- [x] On the simulator: New shows the sheet; "Paste from your AI" opens the import screen;
+      "Write it myself" opens the form without the link. _(Done on the iPhone 17 Pro simulator, 25
+      September 2026, in Latvian.)_
+- [x] The Latvian file lists every new key. _(The key-parity test in i18n passes.)_
 
 ## Open questions
 

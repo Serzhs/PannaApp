@@ -258,7 +258,6 @@
     "finishWithout": "Finish without a note"
   },
   "import": {
-    "instead": "Paste one from your AI instead",
     "how": "Copy the prompt, give it to your AI with the recipe text, and paste back what it answers.",
     "copyPrompt": "Copy prompt",
     "copied": "Copied. Paste it into your AI, with the recipe.",
@@ -345,5 +344,9 @@
     "knife": "Knife",
     "board": "Chopping board",
     "bowl": "Bowl"
+  },
+  "newMenu": {
+    "write": "Write it myself",
+    "paste": "Paste from your AI"
   }
 }

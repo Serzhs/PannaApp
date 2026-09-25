@@ -15,9 +15,7 @@ import {
 } from './needs';
 import { useCreateRecipe } from './queries';
 
-import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
-import { Stack } from '@/components/Stack';
 
 /**
  * The first page of the create flow (0025): what the recipe is and what it needs, saved
@@ -40,15 +38,6 @@ export function NewRecipeScreen(): React.JSX.Element {
 
   return (
     <Screen scroll withHeader>
-      <Stack gap="space4">
-        <Button
-          label={t('recipes:import.instead')}
-          variant="ghost"
-          onPress={() => {
-            router.push('/recipes/import');
-          }}
-        />
-      </Stack>
       <RecipeForm
         submitLabel={t('recipes:form.continue')}
         submitting={create.isPending}

@@ -37,7 +37,7 @@
 <body>
 <main>
 <h1>Panna spec status</h1>
-<p class="summary">346 of 346 acceptance criteria verified across 31 written specs.</p>
+<p class="summary">351 of 351 acceptance criteria verified across 32 written specs.</p>
 <div class="bar"><div style="width: 100%"></div></div>
 
 <h2>All specs</h2>
@@ -75,6 +75,7 @@
 <tr><td><a href="#spec-0029">0029</a></td><td>Recipe screen actions</td><td><span class="status done">Done</span></td><td>8 / 8</td><td>Cook always in reach, the rest in the header, notes written from history.</td></tr>
 <tr><td><a href="#spec-0030">0030</a></td><td>Quick steps</td><td><span class="status done">Done</span></td><td>4 / 4</td><td>A new step offers the most common kitchen actions as chips.</td></tr>
 <tr><td><a href="#spec-0031">0031</a></td><td>A warm look</td><td><span class="status done">Done</span></td><td>4 / 4</td><td>A warm palette, shaped surfaces, and a recipe screen laid out in modules.</td></tr>
+<tr><td><a href="#spec-0032">0032</a></td><td>The New menu</td><td><span class="status done">Done</span></td><td>5 / 5</td><td>New asks first: write it yourself, or paste one from your AI.</td></tr>
 </tbody>
 </table>
 
@@ -1952,6 +1953,38 @@
 <p>"600 g" into "60" over "0 g"; the row now wraps, so the name drops under the amount instead. The equipment card has no amounts, so it has no amount</p>
 <p>column: an empty column read as an indent. And the made tile shows a short date under the</p>
 <p>count; the full "last on" line is what a screen reader hears.</p>
+</details>
+</section>
+
+<section id="spec-0032">
+<h2>0032: The New menu <span class="status done">Done</span></h2>
+<p class="goal">New asks which way first: write it yourself, or paste one from your AI, and each opens its own screen.</p>
+<p class="summary">5 of 5 acceptance criteria verified.</p>
+<div class="bar"><div style="width: 100%"></div></div>
+
+<h3>Acceptance criteria</h3>
+<ul class="criteria">
+<li class="done"><code>pnpm typecheck</code>, <code>pnpm lint</code> and <code>pnpm test</code> pass across all three workspaces. _(<code>pnpm check</code>:</li>
+<li class="done">New opens the menu with the two actions; each lands on its screen; the manual form no</li>
+<li class="done">The empty list's button opens the same menu, asserted in a test. _(The list's <code>onCreate</code> is the</li>
+<li class="done">On the simulator: New shows the sheet; "Paste from your AI" opens the import screen;</li>
+<li class="done">The Latvian file lists every new key. <em>(The key-parity test in i18n passes.)</em></li>
+</ul>
+
+<details><summary>Requirements, as written in the spec</summary>
+<h3>Goal</h3><p>New asks which way first: write it yourself, or paste one from your AI, and each opens its own</p>
+<p>screen.</p>
+<h3>Out of scope</h3><li>Any change to what either screen does once open.</li>
+<li>A third way in, such as a photo of a recipe or a URL. The app never fetches anything.</li>
+<li>Remembering the last choice.</li>
+<h3>Data model</h3><p>Nothing.</p>
+<h3>API contract</h3><p>No endpoints, no changes.</p>
+<h3>UI</h3><p><strong>New</strong> in the list header, and the empty list's "New recipe" button, open the platform's own</p>
+<p>menu (the sheet 0029 introduced) titled "New recipe" with two actions: "Write it myself" and</p>
+<p>"Paste from your AI", then Cancel. The first opens the manual form, the second the import</p>
+<p>screen. The link "Paste one from your AI instead" leaves the manual form: the choice was made</p>
+<p>one tap earlier.</p>
+<p>All new strings go through <code>t()</code>, in English and Latvian. No new components.</p>
 </details>
 </section>
 

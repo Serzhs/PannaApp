@@ -46,4 +46,10 @@ describe('NewRecipeScreen', () => {
       );
     });
   });
+
+  /** 0032: the choice was made one tap earlier, so the form carries no import link. */
+  it('carries no link to the import screen', async () => {
+    await render(<NewRecipeScreen />);
+    expect(screen.queryByRole('button', { name: /Paste/ })).toBeNull();
+  });
 });

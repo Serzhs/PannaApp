@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { styles } from './ListHeader.styles';
@@ -7,6 +6,7 @@ import { Button } from '@/components/Button';
 import { Stack } from '@/components/Stack';
 import { Text } from '@/components/Text';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { useNewRecipeMenu } from '@/features/recipes/useNewRecipeMenu';
 import { FIXED_LAYOUT_MAX_FONT_SCALE } from '@/styles/theme';
 
 /** The screen's name and whose recipes these are, in the header 0005 moves them to. */
@@ -38,7 +38,7 @@ export function ListHeaderTitle(): React.JSX.Element {
 }
 
 export function NewRecipeButton(): React.JSX.Element {
-  const router = useRouter();
+  const openMenu = useNewRecipeMenu();
   const { t } = useTranslation();
   return (
     <Button
@@ -46,9 +46,7 @@ export function NewRecipeButton(): React.JSX.Element {
       variant="ghost"
       accessibilityLabel={t('recipes:header.newRecipe')}
       maxFontSizeMultiplier={FIXED_LAYOUT_MAX_FONT_SCALE}
-      onPress={() => {
-        router.push('/recipes/new');
-      }}
+      onPress={openMenu}
     />
   );
 }
