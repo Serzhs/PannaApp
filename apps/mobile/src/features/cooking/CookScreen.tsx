@@ -8,12 +8,10 @@ import Animated, { SlideInRight, useReducedMotion } from 'react-native-reanimate
 
 import { CheckView } from './components/CheckView';
 import { FinishSheet } from './components/FinishSheet';
-import { KnuckleHint } from './components/KnuckleHint';
 import { PhotoViewer } from './components/PhotoViewer';
 import { StepView } from './components/StepView';
 import { TimerBlock, type TimerState } from './components/TimerBlock';
 import { styles } from './CookScreen.styles';
-import { knuckleHintSeen, markKnuckleHintSeen } from './hint';
 import { queueFinishedCook } from './history';
 import {
   advance,
@@ -64,8 +62,6 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
   const [timeUp, setTimeUp] = useState<string | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
   const [finishing, setFinishing] = useState(false);
-  // Read once on entry: the hint is about opening cook mode, not about any step (0028).
-  const [hint, setHint] = useState(() => !knuckleHintSeen());
   const addNote = useAddNote(recipeId);
 
   // A kitchen has no hand free to keep tapping the screen alive.
@@ -135,21 +131,6 @@ export function CookScreen({ recipeId }: CookScreenProps): React.JSX.Element {
       }}
     />
   );
-
-  if (record.phase === 'check' && hint) {
-    return (
-      <Screen scroll>
-        {top}
-        <KnuckleHint
-          onDismiss={() => {
-            markKnuckleHintSeen();
-            setHint(false);
-          }}
-        />
-        {leaveDialog}
-      </Screen>
-    );
-  }
 
   if (record.phase === 'check') {
     return (

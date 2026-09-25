@@ -238,10 +238,7 @@
     "startWithout_other": "Sākt bez {{count}} sastāvdaļām",
     "without": "Bez: {{list}}",
     "usesWithout": "{{name}} (iztiec bez)",
-    "checking": "Pārbaudi, kas tev ir",
-    "hintTitle": "Piesit ar pirksta kauliņu",
-    "hintBody": "Kauliņi paliek tīrāki nekā pirkstu gali, un katra poga šeit ir pietiekami liela, lai to trāpītu ar kauliņu.",
-    "hintGotIt": "Sapratu"
+    "checking": "Pārbaudi, kas tev ir"
   },
   "made": {
     "count_zero": "Gatavots {{count}} reižu",

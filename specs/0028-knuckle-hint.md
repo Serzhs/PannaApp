@@ -1,7 +1,14 @@
 # 0028: The knuckle hint
 
-**Status:** Done
+**Status:** Removed
 **Depends on:** 0012, 0018
+
+## Removed
+
+Built, shipped, and taken out again on 25 September 2026 on the owner's call: people will find
+the best way to press a big button themselves, and a screen telling them how is in the way. The
+component, the flag, the You tab entry and the strings are gone; the criteria below record what
+was verified while it existed. The number stays taken.
 
 ## Context
 

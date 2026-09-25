@@ -261,7 +261,8 @@ longer exists.
 
 ## Status values
 
-`Draft` -> `Approved` -> `In progress` -> `Done`
+`Draft` -> `Approved` -> `In progress` -> `Done`, or `Removed` for a spec that shipped and was
+taken out again; its number stays taken and its file records what it was.
 
 ## Template
 

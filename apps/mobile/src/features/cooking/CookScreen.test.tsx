@@ -5,7 +5,6 @@ import * as Notifications from 'expo-notifications';
 import { Alert } from 'react-native';
 
 import { CookScreen } from './CookScreen';
-import { knuckleHintSeen, markKnuckleHintSeen, resetKnuckleHint } from './hint';
 import { queuedCooks } from './history';
 import {
   beginCooking,
@@ -82,8 +81,6 @@ describe('CookScreen', () => {
     jest.spyOn(unitSystem, 'useUnitSystem').mockReturnValue('metric');
   });
   beforeEach(() => {
-    // The hint (0028) has its own test; every other one starts past it.
-    markKnuckleHintSeen();
     mockReplace.mockReset();
     mockBack.mockReset();
     jest.mocked(Notifications.scheduleNotificationAsync).mockClear();
@@ -180,27 +177,5 @@ describe('CookScreen', () => {
     await render(<CookScreen recipeId={recipe.id} />);
     expect(screen.queryByRole('header', { name: 'What you have' })).toBeNull();
     expect(screen.getByText('Step 1 of 2')).toBeTruthy();
-  });
-
-  /** 0028: the hint once, gone on Got it, and not again; leaving without reading keeps it. */
-  it('shows the knuckle hint the first time, and never after Got it', async () => {
-    resetKnuckleHint();
-    startCook(recipe);
-    let view = await render(<CookScreen recipeId={recipe.id} />);
-    expect(screen.getByRole('header', { name: 'Tap with a knuckle' })).toBeTruthy();
-    expect(screen.queryByRole('header', { name: 'What you have' })).toBeNull();
-    await view.unmount();
-    expect(knuckleHintSeen()).toBe(false);
-
-    view = await render(<CookScreen recipeId={recipe.id} />);
-    await fireEvent.press(screen.getByRole('button', { name: 'Got it' }));
-    expect(knuckleHintSeen()).toBe(true);
-    expect(screen.getByRole('header', { name: 'What you have' })).toBeTruthy();
-    await view.unmount();
-
-    await render(<CookScreen recipeId={recipe.id} />);
-    expect(screen.queryByRole('header', { name: 'Tap with a knuckle' })).toBeNull();
-    expect(screen.getByRole('header', { name: 'What you have' })).toBeTruthy();
-    clearCook(recipe.id);
   });
 });

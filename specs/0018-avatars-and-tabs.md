@@ -26,7 +26,7 @@ The app gets a tab bar, and the You tab shows an avatar and a name the person ca
   recipe, not on a cook. One place first.
 - Cropping, rotating or editing the photo beyond what the system picker offers. The picker's own
   square crop is enough.
-- The knuckle hint's "show again" entry, which 0028 adds to this tab.
+- The knuckle hint's "show again" entry, which 0028 added to this tab and later removed.
 - Any change to the sign-in screen or to what a provider sends.
 
 ## Data model

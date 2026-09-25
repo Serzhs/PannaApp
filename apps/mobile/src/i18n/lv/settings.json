@@ -29,9 +29,5 @@
     "empty": "Ievadi vārdu.",
     "tooLong": "Vārds nedrīkst pārsniegt 80 rakstzīmes."
   },
-  "designGallery": "Dizaina galerija",
-  "knuckleHint": {
-    "showAgain": "Rādīt kauliņa padomu vēlreiz",
-    "willShow": "Tas parādīsies nākamreiz, kad gatavosi."
-  }
+  "designGallery": "Dizaina galerija"
 }

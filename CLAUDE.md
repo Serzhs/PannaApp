@@ -721,12 +721,9 @@ the one screen where ordinary touch design is not enough.
   button; pressing it fills the screen with the image, and an equally large button closes it. Cooking
   needs big text and big targets, and an inline photo pushes the instruction off the screen for
   something you only want to check once.
-- **The knuckle hint.** The first time someone opens cook mode, a short animation shows tapping with
-  the back of a finger rather than the pad, because that side stays cleaner. It plays once, is
-  dismissible, and never appears again unless asked for from settings.
-
-  An animation alone excludes people. It carries a text equivalent, and with reduce-motion on it shows
-  a still image and the words instead of moving. Per the Accessibility section, this is not optional.
+- **No tutorial.** People work out for themselves how to hit a big button with a dirty hand. A
+  hint about tapping with a knuckle was built (0028) and removed again: it told people something
+  they did not need telling.
 
 ## Motion
 
