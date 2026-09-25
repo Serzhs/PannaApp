@@ -330,5 +330,13 @@
       "title": "Vēl nekā nav",
       "body": "Pagatavo to reizi, un tas, ko iemācies, būs šeit."
     }
+  },
+  "quickSteps": {
+    "title": "Biežākie soļi",
+    "boilWater": "Uzvāri ūdeni",
+    "heatPan": "Uzkarsē pannu",
+    "heatOven": "Uzkarsē cepeškrāsni",
+    "chopOnions": "Sagriez sīpolus",
+    "season": "Pieber sāli un piparus"
   }
 }

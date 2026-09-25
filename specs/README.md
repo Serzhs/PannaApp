@@ -4,38 +4,38 @@ The spec is the source of truth. Code follows the spec, never the other way arou
 
 ## Index
 
-| #                                         | Title                                | Status      | Goal                                                                                                |
-| ----------------------------------------- | ------------------------------------ | ----------- | --------------------------------------------------------------------------------------------------- |
-| [0001](0001-project-setup.md)             | Project setup and database           | Done        | Clone, run three commands, get a linted API on a migrated database.                                 |
-| [0002](0002-design-system.md)             | Design system: tokens and primitives | Done        | Build a form screen from tokens and components, with no raw values.                                 |
-| [0003](0003-auth.md)                      | Sign in with Google and Apple        | Done        | Sign in with one tap, no passwords, and stay signed in.                                             |
-| [0004](0004-design-system-components.md)  | Design system: display and feedback  | Done        | Build a list screen's loading, empty and error states.                                              |
-| [0005](0005-recipe-crud.md)               | Recipe CRUD                          | Done        | Create, view, edit and delete your own recipes, with a draft state.                                 |
-| [0006](0006-i18n.md)                      | Internationalisation                 | Done        | Run the app in another language, with correct plurals, formats and units.                           |
-| [0007](0007-ingredients-and-equipment.md) | Ingredients and equipment            | Done        | Add, edit, remove and reorder what a recipe needs.                                                  |
-| [0008](0008-steps-and-nesting.md)         | Steps and nesting                    | Done        | Write steps, and nest the ones that happen during a wait.                                           |
-| [0009](0009-review-and-ready.md)          | Review and mark as ready             | Done        | Check a new recipe over on one page, and say when it is ready to cook.                              |
-| [0010](0010-step-links.md)                | Step links                           | Done        | Attach ingredients and equipment to the step that uses them.                                        |
-| [0011](0011-images.md)                    | Images                               | Done        | A cover photo, and a picture of how each step should look.                                          |
-| [0012](0012-cooking-mode.md)              | Cooking mode                         | Done        | Cook a recipe, seeing what else you could do during each wait.                                      |
-| [0013](0013-cooking-without.md)           | Cooking without an ingredient        | Done        | Check off what you have, and cook it without the carrots.                                           |
-| [0014](0014-history.md)                   | Recipe history                       | Done        | See when you cooked something, and what you changed each time.                                      |
-| [0015](0015-cooks-notes.md)               | Cook's notes                         | Done        | Record what you learned, and see it next time you cook.                                             |
-| [0016](0016-json-import.md)               | JSON recipe import                   | Done        | Paste AI-generated JSON and get a working recipe.                                                   |
-| [0017](0017-sharing.md)                   | Sharing                              | Done        | Share a recipe read-only by private link, and revoke it.                                            |
-| [0018](0018-avatars-and-tabs.md)          | Avatars and the tab bar              | Done        | An avatar, an editable name, and three tabs to reach things by.                                     |
-| [0019](0019-featured.md)                  | Featured recipes                     | Done        | A searchable set of recipes we wrote, to start from.                                                |
-| [0020](0020-simpler-editing.md)           | Simpler editing                      | Done        | No temperature field, the note behind a button, lines moved by buttons.                             |
-| [0021](0021-move-buttons-in-the-card.md)  | Move buttons in the card             | Done        | The move arrows sit on the card's first line, with words beside them.                               |
-| [0022](0022-flow.md)                      | Flow                                 | Done        | Write steps flat, then say what runs during what on a Flow page with a chart.                       |
-| [0023](0023-settled-lines.md)             | Settled lines                        | Done        | An ingredient or tool is added with a button and sits in the list as one row, with Edit and Remove. |
-| [0024](0024-settled-steps.md)             | Settled steps                        | Done        | The first step is open from the start, and a step is settled with Add like a line is.               |
-| [0025](0025-three-parts.md)               | Three parts                          | Done        | Recipe, Steps and Flow as pages when creating and tabs when editing; servings picked with a tap.    |
-| [0026](0026-review-buttons.md)            | Review buttons                       | Done        | The review page ends on Save, Close and Delete instead of a switch.                                 |
-| [0027](0027-saved-and-new.md)             | Saved and new                        | Done        | Save lands on the list, new recipes get a chip, no way back to draft.                               |
-| [0028](0028-knuckle-hint.md)              | The knuckle hint                     | Done        | A once-only hint that cook mode is meant for knuckles, with a way to see it again.                  |
-| [0029](0029-recipe-screen-actions.md)     | Recipe screen actions                | Done        | Cook always in reach, the rest in the header, notes written from history.                           |
-| [0030](0030-quick-steps.md)               | Quick steps                          | In progress | A new step offers the most common kitchen actions as chips.                                         |
+| #                                         | Title                                | Status | Goal                                                                                                |
+| ----------------------------------------- | ------------------------------------ | ------ | --------------------------------------------------------------------------------------------------- |
+| [0001](0001-project-setup.md)             | Project setup and database           | Done   | Clone, run three commands, get a linted API on a migrated database.                                 |
+| [0002](0002-design-system.md)             | Design system: tokens and primitives | Done   | Build a form screen from tokens and components, with no raw values.                                 |
+| [0003](0003-auth.md)                      | Sign in with Google and Apple        | Done   | Sign in with one tap, no passwords, and stay signed in.                                             |
+| [0004](0004-design-system-components.md)  | Design system: display and feedback  | Done   | Build a list screen's loading, empty and error states.                                              |
+| [0005](0005-recipe-crud.md)               | Recipe CRUD                          | Done   | Create, view, edit and delete your own recipes, with a draft state.                                 |
+| [0006](0006-i18n.md)                      | Internationalisation                 | Done   | Run the app in another language, with correct plurals, formats and units.                           |
+| [0007](0007-ingredients-and-equipment.md) | Ingredients and equipment            | Done   | Add, edit, remove and reorder what a recipe needs.                                                  |
+| [0008](0008-steps-and-nesting.md)         | Steps and nesting                    | Done   | Write steps, and nest the ones that happen during a wait.                                           |
+| [0009](0009-review-and-ready.md)          | Review and mark as ready             | Done   | Check a new recipe over on one page, and say when it is ready to cook.                              |
+| [0010](0010-step-links.md)                | Step links                           | Done   | Attach ingredients and equipment to the step that uses them.                                        |
+| [0011](0011-images.md)                    | Images                               | Done   | A cover photo, and a picture of how each step should look.                                          |
+| [0012](0012-cooking-mode.md)              | Cooking mode                         | Done   | Cook a recipe, seeing what else you could do during each wait.                                      |
+| [0013](0013-cooking-without.md)           | Cooking without an ingredient        | Done   | Check off what you have, and cook it without the carrots.                                           |
+| [0014](0014-history.md)                   | Recipe history                       | Done   | See when you cooked something, and what you changed each time.                                      |
+| [0015](0015-cooks-notes.md)               | Cook's notes                         | Done   | Record what you learned, and see it next time you cook.                                             |
+| [0016](0016-json-import.md)               | JSON recipe import                   | Done   | Paste AI-generated JSON and get a working recipe.                                                   |
+| [0017](0017-sharing.md)                   | Sharing                              | Done   | Share a recipe read-only by private link, and revoke it.                                            |
+| [0018](0018-avatars-and-tabs.md)          | Avatars and the tab bar              | Done   | An avatar, an editable name, and three tabs to reach things by.                                     |
+| [0019](0019-featured.md)                  | Featured recipes                     | Done   | A searchable set of recipes we wrote, to start from.                                                |
+| [0020](0020-simpler-editing.md)           | Simpler editing                      | Done   | No temperature field, the note behind a button, lines moved by buttons.                             |
+| [0021](0021-move-buttons-in-the-card.md)  | Move buttons in the card             | Done   | The move arrows sit on the card's first line, with words beside them.                               |
+| [0022](0022-flow.md)                      | Flow                                 | Done   | Write steps flat, then say what runs during what on a Flow page with a chart.                       |
+| [0023](0023-settled-lines.md)             | Settled lines                        | Done   | An ingredient or tool is added with a button and sits in the list as one row, with Edit and Remove. |
+| [0024](0024-settled-steps.md)             | Settled steps                        | Done   | The first step is open from the start, and a step is settled with Add like a line is.               |
+| [0025](0025-three-parts.md)               | Three parts                          | Done   | Recipe, Steps and Flow as pages when creating and tabs when editing; servings picked with a tap.    |
+| [0026](0026-review-buttons.md)            | Review buttons                       | Done   | The review page ends on Save, Close and Delete instead of a switch.                                 |
+| [0027](0027-saved-and-new.md)             | Saved and new                        | Done   | Save lands on the list, new recipes get a chip, no way back to draft.                               |
+| [0028](0028-knuckle-hint.md)              | The knuckle hint                     | Done   | A once-only hint that cook mode is meant for knuckles, with a way to see it again.                  |
+| [0029](0029-recipe-screen-actions.md)     | Recipe screen actions                | Done   | Cook always in reach, the rest in the header, notes written from history.                           |
+| [0030](0030-quick-steps.md)               | Quick steps                          | Done   | A new step offers the most common kitchen actions as chips.                                         |
 
 Numbers run in build order, and each spec depends only on lower-numbered ones. That holds today because
 nothing below 0007 is written yet and the order has been kept tidy; it will stop being true the first

@@ -57,4 +57,38 @@ describe('StepLine', () => {
     );
     expect(screen.getByLabelText('Instruction, Write what to do.')).toBeTruthy();
   });
+
+  /** 0030: the common steps on a fresh step only, gone once there is text, and one fills the field. */
+  it('offers the common steps on a fresh step until there is an instruction', async () => {
+    const onChange = jest.fn();
+    await render(
+      <StepLine
+        line={{ ...line, body: '' }}
+        onChange={onChange}
+        ingredients={[]}
+        equipment={[]}
+        fresh
+      />,
+    );
+    await fireEvent.press(screen.getByRole('checkbox', { name: 'Heat the pan' }));
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ body: 'Heat the pan' }));
+    await screen.unmount();
+
+    await render(
+      <StepLine
+        line={{ ...line, body: 'Heat' }}
+        onChange={onChange}
+        ingredients={[]}
+        equipment={[]}
+        fresh
+      />,
+    );
+    expect(screen.queryByRole('checkbox', { name: 'Heat the pan' })).toBeNull();
+    await screen.unmount();
+
+    await render(
+      <StepLine line={{ ...line, body: '' }} onChange={onChange} ingredients={[]} equipment={[]} />,
+    );
+    expect(screen.queryByRole('checkbox', { name: 'Heat the pan' })).toBeNull();
+  });
 });

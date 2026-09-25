@@ -1,6 +1,6 @@
 # 0030: Quick steps
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0024, 0025
 
 ## Context
@@ -50,13 +50,17 @@ gallery entry. All new strings go through `t()`, in English and Latvian.
 
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] A new step's card shows the five chips; tapping one fills the instruction with its text
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`:
+      shared 9, API 138, mobile 1313 tests.)_
+- [x] A new step's card shows the five chips; tapping one fills the instruction with its text
       and the chips go; typing into the empty field also removes them; a step opened for editing
-      with text shows none, asserted in a test.
-- [ ] The English and Latvian files each list five, and the key-parity test passes.
-- [ ] On the simulator: Add step on the plov shows the chips; tapping "Heat the pan" fills the
-      field; Add settles the step with that text.
+      with text shows none, asserted in a test. _(QuickSteps.test.tsx and `offers the common steps on a
+fresh step until there is an instruction` in StepLine.test.tsx.)_
+- [x] The English and Latvian files each list five, and the key-parity test passes. _(The list is a
+      constant of five keys; both files carry them.)_
+- [x] On the simulator: Add step on the plov shows the chips; tapping "Heat the pan" fills the
+      field; Add settles the step with that text. _(Done on the iPhone 17 Pro simulator, 25 September
+      2026, in Latvian: "Uzkarsē pannu".)_
 
 ## Open questions
 

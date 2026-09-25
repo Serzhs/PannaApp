@@ -169,6 +169,7 @@ export function StepsEditor({
                       ingredients={ingredients}
                       equipment={equipment}
                       errors={errorsFor(line.key)}
+                      fresh={snapshot === null}
                       onChange={(next) => {
                         set(line.key, next);
                       }}

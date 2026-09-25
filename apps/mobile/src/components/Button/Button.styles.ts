@@ -57,7 +57,7 @@ export function buttonStyle(
     borderWidth: variant === 'secondary' ? 1 : 0,
     // A ghost button is text that can be pressed, so its text sits where text sits: at the
     // edge, not indented by a box nobody can see. The 44 point target is kept by minWidth.
-    ...(variant === 'ghost' ? { paddingHorizontal: 0 } : {}),
+    ...(variant === 'ghost' ? { paddingHorizontal: theme.space.space0 } : {}),
     borderColor: disabled ? theme.colors.borderSubtle : theme.colors.border,
     backgroundColor: background(variant, disabled),
     // One opacity for every variant, so adding a variant cannot forget a pressed colour.

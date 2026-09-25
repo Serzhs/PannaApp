@@ -325,5 +325,13 @@
       "title": "Nothing here yet",
       "body": "Cook it once, and what you learn goes here."
     }
+  },
+  "quickSteps": {
+    "title": "Common steps",
+    "boilWater": "Boil water",
+    "heatPan": "Heat the pan",
+    "heatOven": "Heat the oven",
+    "chopOnions": "Chop the onions",
+    "season": "Season with salt and pepper"
   }
 }
