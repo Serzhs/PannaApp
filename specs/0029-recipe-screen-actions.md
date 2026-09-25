@@ -1,6 +1,6 @@
 # 0029: Recipe screen actions
 
-**Status:** In progress
+**Status:** Done
 **Depends on:** 0014, 0015, 0017, 0018
 
 ## Context
@@ -74,27 +74,38 @@ usual error state with Retry; offline with a cached list shows the list.
 All new strings go through `t()`, in English and Latvian. `ActionMenu`, `HeaderIcon`, `CookBar`
 and `CookCard` follow the one-folder-per-component layout, with gallery entries.
 
+Found while building. The pinned bar showed a gap above the tab bar: inside the tabs the bar
+already covers the home indicator, and `Screen` was adding the bottom inset again. It now reads
+the tab bar's height context and skips the inset when one is there. That context has to come
+from Expo Router's own copy of the tabs code; Expo Router refuses the separate
+`@react-navigation/bottom-tabs` package, which 0018 had added and which is now gone.
+
 ## Acceptance criteria
 
-- [ ] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces.
-- [ ] `POST .../notes` with a `cookId` of this recipe stores it and the detail returns the note
+- [x] `pnpm typecheck`, `pnpm lint` and `pnpm test` pass across all three workspaces. _(`pnpm check`:
+      shared 9, API 138, mobile 1322 tests.)_
+- [x] `POST .../notes` with a `cookId` of this recipe stores it and the detail returns the note
       with that `cookId`; with a `cookId` of another recipe's cook, or a made-up one, 400 with
-      `fields.cookId: UNKNOWN_COOK` and nothing written, asserted end to end.
-- [ ] The recipe screen's body holds no Edit, Delete, Share, Stop sharing, Mark as ready or Add
+      `fields.cookId: UNKNOWN_COOK` and nothing written, asserted end to end. _(`adds a note to one
+of its cooks, and refuses a cook that is not this recipe's` in recipes.e2e.test.ts.)_
+- [x] The recipe screen's body holds no Edit, Delete, Share, Stop sharing, Mark as ready or Add
       a note button, and still lists the notes; the three-dots sheet lists Edit and Delete, adds Mark as ready for a draft
       and Stop sharing when shared, and Delete still asks; the share icon is present for a ready
-      recipe and absent for a draft, asserted in a test.
-- [ ] Cook, or Continue cooking, is rendered outside the scrolling body, present with steps and
-      absent without, asserted in a test.
-- [ ] The made line opens History when there is a cook, and is plain text or absent when there
-      is none, asserted in a test.
-- [ ] History lists the cooks newest first with their notes, a pending cook without Add a note,
+      recipe and absent for a draft, asserted in a test. _(Three tests in RecipeDetailScreen.test.tsx,
+      driving the platform sheet through a spy; ActionMenu.test.tsx covers the sheet itself.)_
+- [x] Cook, or Continue cooking, is rendered outside the scrolling body, present with steps and
+      absent without, asserted in a test. _(`offers to cook, or to continue, only when there are
+steps`; the bar is the Screen's footer slot, which sits beside the scroll view.)_
+- [x] The made line opens History when there is a cook, and is plain text or absent when there
+      is none, asserted in a test. _(`says how often and how recently it was made`.)_
+- [x] History lists the cooks newest first with their notes, a pending cook without Add a note,
       unattached notes under Other notes, and Add a note on a cook sends the body with that
-      `cookId`, asserted in a test.
-- [ ] On the simulator: the soup's header shows the share and menu icons; the menu's Delete asks;
+      `cookId`, asserted in a test. _(HistoryScreen.test.tsx.)_
+- [x] On the simulator: the soup's header shows the share and menu icons; the menu's Delete asks;
       Cook stays put while the body scrolls; the made line opens History showing the two seeded
-      cooks and their notes; a note added to the first cook appears under it.
-- [ ] The Latvian file lists every new key.
+      cooks and their notes; a note added to the first cook appears under it. _(Done on the iPhone
+      17 Pro simulator, 25 September 2026.)_
+- [x] The Latvian file lists every new key. _(The key-parity test in i18n passes.)_
 
 Manual follow-up, not gating: a VoiceOver pass over the header icons, the action sheet and the
 pinned bar, per the Accessibility section of CLAUDE.md.

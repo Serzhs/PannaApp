@@ -27,6 +27,7 @@ export default function RecipesLayout() {
       <Stack.Screen name="recipes/[id]/steps" options={{ title: t('recipes:screens.steps') }} />
       <Stack.Screen name="recipes/[id]/flow" options={{ title: t('recipes:screens.flow') }} />
       <Stack.Screen name="recipes/[id]/review" options={{ title: t('recipes:screens.review') }} />
+      <Stack.Screen name="recipes/[id]/history" options={{ title: t('recipes:screens.history') }} />
     </Stack>
   );
 }

@@ -9,9 +9,10 @@ const folders = readdirSync(componentsDir).filter((entry) =>
 
 /**
  * 0004: ConfirmDialog wraps the platform's own alert and draws nothing, so it has no
- * styles to own. Every other component has a styles file or it is missing one.
+ * styles to own; 0029: ActionMenu wraps the platform's own sheet the same way. Every
+ * other component has a styles file or it is missing one.
  */
-const STYLELESS = ['ConfirmDialog'];
+const STYLELESS = ['ConfirmDialog', 'ActionMenu'];
 
 describe('component folders', () => {
   it('finds every component', () => {

@@ -10,7 +10,8 @@
     "import": "Ielīmēt no MI",
     "shared": "Kopīgota recepte",
     "featured": "Izceltās",
-    "featuredRecipe": "Recepte"
+    "featuredRecipe": "Recepte",
+    "history": "Vēsture"
   },
   "header": {
     "new": "Jauna",
@@ -49,7 +50,8 @@
       "body": "To nevarēs atsaukt.",
       "confirm": "Dzēst",
       "cancel": "Paturēt"
-    }
+    },
+    "more": "Vairāk"
   },
   "form": {
     "title": "Nosaukums",
@@ -318,6 +320,18 @@
     "empty": {
       "title": "Vēl nekā nav",
       "body": "Izceltās receptes parādīsies šeit."
+    }
+  },
+  "history": {
+    "loading": "Ielādē vēsturi",
+    "took": "Aizņēma {{duration}}",
+    "pending": "Vēl nav nosūtīts",
+    "without": "Bez: {{list}}",
+    "otherNotes": "Citas piezīmes",
+    "openHint": "Atver vēsturi ar visām reizēm, kad to gatavoji",
+    "empty": {
+      "title": "Vēl nekā nav",
+      "body": "Pagatavo to reizi, un tas, ko iemācies, būs šeit."
     }
   }
 }

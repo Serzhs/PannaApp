@@ -12,13 +12,11 @@ export const styles = StyleSheet.create({
     borderRadius: theme.radius.radiusMd,
     backgroundColor: theme.colors.surfaceRaised,
   },
-  sharedRow: {
+  headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: theme.space.space2,
   },
-  actions: {
-    marginTop: theme.space.space4,
+  madeHitSlop: {
+    margin: theme.space.space2,
   },
 });

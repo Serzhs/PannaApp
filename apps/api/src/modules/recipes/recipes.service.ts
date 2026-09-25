@@ -520,9 +520,25 @@ export class RecipesService {
         });
       }
     }
+    if (body.cookId !== undefined) {
+      const [cook] = await this.database.db
+        .select({ id: cooks.id })
+        .from(cooks)
+        .where(and(eq(cooks.id, body.cookId), eq(cooks.recipeId, recipeId)));
+      if (cook === undefined) {
+        throw new AppException(400, ERROR_CODES.VALIDATION_FAILED, 'Not a cook of this recipe', {
+          cookId: 'UNKNOWN_COOK',
+        });
+      }
+    }
     const [row] = await this.database.db
       .insert(cookNotes)
-      .values({ recipeId, stepId: body.stepId ?? null, cookId: null, body: body.body })
+      .values({
+        recipeId,
+        stepId: body.stepId ?? null,
+        cookId: body.cookId ?? null,
+        body: body.body,
+      })
       .returning();
     if (row === undefined) throw new Error('insert returned nothing');
     return toNote(row);

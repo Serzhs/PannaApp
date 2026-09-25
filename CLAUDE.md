@@ -98,6 +98,10 @@ anything needing graphemes has to make do with code points or ship a library.
 X from node_modules/Y" right after a native package was added, when the file is there, is the
 cache: restart Metro with `npx expo start --clear`.
 
+**Expo Router owns the navigation packages.** It ships its own copy of the react-navigation
+code and Metro refuses an import from `@react-navigation/*` in app code. Anything needed from
+there, such as the tab bar height context, comes from `expo-router/build/react-navigation/...`.
+
 **Metro only sees packages the mobile workspace names.** pnpm keeps a package's own dependencies out
 of the top-level `node_modules`, and Metro does not follow the links pnpm leaves behind, so a library
 that imports a sibling package it depends on fails at launch with "unable to resolve module". Jest

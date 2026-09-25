@@ -1,16 +1,15 @@
 import { ApiError } from '@panna/shared';
-import { useRouter } from 'expo-router';
+import { Stack as RouteStack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, Platform, Share, View } from 'react-native';
+import { Image, Platform, Pressable, Share, View } from 'react-native';
 
+import { CookBar } from './components/CookBar';
 import { NeedsSection } from './components/NeedsSection';
-import { NoteComposer } from './components/NoteComposer';
 import { NoteList } from './components/NoteList';
 import { StepsSection } from './components/StepsSection';
 import { describeMade, describeMeta } from './format';
 import {
-  useAddNote,
   useDeleteRecipe,
   useRecipe,
   useShareRecipe,
@@ -20,10 +19,12 @@ import {
 import { styles } from './RecipeDetailScreen.styles';
 
 import { imageUrl } from '@/api/images';
+import { showActionMenu, type MenuAction } from '@/components/ActionMenu';
 import { Button } from '@/components/Button';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorState } from '@/components/ErrorState';
+import { HeaderIcon } from '@/components/HeaderIcon';
 import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
 import { Stack } from '@/components/Stack';
@@ -40,7 +41,6 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
   const recipe = useRecipe(recipeId);
   const remove = useDeleteRecipe(recipeId);
   const status = useUpdateRecipe(recipeId);
-  const addNote = useAddNote(recipeId);
   const share = useShareRecipe(recipeId);
   const unshare = useUnshareRecipe(recipeId);
   const [unsharing, setUnsharing] = useState(false);
@@ -120,8 +120,107 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
     i18n.language,
   );
 
+  const cooked = data.cookCount + pending.length > 0;
+  const openHistory = () => {
+    router.push({ pathname: '/recipes/[id]/history', params: { id: recipeId } });
+  };
+  const shareNow = () => {
+    if (!online) {
+      setStatusOffline(true);
+      return;
+    }
+    setStatusOffline(false);
+    share.mutate(undefined, {
+      onSuccess: (link) => {
+        // The platform's own sheet. iOS wants a url, Android a message; both is two links.
+        void Share.share(Platform.OS === 'ios' ? { url: link.url } : { message: link.url });
+      },
+    });
+  };
+  const openMenu = () => {
+    const actions: MenuAction[] = [
+      {
+        label: t('recipes:detail.edit'),
+        onPress: () => {
+          router.push({ pathname: '/recipes/[id]/edit', params: { id: recipeId } });
+        },
+      },
+    ];
+    if (data.status === 'draft') {
+      actions.push({
+        label: t('recipes:status.markReady'),
+        onPress: () => {
+          // A write attempted offline fails at once and changes nothing, per CLAUDE.md.
+          if (!online) {
+            setStatusOffline(true);
+            return;
+          }
+          setStatusOffline(false);
+          status.mutate({ status: 'ready' });
+        },
+      });
+    }
+    if (data.shareToken !== null) {
+      actions.push({
+        label: t('recipes:share.stop'),
+        onPress: () => {
+          setUnsharing(true);
+        },
+      });
+    }
+    actions.push({
+      label: t('recipes:detail.delete'),
+      destructive: true,
+      onPress: () => {
+        setConfirming(true);
+      },
+    });
+    showActionMenu({ title: data.title, actions, cancelLabel: t('common:cancel') });
+  };
+
   return (
-    <Screen scroll withHeader>
+    <Screen
+      scroll
+      withHeader
+      footer={
+        data.steps.length === 0 ? null : (
+          <CookBar
+            continuing={cooking}
+            onPress={() => {
+              // The record is written here, from the recipe on screen, so the guide never fetches.
+              if (!cooking) startCook(data);
+              router.push({ pathname: '/recipes/[id]/cook', params: { id: recipeId } });
+            }}
+          />
+        )
+      }
+    >
+      {/* The header's actions belong to this recipe, so the screen sets them (0029). */}
+      <RouteStack.Screen
+        options={{
+          headerRight: () => (
+            <View style={styles.headerActions}>
+              {data.status === 'ready' ? (
+                <HeaderIcon
+                  name={data.shareToken === null ? 'share-outline' : 'share'}
+                  label={
+                    data.shareToken === null
+                      ? t('recipes:share.share')
+                      : t('recipes:share.sharedByLink')
+                  }
+                  disabled={share.isPending}
+                  onPress={shareNow}
+                />
+              ) : null}
+              <HeaderIcon
+                name="ellipsis-horizontal"
+                label={t('recipes:detail.more')}
+                onPress={openMenu}
+              />
+            </View>
+          ),
+        }}
+      />
       <Stack gap="space4" style={styles.body}>
         {data.coverImageKey === null ? null : (
           <Image
@@ -138,7 +237,19 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
           <Text variant="caption" color="textSecondary">
             {meta.join(' · ')}
           </Text>
-          {made === null ? null : (
+          {made === null ? null : cooked ? (
+            <Pressable
+              accessibilityRole="link"
+              accessibilityLabel={made}
+              accessibilityHint={t('recipes:history.openHint')}
+              onPress={openHistory}
+              hitSlop={styles.madeHitSlop.margin}
+            >
+              <Text variant="caption" color="accent">
+                {made} ›
+              </Text>
+            </Pressable>
+          ) : (
             <Text variant="caption" color="textSecondary">
               {made}
             </Text>
@@ -151,15 +262,11 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
           ingredients={data.ingredients}
           equipment={data.equipment}
         />
-        <Stack gap="space3">
-          <Text variant="heading" accessibilityRole="header">
-            {t('recipes:notes.title')}
-          </Text>
-          {data.notes.length === 0 ? (
-            <Text variant="body" color="textSecondary">
-              {t('recipes:notes.empty')}
+        {data.notes.length === 0 ? null : (
+          <Stack gap="space3">
+            <Text variant="heading" accessibilityRole="header">
+              {t('recipes:notes.title')}
             </Text>
-          ) : (
             <NoteList
               notes={data.notes}
               stepLabel={(stepId) => {
@@ -167,98 +274,8 @@ export function RecipeDetailScreen({ recipeId }: RecipeDetailScreenProps): React
                 return index < 0 ? null : t('recipes:notes.onStep', { number: index + 1 });
               }}
             />
-          )}
-          <NoteComposer
-            saving={addNote.isPending}
-            onSave={async (body) => {
-              await addNote.mutateAsync({ body });
-            }}
-          />
-        </Stack>
-        <View style={styles.actions}>
-          <Stack gap="space3">
-            {data.steps.length === 0 ? null : (
-              <Button
-                label={cooking ? t('recipes:cook.continue') : t('recipes:cook.start')}
-                onPress={() => {
-                  // The record is written here, from the recipe on screen, so the guide never fetches.
-                  if (!cooking) startCook(data);
-                  router.push({ pathname: '/recipes/[id]/cook', params: { id: recipeId } });
-                }}
-              />
-            )}
-            {data.status === 'draft' ? (
-              <Button
-                label={t('recipes:status.markReady')}
-                variant="secondary"
-                loading={status.isPending}
-                onPress={() => {
-                  // A write attempted offline fails at once and changes nothing, per CLAUDE.md.
-                  if (!online) {
-                    setStatusOffline(true);
-                    return;
-                  }
-                  setStatusOffline(false);
-                  status.mutate({ status: 'ready' });
-                }}
-              />
-            ) : null}
-            {data.status === 'ready' ? (
-              <Stack gap="space2">
-                <Button
-                  label={t('recipes:share.share')}
-                  variant="secondary"
-                  loading={share.isPending}
-                  onPress={() => {
-                    if (!online) {
-                      setStatusOffline(true);
-                      return;
-                    }
-                    setStatusOffline(false);
-                    share.mutate(undefined, {
-                      onSuccess: (link) => {
-                        // The platform's own sheet. iOS wants a url, Android a message; both is two links.
-                        void Share.share(
-                          Platform.OS === 'ios' ? { url: link.url } : { message: link.url },
-                        );
-                      },
-                    });
-                  }}
-                />
-                {data.shareToken === null ? null : (
-                  <View style={styles.sharedRow}>
-                    <Text variant="caption" color="textSecondary">
-                      {t('recipes:share.sharedByLink')}
-                    </Text>
-                    <Button
-                      label={t('recipes:share.stop')}
-                      variant="ghost"
-                      loading={unshare.isPending}
-                      onPress={() => {
-                        setUnsharing(true);
-                      }}
-                    />
-                  </View>
-                )}
-              </Stack>
-            ) : null}
-            <Button
-              label={t('recipes:detail.edit')}
-              variant="secondary"
-              onPress={() => {
-                router.push({ pathname: '/recipes/[id]/edit', params: { id: recipeId } });
-              }}
-            />
-            <Button
-              label={t('recipes:detail.delete')}
-              variant="danger"
-              loading={remove.isPending}
-              onPress={() => {
-                setConfirming(true);
-              }}
-            />
           </Stack>
-        </View>
+        )}
         {statusOffline && !online ? (
           <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
             {t('common:offline.save')}

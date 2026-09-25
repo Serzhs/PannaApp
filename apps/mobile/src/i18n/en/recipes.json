@@ -10,7 +10,8 @@
     "import": "Paste from your AI",
     "shared": "Shared recipe",
     "featured": "Featured",
-    "featuredRecipe": "Recipe"
+    "featuredRecipe": "Recipe",
+    "history": "History"
   },
   "header": {
     "new": "New",
@@ -48,7 +49,8 @@
       "body": "This cannot be undone.",
       "confirm": "Delete",
       "cancel": "Keep"
-    }
+    },
+    "more": "More"
   },
   "form": {
     "title": "Title",
@@ -313,6 +315,18 @@
     "empty": {
       "title": "Nothing here yet",
       "body": "Featured recipes appear here."
+    }
+  },
+  "history": {
+    "loading": "Loading history",
+    "took": "Took {{duration}}",
+    "pending": "Not sent yet",
+    "without": "Without {{list}}",
+    "otherNotes": "Other notes",
+    "openHint": "Opens the history of every time you made it",
+    "empty": {
+      "title": "Nothing here yet",
+      "body": "Cook it once, and what you learn goes here."
     }
   }
 }

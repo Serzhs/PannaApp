@@ -1,5 +1,6 @@
 import type {
   AddNoteBody,
+  Cook,
   CookNote,
   CreateRecipeBody,
   Recipe,
@@ -31,6 +32,10 @@ export async function updateRecipe(
 
 export async function addNote(recipeId: string, body: AddNoteBody): Promise<CookNote> {
   return authorizedCall('addNote', { params: { recipeId }, body });
+}
+
+export async function listCooks(recipeId: string): Promise<Cook[]> {
+  return authorizedCall('listCooks', { params: { recipeId } });
 }
 
 export async function shareRecipe(recipeId: string): Promise<ShareLink> {

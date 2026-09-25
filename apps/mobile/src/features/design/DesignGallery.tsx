@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import { styles } from './DesignGallery.styles';
 
+import { showActionMenu } from '@/components/ActionMenu';
 import { Button, type ButtonVariant } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Chip } from '@/components/Chip';
@@ -10,6 +11,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Divider } from '@/components/Divider';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorState } from '@/components/ErrorState';
+import { HeaderIcon } from '@/components/HeaderIcon';
 import { ReorderableList } from '@/components/ReorderableList';
 import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
@@ -22,6 +24,8 @@ import { CheckView } from '@/features/cooking/components/CheckView';
 import { InProgressRow } from '@/features/cooking/components/InProgressRow';
 import { KnuckleHint } from '@/features/cooking/components/KnuckleHint';
 import { TimerBlock } from '@/features/cooking/components/TimerBlock';
+import { CookBar } from '@/features/recipes/components/CookBar';
+import { CookCard } from '@/features/recipes/components/CookCard';
 import { DurationField } from '@/features/recipes/components/DurationField';
 import { EquipmentLine } from '@/features/recipes/components/EquipmentLine';
 import { FlowChart } from '@/features/recipes/components/FlowChart';
@@ -652,6 +656,7 @@ function Reorderables(): React.JSX.Element {
 }
 
 function NeedsLines(): React.JSX.Element {
+  const noop = () => undefined;
   const [ingredient, setIngredient] = useState<IngredientDraft>({
     key: 'g1',
     name: 'Beetroot',
@@ -707,6 +712,63 @@ function NeedsLines(): React.JSX.Element {
           <Avatar name="Jānis" imageKey={null} accessibilityLabel="No photo yet" />
           <Avatar name="Anna" imageKey={'a'.repeat(32)} accessibilityLabel="Photo of Anna" />
           <AvatarField name="Jānis" value={null} onChange={() => undefined} />
+        </Stack>
+      </Section>
+      <Section title="ActionMenu">
+        <Button
+          label="Open the menu"
+          variant="secondary"
+          onPress={() => {
+            showActionMenu({
+              title: 'Cold beetroot soup',
+              actions: [
+                { label: 'Edit', onPress: noop },
+                { label: 'Delete', destructive: true, onPress: noop },
+              ],
+              cancelLabel: 'Cancel',
+            });
+          }}
+        />
+      </Section>
+      <Section title="HeaderIcon">
+        <Stack direction="row" gap="space2">
+          <HeaderIcon name="share-outline" label="Share" onPress={noop} />
+          <HeaderIcon name="share" label="Shared by link" onPress={noop} />
+          <HeaderIcon name="ellipsis-horizontal" label="More" onPress={noop} />
+          <HeaderIcon name="ellipsis-horizontal" label="More, disabled" onPress={noop} disabled />
+        </Stack>
+      </Section>
+      <Section title="CookBar">
+        <Stack gap="space2">
+          <CookBar continuing={false} onPress={noop} />
+          <CookBar continuing onPress={noop} />
+        </Stack>
+      </Section>
+      <Section title="CookCard">
+        <Stack gap="space3">
+          <CookCard
+            startedAt="2026-09-14T15:30:00.000Z"
+            finishedAt="2026-09-14T16:40:00.000Z"
+            excluded={['spring onions']}
+            notes={[
+              {
+                id: 'g-n1',
+                stepId: null,
+                cookId: 'g-c1',
+                body: 'Less salt next time.',
+                createdAt: '2026-09-14T17:00:00.000Z',
+              },
+            ]}
+          >
+            <Button label="Add a note" variant="ghost" onPress={noop} />
+          </CookCard>
+          <CookCard
+            startedAt="2026-09-20T10:00:00.000Z"
+            finishedAt="2026-09-20T10:30:00.000Z"
+            excluded={[]}
+            notes={[]}
+            pending
+          />
         </Stack>
       </Section>
       <Section title="NoteList">

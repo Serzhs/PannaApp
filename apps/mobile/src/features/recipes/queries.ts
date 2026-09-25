@@ -1,5 +1,6 @@
 import type {
   AddNoteBody,
+  Cook,
   CookNote,
   CreateRecipeBody,
   RecipeDetail,
@@ -12,6 +13,7 @@ import {
   createRecipe,
   deleteRecipe,
   getRecipe,
+  listCooks,
   listRecipes,
   saveShared,
   shareRecipe,
@@ -25,6 +27,7 @@ export const recipeKeys = {
   all: ['recipes'] as const,
   list: () => [...recipeKeys.all, 'list'] as const,
   detail: (recipeId: string) => [...recipeKeys.all, 'detail', recipeId] as const,
+  cooks: (recipeId: string) => [...recipeKeys.all, 'cooks', recipeId] as const,
 };
 
 /**
@@ -75,6 +78,16 @@ export function useUpdateRecipe(recipeId: string) {
 }
 
 /** A note written later needs a connection (0015); the detail is refreshed so it shows at the top. */
+/** 0029. Every time it was made, newest first; the notes come from the detail, not from here. */
+export function useCookHistory(recipeId: string) {
+  return useQuery({
+    queryKey: recipeKeys.cooks(recipeId),
+    queryFn: async (): Promise<Cook[]> =>
+      (await listCooks(recipeId)).sort((a, b) => b.startedAt.localeCompare(a.startedAt)),
+    enabled: useSignedIn(),
+  });
+}
+
 export function useAddNote(recipeId: string) {
   const client = useQueryClient();
   return useMutation({

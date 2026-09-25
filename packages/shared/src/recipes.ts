@@ -26,8 +26,13 @@ export const cookNoteSchema = z.object({
   createdAt: z.string().datetime(),
 });
 
+/** 0029. `cookId` pins the note to one cook after the fact; the finish sheet sets it itself. */
 export const addNoteBodySchema = z
-  .object({ body: noteBody, stepId: z.string().uuid().optional() })
+  .object({
+    body: noteBody,
+    stepId: z.string().uuid().optional(),
+    cookId: z.string().uuid().optional(),
+  })
   .strict();
 
 export type CookNote = z.infer<typeof cookNoteSchema>;

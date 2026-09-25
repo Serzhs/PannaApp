@@ -1110,6 +1110,39 @@ describe('recipe history, end to end', () => {
     expect(await db.select().from(cookNotes)).toHaveLength(1);
   });
 
+  /** 0029: a note pinned to a cook after the fact; a cook of another recipe is refused by field. */
+  it("adds a note to one of its cooks, and refuses a cook that is not this recipe's", async () => {
+    const recipe = asDetail(await server().post('/api/recipes').set(as(alice)).send(VALID));
+    const other = asDetail(await server().post('/api/recipes').set(as(alice)).send(VALID));
+    const cook = {
+      id: '9c6f1d2e-0000-4000-8000-000000000031',
+      startedAt: '2026-09-22T10:00:00.000Z',
+      finishedAt: '2026-09-22T10:45:00.000Z',
+      excluded: [],
+    };
+    await server().post(`/api/recipes/${recipe.id}/cooks`).set(as(alice)).send(cook);
+    const added = await server()
+      .post(`/api/recipes/${recipe.id}/notes`)
+      .set(as(alice))
+      .send({ body: 'Next time, more dill', cookId: cook.id });
+    expect(added.status).toBe(201);
+    expect(cookNoteSchema.parse(added.body).cookId).toBe(cook.id);
+    const detail = asDetail(await server().get(`/api/recipes/${recipe.id}`).set(as(alice)));
+    expect(detail.notes.map((n) => n.cookId)).toEqual([cook.id]);
+
+    for (const cookId of [cook.id, '9c6f1d2e-0000-4000-8000-000000000099']) {
+      const refused = await server()
+        .post(`/api/recipes/${other.id}/notes`)
+        .set(as(alice))
+        .send({ body: 'Wrong recipe', cookId });
+      expect(refused.status).toBe(400);
+      expect(asError(refused).fields).toEqual({ cookId: 'UNKNOWN_COOK' });
+    }
+    expect(asDetail(await server().get(`/api/recipes/${other.id}`).set(as(alice))).notes).toEqual(
+      [],
+    );
+  });
+
   it('adds a note to the recipe or to one of its steps, and lists them newest first', async () => {
     const id = await freshRecipe(alice);
     const withStep = asDetail(
